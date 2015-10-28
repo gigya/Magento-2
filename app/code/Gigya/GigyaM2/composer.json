@@ -1,6 +1,6 @@
 {
   "name": "gigya/gigya-m2",
-  "description": "Test Gigya module for Magento 2",
+  "description": "Test for Gigya module for Magento 2",
   "type": "magento2-module",
   "extra": {
     "map": [
