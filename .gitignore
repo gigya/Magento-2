@@ -35,3 +35,4 @@ nginx.conf.sample
 package.json
 php.ini.sample
 README.md
+!/app/code/Gigya/composer.json
