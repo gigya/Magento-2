@@ -1,5 +1,5 @@
 {
-  "name": "gigyaIdx/gigya-m2",
+  "name": "gigya-idx/gigya-m2",
   "description": "Test for Gigya module for Magento 2",
   "type": "magento2-module",
   "extra": {
