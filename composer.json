@@ -1,8 +1,13 @@
 {
   "name": "gigya-idx/gigya-m2",
-  "description": "Test for Gigya module for Magento 2",
+  "description": "Gigya module for Magento 2",
   "type": "magento2-module",
   "version" : "1.0.0",
+  "require": {
+    "php": "~5.5.0|~5.6.0",
+    "magento/framework": "~2.0.0",
+    "magento/magento-composer-installer": "*"
+  },
   "extra": {
     "map": [
       [
