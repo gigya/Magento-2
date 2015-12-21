@@ -1,0 +1,16 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <!-- Add local resources -->
+        <!--<css src="css/my-styles.css"/>-->
+
+        <!-- The following two ways to add local JavaScript files are equal -->
+        <!--<script src="Magento_Catalog::js/sample1.js"/>-->
+        <!--<link src="js/gigya_js.js"/>-->
+
+        <!-- Add external resources -->
+        <!--<css src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css" src_type="url" />-->
+        <!--<link src="http://fonts.googleapis.com/css?family=Montserrat" src_type="url" />-->
+        <!--<script src="http://cdn.gigya.com/js/socialize.js?apiKey=3_nJILE6pHcAcV_PzORmiO_Y1PYCxRz1ViQySoc_PP78KzgCSrDyvcWrnNeXeO3g9A" src_type="url" />-->
+
+    </head>
+</page>

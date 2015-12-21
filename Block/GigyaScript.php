@@ -10,7 +10,7 @@ class GigyaScript extends Template
 {
     protected function _prepareLayout()
     {
-
+        return parent::_prepareLayout();
     }
 
 }
