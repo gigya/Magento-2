@@ -1,0 +1,8 @@
+<config>
+    <type name="Magento\Customer\Model\AccountManagement">
+        <plugin name="Gigya_GigyaM2_Customer_AccountManagement::before"
+                type="Gigya\GigyaM2\Model\RaasRegister\Plugin"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
+</config>
