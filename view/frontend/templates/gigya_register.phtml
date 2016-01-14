@@ -1,0 +1,37 @@
+<?php
+/**
+ * output Gigya registration form html.
+ * defined in GigyaM2\view\frontend\layout\customer_account_create.xml
+ * The block for this form is - GigyaM2\Block\Form\GigyaRegister.php
+ *
+ * Call gigya screen sets.
+ * Capture Gigya login event.
+ * Create and submit registration form.
+ * Submit to Gigya model Controller.
+**/
+?>
+<!-- Generate dynamic id to enable more than one screens -->
+<div id="gigya-register"></div>
+<?php
+?>
+<script>
+    window.gigyaInit = window.gigyaInit || [];
+    var screenSetParams = {
+        screenSet : "Default-RegistrationLogin",
+        containerID : "gigya-register",
+        startScreen : "gigya-register-screen"
+    };
+    var raasRegisterScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
+    window.gigyaInit.push(raasRegisterScreen);
+</script>
+<?php
+// Magento Post:
+//        $_POST = {array} [7]
+//             success_url = ""
+//             error_url = ""
+//             firstname = "shlomo"
+//             lastname = "bomo"
+//             email = "bomo@mail.com"
+//             password = "bomo@mail.com"
+//             password_confirmation = "bomo@mail.com"
+?>

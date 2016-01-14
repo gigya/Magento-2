@@ -1,0 +1,55 @@
+<?php
+/**
+ * output Gigya login form html.
+ * defined in GigyaM2\view\frontend\layout\customer_account_login.xml
+ * The block for this form is - GigyaM2\Block\Form\Gigyalogin.php
+ *
+ * Call gigya screen sets.
+ * Capture Gigya login event.
+ * Create and submit login form.
+ * Submit to Gigya model Controller.
+ **/
+
+// @codingStandardsIgnoreFile
+
+/** @var \Magento\Customer\Block\Form\Login $block */
+?>
+<?php
+/**
+ * Customer login form template
+ *
+ * @see \Magento\Customer\Block\Form\Login
+ * @var $block \Magento\Customer\Block\Form\Login
+ */
+?>
+<div class="block block-customer-login" style="width:75%;">
+    <div class="block-title">
+        <strong id="block-customer-login-heading" role="heading" aria-level="2"><?php /* @escapeNotVerified */ echo __('Registered Customers') ?></strong>
+    </div>
+    <div class="block-content" aria-labelledby="block-customer-login-heading">
+        <!-- Gigya login screen placeholder - id should be dynamic: -->
+        <div id="gigya-login" class="gigya-login"></div>
+        <?php echo $block->getBlockHtml('formkey'); ?>
+        <script>
+            // add Raas login screens function to Gigya init.
+            window.gigyaInit = window.gigyaInit || [];
+            var screenSetParams = {
+                screenSet : "Default-RegistrationLogin",
+                containerID : "gigya-login",
+                startScreen : "gigya-login-screen"
+                //       ,mobileScreenSet : "" // optional - for using separate mobile screen set.
+            };
+            var raasLoginScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
+            window.gigyaInit.push(raasLoginScreen);
+        </script>
+        <?php
+        /* Original Magento login post array:
+             $_POST = {array} [3]
+                 form_key = "fsGrJLECeLFlNI0T"
+                 login = {array} [2]
+                     username = "bombo225@mail.com"
+                     password = "12qwaszx!@QWASZX"
+        */
+        ?>
+    </div>
+</div>

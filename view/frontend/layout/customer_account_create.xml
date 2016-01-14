@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- * Override Customer module Registration form
+ * The file Magento\Customer\view\frontend\layout\customer_account_create.xml sets the layout for the registration forms.
+ * This file override it to Replace customer registration form block&template with Gigya.
+ * Block - customer_form_register is removed. Block - gigya_customer_form_register is added.
+ * (The class defined in this block is a duplicate of the original block, check if the override for the class can be cancelled ? )
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
@@ -18,7 +19,7 @@
                 <!--<container name="customer.form.register.fields.before" as="form_fields_before" label="Form Fields Before" htmlTag="div" htmlClass="customer-form-before"/>-->
             <!--</block>-->
             <referenceBlock  name="customer_form_register" remove="true" /> <!-- remove original registration form -->
-            <block class="Gigya\GigyaM2\Block\Form\GigyaRegister" name="gigya_customer_form_register" template="Gigya_GigyaM2::register.phtml">
+            <block class="Gigya\GigyaM2\Block\Form\GigyaRegister" name="gigya_customer_form_register" template="Gigya_GigyaM2::gigya_register.phtml">
             <!-- Verify that the block can be used as layout element in other places -->
                 <container name="form.additional.info" as="form_additional_info"/>
                 <container name="customer.form.register.fields.before" as="form_fields_before" label="Form Fields Before" htmlTag="div" htmlClass="customer-form-before"/>

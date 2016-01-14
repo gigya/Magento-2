@@ -1,9 +1,12 @@
 var config = {
-    map: {
-        '*': {
-            checkoutBalance:    'Magento_Customer/js/checkout-balance',
-            address:            'Magento_Customer/address',
-            setPassword:        'Magento_Customer/set-password'
-        }
-    }
+   // map: {
+   //     '*': {
+   ////         gigya_script : 'Gigya_GigyaM2/js/gigya_cdn',
+   //         gigya: 'Gigya_GigyaM2/js/gigya'
+   //     }
+   // }
+    //,
+    //shim : {
+    //    "gigya" : ["gigya_script"]
+    //}
 };

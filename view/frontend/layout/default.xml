@@ -1,15 +1,20 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Add Gigya script to site footer.
+ * Pass the API key as argument to the block class
+ * ToDO: Variable should be saved and taken from DB (set in Admin UI)
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceContainer name="content">
-            <container name="gigya.gigyam2.gigya_script" htmlTag="div" htmlClass="gigyaTest">
-                <block class="Gigya\GigyaM2\Block\GigyaScript" name="Gigya_GigyaM2::GigyaScript" template="gigya_script.phtml" />
+        <referenceContainer name="footer">
+            <container name="gigya.gigyam2.gigya_script">
+                <block class="Gigya\GigyaM2\Block\GigyaScript" name="Gigya_GigyaM2::GigyaScript" template="gigya_script.phtml">
+                    <arguments>
+                        <argument name="apikey" xsi:type="string">3_nJILE6pHcAcV_PzORmiO_Y1PYCxRz1ViQySoc_PP78KzgCSrDyvcWrnNeXeO3g9A</argument>
+                    </arguments>
+                </block>
             </container>
         </referenceContainer>
     </body>

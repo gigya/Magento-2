@@ -1,8 +1,10 @@
-<config>
-    <type name="Magento\Customer\Model\AccountManagement">
-        <plugin name="Gigya_GigyaM2_Customer_AccountManagement::before"
-                type="Gigya\GigyaM2\Model\RaasRegister\Plugin"
-                sortOrder="10"
-                disabled="false"/>
-    </type>
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+    <preference for="Magento\Customer\Controller\Account\LoginPost"  type="Gigya\GigyaM2\Controller\Raas\GigyaPost" />
+    <preference for="Magento\Customer\Controller\Account\CreatePost" type="Gigya\GigyaM2\Controller\Raas\GigyaPost" />
+    <!--<preference for="Magento\Customer\Controller\Raas\GigyaPost"     type="Gigya\GigyaM2\Controller\Raas\GigyaPost" />-->
+
+    <preference for="Magento\Customer\Controller\Account\EditPost"   type="Gigya\GigyaM2\Controller\Raas\GigyaEditPost" />
+
+    <preference for="Magento\Customer\Model\AccountManagement"       type="Gigya\GigyaM2\Model\AccountManagement" />
 </config>
