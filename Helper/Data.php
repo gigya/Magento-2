@@ -11,25 +11,27 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         // retrieve dynamically / add comments.
         $this->apiKey = "3_nJILE6pHcAcV_PzORmiO_Y1PYCxRz1ViQySoc_PP78KzgCSrDyvcWrnNeXeO3g9A";
-        $this->apiSecret = "/oXDN5CLlWsSFwW/nv9CITVssMEPegOPPmS+PjfZMcY=";
         $this->apiDomain = "us1.gigya.com";
-        //
-        $this->userSecret = "";
-        $this->userKey = "";
-        $this->use_user_key = "";
-        $this->debug = "";
+        // Set to true to use application secret (default) or false to use client (user) secret:
+        $this->use_app_key= TRUE;
+        // application key & secret:
+        $this->appSecret = "y9nP17GRyigy2oKZAq0LwWbolvZJA+QR";
+        $this->appKey = "ANxj7nGHee98";
+        // or main client secret:
+        $this->apiSecret = "/oXDN5CLlWsSFwW/nv9CITVssMEPegOPPmS+PjfZMcY=";
 
-        $this->utils = new \GigyaCMS($this->apiKey, $this->apiSecret, $this->apiDomain, $this->userSecret, $this->userKey, $this->use_user_key, $this->debug);
+        $this->debug = FALSE; // default to false
+
+        $this->utils = new \GigyaCMS($this->apiKey, $this->apiSecret, $this->apiDomain, $this->appSecret, $this->appKey, $this->use_app_key, $this->debug);
     }
 
     public function _validateRaasUser($gigya_object) {
-        // security mode check here: is user secret or app secret.
-        // test should be automatic - if a secret key exists then use it. else use user key.
-        $valid = false;
-        $uid = $gigya_object->UID;
-        $timestamp = $gigya_object->signatureTimestamp;
-        $signature = $gigya_object->UIDSignature;
-        $valid = \SigUtils::validateUserSignature($uid, $timestamp, $this->apiSecret, $signature);
+        $params = array(
+            'UID' => $gigya_object->UID,
+            'UIDSignature' => $gigya_object->UIDSignature,
+            'signatureTimestamp' => $gigya_object->signatureTimestamp,
+        );
+        $valid = $this->utils->CMSExchangeValidateUID($params);
         return $valid;
     }
 

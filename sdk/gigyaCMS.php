@@ -44,7 +44,7 @@ class GigyaCMS {
 	public function call( $method, $params, $trys = 0, $retrys = 0) {
 
 		// Initialize new request.
-        if ($this->useUserKey) {
+        if ($this->use_user_key) {
             $request   = new GSRequest( $this->api_key, $this->user_secret, $method, null, false, $this->user_key );
         } else {
             $request   = new GSRequest( $this->api_key, $this->api_secret, $method );
@@ -90,12 +90,22 @@ class GigyaCMS {
 			if ( ! empty( $user_info ) ) {
 
 				// Check validation in the response.
-				$valid = SigUtils::validateUserSignature(
-						$response->getString( "UID", "" ),
-						$response->getString( "signatureTimestamp", "" ),
-						$this->api_secret,
-						$response->getString( "UIDSignature", "" )
+//				$valid = SigUtils::validateUserSignature(
+//						$response->getString( "UID", "" ),
+//						$response->getString( "signatureTimestamp", "" ),
+//						$this->api_secret,
+//						$response->getString( "UIDSignature", "" )
+//				);
+				$validation_params = array(
+					'UID' => $response->getString( "UID", "" ),
+					'UIDSignature' => $response->getString( "UIDSignature", "" ),
+					'signatureTimestamp' => $response->getString( "signatureTimestamp", "" )
 				);
+				if($this->use_user_key) {
+					$valid = $this->CMSExchangeValidateUID($validation_params);
+				} else {
+					$valid = $this->CMSValidateUserSignature($validation_params);
+				}
 
 				if ( ! empty( $valid ) ) {
 					return $err_code;
@@ -118,6 +128,28 @@ class GigyaCMS {
 	 */
 	public static function jsonToArray( $data ) {
 		return json_decode( $data, TRUE );
+	}
+
+	public function CMSExchangeValidateUID($validation_params) {
+		$validation_params["userKey"] = $this->user_key;
+		$response = $this->call( 'exchangeUIDSignature', $validation_params );
+		$resigned_params = array(
+				'UID' => $response->getString( "UID", "" ),
+				'UIDSignature' => $response->getString( "UIDSignature", "" ),
+				'signatureTimestamp' => $response->getString( "signatureTimestamp", "" )
+		);
+		$valid = $this->CMSValidateUserSignature($resigned_params);
+		return $valid;
+	}
+
+	public function CMSValidateUserSignature($validation_params) {
+		$valid = SigUtils::validateUserSignature(
+				$validation_params["UID"],
+				$validation_params["signatureTimestamp"],
+				$this->use_user_key ? $this->user_secret : $this->api_secret,
+				$validation_params["UIDSignature"]
+				);
+		return $valid;
 	}
 
 	/**
