@@ -25,19 +25,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->utils = new \GigyaCMS($this->apiKey, $this->apiSecret, $this->apiDomain, $this->appSecret, $this->appKey, $this->use_app_key, $this->debug);
     }
 
+    /**
+     * @param $gigya_object
+     * @return bool
+     */
     public function _validateRaasUser($gigya_object) {
         $params = array(
             'UID' => $gigya_object->UID,
             'UIDSignature' => $gigya_object->UIDSignature,
             'signatureTimestamp' => $gigya_object->signatureTimestamp,
         );
-        $valid = $this->utils->CMSExchangeValidateUID($params);
+        $valid = $this->utils->validateUserSignature($params);
         return $valid;
     }
 
     public function _getAccount($uid) {
         $account_info = $this->utils->getAccount($uid);
-        // add mage1 step?
         return $account_info;
     }
 

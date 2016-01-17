@@ -86,31 +86,6 @@ class GigyaCMS {
                 $this->call($method, $params, 1);
             }
             return $err_code;
-		} else {
-			if ( ! empty( $user_info ) ) {
-
-				// Check validation in the response.
-//				$valid = SigUtils::validateUserSignature(
-//						$response->getString( "UID", "" ),
-//						$response->getString( "signatureTimestamp", "" ),
-//						$this->api_secret,
-//						$response->getString( "UIDSignature", "" )
-//				);
-				$validation_params = array(
-					'UID' => $response->getString( "UID", "" ),
-					'UIDSignature' => $response->getString( "UIDSignature", "" ),
-					'signatureTimestamp' => $response->getString( "signatureTimestamp", "" )
-				);
-				if($this->use_user_key) {
-					$valid = $this->CMSExchangeValidateUID($validation_params);
-				} else {
-					$valid = $this->CMSValidateUserSignature($validation_params);
-				}
-
-				if ( ! empty( $valid ) ) {
-					return $err_code;
-				}
-			}
 		}
 
 		return $this->jsonToArray( $response->getResponseText() );
@@ -130,18 +105,37 @@ class GigyaCMS {
 		return json_decode( $data, TRUE );
 	}
 
-	public function CMSExchangeValidateUID($validation_params) {
-		$validation_params["userKey"] = $this->user_key;
-		$response = $this->call( 'exchangeUIDSignature', $validation_params );
-		$resigned_params = array(
-				'UID' => $response->getString( "UID", "" ),
-				'UIDSignature' => $response->getString( "UIDSignature", "" ),
-				'signatureTimestamp' => $response->getString( "signatureTimestamp", "" )
-		);
-		$valid = $this->CMSValidateUserSignature($resigned_params);
+	/**
+	 * Check if application key is used or client key , and validate user accordingly
+	 * @param $validation_params
+	 * @return bool
+	 */
+	public function validateUserSignature($validation_params) {
+		if ($this->use_user_key) {
+			$app_key_validation_params = $this->getApplicationSignatureExchange($validation_params);
+			$valid = $this->CMSValidateUserSignature($app_key_validation_params);
+		} else {
+			$valid = $this->CMSValidateUserSignature($validation_params);
+		}
 		return $valid;
 	}
 
+	/**
+	 * Use the default signature returned from Gigya to get updated signature for application key
+	 * @param $validation_params
+	 * @return array
+	 */
+	public function getApplicationSignatureExchange($validation_params) {
+		$validation_params["userKey"] = $this->user_key;
+		$app_key_validation_array = $this->call( 'accounts.exchangeUIDSignature', $validation_params );
+		return $app_key_validation_array;
+	}
+
+	/**
+	 * Validate signature
+	 * @param $validation_params
+	 * @return bool
+	 */
 	public function CMSValidateUserSignature($validation_params) {
 		$valid = SigUtils::validateUserSignature(
 				$validation_params["UID"],
