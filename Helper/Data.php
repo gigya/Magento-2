@@ -12,17 +12,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         // retrieve dynamically / add comments.
         $this->apiKey = "3_nJILE6pHcAcV_PzORmiO_Y1PYCxRz1ViQySoc_PP78KzgCSrDyvcWrnNeXeO3g9A";
         $this->apiDomain = "us1.gigya.com";
-        // Set to true to use application secret (default) or false to use client (user) secret:
-        $this->use_app_key= TRUE;
         // application key & secret:
         $this->appSecret = "y9nP17GRyigy2oKZAq0LwWbolvZJA+QR";
         $this->appKey = "ANxj7nGHee98";
-        // or main client secret:
-        $this->apiSecret = "/oXDN5CLlWsSFwW/nv9CITVssMEPegOPPmS+PjfZMcY=";
 
         $this->debug = FALSE; // default to false
 
-        $this->utils = new \GigyaCMS($this->apiKey, $this->apiSecret, $this->apiDomain, $this->appSecret, $this->appKey, $this->use_app_key, $this->debug);
+        $this->utils = new \GigyaCMS($this->apiKey, $this->apiSecret, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug);
     }
 
     /**
