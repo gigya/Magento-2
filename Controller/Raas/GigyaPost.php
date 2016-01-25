@@ -80,6 +80,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      */
     private $accountRedirect;
 
+    protected $gigyaHelper;
+
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -140,6 +142,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $this->dataObjectHelper = $dataObjectHelper;
         $this->accountRedirect = $accountRedirect;
         parent::__construct($context);
+        $this->gigyaHelper = $this->_objectManager->create('Gigya\GigyaM2\Helper\Data');
     }
 
     /**
@@ -289,7 +292,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $b_valid_gigya_user = false;
         $gigya_validation_post = $this->getRequest()->getParam('login_data');
         $gigya_validation_object = json_decode($gigya_validation_post);
-        $b_valid_gigya_user = $this->_objectManager->create('Gigya\GigyaM2\Helper\Data')->_validateRaasUser($gigya_validation_object); // (adding helper as dependency injection in constructor doesn't work in Controller)
+        $b_valid_gigya_user = $this->gigyaHelper->_validateRaasUser($gigya_validation_object); // (adding helper as dependency injection in constructor doesn't work in Controller)
         return $b_valid_gigya_user;
     }
 
@@ -299,7 +302,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
     protected function getGigyaAccount() {
         $gigya_uid = json_decode($this->getRequest()->getParam('login_data'))->UID;
-        $gigya_account = $this->_objectManager->create('Gigya\GigyaM2\Helper\Data')->_getAccount($gigya_uid);
+        $gigya_account = $this->gigyaHelper->_getAccount($gigya_uid);
         return $gigya_account;
     }
 
@@ -340,8 +343,9 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
         ///   $password = $this->getRequest()->getParam('password');
          //   $confirmation = $this->getRequest()->getParam('password_confirmation');
-            $password = "12qwaszx!@QWASZX"; // TODO: generate auto password (from magento 1)
+         //   $password = "12qwaszx!@QWASZX"; // TODO: generate auto password (from magento 1)
          //   $confirmation =  "12qwaszx!@QWASZX";
+            $password =  $this->_objectManager->create('Gigya\GigyaM2\Helper\Data')->generatePassword();
 
             $redirectUrl = $this->session->getBeforeAuthUrl();
 

@@ -1,6 +1,9 @@
-<!-- Add Gigya script to page body. Defined in view/frontend/layout/default.xml . Variables can be set and passed from the block object model: block/GigyaScript -->
 <?php
-// Alan storm : http://alanstorm.com/magento-2-frontend-files-serving
+/*
+ * Add Gigya script to page body. Defined in view/frontend/layout/default.xml . Variables can be set and passed from the block object model: block/GigyaScript
+ * Alan storm : http://alanstorm.com/magento-2-frontend-files-serving
+ *
+ */
 $api_key = $block->getGigyaApiKey();
 $site = $block->getBaseUrl();
  //$login_action_url = $site . "gigya_raas/raas/gigyapost";
@@ -11,7 +14,7 @@ $login_action_url = $block->getPostActionUrl();
 <script>
     var success_url = "";   // will be added from gigya admin
     var error_url = "";     // will be added from gigya admin
-    var dummy_password = "12qwaszx!@QWASZX"; // TODO: try to omit. (with line 66)
+    var dummy_password = "12qwaszx!@QWASZX"; // placeholder password
 
     function loadGigyaScript() {
         var gig = document.createElement('script');
@@ -36,25 +39,24 @@ $login_action_url = $block->getPostActionUrl();
             signatureTimestamp : eventObj.signatureTimestamp,
             UID : eventObj.UID
         };
-        gigyaMage2.Functions.gigyaFormSubmit(action, loginData, eventObj );
+        gigyaMage2.Functions.gigyaSubmitLoginRegister(action, loginData, eventObj );
     };
 
-    gigyaMage2.Functions.gigyaFormSubmit = function (action, loginData, eventObj) {
-        'use strict';
-        var form;
-        form = jQuery('<form />', {
-            action: action,
-            method: "POST",
-            style: 'display: none;'
-        });
+    /**
+     * Submit form after capturing Gigya login event. used for Login & Registration
+     * @param action
+     * @param loginData
+     * @param eventObj
+     */
+    gigyaMage2.Functions.gigyaSubmitLoginRegister = function (action, loginData, eventObj) {
+        var form = gigyaMage2.Functions.gigyaFormCreate(action);
 
         gigyaMage2.Functions.createInputField("login_data", JSON.stringify(loginData), form);
-        // form key is added in login page
-        if ( jQuery('input[name="form_key"]').val().length ){
-            var form_key = jQuery('input[name="form_key"]').val();
-            gigyaMage2.Functions.createInputField("form_key", form_key, form);
-        }
-        // For Magento registration requests TODO: try to omit.
+
+        // Login form placeholder
+        gigyaMage2.Functions.createInputField("login[]", "", form);
+
+        // Registration
         gigyaMage2.Functions.createInputField("success_url", success_url, form);
         gigyaMage2.Functions.createInputField("error_url", error_url, form);
         gigyaMage2.Functions.createInputField("firstname", eventObj.profile.firstname, form);
@@ -62,14 +64,28 @@ $login_action_url = $block->getPostActionUrl();
         gigyaMage2.Functions.createInputField("password", dummy_password, form);
         gigyaMage2.Functions.createInputField("password_confirmation", dummy_password, form);
 
-        gigyaMage2.Functions.createInputField("lastname", eventObj.profile.email, form);
+        gigyaMage2.Functions.gigyaFormSubmit(form);
+    };
 
-        // for Magento login requests  TODO: try to omit.
-        gigyaMage2.Functions.createInputField("login[username]", eventObj.profile.email, form);
-        gigyaMage2.Functions.createInputField("login[password]", dummy_password, form);
-        //
+    gigyaMage2.Functions.gigyaFormSubmit = function(form) {
         form.appendTo('body');
         form.submit();
+    };
+
+    gigyaMage2.Functions.gigyaFormCreate = function(action) {
+        'use strict';
+        var form;
+        form = jQuery('<form />', {
+            action: action,
+            method: "POST",
+            style: 'display: none;'
+        });
+        // add form key if it exists
+        if ( jQuery('input[name="form_key"]').val().length ){
+            var form_key = jQuery('input[name="form_key"]').val();
+            gigyaMage2.Functions.createInputField("form_key", form_key, form);
+        }
+        return form;
     };
 
     gigyaMage2.Functions.createInputField = function (name, value, form) {
@@ -80,34 +96,19 @@ $login_action_url = $block->getPostActionUrl();
         }).appendTo(form);
     };
 
-    gigyaMage2.Functions.gigyaLogoutListener = function() {
-        jQuery('a[href$="logout/"]').click(function () {
-            gigya.accounts.logout();
-            return true;
-        });
-    };
-
     gigyaMage2.Functions.gigyaUpdateProfile = function(eventObj) {
         var action = "<?php /* @escapeNotVerified */ echo $block->getUrl('customer/account/editPost') ?>";
-
-        var loginData = {
-            // decide if: get these from response and get user data to update from server
-//            UIDSignature : eventObj.UIDSignature,
-//            signatureTimestamp : eventObj.signatureTimestamp,
-//            UID : eventObj.UID
-            email : eventObj.profile.email,
-            firstName : eventObj.profile.firstName,
-            lastName : eventObj.profile.lastName,
-            gender : eventObj.profile.gender
-        };
-
-        gigyaMage2.Functions.gigyaFormSubmit(action, loginData, eventObj );
+        var form = gigyaMage2.Functions.gigyaFormCreate(action);
+        gigyaMage2.Functions.createInputField( "email", eventObj.profile.email , form);
+        gigyaMage2.Functions.createInputField( "firstname", eventObj.profile.firstName , form);
+        gigyaMage2.Functions.createInputField( "lastname", eventObj.profile.lastName , form);
+        gigyaMage2.Functions.gigyaFormSubmit(form);
     };
 
     // init registered Gigya functions
     function onGigyaServiceReady(serviceName) {
         if (window.gigyaInit) {
-            // push callback to edit profile (needs to be more robust)
+            // If this is the edit profile page, then add the update profile callback function.
             if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
                 window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaUpdateProfile;
             }
@@ -133,7 +134,18 @@ $login_action_url = $block->getPostActionUrl();
             )
         }
     }
-    gigyaMage2.Functions.gigyaLogoutListener();
+</script>
+<script>
+    // Capture logout event
+    require([
+        "jquery"
+    ], function($) {
+        "use strict";
+        $('a[href$="logout/"]').click(function () {
+            gigya.accounts.logout();
+            return true;
+        });
+    });
 </script>
 <?php
 /*
