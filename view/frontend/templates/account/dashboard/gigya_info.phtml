@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var \Magento\Customer\Block\Account\Dashboard\Info $block */
+
+?>
+<div class="block block-dashboard-info">
+    <h3>Gigya Edit Profile</h3>
+    <div class="block-title"><strong><?php /* @escapeNotVerified */ echo __('Account Information') ?></strong></div>
+    <div class="block-content">
+        <div id="gigya-edit-profile"></div>
+        <?php echo $block->getBlockHtml('formkey'); ?>
+        <script>
+            window.gigyaInit = window.gigyaInit || [];
+            var screenSetParams = {
+                screenSet : "Default-ProfileUpdate",
+                containerID : "gigya-edit-profile"
+            };
+            var raasRegisterScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
+            window.gigyaInit.push(raasRegisterScreen);
+        </script>
+    </div>
+</div>
