@@ -7,10 +7,10 @@ include_once __DIR__ . '/../sdk/gigyaCMS.php';
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    private $apiKey = "";
-    private $apiDomain = ""; // e.g: us1.gigya.com
-    private $appSecret = "";
-    private $appKey = "";
+    private $apiKey = "3_nJILE6pHcAcV_PzORmiO_Y1PYCxRz1ViQySoc_PP78KzgCSrDyvcWrnNeXeO3g9A";
+    private $apiDomain = "us1.gigya.com";
+    private $appSecret = "y9nP17GRyigy2oKZAq0LwWbolvZJA+QR";
+    private $appKey = "ANxj7nGHee98";
     private $debug = FALSE;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
