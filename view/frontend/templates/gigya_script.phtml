@@ -141,10 +141,19 @@ $login_action_url = $block->getPostActionUrl();
         "jquery"
     ], function($) {
         "use strict";
+        // capture logout click in magento and log out gigya
         $('a[href$="logout/"]').click(function () {
             gigya.accounts.logout();
             return true;
         });
+//        if(!jQuery.cookie("private_content_version") == null) {
+//            gigya.accounts.logout();
+//        }
+        // logout gigya if user is not logged in to magento
+        // private_content_version -
+        // section_data_ids -
+        // X-Magento-Vary
+
     });
 </script>
 <?php

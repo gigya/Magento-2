@@ -2,15 +2,16 @@
 namespace Gigya\GigyaM2\Helper;
 
 // check for compile mode location
+include_once __DIR__ . '/../sdk/gigya_config.php';
 include_once __DIR__ . '/../sdk/GSSDK.php';
 include_once __DIR__ . '/../sdk/gigyaCMS.php';
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    private $apiKey = "3_nJILE6pHcAcV_PzORmiO_Y1PYCxRz1ViQySoc_PP78KzgCSrDyvcWrnNeXeO3g9A";
-    private $apiDomain = "us1.gigya.com";
-    private $appSecret = "y9nP17GRyigy2oKZAq0LwWbolvZJA+QR";
-    private $appKey = "ANxj7nGHee98";
+    private $apiKey = API_KEY;
+    private $apiDomain = API_DOMAIN;
+    private $appSecret = APP_SECRET;
+    private $appKey = APP_KEY;
     private $debug = FALSE;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';

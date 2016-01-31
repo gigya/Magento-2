@@ -223,6 +223,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         ////////////////////////
         // validate user
         $gigya_user_validated = $this->gigyaValidateUser();
+        $gigya_user_validated = false;
         if (!$gigya_user_validated) {
             $this->messageManager->addError(__('The user is not validated. Please try again or contact your accounts manager provider.')); // add this message to documentation
             return $this->accountRedirect->getRedirect();
