@@ -2,7 +2,7 @@
 namespace Gigya\GigyaM2\Helper;
 
 // check for compile mode location
-include_once __DIR__ . '/../sdk/gigya_config.php';
+include_once __DIR__ . '/../sdk/gigya_config.php'; //  change the location of the config file at choice.
 include_once __DIR__ . '/../sdk/GSSDK.php';
 include_once __DIR__ . '/../sdk/gigyaCMS.php';
 

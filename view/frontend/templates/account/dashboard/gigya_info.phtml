@@ -19,7 +19,8 @@
             window.gigyaInit = window.gigyaInit || [];
             var screenSetParams = {
                 screenSet : "Default-ProfileUpdate",
-                containerID : "gigya-edit-profile"
+                containerID : "gigya-edit-profile",
+                mobileScreenSet : "" // optional - for using separate mobile screen set.
             };
             var raasRegisterScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
             window.gigyaInit.push(raasRegisterScreen);

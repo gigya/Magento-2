@@ -3,7 +3,6 @@
 /**
  * Add Gigya script to site footer.
  * Pass the API key as argument to the block class
- * ToDO: Variable should be saved and taken from DB (set in Admin UI)
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">

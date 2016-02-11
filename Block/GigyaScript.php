@@ -49,6 +49,9 @@ class GigyaScript extends Template
         return parent::_prepareLayout();
     }
 
+    /**
+     * @return String Gigya API key set in default.xml
+     */
     public function getGigyaApiKey() {
         return $this->getData('apikey');
     }
@@ -66,6 +69,32 @@ class GigyaScript extends Template
     public function getPostActionUrl()
     {
         return $this->_customerUrl->getLoginPostUrl();
+    }
+
+    /**
+     * Check if user is logged in
+     * @return int
+     */
+    public function getMagentoUserLogin() {
+        $logged_in = $this->_customerSession->isLoggedIn();
+        if ($logged_in) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * @return int
+     */
+    public function getGigyaUserLogin() {
+        $search = "/glt/";
+        $result = preg_grep("[glt]", array_flip($_COOKIE));
+        if (sizeof($result) > 0) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
 }

@@ -1,14 +1,18 @@
 <?php
 /*
- * Add Gigya script to page body. Defined in view/frontend/layout/default.xml . Variables can be set and passed from the block object model: block/GigyaScript
+ * Add Gigya script to page body.
+ * Defined in view/frontend/layout/default.xml
+ * Variables can be set and passed from the block object model: block/GigyaScript
  * Alan storm : http://alanstorm.com/magento-2-frontend-files-serving
- *
  */
+
 $api_key = $block->getGigyaApiKey();
 $site = $block->getBaseUrl();
  //$login_action_url = $site . "gigya_raas/raas/gigyapost";
 $login_action_url = $block->getPostActionUrl();
-//$login_action_url = $block->getBaseUrl()."customer/account/gigyapost";
+
+$magento_user_logged_in = $block->getMagentoUserLogin();
+$gigya_user_logged_in = $block->getGigyaUserLogin();
 ?>
 
 <script>
@@ -25,13 +29,18 @@ $login_action_url = $block->getPostActionUrl();
     }
     loadGigyaScript();
 
-    // utility functions:
+    /////////////////////////////////
+
     gigyaMage2 = {};
     gigyaMage2.Params = {};
     gigyaMage2.Functions = {};
+    window.gigyaInit = window.gigyaInit || [];
 
+    /**
+     * Login event handler. set parameters for magento form submission
+     * @param eventObj
+     */
     gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
-     //   var action = "<?php // echo $action_url; ?>";
         var action = "<?php  echo $login_action_url; ?>";
 
         var loginData = {
@@ -67,11 +76,20 @@ $login_action_url = $block->getPostActionUrl();
         gigyaMage2.Functions.gigyaFormSubmit(form);
     };
 
+    /**
+     * Append form to body and submit
+     * @param form
+     */
     gigyaMage2.Functions.gigyaFormSubmit = function(form) {
         form.appendTo('body');
         form.submit();
     };
 
+    /**
+     * Create form DOM element with form key
+     * @param action
+     * @returns form
+     */
     gigyaMage2.Functions.gigyaFormCreate = function(action) {
         'use strict';
         var form;
@@ -88,6 +106,12 @@ $login_action_url = $block->getPostActionUrl();
         return form;
     };
 
+    /**
+     * Create Input field
+     * @param name
+     * @param value
+     * @param form
+     */
     gigyaMage2.Functions.createInputField = function (name, value, form) {
         jQuery('<input>').attr({
             type: 'hidden',
@@ -96,8 +120,12 @@ $login_action_url = $block->getPostActionUrl();
         }).appendTo(form);
     };
 
+    /**
+     * Create and Submit update profile form
+     * @param eventObj
+     */
     gigyaMage2.Functions.gigyaUpdateProfile = function(eventObj) {
-        var action = "<?php /* @escapeNotVerified */ echo $block->getUrl('customer/account/editPost') ?>";
+        var action = "<?php echo $block->getUrl('customer/account/editPost') ?>";
         var form = gigyaMage2.Functions.gigyaFormCreate(action);
         gigyaMage2.Functions.createInputField( "email", eventObj.profile.email , form);
         gigyaMage2.Functions.createInputField( "firstname", eventObj.profile.firstName , form);
@@ -134,26 +162,26 @@ $login_action_url = $block->getPostActionUrl();
             )
         }
     }
+
+    // If Magento login failed, logout Gigya
+    var magento_user_logged_in = <?php echo $magento_user_logged_in ?>;
+    var gigya_user_logged_in = <?php echo $gigya_user_logged_in ?>;
+    if (gigya_user_logged_in && !magento_user_logged_in )  {
+        var logoutSync = {"function": "accounts.logout", "parameters": {} };
+        window.gigyaInit.push(logoutSync);
+    }
+
 </script>
 <script>
-    // Capture logout event
+    // Capture Magento logout and log out gigya
     require([
         "jquery"
     ], function($) {
         "use strict";
-        // capture logout click in magento and log out gigya
         $('a[href$="logout/"]').click(function () {
             gigya.accounts.logout();
             return true;
         });
-//        if(!jQuery.cookie("private_content_version") == null) {
-//            gigya.accounts.logout();
-//        }
-        // logout gigya if user is not logged in to magento
-        // private_content_version -
-        // section_data_ids -
-        // X-Magento-Vary
-
     });
 </script>
 <?php

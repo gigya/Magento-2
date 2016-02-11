@@ -229,7 +229,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         } else {
             $gigya_user_account = $this->getGigyaAccount();
             // TODO: handle if email is missing.
-            // TODO: try to do this withour accountManagement. instantiate customerRepository in this class instead, and use it directly.
+            // TODO: try to do this without accountManagement. instantiate customerRepository in this class instead, and use it directly.
             $customer = $this->accountManagement->gigyaUserExists($gigya_user_account['loginIDs']['emails'][0]);
             if($customer) {
                 $this->gigyaLoginUser($customer);
@@ -285,8 +285,9 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         return $message;
     }
 
-    /*
+    /**
      * Use Gigya Data Helper to validate user
+     * @return bool
      */
     protected function gigyaValidateUser() {
         $b_valid_gigya_user = false;
@@ -296,16 +297,19 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         return $b_valid_gigya_user;
     }
 
-    /*
+    /**
      * get account info for validated user
+     * @return mixed
      */
-
     protected function getGigyaAccount() {
         $gigya_uid = json_decode($this->getRequest()->getParam('login_data'))->UID;
         $gigya_account = $this->gigyaHelper->_getAccount($gigya_uid);
         return $gigya_account;
     }
 
+    /**
+     * @param $customer
+     */
     protected function gigyaLoginUser($customer) {
         try {
             $this->session->setCustomerDataAsLoggedIn($customer);

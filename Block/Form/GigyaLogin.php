@@ -88,7 +88,7 @@ class GigyaLogin extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * Check if autocomplete is disabled on storefront
+     * Check if auto complete is disabled on storefront
      *
      * @return bool
      */

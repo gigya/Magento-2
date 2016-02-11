@@ -36,8 +36,8 @@
             var screenSetParams = {
                 screenSet : "Default-RegistrationLogin",
                 containerID : "gigya-login",
-                startScreen : "gigya-login-screen"
-                //       ,mobileScreenSet : "" // optional - for using separate mobile screen set.
+                startScreen : "gigya-login-screen",
+                mobileScreenSet : "" // optional - for using separate mobile screen set.
             };
             var raasLoginScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
             window.gigyaInit.push(raasLoginScreen);
