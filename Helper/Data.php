@@ -2,9 +2,11 @@
 namespace Gigya\GigyaM2\Helper;
 
 // check for compile mode location
-include_once __DIR__ . '/../sdk/gigya_config.php'; //  change the location of the config file at choice.
-include_once __DIR__ . '/../sdk/GSSDK.php';
-include_once __DIR__ . '/../sdk/gigyaCMS.php';
+//include_once __DIR__ . '/../sdk/gigya_config.php'; //  change the location of the config file at choice.
+//include_once __DIR__ . '/../sdk/gigyaCMS.php';
+
+include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaM2/sdk/gigya_config.php'; //  change the location of the config file at choice.
+include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaM2/sdk/gigyaCMS.php';
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {

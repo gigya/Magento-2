@@ -10,9 +10,6 @@
         <referenceContainer name="footer">
             <container name="gigya.gigyam2.gigya_script">
                 <block class="Gigya\GigyaM2\Block\GigyaScript" name="Gigya_GigyaM2::GigyaScript" template="gigya_script.phtml">
-                    <arguments>
-                        <argument name="apikey" xsi:type="string">3_nJILE6pHcAcV_PzORmiO_Y1PYCxRz1ViQySoc_PP78KzgCSrDyvcWrnNeXeO3g9A</argument>
-                    </arguments>
                 </block>
             </container>
         </referenceContainer>

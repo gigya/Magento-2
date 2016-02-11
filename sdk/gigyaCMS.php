@@ -1,7 +1,6 @@
 <?php
-if (defined('COMPILER_INCLUDE_PATH')) {
-  include_once 'Gigya_Social_sdk_GSSDK.php';
-}
+
+include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaM2/sdk/GSSDK.php';
 /**
  * Class GigyaCMS
  */

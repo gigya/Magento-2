@@ -3,8 +3,11 @@
  * Manage adding Gigya script with API key and global variables
  * Defined in view/frontend/layout/default.xml
  */
+
 namespace Gigya\GigyaM2\Block;
 use Magento\Framework\View\Element\Template;
+
+include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaM2/sdk/gigya_config.php'; //  change the location of the config file at choice.
 
 class GigyaScript extends Template
 {
@@ -53,7 +56,7 @@ class GigyaScript extends Template
      * @return String Gigya API key set in default.xml
      */
     public function getGigyaApiKey() {
-        return $this->getData('apikey');
+        return API_KEY;
     }
 
     public function getBaseUrl()
