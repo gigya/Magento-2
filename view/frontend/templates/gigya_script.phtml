@@ -20,6 +20,11 @@ $gigya_user_logged_in = $block->getGigyaUserLogin();
     var error_url = "";     // will be added from gigya admin
     var dummy_password = "12qwaszx!@QWASZX"; // placeholder password
 
+    // Set Gigya global configuration object
+    window.__gigyaConf = {
+        sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
+    };
+
     function loadGigyaScript() {
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
@@ -130,6 +135,7 @@ $gigya_user_logged_in = $block->getGigyaUserLogin();
         gigyaMage2.Functions.createInputField( "email", eventObj.profile.email , form);
         gigyaMage2.Functions.createInputField( "firstname", eventObj.profile.firstName , form);
         gigyaMage2.Functions.createInputField( "lastname", eventObj.profile.lastName , form);
+        // add additional mapped fields here
         gigyaMage2.Functions.gigyaFormSubmit(form);
     };
 

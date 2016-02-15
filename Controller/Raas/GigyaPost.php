@@ -197,9 +197,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
     /**
      * Create customer account action
-     *
-     * @return void
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @return \Magento\Framework\Controller\Result\Forward|\Magento\Framework\Controller\Result\Redirect
      */
     public function execute()
     {
@@ -232,6 +230,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
             // TODO: try to do this without accountManagement. instantiate customerRepository in this class instead, and use it directly.
             $customer = $this->accountManagement->gigyaUserExists($gigya_user_account['loginIDs']['emails'][0]);
             if($customer) {
+                $this->gigyaUpdateCustomer($customer, $gigya_user_account);
                 $this->gigyaLoginUser($customer);
                 return $this->accountRedirect->getRedirect();
             } else {
@@ -239,6 +238,18 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 return $redirect;
             }
         }
+    }
+
+    /**
+     * Update Magento customer details with gigya user fields, upon each login
+     * @param $customer
+     * @param $gigya_user_account
+     */
+    protected function gigyaUpdateCustomer($customer, $gigya_user_account) {
+        $customer->setFirstname($gigya_user_account["profile"]["firstName"]);
+        $customer->setLastname($gigya_user_account["profile"]["lastName"]);
+        $customer->setEmail($gigya_user_account['loginIDs']['emails'][0]);
+        // add extra mapped fields here
     }
 
     /**
@@ -334,6 +345,12 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         }
     }
 
+    /**
+     * Create new user with Gigya user details
+     * @param $resultRedirect
+     * @param $gigya_user_account
+     * @return \Magento\Framework\Controller\Result\Forward|\Magento\Framework\Controller\Result\Redirect
+     */
     protected function gigyaCreateUser($resultRedirect, $gigya_user_account) {
         try {
         //    $address = $this->extractAddress();
@@ -344,11 +361,10 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
             $customer->setEmail($gigya_user_account['loginIDs']['emails'][0]);
             $customer->setFirstname($gigya_user_account['profile']['firstName']);
             $customer->setLastname($gigya_user_account['profile']['lastName']);
+            // Map additional fields here
 
         ///   $password = $this->getRequest()->getParam('password');
          //   $confirmation = $this->getRequest()->getParam('password_confirmation');
-         //   $password = "12qwaszx!@QWASZX"; // TODO: generate auto password (from magento 1)
-         //   $confirmation =  "12qwaszx!@QWASZX";
             $password =  $this->_objectManager->create('Gigya\GigyaM2\Helper\Data')->generatePassword();
 
             $redirectUrl = $this->session->getBeforeAuthUrl();

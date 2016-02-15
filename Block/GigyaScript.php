@@ -53,6 +53,13 @@ class GigyaScript extends Template
     }
 
     /**
+     * @return int : Magento Customer session expiration
+     */
+    public function getUserSessionLifetime() {
+        return $this->_customerSession->getCookieLifetime();
+    }
+
+    /**
      * @return String Gigya API key set in default.xml
      */
     public function getGigyaApiKey() {
