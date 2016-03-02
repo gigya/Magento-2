@@ -249,7 +249,26 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $customer->setFirstname($gigya_user_account["profile"]["firstName"]);
         $customer->setLastname($gigya_user_account["profile"]["lastName"]);
         $customer->setEmail($gigya_user_account['loginIDs']['emails'][0]);
-        // add extra mapped fields here
+        // add extra mapped fields here:
+        // See methods at: app/code/Magento/Customer/Model/Data/Customer.php
+        // For example
+    //        $customer->setGender("Male");
+    //        $customer->setPrefix("Dr.");
+    //        $customer->setMiddlename("Sanchez");
+    //        $customer->setDob();
+        // General
+    //    $customer->setCustomAttribute("attribute code", "attribute value");
+    //    $customer->setCustomAttributes(array());
+
+    //  Note: You might have to convert gigya value to match Magento value.
+    //  e.g:
+        // if ($gigya_user_account["profile"]["gender"] == "m") {
+        //      $gender = "male";
+        // } elseif ($gigya_user_account["profile"]["gender"] == "f") {
+        // $gender = "female";
+        // }
+        // $customer->setGender($gender);
+
     }
 
     /**
