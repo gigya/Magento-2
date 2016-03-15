@@ -136,6 +136,8 @@ $gigya_user_logged_in = $block->getGigyaUserLogin();
         gigyaMage2.Functions.createInputField( "firstname", eventObj.profile.firstName , form);
         gigyaMage2.Functions.createInputField( "lastname", eventObj.profile.lastName , form);
         // add additional mapped fields here
+        // e.g. if you add a 'prefix' attribute to the gigya edit profile form as a data field, add:
+        // gigyaMage2.Functions.createInputField( "prefix", eventObj.data.prefix , form);
         gigyaMage2.Functions.gigyaFormSubmit(form);
     };
 

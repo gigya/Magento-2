@@ -402,6 +402,21 @@ class AccountManagement implements AccountManagementInterface
         }
     }
 
+    public function gigyaUpdateCustomer($customer) {
+        try {
+            $this->customerRepository->save($customer);
+        } catch (AuthenticationException $e) {
+            $this->messageManager->addError($e->getMessage());
+        } catch (InputException $e) {
+            $this->messageManager->addException($e, __('Invalid input'));
+        } catch (\Exception $e) {
+            $message = __('We can\'t save the customer.')
+                . $e->getMessage()
+                . '<pre>' . $e->getTraceAsString() . '</pre>';
+            $this->messageManager->addException($e, $message);
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
