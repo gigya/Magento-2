@@ -11,20 +11,16 @@
     <body>
         <referenceContainer name="content">
             <!-- customer.form.login.extra -->
-            <referenceContainer name="customer.login.container" >
-                <!-- remove Magento login form: -->
+            <!-- Add Gigya Login block: -->
+            <block class="Gigya\GigyaM2\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaM2::gigya_login.phtml">
+            </block>
+            <!-- remove Magento login form: -->
+            <referenceContainer name="customer.login.container" remove="true" />
                 <!--<block class="Magento\Customer\Block\Form\Login" name="customer_form_login" template="form/login.phtml">-->
                 <!--<container name="form.additional.info" as="form_additional_info"/>-->
                 <!--</block>-->
-                <referenceBlock name="customer_form_login" remove="true" />
-                <!-- add gigya login form -->
-                <block class="Gigya\GigyaM2\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaM2::gigya_login.phtml">
-                </block>
-
-                <!-- remove Magento new customer link block -->
                 <!--<block class="Magento\Customer\Block\Form\Login\Info" name="customer.new" template="newcustomer.phtml"/>-->
-                <referenceBlock name="customer.new" remove="true" />
-            </referenceContainer>
+            <!--</referenceContainer>-->
             <!--<block class="Magento\Cookie\Block\RequireCookie" name="require-cookie" template="Magento_Cookie::require_cookie.phtml">-->
                 <!--<arguments>-->
                     <!--<argument name="triggers" xsi:type="array">-->
