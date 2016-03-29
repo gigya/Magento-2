@@ -273,8 +273,9 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         // use: $customer->setCustomAttribute($attributeCode, $attributeValue);
         // or: $customer->setCustomAttributes(array());
         // located at: /lib/internal/Magento/Framework/Api/AbstractExtensibleObject
-        ////////////////////////////////////////////////////////
-    //    $customer->setCustomAttribute("guid", "$gigya_user_account["profile"]["GUID");
+        //////////////////////////////////////////////////////// $gigya_user_account["profile"]["GUID"]
+        $custom_attributes = $customer->getCustomAttributes();
+    //    $customer->setCustomAttribute("gigya_uid", "test_uid123");
 
     }
 
