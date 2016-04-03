@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../Magento/Backend/etc/menu.xsd">
+    <menu>
+        <add id="Gigya_GigyaM2::gigya_im" title="Gigya Identity Management" module="Gigya_GigyaM2" sortOrder="99" parent="Magento_Backend::stores" resource="Gigya_GigyaM2::gigya_im"/>
+        <add id="Gigya_GigyaM2::api_settings" title="API Settings" module="Gigya_GigyaM2" sortOrder="100" parent="Gigya_GigyaM2::gigya_im" resource="Gigya_GigyaM2::gigya_im" action="blog/post"/>
+    </menu>
+</config>
