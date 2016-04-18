@@ -758,4 +758,46 @@ class GigyaCMS {
 		return $response;
 	}
 
+    ////////////////////////
+	// encryption handling:
+    ////////////////////////
+    
+    static public function decrypt($str, $key = null)
+    {
+        if (null == $key) {
+            $key = getenv("GIGYAM2_KEK");
+        }
+        if (!empty($key)) {
+            $iv_size       = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
+            $strDec        = base64_decode($str);
+            $iv            = substr($strDec, 0, $iv_size);
+            $text_only     = substr($strDec, $iv_size);
+            $plaintext_dec = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key,
+                $text_only, MCRYPT_MODE_CBC, $iv);
+//            return substr($plaintext_dec, 0, strpos($plaintext_dec, "\0"));
+            return $plaintext_dec;
+        }
+        return $str;
+    }
+    
+    static public function enc($str, $key = null)
+    {
+        if (null == $key) {
+            $key = getenv("KEK");
+        }
+        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
+        $iv      = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+        $crypt   = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $str, MCRYPT_MODE_CBC, $iv);
+        return trim(base64_encode($iv . $crypt));
+    }
+    
+    static public function genKeyFromString($str = null) {
+        if (null == $str) {
+            $str = openssl_random_pseudo_bytes(32);
+        }
+        $salt = mcrypt_create_iv(16, MCRYPT_DEV_URANDOM);
+        $key = hash_pbkdf2("sha256", $str, $salt, 1000, 32);
+        return $key;
+    }
+
 }

@@ -12,8 +12,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     private $apiKey = API_KEY;
     private $apiDomain = API_DOMAIN;
-    private $appSecret = APP_SECRET;
     private $appKey = APP_KEY;
+    private $appSecret;
+    
     private $debug = FALSE;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
@@ -23,9 +24,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function __construct()
     {
+        $this->appSecret = $this->_decAppSecret(APP_SECRET);
         $this->utils = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug);
     }
 
+    private function _decAppSecret($encrypted) {
+        // if you save the encryption key somewhere else, retrieve it here and replace $key
+        $key = null;
+        $dec = \GigyaCMS::decrypt($encrypted, $key);
+        return $dec;
+    }
+    
     /**
      * @param $gigya_object
      * @return bool
