@@ -22,16 +22,24 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CHARS_PASSWORD_DIGITS = '23456789';
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
-    public function __construct()
+    public function __construct(
+        \Gigya\GigyaM2\Model\SettingsFactory $settingsFactory
+    )
     {
-        $this->appSecret = $this->_decAppSecret(APP_SECRET);
+        $this->settingsFactory = $settingsFactory;
+        $this->appSecret = $this->_decAppSecret();
         $this->utils = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug);
     }
 
-    private function _decAppSecret($encrypted) {
+    private function _decAppSecret() {
+        // get encrypted app secret from DB
+        $settings = $this->settingsFactory->create();
+        $settings = $settings->load(1);
+        $encrypted_secret = $settings->getData('app_secret');
+
         // if you save the encryption key somewhere else, retrieve it here and replace $key
         $key = null;
-        $dec = \GigyaCMS::decrypt($encrypted, $key);
+        $dec = \GigyaCMS::decrypt($encrypted_secret, $key);
         return $dec;
     }
     
