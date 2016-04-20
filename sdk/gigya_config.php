@@ -7,5 +7,8 @@ define("APP_SECRET","H4MIsSWphyCYglk2oddke0g0w9oDqSy80e0W8yrIXQ/rouOddX4VGnldzC0
 define("KEY_SAVE_TYPE", "file"); // "file" / "env"
     // if KEY_LOCATION is set as "file", specify the path that you have located your key file at:
     define("KEY_PATH", $_SERVER["DOCUMENT_ROOT"] . "/../gig_key.txt"); // leave value blank if not used (if KEY_LOCATION is set to "env")
-// Debug mode:
-define("GIGYA_DEBUG", true);
+// Debug mode: 
+// !!! NOTE : using debug mode will output all Gigya calls info to log, including PII. 
+// use ONLY in DEV enc with fake users !!!
+// Gigya module will still output  runtime errors to gigya.log, with DEBUG mode off.
+define("GIGYA_DEBUG", false);

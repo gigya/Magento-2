@@ -3,8 +3,21 @@
     <preference for="Magento\Customer\Controller\Account\LoginPost"  type="Gigya\GigyaM2\Controller\Raas\GigyaPost" />
     <preference for="Magento\Customer\Controller\Account\CreatePost" type="Gigya\GigyaM2\Controller\Raas\GigyaPost" />
     <!--<preference for="Magento\Customer\Controller\Raas\GigyaPost"     type="Gigya\GigyaM2\Controller\Raas\GigyaPost" />-->
-
     <preference for="Magento\Customer\Controller\Account\EditPost"   type="Gigya\GigyaM2\Controller\Raas\GigyaEditPost" />
-
     <preference for="Magento\Customer\Model\AccountManagement"       type="Gigya\GigyaM2\Model\AccountManagement" />
+
+    <!-- Register Gigya Logger -->
+    <type name="Gigya\GigyaM2\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Gigya\GigyaM2\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">logger</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Gigya\GigyaM2\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

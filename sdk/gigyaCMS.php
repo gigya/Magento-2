@@ -14,11 +14,18 @@ class GigyaCMS {
     private $useUserKey;
     private $debug = false;
 
+    /**
+     * Logging instance
+     * @var Gigya\GigyaM2\Logger\Logger
+     */
+    protected $_logger;
+
 	/**
 	 * Constructs a GigyaApi object.
 	 */
-	public function __construct($apiKey, $secret, $apiDomain, $userSecret = NULL, $userKey = NULL, $useUserKey = false, $debug = false) {
-
+	public function __construct(
+        $apiKey, $secret, $apiDomain, $userSecret = NULL, $userKey = NULL, $useUserKey = false, $debug = false, $logger
+    ) {
 		$this->api_key    = $apiKey;
 		$this->api_secret = $secret;
         $this->api_domain = $apiDomain;
@@ -26,7 +33,7 @@ class GigyaCMS {
         $this->user_secret = $userSecret;
         $this->use_user_key = $useUserKey;
         $this->debug = $debug;
-
+        $this->_logger = $logger;
 	}
 
 	/**
@@ -79,7 +86,7 @@ class GigyaCMS {
 		if ( $err_code != 0 ) {
 			if ( function_exists( '_gigya_error_log' ) ) {
 				$log = explode( "\r\n", $response->getLog() );
-				_gigya_error_log( $log );
+				$this->_gigya_error_log( $log );
 			}
             if ($retrys < $trys) {
                 $this->call($method, $params, 1);
@@ -617,7 +624,7 @@ class GigyaCMS {
 
     public function _gigya_error_log($log){
         foreach ($log as $error) {
-            Mage::log('Gigya: ' . $error, Zend_Log::ERR);
+            $this->_logger->info('Gigya: ' . $error);
         }
     }
 
@@ -627,7 +634,7 @@ class GigyaCMS {
         } else {
             $toLog = $log;
         }
-        Mage::log($toLog, Zend_Log::DEBUG, "gigya_debug_log");
+        $this->_logger->info($toLog);
     }
 
     /**
