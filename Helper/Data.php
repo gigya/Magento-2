@@ -31,16 +31,38 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->utils = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug);
     }
 
+    /**
+     * @return string decrypted app secret
+     */
     private function _decAppSecret() {
         // get encrypted app secret from DB
         $settings = $this->settingsFactory->create();
         $settings = $settings->load(1);
         $encrypted_secret = $settings->getData('app_secret');
 
-        // if you save the encryption key somewhere else, retrieve it here and replace $key
+        // get the key if it is saved in external file
         $key = null;
+        if (KEY_SAVE_TYPE == "file") {
+            $key = $this->getEncKey();
+        }
+        
         $dec = \GigyaCMS::decrypt($encrypted_secret, $key);
         return $dec;
+    }
+
+    /**
+     * @return string encryption key from file
+     */
+    private function getEncKey() {
+        if (defined("KEY_PATH")) {
+            if (file_exists(KEY_PATH)) {
+                return $key = file_get_contents(KEY_PATH);
+            } else {
+                echo "log: Could not find key file as defined in Gigya config file : " . KEY_PATH; // TODO:magento log
+            }
+        } else {
+            echo "log: KEY_SAVE_TYPE is set to env, but KEY_PATH is not defined in Gigya config file."; // TODO:magento log
+        }
     }
     
     /**
