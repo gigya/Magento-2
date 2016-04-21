@@ -96,6 +96,7 @@ class GigyaScript extends Template
 
     /**
      * @return int
+     * @Deprecated : use getAccountInfo from front end instead
      */
     public function getGigyaUserLogin() {
         $search = "/glt/";

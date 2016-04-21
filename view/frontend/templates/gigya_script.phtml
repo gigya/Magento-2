@@ -12,16 +12,26 @@ $site = $block->getBaseUrl();
 $login_action_url = $block->getPostActionUrl();
 
 $magento_user_logged_in = $block->getMagentoUserLogin();
-$gigya_user_logged_in = $block->getGigyaUserLogin();
+//$gigya_user_logged_in = $block->getGigyaUserLogin();
 ?>
 
 <script>
+    // set variables
     var success_url = "";   // will be added from gigya admin
     var error_url = "";     // will be added from gigya admin
     var dummy_password = "12qwaszx!@QWASZX"; // placeholder password
+    // set sessions status:
+    var magento_user_logged_in = <?php echo $magento_user_logged_in ?>;
+    var gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
+    // objects
+    gigyaMage2 = {};
+    gigyaMage2.Params = {};
+    gigyaMage2.Functions = {};
+    window.gigyaInit = window.gigyaInit || [];
 
     // Set Gigya global configuration object
     window.__gigyaConf = {
+        // Gigya user session time should be equal to Magento session time
         sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
     };
 
@@ -29,17 +39,38 @@ $gigya_user_logged_in = $block->getGigyaUserLogin();
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
         gig.async = false;
-        gig.src = ('https:' == document.location.protocol ? 'https://cdns' : 'http://cdn') + '.gigya.com/js/gigya.js?apiKey=<?php echo $api_key ?>';
+        gig.src = ('https:' == document.location.protocol ? 'https://cdns' : 'http://cdn') + '.gigya.com/js/gigya.js?apiKey=<?php echo $api_key ?>'; // add language param in query string if needed. i.e. &lang=en
         document.getElementsByTagName('head')[0].appendChild(gig);
     }
     loadGigyaScript();
 
     /////////////////////////////////
+    //////// class methods //////////
 
-    gigyaMage2 = {};
-    gigyaMage2.Params = {};
-    gigyaMage2.Functions = {};
-    window.gigyaInit = window.gigyaInit || [];
+    gigyaMage2.Functions.setLoginStatus = function (response) {
+        if ( response.errorCode == 0 ) {
+            gigya_user_logged_in = true;
+        } else {
+            gigya_user_logged_in = false;
+        }
+        // If Gigya is logged in but Magento is logged out: log Gigya out
+        if (gigya_user_logged_in && !magento_user_logged_in )  {
+            var logoutSync = {"function": "accounts.logout", "parameters": {} };
+            window.gigyaInit.push(logoutSync);
+        }
+        // if Gigya is logged out, but Magento is logged in: log Magento out
+        if (!gigya_user_logged_in && magento_user_logged_in) {
+            jQuery('a[href$="logout/"]').click();
+        }
+    };
+
+    /**
+     * check gigya user login status
+     */
+    gigyaMage2.Functions.getAccountInfo = function() {
+        var AccountInfoStatus = { "function": "accounts.getAccountInfo", "parameters": { callback : gigyaMage2.Functions.setLoginStatus } };
+        window.gigyaInit.push(AccountInfoStatus);
+    };
 
     /**
      * Login event handler. set parameters for magento form submission
@@ -145,9 +176,12 @@ $gigya_user_logged_in = $block->getGigyaUserLogin();
     function onGigyaServiceReady(serviceName) {
         if (window.gigyaInit) {
             // If this is the edit profile page, then add the update profile callback function.
-            if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
-                window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaUpdateProfile;
+            if (window.gigyaInit[0]) {
+                if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
+                    window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaUpdateProfile;
+                }
             }
+
             var length = window.gigyaInit.length,
                 element = null;
             if (length > 0) {
@@ -171,14 +205,8 @@ $gigya_user_logged_in = $block->getGigyaUserLogin();
         }
     }
 
-    // If Magento login failed, logout Gigya
-    var magento_user_logged_in = <?php echo $magento_user_logged_in ?>;
-    var gigya_user_logged_in = <?php echo $gigya_user_logged_in ?>;
-    if (gigya_user_logged_in && !magento_user_logged_in )  {
-        var logoutSync = {"function": "accounts.logout", "parameters": {} };
-        window.gigyaInit.push(logoutSync);
-    }
-
+    // Session synchronization between Gigya and Magento
+    gigyaMage2.Functions.getAccountInfo();
 </script>
 <script>
     // Capture Magento logout and log out gigya
