@@ -20,14 +20,16 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
     var success_url = "";   // will be added from gigya admin
     var error_url = "";     // will be added from gigya admin
     var dummy_password = "12qwaszx!@QWASZX"; // placeholder password
-    // set sessions status:
-    var magento_user_logged_in = <?php echo $magento_user_logged_in ?>;
-    var gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
+
     // objects
     gigyaMage2 = {};
     gigyaMage2.Params = {};
     gigyaMage2.Functions = {};
     window.gigyaInit = window.gigyaInit || [];
+
+    // set sessions status:
+    gigyaMage2.Params.magento_user_logged_in = <?php echo $magento_user_logged_in ?>;
+    gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
 
     // Set Gigya global configuration object
     window.__gigyaConf = {
@@ -47,29 +49,60 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
     /////////////////////////////////
     //////// class methods //////////
 
-    gigyaMage2.Functions.setLoginStatus = function (response) {
-        if ( response.errorCode == 0 ) {
-            gigya_user_logged_in = true;
-        } else {
-            gigya_user_logged_in = false;
-        }
-        // If Gigya is logged in but Magento is logged out: log Gigya out
-        if (gigya_user_logged_in && !magento_user_logged_in )  {
-            var logoutSync = {"function": "accounts.logout", "parameters": {} };
-            window.gigyaInit.push(logoutSync);
-        }
-        // if Gigya is logged out, but Magento is logged in: log Magento out
-        if (!gigya_user_logged_in && magento_user_logged_in) {
-            jQuery('a[href$="logout/"]').click();
-        }
-    };
-
     /**
      * check gigya user login status
      */
     gigyaMage2.Functions.getAccountInfo = function() {
-        var AccountInfoStatus = { "function": "accounts.getAccountInfo", "parameters": { callback : gigyaMage2.Functions.setLoginStatus } };
+        var AccountInfoStatus = {
+            "function": "accounts.getAccountInfo",
+            "parameters": { callback : gigyaMage2.Functions.setLoginStatus }
+        };
         window.gigyaInit.push(AccountInfoStatus);
+    };
+
+    /**
+     * sync Magento-Gigya sessions logic
+     * if Gigya is logged out, but Magento is logged in: log Magento out
+     * If Gigya is logged in but Magento is logged out: try to log user into Magento 2 times, and give up
+     */
+    gigyaMage2.Functions.setLoginStatus = function (response) {
+        if ( response.errorCode == 0 ) {
+            gigyaMage2.Params.gigya_user_logged_in = true;
+        } else {
+            gigyaMage2.Params.gigya_user_logged_in = false;
+        }
+        // if Gigya is logged out, but Magento is logged in: log Magento out
+        // this scenario may result in double page load for user, but is used only to fix an end case situation.
+        if (!gigyaMage2.Params.gigya_user_logged_in && gigyaMage2.Params.magento_user_logged_in) {
+            jQuery('a[href$="logout/"]').click();
+        }
+
+        // check if retry cookie exists
+        var magento_login_retries = jQuery.cookie("gigya_mage_login_retries");
+        // If Gigya is logged in but Magento is logged out: try to log user into Magento 2 times, and give up
+        if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
+            // if cookie doesn't exist, create the cookie and try login
+            if (!magento_login_retries) {
+                jQuery.cookie("gigya_mage_login_retries", 1);
+                gigyaMage2.Functions.gigyaLoginEventHandler(response);
+            } // if the cookie exists with value lower than 2, increment and try login again.
+            else if(magento_login_retries <= 2) {
+                magento_login_retries ++;
+                jQuery.cookie("gigya_mage_login_retries", magento_login_retries);
+                gigyaMage2.Functions.gigyaLoginEventHandler(response);
+            }
+            else {
+                // placeholder. currently, do nothing. that means that Gigya session will continue.
+                // you can add logout from gigya here if you prefer:
+//                var logoutSync = {"function": "accounts.logout", "parameters": {} };
+//                window.gigyaInit.push(logoutSync);
+            }
+        }
+
+        // cleanup:
+        if(gigyaMage2.Params.magento_user_logged_in && magento_login_retries) {
+            jQuery.cookie("gigya_mage_login_retries", null);
+        }
     };
 
     /**
