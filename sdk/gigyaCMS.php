@@ -73,11 +73,11 @@ class GigyaCMS {
 		// Make the request.
 		ini_set('arg_separator.output', '&');
         if ($this->debug) {
-            $this->_gigya_debug_log($request);
+            $this->_gigya_debug_log_request($method);
         }
 		$response = $request->send();
         if ($this->debug) {
-            $this->_gigya_debug_log($response->getLog());
+            $this->_gigya_debug_log_response($response->getData());
         }
 		ini_restore ( 'arg_separator.output' );
 
@@ -85,8 +85,7 @@ class GigyaCMS {
 		$err_code = $response->getErrorCode();
 		if ( $err_code != 0 ) {
 			if ( function_exists( '_gigya_error_log' ) ) {
-				$log = explode( "\r\n", $response->getLog() );
-				$this->_gigya_error_log( $log );
+				$this->_gigya_error_log( $response );
 			}
             if ($retrys < $trys) {
                 $this->call($method, $params, 1);
@@ -628,14 +627,27 @@ class GigyaCMS {
         }
     }
 
-    public function _gigya_debug_log($log) {
-        if (is_array($log) || is_object($log)) {
-            $toLog = print_r($log, true);
-        } else {
-            $toLog = $log;
-        }
-        $this->_logger->info($toLog);
+    public function _gigya_debug_log_request($method) {
+		$log = array(
+			"message" => "Request sent to Gigya: ",
+			"api_method" => $method,
+			"date" => date(DATE_RFC2822)
+		);
+		$toLog = print_r($log, true);
+		$this->_logger->info($toLog);
     }
+
+	public function _gigya_debug_log_response($response) {
+		$log = array(
+			"call_id" => $response->getString("callId"),
+			"status_code" => $response->getString("statusCode"),
+			"error_code" => $response->getString("errorCode"),
+			"status_reason" => $response->getString("statusReason"),
+			"time" => $response->getString("time")
+		);
+		$toLog = print_r($log, true);
+		$this->_logger->info($toLog);
+	}
 
     /**
      * @param mixed $api_domain
