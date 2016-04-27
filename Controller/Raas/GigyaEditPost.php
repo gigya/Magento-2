@@ -1,11 +1,14 @@
 <?php
 /**
- *
+ * Gigya Controller overriding Magento Customer module edit profile
+ * This is mainly a placeholder for customizing profile edit, 
+ * currently no customization is made on original Account controller.
+ * 
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
 // namespace Magento\Customer\Controller\Account;
-namespace Gigya\GigyaM2\Controller\Raas;
+namespace Gigya\GigyaIM\Controller\Raas;
 
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\AccountManagementInterface;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gigya\GigyaM2\Logger;
+namespace Gigya\GigyaIM\Logger;
 
 use Monolog\Logger;
 

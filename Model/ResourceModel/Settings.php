@@ -5,7 +5,7 @@
  * Date: 18/04/2016
  * Time: 17:17
  */
-namespace Gigya\GigyaM2\Model\ResourceModel;
+namespace Gigya\GigyaIM\Model\ResourceModel;
 
 class Settings extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {

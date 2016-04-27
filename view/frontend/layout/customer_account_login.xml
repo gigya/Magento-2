@@ -2,9 +2,9 @@
 <!--
 /**
  * The file Magento\Customer\view\frontend\layout\customer_account_login.xml sets the layout for the login forms.
- * This file override it to Replace customer login form block&template with Gigya.
+ * This file override it to Replace customer login form block & template with Gigya.
  * Block - customer_form_login is removed. Block - gigya_customer_form_login is added.
- * (The class defined in this block is a duplicate of the original block, check if the override for the class can be cancelled ? )
+ * (The class defined in this block is a duplicate of the original block)
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
@@ -12,7 +12,7 @@
         <referenceContainer name="content">
             <!-- customer.form.login.extra -->
             <!-- Add Gigya Login block: -->
-            <block class="Gigya\GigyaM2\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaM2::gigya_login.phtml">
+            <block class="Gigya\GigyaIM\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaIM::gigya_login.phtml">
             </block>
             <!-- remove Magento login form: -->
             <referenceContainer name="customer.login.container" remove="true" />

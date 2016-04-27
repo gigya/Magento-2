@@ -1,5 +1,10 @@
 <?php
-namespace Gigya\GigyaM2\Setup;
+
+/*
+ * Create gigya_settings DB table. 
+ */
+
+namespace Gigya\GigyaIM\Setup;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;

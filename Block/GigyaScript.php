@@ -4,10 +4,10 @@
  * Defined in view/frontend/layout/default.xml
  */
 
-namespace Gigya\GigyaM2\Block;
+namespace Gigya\GigyaIM\Block;
 use Magento\Framework\View\Element\Template;
 
-include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaM2/sdk/gigya_config.php'; //  change the location of the config file at choice.
+include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaIM/sdk/gigya_config.php'; 
 
 class GigyaScript extends Template
 {
@@ -88,20 +88,6 @@ class GigyaScript extends Template
     public function getMagentoUserLogin() {
         $logged_in = $this->_customerSession->isLoggedIn();
         if ($logged_in) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-    /**
-     * @return int
-     * @Deprecated : use getAccountInfo from front end instead
-     */
-    public function getGigyaUserLogin() {
-        $search = "/glt/";
-        $result = preg_grep("[glt]", array_flip($_COOKIE));
-        if (sizeof($result) > 0) {
             return 1;
         } else {
             return 0;

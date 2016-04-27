@@ -1,8 +1,9 @@
 <?php
 
-include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaM2/sdk/GSSDK.php';
+include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaIM/sdk/GSSDK.php';
 /**
  * Class GigyaCMS
+ * Utility class for GSSDK
  */
 class GigyaCMS {
 
@@ -16,7 +17,7 @@ class GigyaCMS {
 
     /**
      * Logging instance
-     * @var Gigya\GigyaM2\Logger\Logger
+     * @var Gigya\GigyaIM\Logger\Logger
      */
     protected $_logger;
 
@@ -784,7 +785,7 @@ class GigyaCMS {
     static public function decrypt($str, $key = null)
     {
         if (null == $key) {
-            $key = getenv("GIGYAM2_KEK");
+            $key = getenv("GIGYAIM_KEK");
         }
         if (!empty($key)) {
             $iv_size       = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
@@ -802,7 +803,7 @@ class GigyaCMS {
     static public function enc($str, $key = null)
     {
         if (null == $key) {
-            $key = getenv("GIGYAM2_KEK");
+            $key = getenv("GigyaIM_KEK");
         }
         $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
         $iv      = mcrypt_create_iv($iv_size, MCRYPT_RAND);

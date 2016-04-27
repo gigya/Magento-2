@@ -1,8 +1,9 @@
 var config = {
+    // placeholder for future scripts
    // map: {
    //     '*': {
-   ////         gigya_script : 'Gigya_GigyaM2/js/gigya_cdn',
-   //         gigya: 'Gigya_GigyaM2/js/gigya'
+   ////         gigya_script : 'Gigya_GigyaIM/js/gigya_cdn',
+   //         gigya: 'Gigya_GigyaIM/js/gigya'
    //     }
    // }
     //,

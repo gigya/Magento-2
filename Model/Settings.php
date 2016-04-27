@@ -3,15 +3,15 @@
  * Module CRUD developer interface with gigya_settings table
  */
 
-namespace Gigya\GigyaM2\Model;
+namespace Gigya\GigyaIM\Model;
 
 class Settings extends \Magento\Framework\Model\AbstractModel implements SettingsInterface, \Magento\Framework\DataObject\IdentityInterface
 {
-    const CACHE_TAG = 'gigya_gigyam2_settings';
+    const CACHE_TAG = 'Gigya_GigyaIM_settings';
 
     protected function _construct()
     {
-        $this->_init('Gigya\GigyaM2\Model\ResourceModel\Settings');
+        $this->_init('Gigya\GigyaIM\Model\ResourceModel\Settings');
     }
 
     public function getIdentities()

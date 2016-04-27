@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../lib/internal/Magento/Framework/App/etc/routes.xsd">
     <router id="standard">
         <route id="gigya_raas" frontName="gigya_raas">
-            <module name="Gigya_GigyaM2" />
+            <module name="Gigya_GigyaIM" />
         </route>
     </router>
 </config>

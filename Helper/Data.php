@@ -1,14 +1,15 @@
 <?php
-namespace Gigya\GigyaM2\Helper;
+namespace Gigya\GigyaIM\Helper;
 
-// check for compile mode location
-//include_once __DIR__ . '/../sdk/gigya_config.php'; //  change the location of the config file at choice.
-//include_once __DIR__ . '/../sdk/gigyaCMS.php';
+use \Magento\Framework\App\Helper\AbstractHelper;
+use \Magento\Framework\App\Helper\Context;
+use \Gigya\GigyaIM\Logger\Logger;
 
-include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaM2/sdk/gigya_config.php'; //  change the location of the config file at choice.
-include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaM2/sdk/gigyaCMS.php';
+// check for compile mode location 
+include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaIM/sdk/gigya_config.php';
+include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaIM/sdk/gigyaCMS.php';
 
-class Data extends \Magento\Framework\App\Helper\AbstractHelper
+class Data extends AbstractHelper
 {
     private $apiKey = API_KEY;
     private $apiDomain = API_DOMAIN;
@@ -16,11 +17,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $appSecret;
     private $debug = GIGYA_DEBUG;
 
-    /**
-     * Logging instance
-     * @var Gigya\GigyaM2\Logger\Logger
-     */
     protected $_logger;
+    protected $gigyaCMS;
+    protected $settingsFactory;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -28,13 +27,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
     public function __construct(
-        \Gigya\GigyaM2\Model\SettingsFactory $settingsFactory,
-        \Gigya\GigyaM2\Logger\Logger $logger
+        \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
+        Context $context,
+        Logger $logger
     )
     {
+        parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->appSecret = $this->_decAppSecret();
-        $this->utils = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
+        $this->gigyaCMS = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
         $this->_logger = $logger;
     }
 
@@ -72,7 +73,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->_logger->info(__FUNCTION__ . ": Could not find key file as defined in Gigya config file : " . KEY_PATH);
             }
         } else {
-            $this->_logger->info(__FUNCTION__ . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not defined in Gigya config file."); 
+            $this->_logger->info(__FUNCTION__ . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not defined in Gigya config file.");
         }
         return $key;
     }
@@ -87,7 +88,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'UIDSignature' => $gigya_object->UIDSignature,
             'signatureTimestamp' => $gigya_object->signatureTimestamp,
         );
-        $valid = $this->utils->validateUserSignature($params);
+        $valid = $this->gigyaCMS->validateUserSignature($params);
         if (!$valid) {
             $this->_logger->info(__FUNCTION__ . ": Raas user validation failed. make sure to check your gigya_config values. including encryption key location, and Database gigya settings");
         }
@@ -95,7 +96,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     public function _getAccount($uid) {
-        $account_info = $this->utils->getAccount($uid);
+        $account_info = $this->gigyaCMS->getAccount($uid);
         return $account_info;
     }
 

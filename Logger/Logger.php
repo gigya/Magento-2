@@ -1,5 +1,5 @@
 <?php
-namespace Gigya\GigyaM2\Logger;
+namespace Gigya\GigyaIM\Logger;
 
 class Logger extends \Monolog\Logger
 {

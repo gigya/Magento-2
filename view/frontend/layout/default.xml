@@ -2,14 +2,13 @@
 <!--
 /**
  * Add Gigya script to site footer.
- * Pass the API key as argument to the block class
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="footer">
-            <container name="gigya.gigyam2.gigya_script">
-                <block class="Gigya\GigyaM2\Block\GigyaScript" name="Gigya_GigyaM2::GigyaScript" template="gigya_script.phtml">
+            <container name="gigya.GigyaIM.gigya_script">
+                <block class="Gigya\GigyaIM\Block\GigyaScript" name="Gigya_GigyaIM::GigyaScript" template="gigya_script.phtml">
                 </block>
             </container>
         </referenceContainer>

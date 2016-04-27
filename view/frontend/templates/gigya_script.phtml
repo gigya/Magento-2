@@ -3,16 +3,13 @@
  * Add Gigya script to page body.
  * Defined in view/frontend/layout/default.xml
  * Variables can be set and passed from the block object model: block/GigyaScript
- * Alan storm : http://alanstorm.com/magento-2-frontend-files-serving
  */
 
 $api_key = $block->getGigyaApiKey();
 $site = $block->getBaseUrl();
  //$login_action_url = $site . "gigya_raas/raas/gigyapost";
 $login_action_url = $block->getPostActionUrl();
-
 $magento_user_logged_in = $block->getMagentoUserLogin();
-//$gigya_user_logged_in = $block->getGigyaUserLogin();
 ?>
 
 <script>
@@ -52,7 +49,7 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
     /**
      * check gigya user login status
      */
-    gigyaMage2.Functions.getAccountInfo = function() {
+    gigyaMage2.Functions.syncSessionStatus = function() {
         var AccountInfoStatus = {
             "function": "accounts.getAccountInfo",
             "parameters": { callback : gigyaMage2.Functions.setLoginStatus }
@@ -92,7 +89,7 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
                 gigyaMage2.Functions.gigyaLoginEventHandler(response);
             }
             else {
-                // placeholder. currently, do nothing. that means that Gigya session will continue.
+                // placeholder. currently, do nothing. that means that Gigya session will continue even if Magento session is logged out.
                 // you can add logout from gigya here if you prefer:
 //                var logoutSync = {"function": "accounts.logout", "parameters": {} };
 //                window.gigyaInit.push(logoutSync);
@@ -111,7 +108,6 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
      */
     gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
         var action = "<?php  echo $login_action_url; ?>";
-
         var loginData = {
             UIDSignature : eventObj.UIDSignature,
             signatureTimestamp : eventObj.signatureTimestamp,
@@ -130,11 +126,10 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
         var form = gigyaMage2.Functions.gigyaFormCreate(action);
 
         gigyaMage2.Functions.createInputField("login_data", JSON.stringify(loginData), form);
-
         // Login form placeholder
         gigyaMage2.Functions.createInputField("login[]", "", form);
 
-        // Registration
+        // Registration fields
         gigyaMage2.Functions.createInputField("success_url", success_url, form);
         gigyaMage2.Functions.createInputField("error_url", error_url, form);
         gigyaMage2.Functions.createInputField("firstname", eventObj.profile.firstname, form);
@@ -196,6 +191,7 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
     gigyaMage2.Functions.gigyaUpdateProfile = function(eventObj) {
         var action = "<?php echo $block->getUrl('customer/account/editPost') ?>";
         var form = gigyaMage2.Functions.gigyaFormCreate(action);
+        
         gigyaMage2.Functions.createInputField( "email", eventObj.profile.email , form);
         gigyaMage2.Functions.createInputField( "firstname", eventObj.profile.firstName , form);
         gigyaMage2.Functions.createInputField( "lastname", eventObj.profile.lastName , form);
@@ -239,8 +235,9 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
     }
 
     // Session synchronization between Gigya and Magento
-    gigyaMage2.Functions.getAccountInfo();
+    gigyaMage2.Functions.syncSessionStatus();
 </script>
+
 <script>
     // Capture Magento logout and log out gigya
     require([
@@ -253,6 +250,7 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
         });
     });
 </script>
+
 <?php
 /*
 // Gigya Post minimal:

@@ -1,12 +1,14 @@
 <?php
 /**
  * output Gigya login form html.
- * defined in GigyaM2\view\frontend\layout\customer_account_login.xml
- * The block for this form is - GigyaM2\Block\Form\Gigyalogin.php
+ * defined in GigyaIM\view\frontend\layout\customer_account_login.xml
+ * The block for this form is - GigyaIM\Block\Form\Gigyalogin.php
  *
+ * Here: add accounts.showScreenSet to gigyaInit array
+ * Full flow (on gigya_script):
  * Call gigya screen sets.
  * Capture Gigya login event.
- * Create and submit login form.
+ * Create and submit registration form.
  * Submit to Gigya model Controller.
  **/
 
@@ -27,7 +29,7 @@
         <strong id="block-customer-login-heading" role="heading" aria-level="2"><?php /* @escapeNotVerified */ echo __('Registered Customers') ?></strong>
     </div>
     <div class="block-content" aria-labelledby="block-customer-login-heading">
-        <!-- Gigya login screen placeholder - id should be dynamic: -->
+        <!-- Gigya login screen placeholder - id can be dynamic: -->
         <div id="gigya-login" class="gigya-login"></div>
         <?php echo $block->getBlockHtml('formkey'); ?>
         <script>

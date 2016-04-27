@@ -1,8 +1,9 @@
 <?php
 /**
- *
+ * Gigya Controller overriding Magento Customer module Login & Registration controllers. (as defined in etc/di.xml)
+ * Add Gigya user validation and account info before continue with Customer flows.
  */
-namespace Gigya\GigyaM2\Controller\Raas;
+namespace Gigya\GigyaIM\Controller\Raas;
 
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Customer\Api\Data\AddressInterface;
@@ -142,7 +143,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $this->dataObjectHelper = $dataObjectHelper;
         $this->accountRedirect = $accountRedirect;
         parent::__construct($context);
-        $this->gigyaHelper = $this->_objectManager->create('Gigya\GigyaM2\Helper\Data');
+        $this->gigyaHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\Data');
     }
 
     /**
@@ -222,7 +223,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         // validate user
         $gigya_user_validated = $this->gigyaValidateUser();
         if (!$gigya_user_validated) {
-            $this->messageManager->addError(__('The user is not validated. Please try again or contact your accounts manager provider.')); // add this message to documentation
+            $this->messageManager->addError(__('The user is not validated. Please try again or contact support.')); // add this message to documentation
             return $this->accountRedirect->getRedirect();
         } else {
             $gigya_user_account = $this->getGigyaAccount();
@@ -279,6 +280,11 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
     }
 
+    /**
+     * Example method to handle field mapping for custom fields
+     * @param $customer
+     * @param $gigya_user_account
+     */
     protected function gigyaSetGender(&$customer, $gigya_user_account) {
         if (isset($gigya_user_account["profile"]["gender"])) {
             if ($gigya_user_account["profile"]["gender"] = "m") {
@@ -341,7 +347,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $b_valid_gigya_user = false;
         $gigya_validation_post = $this->getRequest()->getParam('login_data');
         $gigya_validation_object = json_decode($gigya_validation_post);
-        $b_valid_gigya_user = $this->gigyaHelper->_validateRaasUser($gigya_validation_object); // (adding helper as dependency injection in constructor doesn't work in Controller)
+        $b_valid_gigya_user = $this->gigyaHelper->_validateRaasUser($gigya_validation_object); // (adding helper as dependency injection in constructor doesn't work in Controllers)
         return $b_valid_gigya_user;
     }
 
@@ -399,7 +405,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
         ///   $password = $this->getRequest()->getParam('password');
          //   $confirmation = $this->getRequest()->getParam('password_confirmation');
-            $password =  $this->_objectManager->create('Gigya\GigyaM2\Helper\Data')->generatePassword();
+            $password =  $this->_objectManager->create('Gigya\GigyaIM\Helper\Data')->generatePassword();
             $redirectUrl = $this->session->getBeforeAuthUrl();
         //    $this->checkPasswordConfirmation($password, $confirmation);
 

@@ -2,10 +2,13 @@
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
+ * 
+ * Override Magento Customer module AccountManagement class
+ * Add 2 methods for Gigya IM controllers
  */
 
 //namespace Magento\Customer\Model;
-namespace Gigya\GigyaM2\Model;
+namespace Gigya\GigyaIM\Model;
 
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;

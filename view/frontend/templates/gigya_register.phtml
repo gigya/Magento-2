@@ -1,16 +1,18 @@
 <?php
 /**
  * output Gigya registration form html.
- * defined in GigyaM2\view\frontend\layout\customer_account_create.xml
- * The block for this form is - GigyaM2\Block\Form\GigyaRegister.php
+ * defined in GigyaIM\view\frontend\layout\customer_account_create.xml
+ * The block for this form is - GigyaIM\Block\Form\GigyaRegister.php
  *
+ * Here: add accounts.showScreenSet to gigyaInit array 
+ * Full flow (on gigya_script):
  * Call gigya screen sets.
  * Capture Gigya login event.
  * Create and submit registration form.
  * Submit to Gigya model Controller.
 **/
 ?>
-<!-- Generate dynamic id to enable more than one screens -->
+<!-- Optional TODO: Generate dynamic id to enable more than one screen -->
 <div id="gigya-register"></div>
 <?php
 ?>

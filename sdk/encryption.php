@@ -1,7 +1,9 @@
 <?php
 /*
  * CLI commands for using encryption
- * Run the script with -gen flag to create an encryption key.
+ * Run the script with -gen flag to create an encryption key: php encryption.php -gen
+ * Run with -e flag to encrypt: php encryption.php -e {app secret key} {encryption key}
+ * Run with -d flag to decrypt: php encryption.php -d {encrypted key} {encryption key} (use this only if you wish to decrypt manually)
  *  
  */
 include_once "gigyaCMS.php";
