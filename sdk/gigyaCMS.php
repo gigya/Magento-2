@@ -803,7 +803,7 @@ class GigyaCMS {
     static public function enc($str, $key = null)
     {
         if (null == $key) {
-            $key = getenv("GigyaIM_KEK");
+            $key = getenv("GIGYAIM_KEK");
         }
         $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
         $iv      = mcrypt_create_iv($iv_size, MCRYPT_RAND);
