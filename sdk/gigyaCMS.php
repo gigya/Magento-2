@@ -52,8 +52,7 @@ class GigyaCMS {
 
 		// Initialize new request.
         if ($this->use_user_key) {
-//            $request   = new GSRequest( $this->api_key, $this->user_secret, $method, null, false, $this->user_key );
-			$request   = new GSRequest( $this->api_key, $this->user_secret, $method, null, false, null );
+            $request   = new GSRequest( $this->api_key, $this->user_secret, $method, null, false, $this->user_key );
         } else {
             $request   = new GSRequest( $this->api_key, $this->api_secret, $method );
         }
