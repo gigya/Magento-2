@@ -52,7 +52,8 @@ class GigyaCMS {
 
 		// Initialize new request.
         if ($this->use_user_key) {
-            $request   = new GSRequest( $this->api_key, $this->user_secret, $method, null, false, $this->user_key );
+//            $request   = new GSRequest( $this->api_key, $this->user_secret, $method, null, false, $this->user_key );
+			$request   = new GSRequest( $this->api_key, $this->user_secret, $method, null, false, null );
         } else {
             $request   = new GSRequest( $this->api_key, $this->api_secret, $method );
         }
@@ -78,7 +79,7 @@ class GigyaCMS {
         }
 		$response = $request->send();
         if ($this->debug) {
-            $this->_gigya_debug_log_response($response->getData());
+            $this->_gigya_debug_log_response($response);
         }
 		ini_restore ( 'arg_separator.output' );
 
@@ -640,12 +641,14 @@ class GigyaCMS {
 
 	public function _gigya_debug_log_response($response) {
 		$log = array(
-			"call_id" => $response->getString("callId"),
-			"status_code" => $response->getString("statusCode"),
-			"error_code" => $response->getString("errorCode"),
-			"status_reason" => $response->getString("statusReason"),
-			"time" => $response->getString("time")
+			"error_code" => $response->getErrorCode(),
+			"error_message" => $response->getErrorMessage(),
+			"time" => date(DATE_RFC2822)
 		);
+		$data = $response->getData();
+		if ( $data->getString("callId") ) {
+			$log["callId"] = $data->getString("callId");
+		}
 		$toLog = print_r($log, true);
 		$this->_logger->info($toLog);
 	}
@@ -793,7 +796,7 @@ class GigyaCMS {
             $iv            = substr($strDec, 0, $iv_size);
             $text_only     = substr($strDec, $iv_size);
             $plaintext_dec = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key,
-                $text_only, MCRYPT_MODE_CBC, $iv);
+                $text_only, MCRYPT_MODE_CBC, $iv); // TODO: handle key size exception
 //            return substr($plaintext_dec, 0, strpos($plaintext_dec, "\0"));
             return $plaintext_dec;
         }

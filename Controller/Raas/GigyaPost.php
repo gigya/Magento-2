@@ -228,7 +228,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         } else {
             $gigya_user_account = $this->getGigyaAccount();
             // TODO: handle if email is missing.
-            // TODO: consider doing this without accountManagement. instantiate customerRepository in this class instead, and use it directly.
+            // consider doing this without accountManagement. instantiate customerRepository in this class instead, and use it directly.
             $customer = $this->accountManagement->gigyaUserExists($gigya_user_account['loginIDs']['emails'][0]);
             if($customer) {
                 $this->gigyaSetCustomerFields($customer, $gigya_user_account);

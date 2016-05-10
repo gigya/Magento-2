@@ -37,6 +37,8 @@ class Data extends AbstractHelper
         $this->appSecret = $this->_decAppSecret();
         $this->gigyaCMS = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
         $this->_logger = $logger;
+
+        
     }
 
     /**

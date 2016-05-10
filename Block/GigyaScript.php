@@ -7,7 +7,7 @@
 namespace Gigya\GigyaIM\Block;
 use Magento\Framework\View\Element\Template;
 
-include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaIM/sdk/gigya_config.php'; 
+include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaIM/sdk/gigya_config.php';
 
 class GigyaScript extends Template
 {

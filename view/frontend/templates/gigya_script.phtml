@@ -75,11 +75,13 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
         }
 
         // check if retry cookie exists
-        var magento_login_retries = jQuery.cookie("gigya_mage_login_retries");
+        if (jQuery.cookie("gigya_mage_login_retries")) {
+            var magento_login_retries = jQuery.cookie("gigya_mage_login_retries");
+        }
         // If Gigya is logged in but Magento is logged out: try to log user into Magento 2 times, and give up
         if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
             // if cookie doesn't exist, create the cookie and try login
-            if (!magento_login_retries) {
+            if (magento_login_retries == undefined) {
                 jQuery.cookie("gigya_mage_login_retries", 1);
                 gigyaMage2.Functions.gigyaLoginEventHandler(response);
             } // if the cookie exists with value lower than 2, increment and try login again.
@@ -97,8 +99,12 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
         }
 
         // cleanup:
-        if(gigyaMage2.Params.magento_user_logged_in && magento_login_retries) {
-            jQuery.cookie("gigya_mage_login_retries", null);
+        if (magento_login_retries) {
+            if (gigyaMage2.Params.magento_user_logged_in != 0) {
+                jQuery.cookie("gigya_mage_login_retries", null);
+            } else if (gigyaMage2.Params.gigya_user_logged_in == false) {
+                jQuery.cookie("gigya_mage_login_retries", null, { path: '/' });
+            }
         }
     };
 
