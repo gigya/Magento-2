@@ -48,6 +48,7 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
 
     /**
      * check gigya user login status
+     * get Gigya account status with setLoginStatus as callback, and add it to gigya Init array
      */
     gigyaMage2.Functions.syncSessionStatus = function() {
         var AccountInfoStatus = {
@@ -60,7 +61,7 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
     /**
      * sync Magento-Gigya sessions logic
      * if Gigya is logged out, but Magento is logged in: log Magento out
-     * If Gigya is logged in but Magento is logged out: try to log user into Magento 2 times, and give up
+     * If Gigya is logged in but Magento is logged out: leave Gigya logged in
      */
     gigyaMage2.Functions.setLoginStatus = function (response) {
         if ( response.errorCode == 0 ) {
@@ -74,37 +75,10 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
             jQuery('a[href$="logout/"]').click();
         }
 
-        // check if retry cookie exists
-        if (jQuery.cookie("gigya_mage_login_retries")) {
-            var magento_login_retries = jQuery.cookie("gigya_mage_login_retries");
-        }
-        // If Gigya is logged in but Magento is logged out: try to log user into Magento 2 times, and give up
+        // If Gigya is logged in but Magento is logged out: currently, do nothing. you can add logout from gigya here.
         if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
-            // if cookie doesn't exist, create the cookie and try login
-            if (magento_login_retries == undefined) {
-                jQuery.cookie("gigya_mage_login_retries", 1);
-                gigyaMage2.Functions.gigyaLoginEventHandler(response);
-            } // if the cookie exists with value lower than 2, increment and try login again.
-            else if(magento_login_retries <= 2) {
-                magento_login_retries ++;
-                jQuery.cookie("gigya_mage_login_retries", magento_login_retries);
-                gigyaMage2.Functions.gigyaLoginEventHandler(response);
-            }
-            else {
-                // placeholder. currently, do nothing. that means that Gigya session will continue even if Magento session is logged out.
-                // you can add logout from gigya here if you prefer:
 //                var logoutSync = {"function": "accounts.logout", "parameters": {} };
 //                window.gigyaInit.push(logoutSync);
-            }
-        }
-
-        // cleanup:
-        if (magento_login_retries) {
-            if (gigyaMage2.Params.magento_user_logged_in != 0) {
-                jQuery.cookie("gigya_mage_login_retries", null);
-            } else if (gigyaMage2.Params.gigya_user_logged_in == false) {
-                jQuery.cookie("gigya_mage_login_retries", null, { path: '/' });
-            }
         }
     };
 
