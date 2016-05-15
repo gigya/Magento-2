@@ -11,6 +11,7 @@ include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaIM/sdk/gigyaCMS.
 
 class Data extends AbstractHelper
 {
+    private $gigya_module_version = "1.0-beta";
     private $apiKey = API_KEY;
     private $apiDomain = API_DOMAIN;
     private $appKey = APP_KEY;
@@ -96,7 +97,7 @@ class Data extends AbstractHelper
     }
 
     public function _getAccount($uid) {
-        $account_info = $this->gigyaCMS->getAccount($uid);
+        $account_info = $this->gigyaCMS->getAccount($uid, $this->gigya_module_version);
         return $account_info;
     }
 

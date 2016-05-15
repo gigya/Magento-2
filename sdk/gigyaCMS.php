@@ -400,11 +400,12 @@ class GigyaCMS {
 	 *
 	 * @return mixed
 	 */
-	public function getAccount( $guid ) {
+	public function getAccount( $guid, $gigya_module_version ) {
 
 		$req_params = array(
-				'UID'     => $guid,
-				'include' => 'profile, data, loginIDs'
+			'UID'     => $guid,
+			'include' => 'profile, data, loginIDs',
+			'environment' => "cms_version:magento_2;gigya_version:Gigya_module_{$gigya_module_version}"
 		);
 
 		// Because we can only trust the UID parameter from the origin object,
