@@ -18,9 +18,10 @@ class Data extends AbstractHelper
     private $appSecret;
     private $debug = GIGYA_DEBUG;
 
-    protected $_logger;
     protected $gigyaCMS;
     protected $settingsFactory;
+
+    public $_logger;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -126,4 +127,5 @@ class Data extends AbstractHelper
         }
         return $str;
     }
+
 }
