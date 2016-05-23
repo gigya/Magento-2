@@ -16,21 +16,6 @@
             </block>
             <!-- remove Magento login form: -->
             <referenceContainer name="customer.login.container" remove="true" />
-                <!--<block class="Magento\Customer\Block\Form\Login" name="customer_form_login" template="form/login.phtml">-->
-                <!--<container name="form.additional.info" as="form_additional_info"/>-->
-                <!--</block>-->
-                <!--<block class="Magento\Customer\Block\Form\Login\Info" name="customer.new" template="newcustomer.phtml"/>-->
-            <!--</referenceContainer>-->
-            <!--<block class="Magento\Cookie\Block\RequireCookie" name="require-cookie" template="Magento_Cookie::require_cookie.phtml">-->
-                <!--<arguments>-->
-                    <!--<argument name="triggers" xsi:type="array">-->
-                        <!--<item name="loginButton" xsi:type="string">.action.login</item>-->
-                    <!--</argument>-->
-                <!--</arguments>-->
-            <!--</block>-->
-        <!--</referenceContainer>-->
-        <!--<referenceContainer name="form.additional.info">-->
-            <!--<block class="Magento\Framework\View\Element\Template" name="form_additional_info_customer" template="Magento_Customer::additionalinfocustomer.phtml"/>-->
         </referenceContainer>
     </body>
 </page>
