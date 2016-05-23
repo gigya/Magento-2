@@ -230,17 +230,15 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         // gigya user validated, get the account details from Gigya
         else {
             $gigya_user_account = $this->getGigyaAccount();
-            // if gigya user has no email, return error
-            $emails = $gigya_user_account['loginIDs']['emails'];
-            if (empty($emails)) {
-                $this->gigyaHelper->_logger->info(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
-                $message = __('Email not supplied. please make sure that your social account provides an email, or contact our support');
-                $this->messageManager->addError($message);
+            // verify required fields exist in Gigya user
+            $required_field_missing = $this->verifyGigyaRequiredFields($gigya_user_account);
+            if ($required_field_missing) {
                 return $this->accountRedirect->getRedirect();
             }
-            // email is not empty, check if user exists in Magento
+
+            // Required fields exist, check if user exists in Magento
             // (consider doing this without overriding accountManagement. instantiate customerRepository in this class instead, and use it directly)
-            $customer = $this->accountManagement->gigyaUserExists($emails[0]);
+            $customer = $this->accountManagement->gigyaUserExists($gigya_user_account['loginIDs']['emails'][0]);
             if($customer) {
                 $this->gigyaSetCustomerFields($customer, $gigya_user_account);
                 $this->accountManagement->gigyaUpdateCustomer($customer);
@@ -253,6 +251,29 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         }
     }
 
+    protected function verifyGigyaRequiredFields($gigya_user_account) {
+        $error = false;
+        if (empty($gigya_user_account['loginIDs']['emails'])) {
+            $this->gigyaHelper->_logger->info(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
+            $message = __('Email not supplied. please make sure that your social account provides an email, or contact our support');
+            $this->messageManager->addError($message);
+            $error = true;
+        }
+        $profile = $gigya_user_account['profile'];
+        if (!array_key_exists('firstName', $profile)) {
+            $this->gigyaHelper->_logger->info(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            $message = __('Required field missing - first name');
+            $this->messageManager->addError($message);
+            $error = true;
+        }
+        if (!array_key_exists('lastName', $profile)) {
+            $this->gigyaHelper->_logger->info(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            $message = __('Required field missing - last name');
+            $this->messageManager->addError($message);
+            $error = true;
+        }
+        return $error;
+    }
     /**
      * @param object $customer
      * @param array $gigya_user_account
