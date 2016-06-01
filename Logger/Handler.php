@@ -2,15 +2,13 @@
 
 namespace Gigya\GigyaIM\Logger;
 
-use Monolog\Logger;
-
 class Handler extends \Magento\Framework\Logger\Handler\Base
 {
     /**
      * Logging level
      * @var int
      */
-    protected $loggerType = Logger::INFO;
+    protected $loggerType = Monolog\Logger\Logger::INFO;
 
     /**
      * File name
