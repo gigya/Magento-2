@@ -36,9 +36,9 @@ class Data extends AbstractHelper
     {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
+        $this->_logger = $logger;
         $this->appSecret = $this->_decAppSecret();
         $this->gigyaCMS = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
-        $this->_logger = $logger;
     }
 
     /**

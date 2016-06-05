@@ -2,8 +2,6 @@
 
 namespace Gigya\GigyaIM\Logger;
 
-use \Monolog\Logger;
-
 class Handler extends \Magento\Framework\Logger\Handler\Base
 {
     /**
