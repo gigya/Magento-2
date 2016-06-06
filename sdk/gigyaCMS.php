@@ -791,7 +791,8 @@ class GigyaCMS {
             $key = getenv("GIGYAIM_KEK");
         }
         if (!empty($key)) {
-            $iv_size       = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
+			$key = substr($key, 0 , 32);
+			$iv_size       = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
             $strDec        = base64_decode($str);
             $iv            = substr($strDec, 0, $iv_size);
             $text_only     = substr($strDec, $iv_size);
