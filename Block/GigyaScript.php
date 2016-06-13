@@ -94,4 +94,51 @@ class GigyaScript extends Template
         }
     }
 
+    /**
+     * check language mode in gigya config (mode:auto/en/es..., default:en/other)
+     * if auto is selected:
+     *   check local language
+     *   check if local language is supported by gigya
+     *   set language (local/default/en)
+     * else set selected language
+     */
+    public function getLanguage() {
+        $lang = defined("GIGYA_LANGUAGE") ? GIGYA_LANGUAGE : 'en';
+        if ($lang == "auto") {
+            $lang = $this->checkLocalLang();
+        }
+        if (!array_key_exists($lang, $this->gigyaSupportedLanguages())) {
+            // log: "local language - $local_lang is not supported by gigya, reverting to default lang"
+            $lang = defined("GIGYA_LANGUAGE_FALLBACK") ? GIGYA_LANGUAGE_FALLBACK : 'en';
+        }
+        return $lang;
+    }
+
+    protected function checkLocalLang() {
+        /** @var \Magento\Framework\ObjectManagerInterface $om */
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        /** @var \Magento\Framework\Locale\Resolver $resolver */
+        $resolver = $om->get('Magento\Framework\Locale\Resolver');
+        $local_lang = $resolver->getLocale();
+        return $local_lang;
+    }
+
+    /**
+     * associative array of gigya supported languages
+     */
+    protected function gigyaSupportedLanguages() {
+        return array(
+            "en" => "English (default)","ar" => "Arabic","br" => "Bulgarian","ca" => "Catalan","hr" => "Croatian",
+            "cs" => "Czech","da" => "Danish","nl" => "Dutch","fi" => "Finnish","fr" => "French","de" => "German",
+            "el" => "Greek","he" => "Hebrew","hu" => "Hungarian","id" => "Indonesian (Bahasa)","it" => "Italian",
+            "ja" => "Japanese","ko" => "Korean","ms" => "Malay","no" => "Norwegian","fa" => "Persian (Farsi)",
+            "pl" => "Polish","pt" => "Portuguese","ro" => "Romanian","ru" => "Russian","sr" => "Serbian (Cyrillic)",
+            "sk" => "Slovak","sl" => "Slovenian","es" => "Spanish","sv" => "Swedish","tl" => "Tagalog","th" => "Thai",
+            "tr" => "Turkish","uk" => "Ukrainian","vi" => "Vietnamese","zh-cn" => "Chinese (Mandarin)","Chinese (Hong Kong)" => "zh-cn",
+            "zh-hk" => "Chinese (Hong Kong)","Chinese (Taiwan)" => "zh-hk","zh-tw" => "Chinese (Taiwan)","Croatian" => "zh-tw","nl-inf" => "Dutch Informal", "Finnish" => "nl-inf","fr-inf" => "French Informal","German" => "fr-inf","de-inf" => "German Informal","Greek" => "de-inf",
+            "pt-br" => "Portuguese (Brazil)","Romanian" => "pt-br","es-inf" => "Spanish Informal","Spanish (Lat-Am)" => "es-inf",
+           "es-mx" => "Spanish (Lat-Am)","Swedish" => "es-mx"
+        );
+    }
+
 }

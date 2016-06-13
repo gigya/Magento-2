@@ -10,6 +10,7 @@ $site = $block->getBaseUrl();
  //$login_action_url = $site . "gigya_raas/raas/gigyapost";
 $login_action_url = $block->getPostActionUrl();
 $magento_user_logged_in = $block->getMagentoUserLogin();
+$language = $block->getLanguage();
 ?>
 
 <script>
@@ -38,7 +39,9 @@ $magento_user_logged_in = $block->getMagentoUserLogin();
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
         gig.async = false;
-        gig.src = ('https:' == document.location.protocol ? 'https://cdns' : 'http://cdn') + '.gigya.com/js/gigya.js?apiKey=<?php echo $api_key ?>'; // add language param in query string if needed. i.e. &lang=en
+        gig.src = ('https:' == document.location.protocol ? 'https://cdns' : 'http://cdn')
+            + '.gigya.com/js/gigya.js?apiKey=<?php echo $api_key ?>'
+            + '&lang=<?php echo $language ?>';
         document.getElementsByTagName('head')[0].appendChild(gig);
     }
     loadGigyaScript();
