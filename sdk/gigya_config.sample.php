@@ -13,7 +13,7 @@ define("KEY_SAVE_TYPE", "file"); // "file" / "env"
     define("KEY_PATH", $_SERVER["DOCUMENT_ROOT"] . "/../gig_key.txt"); // leave value blank if not used (if KEY_LOCATION is set to "env")
 // set language mode for Gigya UI
 define("GIGYA_LANGUAGE", "auto"); // set to "auto", or see allowed languages: http://developers.gigya.com/display/NEX/Currently+Supported+Languages+in+the+Gigya+UI
-define("GIGYA_LANGUAGE_FALLBACK", "en"); //  if GIGYA_LANGUAGE "auto" is selected, set fallback language, in case local language is not supported by Gigya.
+define("GIGYA_LANGUAGE_FALLBACK", "en_US"); //  if GIGYA_LANGUAGE "auto" is selected, set fallback language, in case local language is not supported by Gigya.
 
 // Debug mode:
 define("GIGYA_DEBUG", true);

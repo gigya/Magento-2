@@ -103,13 +103,13 @@ class GigyaScript extends Template
      * else set selected language
      */
     public function getLanguage() {
-        $lang = defined("GIGYA_LANGUAGE") ? GIGYA_LANGUAGE : 'en';
+        $lang = defined("GIGYA_LANGUAGE") ? GIGYA_LANGUAGE : 'en_US';
         if ($lang == "auto") {
             $lang = $this->checkLocalLang();
         }
         if (!array_key_exists($lang, $this->gigyaSupportedLanguages())) {
             // log: "local language - $local_lang is not supported by gigya, reverting to default lang"
-            $lang = defined("GIGYA_LANGUAGE_FALLBACK") ? GIGYA_LANGUAGE_FALLBACK : 'en';
+            $lang = defined("GIGYA_LANGUAGE_FALLBACK") ? GIGYA_LANGUAGE_FALLBACK : 'en_US';
         }
         return $lang;
     }
