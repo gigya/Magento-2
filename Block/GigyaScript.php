@@ -27,6 +27,11 @@ class GigyaScript extends Template
     protected $_customerUrl;
 
     /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Customer\Model\Url $customerUrl
@@ -36,12 +41,14 @@ class GigyaScript extends Template
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Model\Url $customerUrl,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->_isScopePrivate = false;
         $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -50,6 +57,15 @@ class GigyaScript extends Template
     protected function _prepareLayout()
     {
         return parent::_prepareLayout();
+    }
+
+    /**
+     * Get config.xml values
+     */
+    public function getConfigApi() {
+//        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $api = $this->scopeConfig->getValue("general/gigyaim/api_key");
+        return $api;
     }
 
     /**
