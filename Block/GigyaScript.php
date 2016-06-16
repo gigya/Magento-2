@@ -64,7 +64,7 @@ class GigyaScript extends Template
      */
     public function getConfigApi() {
 //        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $api = $this->scopeConfig->getValue("general/gigyaim/api_key");
+        $api = $this->scopeConfig->getValue("gigya_section/general/api_key");
         return $api;
     }
 
