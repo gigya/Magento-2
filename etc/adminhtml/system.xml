@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <!--https://www.atwix.com/magento-2/system-configuration/-->
+    <system>
+        <tab id="gigyaim_tab" translate="label" sortOrder="2000">
+            <label>Gigya Identity Management</label>
+        </tab>
+        <section id="gigya_section" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>General Settings</label>
+            <tab>gigyaim_tab</tab>
+            <resource>Gigya_GigyaIM::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="api_key" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>API Key</label>
+                    <validate>validate-no-empty</validate>
+                </field>
+                <field id="domain" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Domain</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\Domain</source_model>
+                </field>
+                <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Application Key</label>
+                    <validate>validate-no-empty</validate>
+                </field>
+                <field id="key_save_type" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Secret Key type</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\Keytype</source_model>
+                    <comment><![CDATA[set to "file" if you are saving your app secret key in a file, or "env", if you ar setting the key as server environment variable.]]></comment>
+                </field>
+                <field id="key_file_location" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Path to your key file</label>
+                    <depends>
+                        <field id="key_save_type">file</field>
+                    </depends>
+                    <comment><![CDATA[Path to key file should be relative to site document root.]]></comment>
+                    <validate>validate-no-empty</validate>
+                </field>
+                <field id="language" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Language mode for Gigya UI</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\Language</source_model>
+                </field>
+                <field id="language_fallback" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Language fallback</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\LanguageFallback</source_model>
+                    <depends>
+                        <field id="language">auto</field>
+                    </depends>
+                    <comment><![CDATA[If language mode is set to auto, set fallback language, in case local language is not supported by Gigya.]]></comment>
+                </field>
+                <field id="debug_mode" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Debug mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Log path - var/log/gigya.log]]></comment>
+                    <comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
+                    <comment><![CDATA[*Never use debug mode in production environment!]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

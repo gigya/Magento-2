@@ -4,19 +4,22 @@ namespace Gigya\GigyaIM\Helper;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
+use \Magento\Framework\App\Config\ScopeConfigInterface;
 
-// check for compile mode location 
-include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaIM/sdk/gigya_config.php';
+// check for compile mode location
 include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaIM/sdk/gigyaCMS.php';
 
 class Data extends AbstractHelper
 {
     private $gigya_module_version = "1.0-beta";
-    private $apiKey = API_KEY;
-    private $apiDomain = API_DOMAIN;
-    private $appKey = APP_KEY;
+    private $apiKey;
+    private $apiDomain;
+    private $appKey;
+    private $keySaveType;
+    private $keyFileLocation;
+    private $debug;
+
     private $appSecret;
-    private $debug = GIGYA_DEBUG;
 
     protected $gigyaCMS;
     protected $settingsFactory;
@@ -31,14 +34,27 @@ class Data extends AbstractHelper
     public function __construct(
         \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
         Context $context,
-        Logger $logger
+        Logger $logger,
+        ScopeConfigInterface $scopeConfig
     )
     {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
+        $this->scopeConfig = $scopeConfig;
+        $this->setGigyaSettings();
         $this->appSecret = $this->_decAppSecret();
-        $this->gigyaCMS = new \GigyaCMS($this->apiKey, NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
+        $this->gigyaCMS = new \GigyaCMS($this->apiKey , NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
+    }
+
+    private function setGigyaSettings() {
+        $settings = $this->scopeConfig->getValue("gigya_section/general");
+        $this->apiKey = $settings['api_key'];
+        $this->apiDomain = $settings['domain'];
+        $this->appKey = $settings['app_key'];
+        $this->keySaveType = $settings['key_save_type'];
+        $this->keyFileLocation = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $settings['key_file_location'];
+        $this->debug = $settings['debug_mode'];
     }
 
     /**
@@ -55,7 +71,7 @@ class Data extends AbstractHelper
 
         // get the key if it is saved in external file
         $key = null;
-        if (KEY_SAVE_TYPE == "file") {
+        if ($this->keySaveType == "file") {
             $key = $this->getEncKey();
         }
         
@@ -68,14 +84,14 @@ class Data extends AbstractHelper
      */
     private function getEncKey() {
         $key = null;
-        if (defined("KEY_PATH")) {
-            if (file_exists(KEY_PATH)) {
-                $key = file_get_contents(KEY_PATH);
+        if ($this->keyFileLocation != '') {
+            if (file_exists($this->keyFileLocation)) {
+                $key = file_get_contents($this->keyFileLocation);
             } else {
-                $this->_logger->info(__FUNCTION__ . ": Could not find key file as defined in Gigya config file : " . KEY_PATH);
+                $this->_logger->info(__FUNCTION__ . ": Could not find key file as defined in Gigya system config : " . $this->keyFileLocation);
             }
         } else {
-            $this->_logger->info(__FUNCTION__ . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not defined in Gigya config file.");
+            $this->_logger->info(__FUNCTION__ . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not set in Gigya system config.");
         }
         return $key;
     }

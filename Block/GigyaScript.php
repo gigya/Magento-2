@@ -7,8 +7,6 @@
 namespace Gigya\GigyaIM\Block;
 use Magento\Framework\View\Element\Template;
 
-include_once $_SERVER["DOCUMENT_ROOT"] . '/app/code/Gigya/GigyaIM/sdk/gigya_config.php';
-
 class GigyaScript extends Template
 {
     /**
@@ -60,15 +58,6 @@ class GigyaScript extends Template
     }
 
     /**
-     * Get config.xml values
-     */
-    public function getConfigApi() {
-//        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $api = $this->scopeConfig->getValue("gigya_section/general/api_key");
-        return $api;
-    }
-
-    /**
      * @return int : Magento Customer session expiration
      */
     public function getUserSessionLifetime() {
@@ -79,7 +68,8 @@ class GigyaScript extends Template
      * @return String Gigya API key set in default.xml
      */
     public function getGigyaApiKey() {
-        return API_KEY;
+        $api = $this->scopeConfig->getValue("gigya_section/general/api_key");
+        return $api;
     }
 
     public function getBaseUrl()
@@ -119,13 +109,13 @@ class GigyaScript extends Template
      * else set selected language
      */
     public function getLanguage() {
-        $lang = defined("GIGYA_LANGUAGE") ? GIGYA_LANGUAGE : 'en_US';
+        $lang = $this->scopeConfig->getValue("gigya_section/general/language");
         if ($lang == "auto") {
             $lang = $this->checkLocalLang();
         }
         if (!array_key_exists($lang, $this->gigyaSupportedLanguages())) {
             // log: "local language - $local_lang is not supported by gigya, reverting to default lang"
-            $lang = defined("GIGYA_LANGUAGE_FALLBACK") ? GIGYA_LANGUAGE_FALLBACK : 'en_US';
+            $lang = $this->scopeConfig->getValue("gigya_section/general/language_fallback");
         }
         return $lang;
     }
@@ -144,16 +134,16 @@ class GigyaScript extends Template
      */
     protected function gigyaSupportedLanguages() {
         return array(
-            "en_US" => "English (default)","ar" => "Arabic","br" => "Bulgarian","ca" => "Catalan","hr" => "Croatian",
+            "en_US" => "English","ar" => "Arabic","br" => "Bulgarian","ca" => "Catalan","hr" => "Croatian",
             "cs" => "Czech","da" => "Danish","nl" => "Dutch","fi" => "Finnish","fr" => "French","de" => "German",
             "el" => "Greek","he" => "Hebrew","hu" => "Hungarian","id" => "Indonesian (Bahasa)","it" => "Italian",
             "ja" => "Japanese","ko" => "Korean","ms" => "Malay","no" => "Norwegian","fa" => "Persian (Farsi)",
             "pl" => "Polish","pt" => "Portuguese","ro" => "Romanian","ru" => "Russian","sr" => "Serbian (Cyrillic)",
             "sk" => "Slovak","sl" => "Slovenian","es" => "Spanish","sv" => "Swedish","tl" => "Tagalog","th" => "Thai",
-            "tr" => "Turkish","uk" => "Ukrainian","vi" => "Vietnamese","zh-cn" => "Chinese (Mandarin)","Chinese (Hong Kong)" => "zh-cn",
-            "zh-hk" => "Chinese (Hong Kong)","Chinese (Taiwan)" => "zh-hk","zh-tw" => "Chinese (Taiwan)","Croatian" => "zh-tw","nl-inf" => "Dutch Informal", "Finnish" => "nl-inf","fr-inf" => "French Informal","German" => "fr-inf","de-inf" => "German Informal","Greek" => "de-inf",
-            "pt-br" => "Portuguese (Brazil)","Romanian" => "pt-br","es-inf" => "Spanish Informal","Spanish (Lat-Am)" => "es-inf",
-           "es-mx" => "Spanish (Lat-Am)","Swedish" => "es-mx"
+            "tr" => "Turkish","uk" => "Ukrainian","vi" => "Vietnamese","zh-cn" => "Chinese (Mandarin)",
+            "zh-hk" => "Chinese (Hong Kong)", "zh-tw" => "Chinese (Taiwan)","nl-inf" => "Dutch Informal",
+            "fr-inf" => "French Informal", "de-inf" => "German Informal",
+            "pt-br" => "Portuguese (Brazil)","es-inf" => "Spanish Informal", "es-mx" => "Spanish (Lat-Am)"
         );
     }
 
