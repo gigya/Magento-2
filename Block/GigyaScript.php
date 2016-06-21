@@ -126,7 +126,7 @@ class GigyaScript extends Template
         /** @var \Magento\Framework\Locale\Resolver $resolver */
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
         $local_lang = $resolver->getLocale();
-        return $local_lang;
+        return substr($local_lang, 0, 2);
     }
 
     /**
@@ -134,7 +134,7 @@ class GigyaScript extends Template
      */
     protected function gigyaSupportedLanguages() {
         return array(
-            "en_US" => "English","ar" => "Arabic","br" => "Bulgarian","ca" => "Catalan","hr" => "Croatian",
+            "en" => "English","ar" => "Arabic","br" => "Bulgarian","ca" => "Catalan","hr" => "Croatian",
             "cs" => "Czech","da" => "Danish","nl" => "Dutch","fi" => "Finnish","fr" => "French","de" => "German",
             "el" => "Greek","he" => "Hebrew","hu" => "Hungarian","id" => "Indonesian (Bahasa)","it" => "Italian",
             "ja" => "Japanese","ko" => "Korean","ms" => "Malay","no" => "Norwegian","fa" => "Persian (Farsi)",
