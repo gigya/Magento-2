@@ -5,256 +5,45 @@
  * Variables can be set and passed from the block object model: block/GigyaScript
  */
 
-$api_key = $block->getGigyaApiKey();
-$site = $block->getBaseUrl();
+//$site = $block->getBaseUrl();
  //$login_action_url = $site . "gigya_raas/raas/gigyapost";
-$login_action_url = $block->getPostActionUrl();
-$magento_user_logged_in = $block->getMagentoUserLogin();
-$language = $block->getLanguage();
+
 ?>
 
 <script>
-    // set variables
-    var success_url = "";   // will be added from gigya admin
-    var error_url = "";     // will be added from gigya admin
-    var dummy_password = "12qwaszx!@QWASZX"; // placeholder password
-
-    // objects
-    gigyaMage2 = {};
-    gigyaMage2.Params = {};
-    gigyaMage2.Functions = {};
-    window.gigyaInit = window.gigyaInit || [];
-
-    // set sessions status:
-    gigyaMage2.Params.magento_user_logged_in = <?php echo $magento_user_logged_in ?>;
-    gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
-
-    // Set Gigya global configuration object
-    window.__gigyaConf = {
-        // Gigya user session time should be equal to Magento session time
-        sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
-    };
-
-    function loadGigyaScript() {
-        var gig = document.createElement('script');
-        gig.type = 'text/javascript';
-        gig.async = false;
-        gig.src = ('https:' == document.location.protocol ? 'https://cdns' : 'http://cdn')
-            + '.gigya.com/js/gigya.js?apiKey=<?php echo $api_key ?>'
-            + '&lang=<?php echo $language ?>';
-        document.getElementsByTagName('head')[0].appendChild(gig);
-    }
-    loadGigyaScript();
-
-    /////////////////////////////////
-    //////// class methods //////////
-
-    /**
-     * check gigya user login status
-     * get Gigya account status with setLoginStatus as callback, and add it to gigya Init array
-     */
-    gigyaMage2.Functions.syncSessionStatus = function() {
-        var AccountInfoStatus = {
-            "function": "accounts.getAccountInfo",
-            "parameters": { callback : gigyaMage2.Functions.setLoginStatus }
-        };
-        window.gigyaInit.push(AccountInfoStatus);
-    };
-
-    /**
-     * sync Magento-Gigya sessions logic
-     * if Gigya is logged out, but Magento is logged in: log Magento out
-     * If Gigya is logged in but Magento is logged out: leave Gigya logged in
-     */
-    gigyaMage2.Functions.setLoginStatus = function (response) {
-        if ( response.errorCode == 0 ) {
-            gigyaMage2.Params.gigya_user_logged_in = true;
-        } else {
-            gigyaMage2.Params.gigya_user_logged_in = false;
-        }
-        // if Gigya is logged out, but Magento is logged in: log Magento out
-        // this scenario may result in double page load for user, but is used only to fix an end case situation.
-        if (!gigyaMage2.Params.gigya_user_logged_in && gigyaMage2.Params.magento_user_logged_in) {
-            jQuery('a[href$="logout/"]').click();
-        }
-
-        // If Gigya is logged in but Magento is logged out: currently, do nothing. you can add logout from gigya here.
-        if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
-//                var logoutSync = {"function": "accounts.logout", "parameters": {} };
-//                window.gigyaInit.push(logoutSync);
-        }
-    };
-
-    /**
-     * Login event handler. set parameters for magento form submission
-     * @param eventObj
-     */
-    gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
-        var action = "<?php  echo $login_action_url; ?>";
-        var loginData = {
-            UIDSignature : eventObj.UIDSignature,
-            signatureTimestamp : eventObj.signatureTimestamp,
-            UID : eventObj.UID
-        };
-        gigyaMage2.Functions.gigyaSubmitLoginRegister(action, loginData, eventObj );
-    };
-
-    /**
-     * Submit form after capturing Gigya login event. used for Login & Registration
-     * @param action
-     * @param loginData
-     * @param eventObj
-     */
-    gigyaMage2.Functions.gigyaSubmitLoginRegister = function (action, loginData, eventObj) {
-        var form = gigyaMage2.Functions.gigyaFormCreate(action);
-
-        gigyaMage2.Functions.createInputField("login_data", JSON.stringify(loginData), form);
-        // Login form placeholder
-        gigyaMage2.Functions.createInputField("login[]", "", form);
-
-        // Registration fields
-        gigyaMage2.Functions.createInputField("success_url", success_url, form);
-        gigyaMage2.Functions.createInputField("error_url", error_url, form);
-        gigyaMage2.Functions.createInputField("firstname", eventObj.profile.firstname, form);
-        gigyaMage2.Functions.createInputField("lastname", eventObj.profile.lastname, form);
-        gigyaMage2.Functions.createInputField("password", dummy_password, form);
-        gigyaMage2.Functions.createInputField("password_confirmation", dummy_password, form);
-
-        gigyaMage2.Functions.gigyaFormSubmit(form);
-    };
-
-    /**
-     * Append form to body and submit
-     * @param form
-     */
-    gigyaMage2.Functions.gigyaFormSubmit = function(form) {
-        form.appendTo('body');
-        form.submit();
-    };
-
-    /**
-     * Create form DOM element with form key
-     * @param action
-     * @returns form
-     */
-    gigyaMage2.Functions.gigyaFormCreate = function(action) {
-        'use strict';
-        var form;
-        form = jQuery('<form />', {
-            action: action,
-            method: "POST",
-            style: 'display: none;'
-        });
-        // add form key if it exists
-        if ( jQuery('input[name="form_key"]').val().length ){
-            var form_key = jQuery('input[name="form_key"]').val();
-            gigyaMage2.Functions.createInputField("form_key", form_key, form);
-        }
-        return form;
-    };
-
-    /**
-     * Create Input field
-     * @param name
-     * @param value
-     * @param form
-     */
-    gigyaMage2.Functions.createInputField = function (name, value, form) {
-        jQuery('<input>').attr({
-            type: 'hidden',
-            name: name,
-            value: value
-        }).appendTo(form);
-    };
-
-    /**
-     * Create and Submit update profile form
-     * @param eventObj
-     */
-    gigyaMage2.Functions.gigyaUpdateProfile = function(eventObj) {
-        var action = "<?php echo $block->getUrl('customer/account/editPost') ?>";
-        var form = gigyaMage2.Functions.gigyaFormCreate(action);
-        
-        gigyaMage2.Functions.createInputField( "email", eventObj.profile.email , form);
-        gigyaMage2.Functions.createInputField( "firstname", eventObj.profile.firstName , form);
-        gigyaMage2.Functions.createInputField( "lastname", eventObj.profile.lastName , form);
-        // add additional mapped fields here
-        // e.g. if you add a 'prefix' attribute to the gigya edit profile form as a data field, add:
-        // gigyaMage2.Functions.createInputField( "prefix", eventObj.data.prefix , form);
-        gigyaMage2.Functions.gigyaFormSubmit(form);
-    };
-
-    // init registered Gigya functions
-    function onGigyaServiceReady(serviceName) {
-        if (window.gigyaInit) {
-            // If this is the edit profile page, then add the update profile callback function.
-            if (window.gigyaInit[0]) {
-                if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
-                    window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaUpdateProfile;
-                }
-            }
-
-            var length = window.gigyaInit.length,
-                element = null;
-            if (length > 0) {
-                for (var i = 0; i < length; i++) {
-                    element = window.gigyaInit[i];
-                    func = element.function;
-                    var parts = func.split("\.");
-                    var f = gigya[parts[0]][parts[1]];
-                    if (typeof f === "function") {
-                        f(element.parameters);
-                    }
-                }
-            }
-
-            gigya.accounts.addEventHandlers(
-                {
-                    onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
-                    onAfterSubmit : gigyaMage2.Functions.gigyaUpdateProfile
-                }
-            )
-        }
-    }
-
-    // Session synchronization between Gigya and Magento
-    gigyaMage2.Functions.syncSessionStatus();
+var success_url = "";   // will be added from gigya admin
+var error_url = "";     // will be added from gigya admin
+var magento_user_logged_in = "<?php echo $block->getMagentoUserLogin() ?>";
+var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
+var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
 </script>
 
 <script>
-    // Capture Magento logout and log out gigya
     require([
-        "jquery"
-    ], function($) {
+        "jquery",
+        "gigya_script"
+    ], function($, gigyaMage2) {
         "use strict";
+        window.gigyaInit = window.gigyaInit || [];
+
+        // Set Gigya global configuration object
+        window.__gigyaConf = {
+            // Gigya user session time should be equal to Magento session time
+            sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
+        };
+
+        gigyaMage2.Functions.loadGigyaScript(
+            "<?php echo $block->getGigyaApiKey() ?>",
+            "<?php echo $block->getLanguage() ?>"
+        );
+
+        // Session synchronization between Gigya and Magento
+        gigyaMage2.Functions.syncSessionStatus();
+
         $('a[href$="logout/"]').click(function () {
             gigya.accounts.logout();
             return true;
         });
+
     });
 </script>
-
-<?php
-/*
-// Gigya Post minimal:
-// $_POST = {array} [11]
-    // eventName = "login"
-    // remember = "false"
-    // provider = "facebook"
-    // loginMode = "standard"
-    // newUser = "false"
-    // UIDSignature = "o/Esfdi+0Y5Q16h8JyZ4NJH9P9g="
-    // signatureTimestamp = "1450341234"
-    // UID = "_guid_PpabVRL9jSl1I1fp151zFHFSc08FOWLKH6IJ3WQqcMw="
-    // profile = {array} [7]
-        //  firstName = "Guy"
-        //  lastName = "Gigi"
-        //  photoURL = "https://graph.facebook.com/v2.3/100008758338831/picture?type=large"
-        //  thumbnailURL = "https://graph.facebook.com/v2.3/100008758338831/picture?type=square"
-        //  profileURL = "https://www.facebook.com/app_scoped_user_id/100008758338831/"
-        //  gender = "m"
-        //  email = "gigguy191@gmail.com"
-    // isGlobal = "true"
-    // source = "showScreenSet"
-*/
-?>

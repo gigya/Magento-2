@@ -14,8 +14,6 @@
 ?>
 <!-- Optional TODO: Generate dynamic id to enable more than one screen -->
 <div id="gigya-register"></div>
-<?php
-?>
 <script>
     window.gigyaInit = window.gigyaInit || [];
     var screenSetParams = {
@@ -27,14 +25,3 @@
     var raasRegisterScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
     window.gigyaInit.push(raasRegisterScreen);
 </script>
-<?php
-// Magento Post:
-//        $_POST = {array} [7]
-//             success_url = ""
-//             error_url = ""
-//             firstname = "shlomo"
-//             lastname = "bomo"
-//             email = "bomo@mail.com"
-//             password = "bomo@mail.com"
-//             password_confirmation = "bomo@mail.com"
-?>
