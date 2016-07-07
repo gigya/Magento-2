@@ -9,7 +9,6 @@ define(['jquery'], function($){
      * Sync gigya-magento sessions 
      * Event handlers (login, update)
      */
-    
     gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
@@ -63,7 +62,7 @@ define(['jquery'], function($){
     };
 
     /**
-     * Login event handler. set parameters for magento form submission
+     * Login event handler. set parameters for login submission and call Ajax submission
      * @param eventObj
      */
     gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
@@ -78,23 +77,21 @@ define(['jquery'], function($){
             "login[]" : "",
             login_data : JSON.stringify(loginData)
         };
-        gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('#gigya-login-screen'));
+        gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
     };
 
     gigyaMage2.Functions.gigyaAjaxUpdateProfile = function(eventObj) {
         var action = edit_post_url;
-
         var data = {
             form_key : gigyaMage2.Params.form_key,
             email : eventObj.profile.email,
             firstname : eventObj.profile.firstName,
             lastname : eventObj.profile.lastName
+            // add additional mapped fields here
+            // e.g. if you add a 'prefix' attribute to the gigya edit profile form as a data field, add:
+            // prefix : eventObj.data.prefix
         };
-        // add additional mapped fields here
-        // e.g. if you add a 'prefix' attribute to the gigya edit profile form as a data field, add:
-        // prefix : eventObj.data.prefix
-
-        gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('#gigya-edit-profile'));
+        gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
     };
 
     gigyaMage2.Functions.gigyaAjaxSubmit = function (action, data, loader_context) {

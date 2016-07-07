@@ -25,13 +25,12 @@ var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
     ], function($, gigyaMage2) {
         "use strict";
         window.gigyaInit = window.gigyaInit || [];
-
         // Set Gigya global configuration object
         window.__gigyaConf = {
             // Gigya user session time should be equal to Magento session time
             sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
         };
-
+        
         gigyaMage2.Functions.loadGigyaScript(
             "<?php echo $block->getGigyaApiKey() ?>",
             "<?php echo $block->getLanguage() ?>"
@@ -44,6 +43,5 @@ var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
             gigya.accounts.logout();
             return true;
         });
-
     });
 </script>

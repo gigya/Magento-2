@@ -254,20 +254,20 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     protected function verifyGigyaRequiredFields($gigya_user_account) {
         $error = false;
         if (empty($gigya_user_account['loginIDs']['emails'])) {
-            $this->gigyaHelper->_logger->info(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
+            $this->gigyaHelper->gigyaLog(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
             $message = __('Email not supplied. please make sure that your social account provides an email, or contact our support');
             $this->messageManager->addError($message);
             $error = true;
         }
         $profile = $gigya_user_account['profile'];
         if (!array_key_exists('firstName', $profile)) {
-            $this->gigyaHelper->_logger->info(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            $this->gigyaHelper->gigyaLog(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
             $message = __('Required field missing - first name');
             $this->messageManager->addError($message);
             $error = true;
         }
         if (!array_key_exists('lastName', $profile)) {
-            $this->gigyaHelper->_logger->info(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            $this->gigyaHelper->gigyaLog(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
             $message = __('Required field missing - last name');
             $this->messageManager->addError($message);
             $error = true;

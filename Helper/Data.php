@@ -66,7 +66,7 @@ class Data extends AbstractHelper
         $settings = $settings->load(1);
         $encrypted_secret = $settings->getData('app_secret');
         if (strlen($encrypted_secret) < 5 ) {
-            $this->_logger->info(__FUNCTION__ . " No valid secret key found in DB.");
+            $this->gigyaLog(__FUNCTION__ . " No valid secret key found in DB.");
         }
 
         // get the key if it is saved in external file
@@ -88,10 +88,10 @@ class Data extends AbstractHelper
             if (file_exists($this->keyFileLocation)) {
                 $key = file_get_contents($this->keyFileLocation);
             } else {
-                $this->_logger->info(__FUNCTION__ . ": Could not find key file as defined in Gigya system config : " . $this->keyFileLocation);
+                $this->gigyaLog(__FUNCTION__ . ": Could not find key file as defined in Gigya system config : " . $this->keyFileLocation);
             }
         } else {
-            $this->_logger->info(__FUNCTION__ . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not set in Gigya system config.");
+            $this->gigyaLog(__FUNCTION__ . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not set in Gigya system config.");
         }
         return $key;
     }
@@ -108,7 +108,7 @@ class Data extends AbstractHelper
         );
         $valid = $this->gigyaCMS->validateUserSignature($params);
         if (!$valid) {
-            $this->_logger->info(__FUNCTION__ . ": Raas user validation failed. make sure to check your gigya_config values. including encryption key location, and Database gigya settings");
+            $this->gigyaLog(__FUNCTION__ . ": Raas user validation failed. make sure to check your gigya_config values. including encryption key location, and Database gigya settings");
         }
         return $valid;
     }
@@ -142,6 +142,12 @@ class Data extends AbstractHelper
             $str .= $chars[mt_rand(0, $lc)];
         }
         return $str;
+    }
+
+    public function gigyaLog($message) {
+        if ($this->debug) {
+            $this->_logger->info($message);
+        }
     }
 
 }
