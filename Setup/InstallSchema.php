@@ -21,7 +21,7 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getTable('gigya_settings')
         )
             ->addColumn(
-                'gigya_settings_id',
+                'id',
                 Table::TYPE_INTEGER,
                 null,
                 [
@@ -33,48 +33,11 @@ class InstallSchema implements InstallSchemaInterface
                 'Setting ID'
             )
             ->addColumn(
-                'api_key',
-                Table::TYPE_TEXT,
-                null,
-                ['nullable' => false, 'default' => ''],
-                'API Key'
-            )
-            ->addColumn(
-                'api_domain',
-                Table::TYPE_TEXT,
-                null,
-                ['nullable' => false, 'default' => ''],
-                'API Domain'
-            )
-            ->addColumn(
-                'app_key',
-                Table::TYPE_TEXT,
-                null,
-                ['nullable' => false, 'default' => ''],
-                'Application Key'
-            )
-            ->addColumn(
                 'app_secret',
                 Table::TYPE_TEXT,
                 null,
                 ['nullable' => false, 'default' => ''],
                 'Application Secret'
-            )
-            ->addColumn(
-                'creation_time',
-                Table::TYPE_TIMESTAMP,
-                null,
-                array (
-                ),
-                'Creation Time'
-            )
-            ->addColumn(
-                'update_time',
-                Table::TYPE_TIMESTAMP,
-                null,
-                array (
-                ),
-                'Modification Time'
             )
             ->addColumn(
                 'is_active',
@@ -85,20 +48,6 @@ class InstallSchema implements InstallSchemaInterface
                 ),
                 'Is Active'
             )
-//            ->addForeignKey(
-//                $installer->getFkName('gigya_settings', 'store_id', 'store', 'store_id'),
-//                'store_id',
-//                $installer->getTable('store'),
-//                'store_id',
-//                Table::ACTION_SET_NULL
-//            )
-//            ->addForeignKey(
-//                $installer->getFkName('gigya_settings', 'website_id', 'store_website', 'website_id'),
-//                'website_id',
-//                $installer->getTable('store_website'),
-//                'website_id',
-//                Table::ACTION_SET_NULL
-//            )
             ->setComment('Gigya Settings');
         $installer->getConnection()->createTable($table);
         $installer->endSetup();
