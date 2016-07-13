@@ -7,10 +7,23 @@
     "OSL-3.0",
     "AFL-3.0"
   ],
+  "authors": [
+    {
+      "name": "Guy A",
+      "email": "guy.av@gigya-inc.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/gigya/php_cms_kit"
+    }
+  ],
   "require": {
     "php": "~5.5.0|~5.6.0",
     "magento/framework": "*",
-    "magento/magento-composer-installer": "*"
+    "magento/magento-composer-installer": "*",
+    "gigya/cms-starter-kit": "dev-develop"
   },
   "extra": {
     "map": [
