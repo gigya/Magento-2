@@ -13,7 +13,7 @@
     "magento/magento-composer-installer": "*"
   },
   "autoload": {
-    "psr-4": { "Gigya\\GigyaIM\\": "" },
+    "psr-4": { "gigya\\gigya-im\\": "" },
     "files": [ "registration.php" ]
   }
 }
