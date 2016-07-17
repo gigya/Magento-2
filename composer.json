@@ -1,6 +1,6 @@
 {
-  "name": "gigya-idx/gigya-m2",
-  "description": "Gigya module for Magento 2",
+  "name": "gigya/gigya-im",
+  "description": "Gigya Identity Management for Magento 2",
   "type": "magento2-module",
   "version" : "1.0.0",
   "license": [
