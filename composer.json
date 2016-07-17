@@ -1,5 +1,5 @@
 {
-  "name": "gigya/gigya-im",
+  "name": "gigya/module-gigya-im",
   "description": "Gigya Identity Management for Magento 2",
   "type": "magento2-module",
   "version" : "1.0.0",
@@ -12,12 +12,8 @@
     "magento/framework": "*",
     "magento/magento-composer-installer": "*"
   },
-  "extra": {
-    "map": [
-      [
-        "*",
-        "Gigya/GigyaIM"
-      ]
-    ]
+  "autoload": {
+    "psr-4": { "Gigya\\GigyaIM\\": "" },
+    "files": [ "registration.php" ]
   }
 }
