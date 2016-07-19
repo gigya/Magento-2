@@ -6,8 +6,8 @@ use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
-// check for compile mode location
-include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaIM/sdk/gigyaCMS.php';
+$path = $_SERVER["DOCUMENT_ROOT"]  . '/vendor/gigya/gigya-im/sdk/';
+include_once $path . 'gigyaCMS.php';
 
 class Data extends AbstractHelper
 {

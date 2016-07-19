@@ -1,6 +1,7 @@
 <?php
 
-include_once $_SERVER["DOCUMENT_ROOT"]  . '/app/code/Gigya/GigyaIM/sdk/GSSDK.php';
+$path = $_SERVER["DOCUMENT_ROOT"]  . '/vendor/gigya/gigya-im/sdk/';
+include_once $path . 'GSSDK.php';
 /**
  * Class GigyaCMS
  * Utility class for GSSDK
