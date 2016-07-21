@@ -22,7 +22,7 @@
   "require": {
     "php": "~5.5.0|~5.6.0",
     "magento/framework": "*",
-    "gigya/cms-starter-kit": "develop-dev"
+    "gigya/cms-starter-kit": "master-dev"
   },
   "autoload": {
     "psr-4": { "Gigya\\GigyaIM\\": "" },
