@@ -81,7 +81,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      */
     private $accountRedirect;
 
-    protected $gigyaHelper;
+    protected $gigyaMageHelper;
 
     /**
      * @param Context $context
@@ -143,57 +143,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $this->dataObjectHelper = $dataObjectHelper;
         $this->accountRedirect = $accountRedirect;
         parent::__construct($context);
-        $this->gigyaHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\Data');
-    }
-
-    /**
-     * Add address to customer during create account
-     *
-     * @return AddressInterface|null
-     */
-    protected function extractAddress()
-    {
-        if (!$this->getRequest()->getPost('create_address')) {
-            return null;
-        }
-
-        $addressForm = $this->formFactory->create('customer_address', 'customer_register_address');
-        $allowedAttributes = $addressForm->getAllowedAttributes();
-
-        $addressData = [];
-
-        $regionDataObject = $this->regionDataFactory->create();
-        foreach ($allowedAttributes as $attribute) {
-            $attributeCode = $attribute->getAttributeCode();
-            $value = $this->getRequest()->getParam($attributeCode);
-            if ($value === null) {
-                continue;
-            }
-            switch ($attributeCode) {
-                case 'region_id':
-                    $regionDataObject->setRegionId($value);
-                    break;
-                case 'region':
-                    $regionDataObject->setRegion($value);
-                    break;
-                default:
-                    $addressData[$attributeCode] = $value;
-            }
-        }
-        $addressDataObject = $this->addressDataFactory->create();
-        $this->dataObjectHelper->populateWithArray(
-            $addressDataObject,
-            $addressData,
-            '\Magento\Customer\Api\Data\AddressInterface'
-        );
-        $addressDataObject->setRegion($regionDataObject);
-
-        $addressDataObject->setIsDefaultBilling(
-            $this->getRequest()->getParam('default_billing', false)
-        )->setIsDefaultShipping(
-            $this->getRequest()->getParam('default_shipping', false)
-        );
-        return $addressDataObject;
+        $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
     }
 
     /**
@@ -217,63 +167,55 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
         $this->session->regenerateId();
 
-        /////////////////////////
-        // Gigya logic        //
-        ////////////////////////
-        // validate user
-        $gigya_user_validated = $this->gigyaValidateUser();
+        // Gigya logic: validate gigya user -> get Gigya account info -> check if account exists in Magento ->
+        // login /create in magento :
+
+        $valid_gigya_user = $this->gigyaValidateUser();
         // if gigya user not validated return error
-        if (!$gigya_user_validated) {
-            $this->messageManager->addError(__('The user is not validated. Please try again or contact support.')); // add this message to documentation
+        if (!$valid_gigya_user) {
+            $this->messageManager->addError(__('The user is not validated. Please try again or contact support.'));
             return $this->accountRedirect->getRedirect();
         } 
-        // gigya user validated, get the account details from Gigya
+        // we have a valid gigya user. verify that required fields exist
         else {
-            $gigya_user_account = $this->getGigyaAccount();
-            // verify required fields exist in Gigya user
-            $required_field_missing = $this->verifyGigyaRequiredFields($gigya_user_account);
-            if ($required_field_missing) {
+            $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
+            if (!empty($required_field_message)) {
+                foreach ($required_field_message as $message) {
+                    $this->messageManager->addError($message);
+                }
                 return $this->accountRedirect->getRedirect();
             }
 
             // Required fields exist, check if user exists in Magento
             // (consider doing this without overriding accountManagement. instantiate customerRepository in this class instead, and use it directly)
-            $customer = $this->accountManagement->gigyaUserExists($gigya_user_account['loginIDs']['emails'][0]);
+            $customer = $this->accountManagement->gigyaUserExists($valid_gigya_user['loginIDs']['emails'][0]);
             if($customer) {
-                $this->gigyaSetCustomerFields($customer, $gigya_user_account);
+                $this->gigyaSetCustomerFields($customer, $valid_gigya_user);
                 $this->accountManagement->gigyaUpdateCustomer($customer);
                 $this->gigyaLoginUser($customer);
                 return $this->accountRedirect->getRedirect();
             } else {
-                $redirect = $this->gigyaCreateUser($resultRedirect,$gigya_user_account);
+                $redirect = $this->gigyaCreateUser($resultRedirect,$valid_gigya_user);
                 return $redirect;
             }
         }
     }
 
-    protected function verifyGigyaRequiredFields($gigya_user_account) {
-        $error = false;
-        if (empty($gigya_user_account['loginIDs']['emails'])) {
-            $this->gigyaHelper->gigyaLog(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
-            $message = __('Email not supplied. please make sure that your social account provides an email, or contact our support');
-            $this->messageManager->addError($message);
-            $error = true;
-        }
-        $profile = $gigya_user_account['profile'];
-        if (!array_key_exists('firstName', $profile)) {
-            $this->gigyaHelper->gigyaLog(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
-            $message = __('Required field missing - first name');
-            $this->messageManager->addError($message);
-            $error = true;
-        }
-        if (!array_key_exists('lastName', $profile)) {
-            $this->gigyaHelper->gigyaLog(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
-            $message = __('Required field missing - last name');
-            $this->messageManager->addError($message);
-            $error = true;
-        }
-        return $error;
+    /**
+     * Use gigyaMageHelper to validate and get user
+     * @return false/object:gigya_user
+     */
+    protected function gigyaValidateUser() {
+        $gigya_validation_post = $this->getRequest()->getParam('login_data');
+        $gigya_validation_o = json_decode($gigya_validation_post);
+        $valid_gigya_user = $this->gigyaMageHelper->validateRaasUser(
+            $gigya_validation_o->UID,
+            $gigya_validation_o->UIDSignature,
+            $gigya_validation_o->signatureTimestamp
+        );
+        return $valid_gigya_user;
     }
+
     /**
      * @param object $customer
      * @param array $gigya_user_account
@@ -372,28 +314,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     }
 
     /**
-     * Use Gigya Data Helper to validate user
-     * @return bool
-     */
-    protected function gigyaValidateUser() {
-        $b_valid_gigya_user = false;
-        $gigya_validation_post = $this->getRequest()->getParam('login_data');
-        $gigya_validation_object = json_decode($gigya_validation_post);
-        $b_valid_gigya_user = $this->gigyaHelper->_validateRaasUser($gigya_validation_object); // (adding helper as dependency injection in constructor doesn't work in Controllers)
-        return $b_valid_gigya_user;
-    }
-
-    /**
-     * get account info for validated user
-     * @return mixed
-     */
-    protected function getGigyaAccount() {
-        $gigya_uid = json_decode($this->getRequest()->getParam('login_data'))->UID;
-        $gigya_account = $this->gigyaHelper->_getAccount($gigya_uid);
-        return $gigya_account;
-    }
-
-    /**
      * @param $customer
      */
     protected function gigyaLoginUser($customer) {
@@ -428,18 +348,13 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      */
     protected function gigyaCreateUser($resultRedirect, $gigya_user_account) {
         try {
-        //    $address = $this->extractAddress();
-        //    $addresses = $address === null ? [] : [$address];
 
             $customer = $this->customerExtractor->extract('customer_account_create', $this->_request);
 
              $this->gigyaSetCustomerFields($customer, $gigya_user_account);
 
-        ///   $password = $this->getRequest()->getParam('password');
-         //   $confirmation = $this->getRequest()->getParam('password_confirmation');
             $password =  $this->_objectManager->create('Gigya\GigyaIM\Helper\Data')->generatePassword();
             $redirectUrl = $this->session->getBeforeAuthUrl();
-        //    $this->checkPasswordConfirmation($password, $confirmation);
 
             $customer = $this->accountManagement
                 ->createAccount($customer, $password, $redirectUrl);
