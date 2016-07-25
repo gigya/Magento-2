@@ -7,12 +7,8 @@ use \Gigya\GigyaIM\Logger\Logger;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Gigya\CmsStarterKit\GigyaApiHelper;
 
-$path = $_SERVER["DOCUMENT_ROOT"]  . '/vendor/gigya/gigya-im/sdk/';
-include_once $path . 'gigyaCMS.php';
-
 class GigyaMageHelper extends AbstractHelper
 {
-    private $gigya_module_version = "1.0-beta";
     private $apiKey;
     private $apiDomain;
     private $appKey;
@@ -23,7 +19,6 @@ class GigyaMageHelper extends AbstractHelper
     private $appSecret;
 
     protected $gigyaApiHelper;
-    protected $gigyaCMS;
     protected $settingsFactory;
 
     public $_logger;
@@ -47,7 +42,6 @@ class GigyaMageHelper extends AbstractHelper
         $this->setGigyaSettings();
         $this->appSecret = $this->decAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
-        $this->gigyaCMS = new \GigyaCMS($this->apiKey , NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
     }
 
     public function getGigyaApiHelper() {
@@ -81,8 +75,7 @@ class GigyaMageHelper extends AbstractHelper
         if ($this->keySaveType == "file") {
             $key = $this->getEncKey();
         }
-        
-        $dec = \GigyaCMS::decrypt($encrypted_secret, $key);
+        $dec = GigyaApiHelper::decrypt($encrypted_secret, $key);
         return $dec;
     }
 
@@ -138,11 +131,6 @@ class GigyaMageHelper extends AbstractHelper
             array_push($message, __('Required field missing - last name'));
         }
         return $message;
-    }
-
-    public function _getAccount($uid) {
-        $account_info = $this->gigyaCMS->getAccount($uid, $this->gigya_module_version);
-        return $account_info;
     }
 
     public function generatePassword($len = 8) {
