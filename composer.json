@@ -1,15 +1,22 @@
 {
-  "name": "gigya/gigya-im",
+  "name": "gigya/magento2-im",
   "description": "Gigya Identity Management for Magento 2",
   "type": "magento2-module",
-  "version" : "1.0.0",
+  "version" : "1.0.1",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
   ],
+  "authors": [
+    {
+      "name": "Guy A",
+      "email": "guy.av@gigya-inc.com"
+    }
+  ],
   "require": {
     "php": "~5.5.0|~5.6.0",
-    "magento/framework": "*"
+    "magento/framework": "*",
+    "gigya/cms-starter-kit": "1.1.1"
   },
   "autoload": {
     "psr-4": { "Gigya\\GigyaIM\\": "" },

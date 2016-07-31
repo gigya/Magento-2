@@ -5,13 +5,10 @@ use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
+use \Gigya\CmsStarterKit\GigyaApiHelper;
 
-$path = $_SERVER["DOCUMENT_ROOT"]  . '/vendor/gigya/gigya-im/sdk/';
-include_once $path . 'gigyaCMS.php';
-
-class Data extends AbstractHelper
+class GigyaMageHelper extends AbstractHelper
 {
-    private $gigya_module_version = "1.0-beta";
     private $apiKey;
     private $apiDomain;
     private $appKey;
@@ -21,7 +18,7 @@ class Data extends AbstractHelper
 
     private $appSecret;
 
-    protected $gigyaCMS;
+    protected $gigyaApiHelper;
     protected $settingsFactory;
 
     public $_logger;
@@ -43,8 +40,12 @@ class Data extends AbstractHelper
         $this->_logger = $logger;
         $this->scopeConfig = $scopeConfig;
         $this->setGigyaSettings();
-        $this->appSecret = $this->_decAppSecret();
-        $this->gigyaCMS = new \GigyaCMS($this->apiKey , NULL, $this->apiDomain, $this->appSecret, $this->appKey, TRUE, $this->debug, $logger);
+        $this->appSecret = $this->decAppSecret();
+        $this->gigyaApiHelper = $this->getGigyaApiHelper();
+    }
+
+    public function getGigyaApiHelper() {
+        return new GigyaApiHelper($this->apiKey , $this->appKey, $this->appSecret, $this->apiDomain);
     }
 
     private function setGigyaSettings() {
@@ -60,7 +61,7 @@ class Data extends AbstractHelper
     /**
      * @return string decrypted app secret
      */
-    private function _decAppSecret() {
+    private function decAppSecret() {
         // get encrypted app secret from DB
         $settings = $this->settingsFactory->create();
         $settings = $settings->load(1);
@@ -74,8 +75,7 @@ class Data extends AbstractHelper
         if ($this->keySaveType == "file") {
             $key = $this->getEncKey();
         }
-        
-        $dec = \GigyaCMS::decrypt($encrypted_secret, $key);
+        $dec = GigyaApiHelper::decrypt($encrypted_secret, $key);
         return $dec;
     }
 
@@ -95,27 +95,42 @@ class Data extends AbstractHelper
         }
         return $key;
     }
-    
+
     /**
-     * @param $gigya_object
-     * @return bool
+     * @param $UID
+     * @param $UIDSignature
+     * @param $signatureTimestamp
+     * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
      */
-    public function _validateRaasUser($gigya_object) {
-        $params = array(
-            'UID' => $gigya_object->UID,
-            'UIDSignature' => $gigya_object->UIDSignature,
-            'signatureTimestamp' => $gigya_object->signatureTimestamp,
-        );
-        $valid = $this->gigyaCMS->validateUserSignature($params);
+    public function validateRaasUser($UID, $UIDSignature, $signatureTimestamp) {
+        $valid = $this->gigyaApiHelper->validateUid($UID, $UIDSignature, $signatureTimestamp);
         if (!$valid) {
-            $this->gigyaLog(__FUNCTION__ . ": Raas user validation failed. make sure to check your gigya_config values. including encryption key location, and Database gigya settings");
+            $this->gigyaLog(__FUNCTION__ . ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
         }
         return $valid;
     }
 
-    public function _getAccount($uid) {
-        $account_info = $this->gigyaCMS->getAccount($uid, $this->gigya_module_version);
-        return $account_info;
+    /**
+     * @param $gigya_user_account
+     * @return array (validation errors messages)
+     */
+    public function verifyGigyaRequiredFields($gigya_user_account) {
+        $message = array();
+        $loginId = $gigya_user_account->getGigyaLoginId();
+        if (empty($loginId)) {
+            $this->gigyaLog(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
+            array_push($message, __('Email not supplied. please make sure that your social account provides an email, or contact our support'));
+        }
+        $profile = $gigya_user_account->getProfile();
+        if (!$profile->getFirstName()) {
+            $this->gigyaLog(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            array_push($message, __('Required field missing - first name'));
+        }
+        if (!$profile->getLastName()) {
+            $this->gigyaLog(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            array_push($message, __('Required field missing - last name'));
+        }
+        return $message;
     }
 
     public function generatePassword($len = 8) {
