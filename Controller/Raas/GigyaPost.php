@@ -26,6 +26,8 @@ use Magento\Framework\Escaper;
 use Magento\Customer\Model\CustomerExtractor;
 use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\EmailNotConfirmedException;
+use Magento\Framework\Exception\AuthenticationException;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

@@ -47,6 +47,7 @@ use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Framework\Stdlib\DateTime;
 use Magento\Framework\Stdlib\StringUtils as StringHelper;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Exception\AuthenticationException;
 
 /**
  * Handle various customer account actions
