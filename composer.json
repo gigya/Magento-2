@@ -16,7 +16,7 @@
   "require": {
     "php": "~5.5.0|~5.6.0",
     "magento/framework": "*",
-    "gigya/cms-starter-kit": "master-dev"
+    "gigya/cms-starter-kit": "1.1.1"
   },
   "autoload": {
     "psr-4": { "Gigya\\GigyaIM\\": "" },
