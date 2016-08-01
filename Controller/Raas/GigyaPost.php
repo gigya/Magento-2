@@ -177,7 +177,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         if (!$valid_gigya_user) {
             $this->messageManager->addError(__('The user is not validated. Please try again or contact support.'));
             return $this->accountRedirect->getRedirect();
-        } 
+        }
         // we have a valid gigya user. verify that required fields exist
         else {
             $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
@@ -189,9 +189,10 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
             }
 
             // Required fields exist, check if user exists in Magento
-            // (consider doing this without overriding accountManagement. instantiate customerRepository in this class instead, and use it directly)
+            // (consider doing this without overriding accountManagement.
+                // instantiate customerRepository in this class instead, and use it directly)
             $customer = $this->accountManagement->gigyaUserExists($valid_gigya_user->getGigyaLoginId());
-            if($customer) {
+            if ($customer) {
                 $this->gigyaSetCustomerFields($customer, $valid_gigya_user);
                 $this->accountManagement->gigyaUpdateCustomer($customer);
                 $this->gigyaLoginUser($customer);
@@ -207,7 +208,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      * Use gigyaMageHelper to validate and get user
      * @return false/object:gigya_user
      */
-    protected function gigyaValidateUser() {
+    protected function gigyaValidateUser()
+    {
         $gigya_validation_post = $this->getRequest()->getParam('login_data');
         $gigya_validation_o = json_decode($gigya_validation_post);
         $valid_gigya_user = $this->gigyaMageHelper->validateRaasUser(
@@ -222,7 +224,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      * @param object $customer
      * @param object $gigya_user_account
      */
-    protected function gigyaSetCustomerFields(&$customer, $gigya_user_account) {
+    protected function gigyaSetCustomerFields(&$customer, $gigya_user_account)
+    {
         $customer->setEmail($gigya_user_account->getGigyaLoginId());
         $customer->setFirstname($gigya_user_account->getProfile()->getFirstName());
         $customer->setLastname($gigya_user_account->getProfile()->getLastName());
@@ -253,7 +256,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         //////////////////////////////////////////////////////// $gigya_user_account["profile"]["GUID"]
     //    $custom_attributes = $customer->getCustomAttributes();
     //    $customer->setCustomAttribute("gigya_uid", "test_uid123");
-
     }
 
     /**
@@ -261,7 +263,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      * @param $customer
      * @param $gigya_user_account
      */
-    protected function gigyaSetGender(&$customer, $gigya_user_account) {
+    protected function gigyaSetGender(&$customer, $gigya_user_account)
+    {
         $gender = $gigya_user_account->getProfile()->getGender();
         if ($gender) {
             if ($gender = "m") {
@@ -319,7 +322,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     /**
      * @param $customer
      */
-    protected function gigyaLoginUser($customer) {
+    protected function gigyaLoginUser($customer)
+    {
         try {
             $this->session->setCustomerDataAsLoggedIn($customer);
             $this->session->regenerateId();
@@ -349,9 +353,9 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      * @param $gigya_user_account
      * @return \Magento\Framework\Controller\Result\Forward|\Magento\Framework\Controller\Result\Redirect
      */
-    protected function gigyaCreateUser($resultRedirect, $gigya_user_account) {
+    protected function gigyaCreateUser($resultRedirect, $gigya_user_account)
+    {
         try {
-
             $customer = $this->customerExtractor->extract('customer_account_create', $this->_request);
 
              $this->gigyaSetCustomerFields($customer, $gigya_user_account);
@@ -413,5 +417,4 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $resultRedirect->setUrl($this->_redirect->error($defaultUrl));
         return $resultRedirect;
     }
-
 }

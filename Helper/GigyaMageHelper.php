@@ -33,8 +33,7 @@ class GigyaMageHelper extends AbstractHelper
         Context $context,
         Logger $logger,
         ScopeConfigInterface $scopeConfig
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
@@ -44,11 +43,13 @@ class GigyaMageHelper extends AbstractHelper
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
     }
 
-    public function getGigyaApiHelper() {
-        return new GigyaApiHelper($this->apiKey , $this->appKey, $this->appSecret, $this->apiDomain);
+    public function getGigyaApiHelper()
+    {
+        return new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
     }
 
-    private function setGigyaSettings() {
+    private function setGigyaSettings()
+    {
         $settings = $this->scopeConfig->getValue("gigya_section/general");
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
@@ -61,7 +62,8 @@ class GigyaMageHelper extends AbstractHelper
     /**
      * @return string decrypted app secret
      */
-    private function decAppSecret() {
+    private function decAppSecret()
+    {
         // get encrypted app secret from DB
         $settings = $this->settingsFactory->create();
         $settings = $settings->load(1);
@@ -82,16 +84,19 @@ class GigyaMageHelper extends AbstractHelper
     /**
      * @return string encryption key from file
      */
-    private function getEncKey() {
+    private function getEncKey()
+    {
         $key = null;
         if ($this->keyFileLocation != '') {
             if (file_exists($this->keyFileLocation)) {
                 $key = file_get_contents($this->keyFileLocation);
             } else {
-                $this->gigyaLog(__FUNCTION__ . ": Could not find key file as defined in Gigya system config : " . $this->keyFileLocation);
+                $this->gigyaLog(__FUNCTION__
+                    . ": Could not find key file as defined in Gigya system config : " . $this->keyFileLocation);
             }
         } else {
-            $this->gigyaLog(__FUNCTION__ . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not set in Gigya system config.");
+            $this->gigyaLog(__FUNCTION__
+                . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not set in Gigya system config.");
         }
         return $key;
     }
@@ -102,10 +107,12 @@ class GigyaMageHelper extends AbstractHelper
      * @param $signatureTimestamp
      * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
      */
-    public function validateRaasUser($UID, $UIDSignature, $signatureTimestamp) {
+    public function validateRaasUser($UID, $UIDSignature, $signatureTimestamp)
+    {
         $valid = $this->gigyaApiHelper->validateUid($UID, $UIDSignature, $signatureTimestamp);
         if (!$valid) {
-            $this->gigyaLog(__FUNCTION__ . ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
+            $this->gigyaLog(__FUNCTION__ .
+                ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
         }
         return $valid;
     }
@@ -114,8 +121,9 @@ class GigyaMageHelper extends AbstractHelper
      * @param $gigya_user_account
      * @return array (validation errors messages)
      */
-    public function verifyGigyaRequiredFields($gigya_user_account) {
-        $message = array();
+    public function verifyGigyaRequiredFields($gigya_user_account)
+    {
+        $message = [];
         $loginId = $gigya_user_account->getGigyaLoginId();
         if (empty($loginId)) {
             $this->gigyaLog(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");

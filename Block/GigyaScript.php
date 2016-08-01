@@ -5,6 +5,7 @@
  */
 
 namespace Gigya\GigyaIM\Block;
+
 use Magento\Framework\View\Element\Template;
 
 class GigyaScript extends Template
@@ -60,14 +61,16 @@ class GigyaScript extends Template
     /**
      * @return int : Magento Customer session expiration
      */
-    public function getUserSessionLifetime() {
+    public function getUserSessionLifetime()
+    {
         return $this->_customerSession->getCookieLifetime();
     }
 
     /**
      * @return String Gigya API key set in default.xml
      */
-    public function getGigyaApiKey() {
+    public function getGigyaApiKey()
+    {
         $api = $this->scopeConfig->getValue("gigya_section/general/api_key");
         return $api;
     }
@@ -120,7 +123,8 @@ class GigyaScript extends Template
         return $lang;
     }
 
-    protected function checkLocalLang() {
+    protected function checkLocalLang()
+    {
         /** @var \Magento\Framework\ObjectManagerInterface $om */
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         /** @var \Magento\Framework\Locale\Resolver $resolver */
@@ -132,7 +136,8 @@ class GigyaScript extends Template
     /**
      * associative array of gigya supported languages
      */
-    protected function gigyaSupportedLanguages() {
+    protected function gigyaSupportedLanguages()
+    {
         return array(
             "en" => "English","ar" => "Arabic","br" => "Bulgarian","ca" => "Catalan","hr" => "Croatian",
             "cs" => "Czech","da" => "Danish","nl" => "Dutch","fi" => "Finnish","fr" => "French","de" => "German",
@@ -146,5 +151,4 @@ class GigyaScript extends Template
             "pt-br" => "Portuguese (Brazil)","es-inf" => "Spanish Informal", "es-mx" => "Spanish (Lat-Am)"
         );
     }
-
 }

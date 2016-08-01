@@ -7,7 +7,8 @@ namespace Gigya\GigyaIM\Test\Unit\Block;
 
 use Gigya\GigyaIM\Block;
 
-class GigyaScriptTest extends \PHPUnit_Framework_TestCase {
+class GigyaScriptTest extends \PHPUnit_Framework_TestCase
+{
 
     /**
      * @var Gigya\GigyaIM\Block\GigyaScript
@@ -45,7 +46,8 @@ class GigyaScriptTest extends \PHPUnit_Framework_TestCase {
             ->with("gigya_section/general/language")
             ->will($this->returnValue('en'));
 
-        $this->assertEquals('en', $this->block->getLanguage(), "language is set to \"en\", but getLanguage does not return the same value");
+        $this->assertEquals('en', $this->block->getLanguage(),
+            "language is set to \"en\", but getLanguage does not return the same value");
     }
 
     protected function tearDown()
