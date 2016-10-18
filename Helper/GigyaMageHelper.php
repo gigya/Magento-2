@@ -1,4 +1,7 @@
 <?php
+/**
+ * Gigya IM Helper
+ */
 namespace Gigya\GigyaIM\Helper;
 
 use \Magento\Framework\App\Helper\AbstractHelper;
@@ -119,7 +122,7 @@ class GigyaMageHelper extends AbstractHelper
 
     /**
      * @param $gigya_user_account
-     * @return array (validation errors messages)
+     * @return array $message (validation errors messages)
      */
     public function verifyGigyaRequiredFields($gigya_user_account)
     {
