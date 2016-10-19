@@ -69,7 +69,7 @@ class InstallData implements InstallDataInterface
             'system' => 0,
         ]);
 
-        $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'magento_username')
+        $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'gigya_uid')
             ->addData([
                 'attribute_set_id' => $attributeSetId,
                 'attribute_group_id' => $attributeGroupId,
