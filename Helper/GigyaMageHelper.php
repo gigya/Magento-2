@@ -51,6 +51,9 @@ class GigyaMageHelper extends AbstractHelper
         return new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
     }
 
+    /**
+     * Gigya settings are set in Stores->configuration->Gigya Identity management
+     */
     private function setGigyaSettings()
     {
         $settings = $this->scopeConfig->getValue("gigya_section/general");
