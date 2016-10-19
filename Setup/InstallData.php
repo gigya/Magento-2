@@ -2,7 +2,7 @@
 /**
  * Add Guid to customer attributes
  */
-namespace Gigya\GigyaIM\DataSetup;
+namespace Gigya\GigyaIM\Setup;
 
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Customer\Model\Customer;
