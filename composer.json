@@ -2,7 +2,7 @@
   "name": "gigya/magento2-im",
   "description": "Gigya Identity Management for Magento 2",
   "type": "magento2-module",
-  "version" : "4.0.1",
+  "version" : "4.0.2",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
