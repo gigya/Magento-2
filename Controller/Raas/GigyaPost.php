@@ -196,11 +196,11 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 $this->gigyaSetCustomerFields($customer, $valid_gigya_user);
                 $this->accountManagement->gigyaUpdateCustomer($customer);
                 $this->gigyaLoginUser($customer);
-                return $this->accountRedirect->getRedirect();
+                $redirect = $this->accountRedirect->getRedirect();
             } else {
                 $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
-                return $redirect;
             }
+            return $redirect;
         }
     }
 
@@ -229,7 +229,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $customer->setEmail($gigya_user_account->getGigyaLoginId());
         $customer->setFirstname($gigya_user_account->getProfile()->getFirstName());
         $customer->setLastname($gigya_user_account->getProfile()->getLastName());
-        $customer->setCustomAttribute("gigya_uid", $gigya_user_account->UID);
+        $customer->setCustomAttribute("gigya_uid", $gigya_user_account->getUID());
 
         ///////////////////////////////////////////////////////
         // adding extra mapped fields :
