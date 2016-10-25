@@ -229,6 +229,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $customer->setEmail($gigya_user_account->getGigyaLoginId());
         $customer->setFirstname($gigya_user_account->getProfile()->getFirstName());
         $customer->setLastname($gigya_user_account->getProfile()->getLastName());
+        $customer->setCustomAttribute("gigya_uid", $gigya_user_account->UID);
 
         ///////////////////////////////////////////////////////
         // adding extra mapped fields :
@@ -255,7 +256,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         // located at: /lib/internal/Magento/Framework/Api/AbstractExtensibleObject
         //////////////////////////////////////////////////////// $gigya_user_account["profile"]["GUID"]
     //    $custom_attributes = $customer->getCustomAttributes();
-    //    $customer->setCustomAttribute("gigya_uid", "test_uid123");
     }
 
     /**
