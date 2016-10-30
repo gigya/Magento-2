@@ -28,7 +28,6 @@ use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
-use Magento\Framework\Event\Manager;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -84,11 +83,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      */
     private $accountRedirect;
 
-    /**
-     * @var EventManager
-     */
-    private $eventManager;
-
     protected $gigyaMageHelper;
 
     /**
@@ -131,8 +125,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         Escaper $escaper,
         CustomerExtractor $customerExtractor,
         DataObjectHelper $dataObjectHelper,
-        AccountRedirect $accountRedirect,
-        EventManager $eventManager
+        AccountRedirect $accountRedirect
     ) {
         $this->session = $customerSession;
         $this->scopeConfig = $scopeConfig;
@@ -151,7 +144,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $this->urlModel = $urlFactory->create();
         $this->dataObjectHelper = $dataObjectHelper;
         $this->accountRedirect = $accountRedirect;
-        $this->eventManager = $eventManager;
         parent::__construct($context);
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
     }
@@ -209,7 +201,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
             }
             // dispatch field mapping event
-            $this->eventManager->dispatch('gigya_post_user_create',[
+            $this->_eventManager->dispatch('gigya_post_user_create',[
                 "gigya_user" => $valid_gigya_user,
                 "customer" => $customer
             ]);
