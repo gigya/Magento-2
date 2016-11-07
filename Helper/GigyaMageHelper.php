@@ -51,6 +51,11 @@ class GigyaMageHelper extends AbstractHelper
         return new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
     }
 
+    public function getGigyaUserArray($gigyaUser) {
+        $arr =$this->gigyaApiHelper->userObjectToArray($gigyaUser);
+        return $arr;
+    }
+
     /**
      * Gigya settings are set in Stores->configuration->Gigya Identity management
      */
