@@ -13,10 +13,16 @@
       "email": "guy.av@gigya-inc.com"
     }
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "C:\\xampp\\htdocs\\php_cms_kit"
+    }
+  ],
   "require": {
     "php": "~5.5.0|~5.6.0",
     "magento/framework": "*",
-    "gigya/cms-starter-kit": "1.1.1"
+    "gigya/cms-starter-kit": "dev-guy"
   },
   "autoload": {
     "psr-4": { "Gigya\\GigyaIM\\": "" },
