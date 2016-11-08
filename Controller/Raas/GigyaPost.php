@@ -201,9 +201,9 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
             }
             // dispatch field mapping event
-            $gigya_user_arr = $this->gigyaMageHelper->getGigyaUserArray($valid_gigya_user);
+//            $gigya_user_arr = $this->gigyaMageHelper->getGigyaUserArray($valid_gigya_user);
             $this->_eventManager->dispatch('gigya_post_user_create',[
-                "gigya_user" => $gigya_user_arr,
+                "gigya_user" => $valid_gigya_user,
                 "customer" => $customer
             ]);
             return $redirect;
