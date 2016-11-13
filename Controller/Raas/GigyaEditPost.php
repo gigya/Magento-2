@@ -9,6 +9,7 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
+use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -40,6 +41,9 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
      */
     protected $session;
 
+    /** @var GigyaMageHelper  */
+    protected $gigyaMageHelper;
+
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -62,6 +66,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         $this->formKeyValidator = $formKeyValidator;
         $this->customerExtractor = $customerExtractor;
         parent::__construct($context);
+        $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
     }
 
     /**
@@ -93,6 +98,14 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
             if ($this->getRequest()->getParam('change_password')) {
                 $this->changeCustomerPassword($currentCustomer->getEmail());
             }
+
+//          dispatch field mapping event
+            $gigya_user_arr = json_decode($this->getRequest()->getParam('gigya_user'), true);
+            $user_obj = $this->gigyaMageHelper->userObjFromArr($gigya_user_arr);
+            $this->_eventManager->dispatch('gigya_post_user_create',[
+                "gigya_user" => $user_obj,
+                "customer" => $customer
+            ]);
 
             try {
                 $this->customerRepository->save($customer);

@@ -6,7 +6,7 @@ define(['jquery'], function($){
     };
     /**
      * Load Gigya script
-     * Sync gigya-magento sessions 
+     * Sync gigya-magento sessions
      * Event handlers (login, update)
      */
     gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
@@ -86,10 +86,8 @@ define(['jquery'], function($){
             form_key : gigyaMage2.Params.form_key,
             email : eventObj.profile.email,
             firstname : eventObj.profile.firstName,
-            lastname : eventObj.profile.lastName
-            // add additional mapped fields here
-            // e.g. if you add a 'prefix' attribute to the gigya edit profile form as a data field, add:
-            // prefix : eventObj.data.prefix
+            lastname : eventObj.profile.lastName,
+            gigya_user : JSON.stringify(eventObj.response)
         };
         gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
     };
@@ -143,6 +141,6 @@ define(['jquery'], function($){
             );
         }
     };
-    
+
     return gigyaMage2;
 });
