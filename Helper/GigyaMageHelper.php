@@ -51,9 +51,10 @@ class GigyaMageHelper extends AbstractHelper
         return new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
     }
 
-    public function getGigyaUserArray($gigyaUser) {
-        $arr =$this->gigyaApiHelper->userObjectToArray($gigyaUser);
-        return $arr;
+    public function userObjFromArr($userArray)
+    {
+        $obj = $this->gigyaApiHelper->userObjFromArray($userArray);
+        return $obj;
     }
 
     /**
