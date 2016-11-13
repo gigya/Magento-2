@@ -190,22 +190,23 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
             // Required fields exist, check if user exists in Magento
             // (consider doing this without overriding accountManagement.
-                // instantiate customerRepository in this class instead, and use it directly)
+            // instantiate customerRepository in this class instead, and use it directly)
             $customer = $this->accountManagement->gigyaUserExists($valid_gigya_user->getGigyaLoginId());
             if ($customer) {
                 $this->gigyaSetCustomerFields($customer, $valid_gigya_user);
                 $this->accountManagement->gigyaUpdateCustomer($customer);
                 $this->gigyaLoginUser($customer);
+                // dispatch field mapping event
+                $this->_eventManager->dispatch('gigya_post_user_create',[
+                    "gigya_user" => $valid_gigya_user,
+                    "customer" => $customer,
+                    "accountManagement" => $this->accountManagement
+                ]);
                 $redirect = $this->accountRedirect->getRedirect();
             } else {
                 $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
             }
-            // dispatch field mapping event
-//            $gigya_user_arr = $this->gigyaMageHelper->getGigyaUserArray($valid_gigya_user);
-            $this->_eventManager->dispatch('gigya_post_user_create',[
-                "gigya_user" => $valid_gigya_user,
-                "customer" => $customer
-            ]);
+
             return $redirect;
         }
     }
@@ -236,49 +237,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $customer->setFirstname($gigya_user_account->getProfile()->getFirstName());
         $customer->setLastname($gigya_user_account->getProfile()->getLastName());
         $customer->setCustomAttribute("gigya_uid", $gigya_user_account->getUID());
-
-        ///////////////////////////////////////////////////////
-        // adding extra mapped fields :
-        //  create the custom attribute in Gigya.
-        //  See Magento prepared methods at:
-        //  app/code/Magento/Customer/Model/Data/Customer.php
-        //
-        // Examples:
-        // $customer->setPrefix($gigya_user_account["data"]["prefix"]); // after setting data->prefix in Gigya
-        // $customer->setMiddlename($gigya_user_account["data"]["middlename"]); // after setting data->middlename in Gigya
-        // $customer->setAddresses($addresses);
-
-        // When needed, Don't forget to map Gigya to Magento field values.
-        // Example
-        $this->gigyaSetGender($customer, $gigya_user_account);
-        //
-        // Mapping Magento custom fields:
-        // helpful magento guide for creating custom fields:
-        // https://maxyek.wordpress.com/2015/10/22/building-magento-2-extension-customergrid/comment-page-1/
-        //
-        // For mapping existing Magento custom fields to gigya fields:
-        // use: $customer->setCustomAttribute($attributeCode, $attributeValue);
-        // or: $customer->setCustomAttributes(array());
-        // located at: /lib/internal/Magento/Framework/Api/AbstractExtensibleObject
-        //////////////////////////////////////////////////////// $gigya_user_account["profile"]["GUID"]
-    //    $custom_attributes = $customer->getCustomAttributes();
-    }
-
-    /**
-     * Example method to handle field mapping for custom fields
-     * @param $customer
-     * @param $gigya_user_account
-     */
-    protected function gigyaSetGender(&$customer, $gigya_user_account)
-    {
-        $gender = $gigya_user_account->getProfile()->getGender();
-        if ($gender) {
-            if ($gender = "m") {
-                $customer->setGender("1");
-            } elseif ($gender = "f") {
-                $customer->setGender("2");
-            }
-        }
     }
 
     /**
@@ -364,7 +322,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         try {
             $customer = $this->customerExtractor->extract('customer_account_create', $this->_request);
 
-             $this->gigyaSetCustomerFields($customer, $gigya_user_account);
+            $this->gigyaSetCustomerFields($customer, $gigya_user_account);
 
             $password =  $this->gigyaMageHelper->generatePassword();
             $redirectUrl = $this->session->getBeforeAuthUrl();
@@ -399,6 +357,13 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 $this->messageManager->addSuccess($this->getSuccessMessage());
                 $resultRedirect = $this->accountRedirect->getRedirect();
             }
+//             dispatch field mapping event
+            $this->_eventManager->dispatch('gigya_post_user_create',[
+                "gigya_user" => $gigya_user_account,
+                "customer" => $customer,
+                "accountManagement" => $this->accountManagement
+            ]);
+
             return $resultRedirect;
         } catch (StateException $e) {
             $url = $this->urlModel->getUrl('customer/account/forgotpassword');
