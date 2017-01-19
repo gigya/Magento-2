@@ -2,7 +2,6 @@
   "name": "gigya/magento2-im",
   "description": "Gigya Identity Management for Magento 2",
   "type": "magento2-module",
-  "version" : "4.0.4",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
@@ -20,7 +19,7 @@
     }
   ],
   "require": {
-    "php": "*",
+    "php": "~5.5.0|~5.6.0|~7.0.0",
     "magento/framework": "*",
     "gigya/cms-starter-kit": "^1.1.6"
   },
