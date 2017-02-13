@@ -12,6 +12,6 @@ class Settings extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     protected function _construct()
     {
         // name of the databse table, id column
-        $this->_init('gigya_settings', 'gigya_settings_id');
+        $this->_init('gigya_settings', 'id');
     }
 }
