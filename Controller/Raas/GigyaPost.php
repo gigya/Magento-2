@@ -219,7 +219,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     {
         $gigya_validation_post = $this->getRequest()->getParam('login_data');
         $gigya_validation_o = json_decode($gigya_validation_post);
-        $valid_gigya_user = $this->gigyaMageHelper->validateRaasUser(
+        $valid_gigya_user = $this->gigyaMageHelper->validateAndFetchRaasUser(
             $gigya_validation_o->UID,
             $gigya_validation_o->UIDSignature,
             $gigya_validation_o->signatureTimestamp
