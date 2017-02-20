@@ -9,9 +9,11 @@ use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\Module\ModuleListInterface;
 
 class GigyaMageHelper extends AbstractHelper
 {
+    const MODULE_NAME = 'Gigya_GigyaIM';
     private $apiKey;
     private $apiDomain;
     private $appKey;
@@ -23,6 +25,7 @@ class GigyaMageHelper extends AbstractHelper
 
     protected $gigyaApiHelper;
     protected $settingsFactory;
+    protected $_moduleList;
 
     public $_logger;
 
@@ -35,7 +38,8 @@ class GigyaMageHelper extends AbstractHelper
         \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
         Context $context,
         Logger $logger,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        ModuleListInterface $moduleList
     ) {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
@@ -44,6 +48,7 @@ class GigyaMageHelper extends AbstractHelper
         $this->setGigyaSettings();
         $this->appSecret = $this->decAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
+        $this->_moduleList = $moduleList;
     }
 
     public function getGigyaApiHelper()
@@ -114,14 +119,33 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
+     * CMS+Gigya environment params to send with Gigya API request
+     * @return array CMS+Gigya environment params tro send with Gigya API request
+     */
+    protected function createEnvironmentParam() {
+        // get Magento version
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+        $magento_version = $productMetadata->getVersion();
+
+        // get Gigya version
+        $gigya_version = $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
+
+        $org_params = array();
+        $org_params["environment"] = "cms_version:Magento_{$magento_version},gigya_version:Gigya_module_{$gigya_version}";
+        return $org_params;
+    }
+
+    /**
      * @param $UID
      * @param $UIDSignature
      * @param $signatureTimestamp
      * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
      */
-    public function validateRaasUser($UID, $UIDSignature, $signatureTimestamp)
+    public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
     {
-        $valid = $this->gigyaApiHelper->validateUid($UID, $UIDSignature, $signatureTimestamp);
+        $org_params = $this->createEnvironmentParam();
+        $valid = $this->gigyaApiHelper->validateUid($UID, $UIDSignature, $signatureTimestamp, null, null, $org_params);
         if (!$valid) {
             $this->gigyaLog(__FUNCTION__ .
                 ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
