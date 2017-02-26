@@ -1,4 +1,7 @@
-define(['jquery'], function($){
+define([
+    'jquery',
+    'Magento_Ui/js/modal/modal'
+], function($, modal){
     "use strict";
     var gigyaMage2 = {
         Params : {},
@@ -105,6 +108,8 @@ define(['jquery'], function($){
             });
     };
 
+
+
     /**
      * Things to do when gigya script finishes loading
      * init registered Gigya functions (e.g. showScreenSet from layout files)
@@ -139,6 +144,21 @@ define(['jquery'], function($){
                     onLogin: gigyaMage2.Functions.gigyaLoginEventHandler
                 }
             );
+
+            /**
+             * add popup modal for gigya login screen
+             */
+            var gigya_login_modal = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: false
+            };
+            var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
+
+            // add popup opener script:
+            jQuery(".open-gigya-login").on('click',function(){
+                jQuery("#gigya-login-popup").modal("openModal");
+            });
         }
     };
 
