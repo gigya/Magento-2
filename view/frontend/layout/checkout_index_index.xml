@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * Add Gigya script and login blocks to checkout layout
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+<referenceContainer name ="content">
+    <block class="Gigya\GigyaIM\Block\GigyaScript" name="Gigya_GigyaIM::GigyaScript" template="gigya_script.phtml">
+    </block>
+    <block class="Gigya\GigyaIM\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaIM::gigya_login.phtml">
+        <arguments>
+            <argument name="display" xsi:type="string">popup</argument>
+        </arguments>
+    </block>
+</referenceContainer>
+    </body>
+</page>
