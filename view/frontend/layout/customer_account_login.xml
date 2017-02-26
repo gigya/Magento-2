@@ -13,6 +13,9 @@
             <!-- customer.form.login.extra -->
             <!-- Add Gigya Login block: -->
             <block class="Gigya\GigyaIM\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaIM::gigya_login.phtml">
+                <arguments>
+                    <argument name="display_type" xsi:type="string">embed</argument>
+                </arguments>
             </block>
             <!-- remove Magento login form: -->
             <referenceContainer name="customer.login.container" remove="true" />
