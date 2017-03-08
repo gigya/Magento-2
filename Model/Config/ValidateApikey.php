@@ -62,7 +62,7 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
     public function beforeSave()
     {
         // get submitted settings
-        $api_key = $this->getValue();
+        $api_key = $this->_data['fieldset_data']['api_key'];
         $domain = $this->_data['fieldset_data']['domain'];
         $app_key = $this->_data['fieldset_data']['app_key'];
         $key_file_location = $this->_data['fieldset_data']['key_file_location'];
@@ -77,18 +77,25 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         $this->gigyaMageHelper->setAppKey($app_key);
         $this->gigyaMageHelper->setKeyFileLocation($key_file_location);
         $this->gigyaMageHelper->setAppSecret();
-        $this->gigyaMageHelper->getGigyaApiHelper();
+        $gigyaApiHelper = $this->gigyaMageHelper->getGigyaApiHelper();
 
         //make the call to gigya REST API
-        $res = $this->gigyaMageHelper->gigyaApiHelper->sendApiCall("getPolicies");
-
-        // Return success/error message
-        //@codingStandardsIgnoreStart
-        throw new \Magento\Framework\Exception\LocalizedException(
-            __(
-                'We can\'t share customer accounts globally when the accounts share identical email addresses on more than one website.'
-            )
-        );
+        $param = array("filter" => 'full');
+        try {
+            $gigyaApiHelper->sendApiCall("accounts.getSchema", $param);
+        } catch (\Gigya\CmsStarterKit\sdk\GSApiException $e) {
+            $this->gigyaMageHelper->gigyaLog(
+                "Error while trying to save gigya settings. " . $e->getErrorCode() .
+                " " .$e->getMessage() . " " . $e->getCallId()
+            );
+            //@codingStandardsIgnoreStart
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __(
+                    "Could not save settings. Gigya API test failed with error message: {$e->getMessage()} .".
+                    "call id: " . $e->getCallId()
+                )
+            );
+        }
 
         return $this;
     }

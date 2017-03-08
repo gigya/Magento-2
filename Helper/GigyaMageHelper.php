@@ -45,7 +45,7 @@ class GigyaMageHelper extends AbstractHelper
         $this->_logger = $logger;
         $this->scopeConfig = $scopeConfig;
         $this->setGigyaSettings();
-        $this->appSecret = $this->setAppSecret();
+        $this->setAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
         $this->_moduleList = $moduleList;
     }
