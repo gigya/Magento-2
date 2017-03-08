@@ -22,7 +22,7 @@ class GigyaMageHelper extends AbstractHelper
 
     private $appSecret;
 
-    protected $gigyaApiHelper;
+    public $gigyaApiHelper;
     protected $settingsFactory;
     protected $_moduleList;
 
@@ -45,20 +45,105 @@ class GigyaMageHelper extends AbstractHelper
         $this->_logger = $logger;
         $this->scopeConfig = $scopeConfig;
         $this->setGigyaSettings();
-        $this->appSecret = $this->decAppSecret();
+        $this->appSecret = $this->setAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
         $this->_moduleList = $moduleList;
     }
 
-    public function getGigyaApiHelper()
+    /**
+     * @return string
+     */
+    public function getAppSecret()
     {
-        return new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
+        return $this->appSecret;
     }
 
-    public function userObjFromArr($userArray)
+    /**
+     * decrypt application secret and set appSecret value
+     */
+    public function setAppSecret()
     {
-        $obj = $this->gigyaApiHelper->userObjFromArray($userArray);
-        return $obj;
+        $this->appSecret = $this->decAppSecret();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey;
+    }
+
+    /**
+     * @param mixed $apiKey
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiDomain()
+    {
+        return $this->apiDomain;
+    }
+
+    /**
+     * @param mixed $apiDomain
+     */
+    public function setApiDomain($apiDomain)
+    {
+        $this->apiDomain = $apiDomain;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAppKey()
+    {
+        return $this->appKey;
+    }
+
+    /**
+     * @param mixed $appKey
+     */
+    public function setAppKey($appKey)
+    {
+        $this->appKey = $appKey;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getKeyFileLocation()
+    {
+        return $this->keyFileLocation;
+    }
+
+    /**
+     * @param mixed $keyFileLocation
+     */
+    public function setKeyFileLocation($keyFileLocation)
+    {
+        $this->keyFileLocation = $keyFileLocation;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDebug()
+    {
+        return $this->debug;
+    }
+
+    /**
+     * @param mixed $debug
+     */
+    public function setDebug($debug)
+    {
+        $this->debug = $debug;
     }
 
     /**
@@ -72,6 +157,17 @@ class GigyaMageHelper extends AbstractHelper
         $this->appKey = $settings['app_key'];
         $this->keyFileLocation = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $settings['key_file_location'];
         $this->debug = $settings['debug_mode'];
+    }
+
+    public function getGigyaApiHelper()
+    {
+        return new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
+    }
+
+    public function userObjFromArr($userArray)
+    {
+        $obj = $this->gigyaApiHelper->userObjFromArray($userArray);
+        return $obj;
     }
 
     /**

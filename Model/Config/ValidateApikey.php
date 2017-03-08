@@ -72,8 +72,15 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         /** @var \Magento\Framework\ObjectManagerInterface $om */
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $this->gigyaMageHelper = $om->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
+        $this->gigyaMageHelper->setApiKey($api_key);
+        $this->gigyaMageHelper->setApiDomain($domain);
+        $this->gigyaMageHelper->setAppKey($app_key);
+        $this->gigyaMageHelper->setKeyFileLocation($key_file_location);
+        $this->gigyaMageHelper->setAppSecret();
+        $this->gigyaMageHelper->getGigyaApiHelper();
 
         //make the call to gigya REST API
+        $res = $this->gigyaMageHelper->gigyaApiHelper->sendApiCall("getPolicies");
 
         // Return success/error message
         //@codingStandardsIgnoreStart
