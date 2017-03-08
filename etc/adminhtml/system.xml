@@ -24,11 +24,6 @@
                     <validate>validate-no-empty</validate>
                     <backend_model>Gigya\GigyaIM\Model\Config\ValidateApikey</backend_model>
                 </field>
-                <field id="key_save_type" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Encryption Key Save Mode</label>
-                    <source_model>Gigya\GigyaIM\Model\Config\Source\Keytype</source_model>
-                    <comment><![CDATA[set to "file" if you are saving your encryption key in a file, or "env", if you are setting the key as server environment variable.]]></comment>
-                </field>
                 <field id="key_file_location" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Path to your key file</label>
                     <depends>
