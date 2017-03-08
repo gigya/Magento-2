@@ -17,7 +17,6 @@ class GigyaMageHelper extends AbstractHelper
     private $apiKey;
     private $apiDomain;
     private $appKey;
-    private $keySaveType;
     private $keyFileLocation;
     private $debug;
 
@@ -71,7 +70,6 @@ class GigyaMageHelper extends AbstractHelper
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->keySaveType = $settings['key_save_type'];
         $this->keyFileLocation = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $settings['key_file_location'];
         $this->debug = $settings['debug_mode'];
     }
@@ -89,11 +87,7 @@ class GigyaMageHelper extends AbstractHelper
             $this->gigyaLog(__FUNCTION__ . " No valid secret key found in DB.");
         }
 
-        // get the key if it is saved in external file
-        $key = null;
-        if ($this->keySaveType == "file") {
-            $key = $this->getEncKey();
-        }
+        $key = $this->getEncKey();
         $dec = GigyaApiHelper::decrypt($encrypted_secret, $key);
         return $dec;
     }
@@ -113,7 +107,7 @@ class GigyaMageHelper extends AbstractHelper
             }
         } else {
             $this->gigyaLog(__FUNCTION__
-                . ": KEY_SAVE_TYPE is set to env, but KEY_PATH is not set in Gigya system config.");
+                . ": KEY_PATH is not set in Gigya system config.");
         }
         return $key;
     }
