@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright © 2016 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Validate that admin API settings are correct.
+ * on Gigya admin page save, take the submitted API, DC, Aapp key, and apps secret and create Gigya REST request
  */
 namespace Gigya\GigyaIM\Model\Config;
 
@@ -20,6 +20,9 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
 
     /** @var  \Magento\Store\Model\StoreManagerInterface */
     protected $_storeManager;
+
+    /** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
+    protected $gigyaMageHelper;
 
     /**
      * Constructor
@@ -58,25 +61,28 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
      */
     public function beforeSave()
     {
-        $value = $this->getValue();
+        // get submitted settings
+        $api_key = $this->getValue();
+        $domain = $this->_data['fieldset_data']['domain'];
+        $app_key = $this->_data['fieldset_data']['app_key'];
+        $key_file_location = $this->_data['fieldset_data']['key_file_location'];
+        // *** cancel key save type option in admin
+
+        // create object manager and reset the settings to newly submitted
+        /** @var \Magento\Framework\ObjectManagerInterface $om */
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $this->gigyaMageHelper = $om->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
+
+        //make the call to gigya REST API
+
+        // Return success/error message
         //@codingStandardsIgnoreStart
         throw new \Magento\Framework\Exception\LocalizedException(
             __(
                 'We can\'t share customer accounts globally when the accounts share identical email addresses on more than one website.'
             )
         );
-        //@codingStandardsIgnoreEnd
-//        if ($value == self::SHARE_GLOBAL) {
-//            if ($this->_customerResource->findEmailDuplicates()) {
-//                //@codingStandardsIgnoreStart
-//                throw new \Magento\Framework\Exception\LocalizedException(
-//                    __(
-//                        'We can\'t share customer accounts globally when the accounts share identical email addresses on more than one website.'
-//                    )
-//                );
-//                //@codingStandardsIgnoreEnd
-//            }
-//        }
+
         return $this;
     }
 
