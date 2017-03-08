@@ -83,6 +83,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      */
     private $accountRedirect;
 
+    /** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
     protected $gigyaMageHelper;
 
     /**

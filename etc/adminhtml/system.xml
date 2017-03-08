@@ -22,6 +22,7 @@
                 <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Application Key</label>
                     <validate>validate-no-empty</validate>
+                    <backend_model>Gigya\GigyaIM\Model\Config\ValidateApikey</backend_model>
                 </field>
                 <field id="key_save_type" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Encryption Key Save Mode</label>
