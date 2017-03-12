@@ -91,8 +91,7 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
             //@codingStandardsIgnoreStart
             throw new \Magento\Framework\Exception\LocalizedException(
                 __(
-                    "Could not save settings. Gigya API test failed with error message: {$e->getMessage()} .".
-                    "call id: " . $e->getCallId()
+                    "Could not save settings. Gigya API test failed with error message: {$e->getMessage()} ."
                 )
             );
         }
