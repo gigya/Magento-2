@@ -14,6 +14,9 @@ use Magento\Framework\Module\ModuleListInterface;
 class GigyaMageHelper extends AbstractHelper
 {
     const MODULE_NAME = 'Gigya_GigyaIM';
+    const FIELDMAP_MODULE = 'Gigya_FieldMapping';
+    private $extra_profile_fields_config = "https://s3.amazonaws.com/gigya-cms-configs/extraProfileFieldsMap.json";
+
     private $apiKey;
     private $apiDomain;
     private $appKey;
@@ -235,12 +238,110 @@ class GigyaMageHelper extends AbstractHelper
     public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
     {
         $org_params = $this->createEnvironmentParam();
-        $valid = $this->gigyaApiHelper->validateUid($UID, $UIDSignature, $signatureTimestamp, null, null, $org_params);
+        $extra_profile_fields_list = $this->setExtraProfileFields();
+        $valid = $this->gigyaApiHelper->validateUid(
+            $UID, $UIDSignature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
+        );
         if (!$valid) {
             $this->gigyaLog(__FUNCTION__ .
                 ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
         }
         return $valid;
+    }
+
+    /**
+     * check if field mapping file exists and if extra fields map file is available.
+     *  return list of extra fields to fetch from Gigya account
+     * @return string $extra_fields_list
+     */
+    protected function setExtraProfileFields()
+    {
+        $extra_profile_fields_list = null;
+        // if field mapping module is on, set $config_file_path
+        if (is_null($this->_moduleList->getOne(self::FIELDMAP_MODULE)['setup_version'])) {
+            return $extra_profile_fields_list;
+        }
+        $config_file_path = $this->scopeConfig->
+        getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
+
+        // if map fields file exists, read map fields file and build gigya fields array
+        if (is_null($config_file_path)) {
+            $this->gigyaLog(
+                "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined. 
+                Define file path at: Stores:Config:Gigya:Field Mapping"
+            );
+            return $extra_profile_fields_list;
+        }
+        if(file_exists($config_file_path)) {
+            $mapping_json = file_get_contents($config_file_path);
+            if(false === $mapping_json) {
+                $err     = error_get_last();
+                $this->gigyaLog(
+                    "setExtraProfileFields: Could not read mapping file at: " . $config_file_path .
+                    ". error message: ". $err['message']
+                );
+                return $extra_profile_fields_list;
+            }
+        } else {
+            $this->gigyaLog("setExtraProfileFields: Could not find mapping file at: {$config_file_path}");
+            return $extra_profile_fields_list;
+        }
+
+        $field_map_array = json_decode($mapping_json, true);
+        if(!is_array($field_map_array)) {
+            $this->gigyaLog(
+                "setExtraProfileFields: mapping fields file could not be properly parsed."
+            );
+            return $extra_profile_fields_list;
+        }
+
+        // create one dimension array of gigyaName profile fields
+        $profile_fields = array();
+        foreach ($field_map_array as $full_field) {
+            // if gigyaName contains value with profile, add the profile field to profile_fields
+            if(strpos($full_field['gigyaName'], "profile") === 0) {
+                $field = explode( ".",$full_field['gigyaName'])[1];
+                array_push($profile_fields, $field);
+            }
+        }
+        if (count($profile_fields) === 0) {
+            return $extra_profile_fields_list;
+        }
+
+        // download and create extra fields map array
+        if(file_exists($this->extra_profile_fields_config)) {
+            $extra_profile_fields_file = file_get_contents($this->extra_profile_fields_config);
+            if(false === $extra_profile_fields_file) {
+                $err     = error_get_last();
+                $this->gigyaLog(
+                    "setExtraProfileFields: Could not read $extra_profile_fields_file from: "
+                    . $this->extra_profile_fields_config
+                    ." .error message: ". $err['message']
+                );
+                return $extra_profile_fields_list;
+            }
+        } else {
+            $this->gigyaLog(
+                "setExtraProfileFields: Could not find extra_profile_fields_config file at:" .
+                $this->extra_profile_fields_config
+            );
+            return $extra_profile_fields_list;
+        }
+
+        $extra_profile_fields_array = json_decode($extra_profile_fields_file);
+        if(!is_array($field_map_array)) {
+            $this->gigyaLog(
+                "setExtraProfileFields: extra profile fields file could not be properly parsed."
+            );
+            return $extra_profile_fields_list;
+        }
+        //compare arrays for matching fields to map and build extra profile fields list
+        $extra_fields_match = array_intersect($extra_profile_fields_array, $profile_fields);
+        if(count($extra_fields_match) > 0) {
+            $extra_profile_fields_list = implode(",",$extra_fields_match);
+        }
+
+        return $extra_profile_fields_list;
     }
 
     /**
