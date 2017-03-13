@@ -309,21 +309,13 @@ class GigyaMageHelper extends AbstractHelper
         }
 
         // download and create extra fields map array
-        if(file_exists($this->extra_profile_fields_config)) {
-            $extra_profile_fields_file = file_get_contents($this->extra_profile_fields_config);
-            if(false === $extra_profile_fields_file) {
-                $err     = error_get_last();
-                $this->gigyaLog(
-                    "setExtraProfileFields: Could not read $extra_profile_fields_file from: "
-                    . $this->extra_profile_fields_config
-                    ." .error message: ". $err['message']
-                );
-                return $extra_profile_fields_list;
-            }
-        } else {
+        $extra_profile_fields_file = file_get_contents($this->extra_profile_fields_config);
+        if(false === $extra_profile_fields_file) {
+            $err     = error_get_last();
             $this->gigyaLog(
-                "setExtraProfileFields: Could not find extra_profile_fields_config file at:" .
-                $this->extra_profile_fields_config
+                "setExtraProfileFields: Could not read $extra_profile_fields_file from: "
+                . $this->extra_profile_fields_config
+                ." .error message: ". $err['message']
             );
             return $extra_profile_fields_list;
         }
