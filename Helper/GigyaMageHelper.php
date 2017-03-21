@@ -7,7 +7,6 @@ namespace Gigya\GigyaIM\Helper;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\Module\ModuleListInterface;
 
@@ -40,13 +39,11 @@ class GigyaMageHelper extends AbstractHelper
         \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
         Context $context,
         Logger $logger,
-        ScopeConfigInterface $scopeConfig,
         ModuleListInterface $moduleList
     ) {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
-        $this->scopeConfig = $scopeConfig;
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
@@ -76,6 +73,7 @@ class GigyaMageHelper extends AbstractHelper
     {
         return $this->apiKey;
     }
+
 
     /**
      * @param mixed $apiKey
@@ -154,7 +152,7 @@ class GigyaMageHelper extends AbstractHelper
      */
     private function setGigyaSettings()
     {
-        $settings = $this->scopeConfig->getValue("gigya_section/general");
+        $settings = $this->_scopeConfig->getValue("gigya_section/general");
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
@@ -261,7 +259,7 @@ class GigyaMageHelper extends AbstractHelper
         if (is_null($this->_moduleList->getOne(self::FIELDMAP_MODULE)['setup_version'])) {
             return $extra_profile_fields_list;
         }
-        $config_file_path = $this->scopeConfig->
+        $config_file_path = $this->_scopeConfig->
         getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
 
         // if map fields file exists, read map fields file and build gigya fields array
