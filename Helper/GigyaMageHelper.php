@@ -152,7 +152,7 @@ class GigyaMageHelper extends AbstractHelper
      */
     private function setGigyaSettings()
     {
-        $settings = $this->_scopeConfig->getValue("gigya_section/general");
+        $settings = $this->scopeConfig->getValue("gigya_section/general");
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
@@ -259,7 +259,7 @@ class GigyaMageHelper extends AbstractHelper
         if (is_null($this->_moduleList->getOne(self::FIELDMAP_MODULE)['setup_version'])) {
             return $extra_profile_fields_list;
         }
-        $config_file_path = $this->_scopeConfig->
+        $config_file_path = $this->scopeConfig->
         getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
 
         // if map fields file exists, read map fields file and build gigya fields array
