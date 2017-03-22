@@ -1,2 +1,2 @@
-# GConnector
-## Gigya Identity Management Connector for Magento 2
+
+# Magento- 2
