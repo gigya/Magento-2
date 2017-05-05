@@ -100,6 +100,10 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
             }
 
 //          dispatch field mapping event
+            // CATODO : gigya_user is the Gigya data from frontend (the front page has made a request to Gigya to get these infos)
+            // => we don't have the loginIDs data, which are mandatory for CMS sync process
+            // CATODO : in GigyaPost we validate the user data with a call to Gigya. Here in GigyaEditPost we don't do that
+            // => perhaps we should. And perhaps in the same time we could get the missing Gigya data (loginIDs)
             $gigya_user_arr = json_decode($this->getRequest()->getParam('gigya_user'), true);
             $user_obj = $this->gigyaMageHelper->userObjFromArr($gigya_user_arr);
             $this->_eventManager->dispatch('gigya_post_user_create',[
