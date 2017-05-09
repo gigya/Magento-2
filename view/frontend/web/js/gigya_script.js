@@ -148,17 +148,17 @@ define([
             /**
              * add popup modal for gigya login screen
              */
-            var gigya_login_modal = {
-                type: 'popup',
-                responsive: true,
-                innerScroll: false
-            };
-            var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
-
-            // add popup opener script:
-            jQuery(".open-gigya-login").on('click',function(){
-                jQuery("#gigya-login-popup").modal("openModal");
-            });
+            // var gigya_login_modal = {
+            //     type: 'popup',
+            //     responsive: true,
+            //     innerScroll: false
+            // };
+            // var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
+            //
+            // // add popup opener script:
+            // jQuery(".open-gigya-login").on('click',function(){
+            //     jQuery("#gigya-login-popup").modal("openModal");
+            // });
         }
     };
 
