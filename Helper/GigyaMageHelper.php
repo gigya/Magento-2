@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Helper;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
+use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\Module\ModuleListInterface;
 
@@ -39,11 +40,13 @@ class GigyaMageHelper extends AbstractHelper
         \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
         Context $context,
         Logger $logger,
+        ScopeConfigInterface $scopeConfig,
         ModuleListInterface $moduleList
     ) {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
+        $this->scopeConfig = $scopeConfig;
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
@@ -73,7 +76,6 @@ class GigyaMageHelper extends AbstractHelper
     {
         return $this->apiKey;
     }
-
 
     /**
      * @param mixed $apiKey

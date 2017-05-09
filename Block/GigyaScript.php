@@ -26,6 +26,11 @@ class GigyaScript extends Template
     protected $_customerUrl;
 
     /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Customer\Model\Url $customerUrl
@@ -35,12 +40,14 @@ class GigyaScript extends Template
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Model\Url $customerUrl,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->_isScopePrivate = false;
         $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -64,7 +71,7 @@ class GigyaScript extends Template
      */
     public function getGigyaApiKey()
     {
-        $api = $this->_scopeConfig->getValue("gigya_section/general/api_key");
+        $api = $this->scopeConfig->getValue("gigya_section/general/api_key");
         return $api;
     }
 
@@ -105,13 +112,13 @@ class GigyaScript extends Template
      * else set selected language
      */
     public function getLanguage() {
-        $lang = $this->_scopeConfig->getValue("gigya_section/general/language");
+        $lang = $this->scopeConfig->getValue("gigya_section/general/language");
         if ($lang == "auto") {
             $lang = $this->checkLocalLang();
         }
         if (!array_key_exists($lang, $this->gigyaSupportedLanguages())) {
             // log: "local language - $local_lang is not supported by gigya, reverting to default lang"
-            $lang = $this->_scopeConfig->getValue("gigya_section/general/language_fallback");
+            $lang = $this->scopeConfig->getValue("gigya_section/general/language_fallback");
         }
         return $lang;
     }
