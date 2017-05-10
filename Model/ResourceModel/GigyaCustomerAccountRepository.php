@@ -7,7 +7,7 @@ namespace Gigya\GigyaIM\Model\ResourceModel;
 
 use Gigya\GigyaIM\Api\Data\GigyaCustomerAccountInterface;
 use Gigya\GigyaIM\Api\GigyaCustomerAccountRepositoryInterface;
-use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Api\GigyaCustomerAccountServiceInterface;
 
 /**
  * GigyaCustomerAccountRepository
@@ -21,19 +21,19 @@ use Gigya\GigyaIM\Helper\GigyaMageHelper;
  */
 class GigyaCustomerAccountRepository implements GigyaCustomerAccountRepositoryInterface
 {
-    /** @var  GigyaMageHelper */
-    protected $gigyaMageHelper;
+    /** @var  GigyaCustomerAccountServiceInterface */
+    protected $gigyaCustomerAccountService;
 
     /**
      * GigyaCustomerAccountRepository constructor.
      *
-     * @param GigyaMageHelper $gigyaMageHelper
+     * @param GigyaCustomerAccountServiceInterface $gigyaCustomerAccountService
      */
     public function __construct(
-        GigyaMageHelper $gigyaMageHelper
+        GigyaCustomerAccountServiceInterface $gigyaCustomerAccountService
     )
     {
-        $this->gigyaMageHelper = $gigyaMageHelper;
+        $this->gigyaCustomerAccountService = $gigyaCustomerAccountService;
     }
 
     /**
@@ -44,18 +44,7 @@ class GigyaCustomerAccountRepository implements GigyaCustomerAccountRepositoryIn
         // CATODO : for now we synchronize on update only, not for a new user
         if ($gigyaCustomerAccount->getUid()) {
 
-            // CATODO : other fields to map to Gigya
-            $this->gigyaMageHelper->getGigyaApiHelper()->updateGigyaAccount(
-                $gigyaCustomerAccount->getUid(),
-                [
-                    'email' => $gigyaCustomerAccount->getLoginEmail()
-                ],
-                [
-                    'loginIDs' => [
-                        $gigyaCustomerAccount->getLoginEmail()
-                    ]
-                ]
-            );
+            $this->gigyaCustomerAccountService->update($gigyaCustomerAccount);
         }
     }
 }

@@ -17,11 +17,30 @@ use Gigya\GigyaIM\Api\Data\GigyaCustomerAccountInterface;
  */
 class GigyaCustomerAccount implements GigyaCustomerAccountInterface
 {
+    /** @var  integer */
+    private $entityId;
+
     /** @var  string */
     private $uid;
 
     /** @var  string */
     private $loginEmail;
+
+    /**
+     * @inheritdoc
+     */
+    function getEntityId()
+    {
+        return $this->entityId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function setEntityId($entityId)
+    {
+        $this->entityId = $entityId;
+    }
 
     /**
      * @inheritdoc

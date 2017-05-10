@@ -24,6 +24,15 @@
     <preference for="Gigya\GigyaIM\Api\GigyaCustomerAccountRepositoryInterface"
                 type="Gigya\GigyaIM\Model\ResourceModel\GigyaCustomerAccountRepository" />
 
+    <preference for="Gigya\GigyaIM\Api\GigyaCustomerAccountServiceInterface"
+                type="Gigya\GigyaIM\Model\GigyaCustomerAccountService" />
+
+    <type name="Gigya\GigyaIM\Model\GigyaCustomerAccountService">
+        <arguments>
+            <argument name="logger" xsi:type="object">Gigya\GigyaIM\Logger\Logger</argument>
+        </arguments>
+    </type>
+
     <!-- Register Gigya Logger -->
     <type name="Gigya\GigyaIM\Logger\Handler">
         <arguments>
