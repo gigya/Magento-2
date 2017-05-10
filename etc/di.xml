@@ -18,6 +18,12 @@
     <preference for="Gigya\GigyaIM\Block\Form\GigyaRegister"
                 type="Magento\Customer\Block\Form\Register" />
 
+    <preference for="Gigya\GigyaIM\Api\Data\GigyaCustomerAccountInterface"
+                type="Gigya\GigyaIM\Model\GigyaCustomerAccount" />
+
+    <preference for="Gigya\GigyaIM\Api\GigyaCustomerAccountRepositoryInterface"
+                type="Gigya\GigyaIM\Model\ResourceModel\GigyaCustomerAccountRepository" />
+
     <!-- Register Gigya Logger -->
     <type name="Gigya\GigyaIM\Logger\Handler">
         <arguments>
