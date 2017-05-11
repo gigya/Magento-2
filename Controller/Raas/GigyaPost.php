@@ -210,11 +210,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
             }
 
             try {
-                //$customer = $this->gigyaSync($valid_gigya_user);
-
 
                 $customer = $this->syncHelper->gigyaSync($valid_gigya_user);
-
 
                 if ($customer) {
                     $this->gigyaSetCustomerFields($customer, $valid_gigya_user);
@@ -239,92 +236,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
             return $redirect;
         }
-    }
-
-    /**
-     *
-     * @param gigya_user $valid_gigya_user
-     * @return Customer  $customer
-     * @throws \Exception
-     */
-    protected function gigyaSync($valid_gigya_user)
-    {
-        $customerResult = null;
-
-        /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
-        $resultRedirect = $this->resultRedirectFactory->create();
-
-        $gigyaLoginData = null;
-        $boolProfileEmail = false;
-
-        $gigyaFilteredData = array();//gigyaFilteredData collection of { gigya_email = gigyaRawData.loginIDs.email, cms_account = null }
-
-
-        if (!(empty($gigya_uid = $valid_gigya_user->getUID()))) {
-
-            if (!(empty($gigya_loginIDsEmails = $valid_gigya_user->getLoginIDs()['emails']))) {
-
-
-                foreach ($gigya_loginIDsEmails as $loginIDsEmail) {
-
-                    $ctm =$this->customerRepository->get($loginIDsEmail,$this->storeManager->getWebsite()->getId());
-                    //$customerEmail is in $loginIDsEmails
-
-                    if ($loginIDsEmail == $valid_gigya_user->getProfile()->getEmail()) {
-
-                        $gigyaFilteredData[] = [
-                            'gigya_email' => $loginIDsEmail,
-                            'cms_account' => $ctm,
-                            'is_profile_email' => true
-                        ];
-                    }else{
-
-                        $gigyaFilteredData[] = [
-                            'gigya_email' => $loginIDsEmail,
-                            'cms_account' => $ctm,
-                            'is_profile_email' => false
-                        ];
-                    }
-
-                }
-
-            } else {
-                // $gigya_loginIDsEmails is empty
-                $this->messageManager->addError("Email already exists");
-            }
-        } else {
-            //$gigya_uid is empty
-            $this->messageManager->addError("UID already exists");
-        }
-
-        //  Check if account already exists in CMS
-        foreach ($gigyaFilteredData as $row){
-            if ($row['cms_account'] != null) {
-                // CMS account exists with one of the Gigya emails and same UID
-                // CATODO : review loop break condition
-                if ($row['cms_account']->getCustomAttribute('gigya_uid')->getValue() === $valid_gigya_user->getUID()) {
-                    $gigyaLoginData = $row;
-
-                    //if $gigya_profileEmail is in $gigya_loginIDsEmails it is used as a priority else is ignored
-                    if ($row['is_profile_email']){
-                        break;
-                    }
-                }
-            }
-        }
-
-        //set gigyaRawData on a session object 'gigyaRawData'
-        //set gigyaLoginData.gigya_email on a session object 'gigyaLoggedInEmail'
-
-        if ($gigyaLoginData != null) {
-
-            $customerResult = $gigyaLoginData['cms_account'];
-
-        } else {
-            throw new \Exception("Email already exists");
-        }
-
-        return $customerResult;
     }
 
     /**
