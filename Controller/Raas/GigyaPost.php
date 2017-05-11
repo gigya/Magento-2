@@ -31,6 +31,7 @@ use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 
 
 /**
@@ -95,6 +96,9 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      */
     private $customerRepository;
 
+    /** @var  SyncHelper */
+    protected $syncHelper;
+
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -115,6 +119,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      * @param DataObjectHelper $dataObjectHelper
      * @param AccountRedirect $accountRedirect
      * @param CustomerRepositoryInterface $customerRepository
+     * @param SyncHelper $syncHelper
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -137,7 +142,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         CustomerExtractor $customerExtractor,
         DataObjectHelper $dataObjectHelper,
         AccountRedirect $accountRedirect,
-        CustomerRepositoryInterface $customerRepository
+        CustomerRepositoryInterface $customerRepository,
+        SyncHelper $syncHelper
     )
     {
         $this->session = $customerSession;
@@ -160,6 +166,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         parent::__construct($context);
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
         $this->customerRepository = $customerRepository;
+        $this->syncHelper = $syncHelper;
     }
 
     /**
@@ -203,7 +210,10 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
             }
 
             try {
-                $customer = $this->gigyaSync($valid_gigya_user);
+                //$customer = $this->gigyaSync($valid_gigya_user);
+
+
+                $customer = $this->syncHelper->gigyaSync($valid_gigya_user);
 
 
                 if ($customer) {
@@ -232,7 +242,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     }
 
     /**
-     * @param $valid_gigya_user
+     *
+     * @param gigya_user $valid_gigya_user
      * @return Customer  $customer
      * @throws \Exception
      */
