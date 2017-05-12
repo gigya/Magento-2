@@ -13,6 +13,7 @@ use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Customer\Model\Session;
 
 class GigyaSyncHelper extends AbstractHelper
 {
@@ -32,23 +33,31 @@ class GigyaSyncHelper extends AbstractHelper
     protected $storeManager;
 
     /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * GigyaSyncHelper constructor.
      * @param HelperContext $helperContext
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param CustomerRepositoryInterface $customerRepository
      * @param StoreManagerInterface $storeManager
+     * @param Session $customerSession
      */
     public function __construct(
         HelperContext $helperContext,
         MessageManager $messageManager,
         CustomerRepositoryInterface $customerRepository,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Session $customerSession
     )
     {
         parent::__construct($helperContext);
         $this->messageManager = $messageManager;
         $this->customerRepository =$customerRepository;
         $this->storeManager = $storeManager;
+        $this->session = $customerSession;
     }
 
     /**
@@ -62,7 +71,6 @@ class GigyaSyncHelper extends AbstractHelper
         $customerResult = null; // init result
         $gigyaLoginData = null; // init Gigya Login Data
         $gigyaFilteredData = array();//gigyaFilteredData collection of { gigya_email = gigyaRawData.loginIDs.email, cms_account = null }
-
 
         if (!(empty($gigya_uid = $valid_gigya_user->getUID()))) {
 
@@ -118,7 +126,13 @@ class GigyaSyncHelper extends AbstractHelper
         }
 
         //set gigyaRawData on a session object 'gigyaRawData'
+        $this->session->setGigyaRawData($valid_gigya_user);
+
         //set gigyaLoginData.gigya_email on a session object 'gigyaLoggedInEmail'
+        if (!(empty($email = $gigyaLoginData['cms_account']->getEmail()))){
+            $this->session->setGigyaLoggedInEmail($email);
+        }
+
 
         if ($gigyaLoginData != null) {
 
