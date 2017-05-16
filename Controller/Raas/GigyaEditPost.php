@@ -92,18 +92,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 
         if ($this->getRequest()->isPost()) {
             $customerId = $this->session->getCustomerId();
-
-            try{
-
-                $valid_gigya_user = $this->session->getGigyaRawData();
-                $currentCustomer = $this->syncHelper->gigyaSync($valid_gigya_user);
-
-            }catch(\Exception $e) {
-
-                $this->messageManager->addError($e->getMessage());
-            }
-
-            //$currentCustomer = $this->customerRepository->getById($customerId);
+            $currentCustomer = $this->customerRepository->getById($customerId);
 
             // Prepare new customer data
             $customer = $this->customerExtractor->extract('customer_account_edit', $this->_request);
@@ -117,26 +106,19 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
                 $this->changeCustomerPassword($currentCustomer->getEmail());
             }
 
-//          dispatch field mapping event
-            // CATODO : gigya_user is the Gigya data from frontend (the front page has made a request to Gigya to get these infos)
-            // => we don't have the loginIDs data, which are mandatory for CMS sync process
-            // CATODO : in GigyaPost we validate the user data with a call to Gigya. Here in GigyaEditPost we don't do that
-            // => perhaps we should. And perhaps in the same time we could get the missing Gigya data (loginIDs)
-
-            $gigya_user_arr = json_decode($this->getRequest()->getParam('gigya_user'), true);
-            $user_obj = $this->gigyaMageHelper->userObjFromArr($gigya_user_arr);
-
-            $this->_eventManager->dispatch('gigya_account_edited',[
-                "customer" => $currentCustomer
-            ]);
-
-            $this->_eventManager->dispatch('gigya_post_user_create',[
-                "gigya_user" => $user_obj,
-                "customer" => $customer
-            ]);
-
             try {
+                $gigyaAccount = $this->gigyaMageHelper->userObjFromArr(json_decode($this->getRequest()->getParam('gigya_user'), true));
+                $eligibleCustomer = $this->syncHelper->setGigyaAccountOnSession($gigyaAccount);
+                if ($eligibleCustomer == null || $eligibleCustomer->getId() != $customerId) {
+                    throw new \Exception("Could not retrieve a valid Magento customer with the given Gigya data");
+                }
+
                 $this->customerRepository->save($customer);
+
+                $this->_eventManager->dispatch('gigya_post_user_create', [
+                    "gigya_user" => $this->session->getGigyaLoggedInAccount(),
+                    "customer" => $customer
+                ]);
             } catch (AuthenticationException $e) {
                 $this->messageManager->addError($e->getMessage());
             } catch (InputException $e) {

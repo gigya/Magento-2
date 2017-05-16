@@ -17,6 +17,10 @@
     <preference for="Gigya\GigyaIM\Block\Form\GigyaRegister"
                 type="Magento\Customer\Block\Form\Register" />
 
+    <type name="Magento\Customer\Model\CustomerExtractor">
+        <plugin name="gigyaIM_customerExtractor" type="Gigya\GigyaIM\Plugin\Customer\Model\CustomerExtractorPlugin" />
+    </type>
+
     <!-- Register Gigya Logger -->
     <type name="Gigya\GigyaIM\Logger\Handler">
         <arguments>

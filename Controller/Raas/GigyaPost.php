@@ -7,8 +7,6 @@ namespace Gigya\GigyaIM\Controller\Raas;
 
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
-use Magento\Customer\Api\Data\AddressInterface;
-use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session;
@@ -211,12 +209,9 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
             try {
 
-                $customer = $this->syncHelper->gigyaSync($valid_gigya_user);
+                $customer = $this->syncHelper->setGigyaAccountOnSession($valid_gigya_user);
 
                 if ($customer) {
-                    $this->gigyaSetCustomerFields($customer, $valid_gigya_user);
-                    $this->customerRepository->save($customer);
-
                     $this->gigyaLoginUser($customer);
                     // dispatch field mapping event
                     $this->_eventManager->dispatch('gigya_post_user_create', [
@@ -240,7 +235,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
     /**
      * Use gigyaMageHelper to validate and get user
-     * @return false/object:gigya_user
+     * @return false|GigyaUser
      */
     protected function gigyaValidateUser()
     {
@@ -252,18 +247,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
             $gigya_validation_o->signatureTimestamp
         );
         return $valid_gigya_user;
-    }
-
-    /**
-     * @param object $customer
-     * @param object $gigya_user_account
-     */
-    protected function gigyaSetCustomerFields(&$customer, $gigya_user_account)
-    {
-        $customer->setEmail($gigya_user_account->getGigyaLoginId());
-        $customer->setFirstname($gigya_user_account->getProfile()->getFirstName());
-        $customer->setLastname($gigya_user_account->getProfile()->getLastName());
-        $customer->setCustomAttribute("gigya_uid", $gigya_user_account->getUID());
     }
 
     /**
@@ -348,8 +331,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     {
         try {
             $customer = $this->customerExtractor->extract('customer_account_create', $this->_request);
-
-            $this->gigyaSetCustomerFields($customer, $gigya_user_account);
 
             $password = $this->gigyaMageHelper->generatePassword();
             $redirectUrl = $this->session->getBeforeAuthUrl();
