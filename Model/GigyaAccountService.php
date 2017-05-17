@@ -7,24 +7,24 @@ namespace Gigya\GigyaIM\Model;
 
 
 use Gigya\CmsStarterKit\sdk\GSApiException;
-use Gigya\GigyaIM\Api\Data\GigyaCustomerAccountInterface;
-use Gigya\GigyaIM\Api\GigyaCustomerAccountServiceInterface;
+use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use \Magento\Framework\Model\Context;
 use Monolog\Logger;
 
 /**
- * GigyaCustomerAccountService
+ * GigyaAccountService
  *
  * @inheritdoc
  *
  * @author      vlemaire <info@x2i.fr>
  *
  */
-class GigyaCustomerAccountService implements GigyaCustomerAccountServiceInterface
-{
-    const EVENT_UPDATE_GIGYA_SUCCESS = 'success_sync_to_gigya';
-    const EVENT_UPDATE_GIGYA_FAILURE = 'failed_sync_to_gigya';
+class GigyaAccountService implements GigyaAccountServiceInterface {
+
+    const EVENT_UPDATE_GIGYA_SUCCESS = 'gigya_success_sync_to_gigya';
+    const EVENT_UPDATE_GIGYA_FAILURE = 'gigya_failed_sync_to_gigya';
 
     /** @var  GigyaMageHelper */
     protected $gigyaMageHelper;
@@ -36,7 +36,7 @@ class GigyaCustomerAccountService implements GigyaCustomerAccountServiceInterfac
     protected $logger;
 
     /**
-     * GigyaCustomerAccountService constructor.
+     * GigyaAccountService constructor.
      *
      * @param GigyaMageHelper $gigyaMageHelper
      * @param Context $context
@@ -60,9 +60,9 @@ class GigyaCustomerAccountService implements GigyaCustomerAccountServiceInterfac
      * self::EVENT_UPDATE_GIGYA_SUCCESS
      * or self::EVENT_UPDATE_GIGYA_FAILURE
      */
-    public function update(GigyaCustomerAccountInterface $gigyaCustomerAccount)
+    public function update($gigyaAccount)
     {
-        $gigyaApiData = $this->buildEventData($gigyaCustomerAccount);
+        $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
             $this->gigyaMageHelper->getGigyaApiHelper()->updateGigyaAccount(
@@ -75,7 +75,7 @@ class GigyaCustomerAccountService implements GigyaCustomerAccountServiceInterfac
                 $gigyaApiData
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_SUCCESS, [
-                    'customer_entity_id' => $gigyaCustomerAccount->getEntityId(),
+                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId(),
                     'gigya_data' => $gigyaApiData
                 ]
             );
@@ -91,7 +91,7 @@ class GigyaCustomerAccountService implements GigyaCustomerAccountServiceInterfac
                 ]
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_FAILURE, [
-                    'customer_entity_id' => $gigyaCustomerAccount->getEntityId(),
+                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId(),
                     'gigya_data' => $gigyaApiData
                 ]
             );
@@ -102,37 +102,45 @@ class GigyaCustomerAccountService implements GigyaCustomerAccountServiceInterfac
     /**
      * Facility to build the profile data correctly formatted for the service call.
      *
-     * @param GigyaCustomerAccountInterface $gigyaCustomerAccount
+     * @param GigyaUser $gigyaAccount
      * @return array
      */
-    protected function getGigyaApiProfile(GigyaCustomerAccountInterface $gigyaCustomerAccount)
+    protected function getGigyaApiProfile(GigyaUser $gigyaAccount)
     {
-        return [ 'email' => $gigyaCustomerAccount->getLoginEmail() ];
+        $profile = $gigyaAccount->getProfile();
+
+        return [
+            'email' => $profile->getEmail(),
+            'firstName' => $profile->getFirstName(),
+            'lastName' => $profile->getLastName()
+        ];
     }
 
     /**
      * Facility to build the core data correctly formatted for the service call.
      *
-     * @param GigyaCustomerAccountInterface $gigyaCustomerAccount
+     * @param GigyaUser $gigyaAccount
      * @return array
      */
-    protected function getGigyaApiCoreData(GigyaCustomerAccountInterface $gigyaCustomerAccount)
+    protected function getGigyaApiCoreData(GigyaUser $gigyaAccount)
     {
-        return [ 'loginIDs' => [ $gigyaCustomerAccount->getLoginEmail() ] ];
+        return [
+            'loginIDs' => $gigyaAccount->getLoginIDs()['emails']
+        ];
     }
 
     /**
      * Builds the whole data correctly formatted for the service call.
      *
-     * @param GigyaCustomerAccountInterface $gigyaCustomerAccount
+     * @param GigyaUser $gigyaAccount
      * @return array With entries uid, profile, data
      */
-    protected function buildEventData(GigyaCustomerAccountInterface $gigyaCustomerAccount)
+    protected function buildEventData(GigyaUser $gigyaAccount)
     {
         return [
-            'uid' => $gigyaCustomerAccount->getUid(),
-            'profile' => $this->getGigyaApiProfile($gigyaCustomerAccount),
-            'data' => $this->getGigyaApiCoreData($gigyaCustomerAccount)
+            'uid' => $gigyaAccount->getUid(),
+            'profile' => $this->getGigyaApiProfile($gigyaAccount),
+            'data' => $this->getGigyaApiCoreData($gigyaAccount)
         ];
     }
 }

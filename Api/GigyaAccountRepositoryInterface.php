@@ -5,22 +5,22 @@
 
 namespace Gigya\GigyaIM\Api;
 
-use Gigya\GigyaIM\Api\Data\GigyaCustomerAccountInterface;
+use Gigya\CmsStarterKit\user\GigyaUser;
 
 /**
- * GigyaCustomerAccountRepositoryInterface
+ * GigyaAccountRepositoryInterface
  *
  * Repository for getting and saving data from / to Gigya's service.
  *
  * @author      vlemaire <info@x2i.fr>
  *
  */
-interface GigyaCustomerAccountRepositoryInterface
+interface GigyaAccountRepositoryInterface
 {
     /**
      * Sends the user's Magento account data to the Gigya service.
      *
-     * @param GigyaCustomerAccountInterface $gigyaCustomerAccount
+     * @param GigyaUser $gigyaAccount
      */
-    function save(GigyaCustomerAccountInterface $gigyaCustomerAccount);
+    function save(GigyaUser $gigyaAccount);
 }

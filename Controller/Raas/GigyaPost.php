@@ -5,7 +5,6 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
