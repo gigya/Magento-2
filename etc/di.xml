@@ -8,8 +8,7 @@
     <!--<preference for="Magento\Customer\Controller\Raas\GigyaPost"     type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />-->
     <preference for="Magento\Customer\Controller\Account\EditPost"
                 type="Gigya\GigyaIM\Controller\Raas\GigyaEditPost" />
-    <preference for="Magento\Customer\Model\AccountManagement"
-                type="Gigya\GigyaIM\Model\AccountManagement" />
+
     <!-- screensets blocks override -->
     <preference for="Gigya\GigyaIM\Block\Account\Dashboard\GigyaInfo"
                 type="Magento\Customer\Block\Account\Dashboard\Info" />
@@ -31,6 +30,10 @@
         <arguments>
             <argument name="logger" xsi:type="object">Gigya\GigyaIM\Logger\Logger</argument>
         </arguments>
+    </type>
+
+    <type name="Magento\Customer\Model\CustomerExtractor">
+        <plugin name="gigyaIM_customerExtractor" type="Gigya\GigyaIM\Plugin\Customer\Model\CustomerExtractorPlugin" />
     </type>
 
     <!-- Register Gigya Logger -->

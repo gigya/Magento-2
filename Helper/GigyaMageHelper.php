@@ -4,6 +4,7 @@
  */
 namespace Gigya\GigyaIM\Helper;
 
+use Gigya\CmsStarterKit\user\GigyaUser;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
@@ -392,4 +393,21 @@ class GigyaMageHelper extends AbstractHelper
         }
     }
 
+    /**
+     * Use gigyaMageHelper to validate and get user
+     *
+     * @param string $loginData A json string issued from frontend Gigya forms.
+     * @return false|GigyaUser
+     */
+    public function getGigyaAccountDataFromService($loginData)
+    {
+        $gigya_validation_o = json_decode($loginData);
+        $valid_gigya_user = $this->validateAndFetchRaasUser(
+            $gigya_validation_o->UID,
+            $gigya_validation_o->UIDSignature,
+            $gigya_validation_o->signatureTimestamp
+        );
+
+        return $valid_gigya_user;
+    }
 }

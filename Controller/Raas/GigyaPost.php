@@ -5,8 +5,8 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
+use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
-use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session;
@@ -28,6 +28,9 @@ use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
+
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -70,7 +73,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     /** @var \Magento\Framework\UrlInterface */
     protected $urlModel;
 
-    /** @var DataObjectHelper  */
+    /** @var DataObjectHelper */
     protected $dataObjectHelper;
 
     /**
@@ -85,6 +88,14 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
     /** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
     protected $gigyaMageHelper;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    private $customerRepository;
+
+    /** @var  SyncHelper */
+    protected $syncHelper;
 
     /**
      * @param Context $context
@@ -105,6 +116,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      * @param CustomerExtractor $customerExtractor
      * @param DataObjectHelper $dataObjectHelper
      * @param AccountRedirect $accountRedirect
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param SyncHelper $syncHelper
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -126,8 +139,11 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         Escaper $escaper,
         CustomerExtractor $customerExtractor,
         DataObjectHelper $dataObjectHelper,
-        AccountRedirect $accountRedirect
-    ) {
+        AccountRedirect $accountRedirect,
+        CustomerRepositoryInterface $customerRepository,
+        SyncHelper $syncHelper
+    )
+    {
         $this->session = $customerSession;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
@@ -147,6 +163,8 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $this->accountRedirect = $accountRedirect;
         parent::__construct($context);
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
+        $this->customerRepository = $customerRepository;
+        $this->syncHelper = $syncHelper;
     }
 
     /**
@@ -173,13 +191,13 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         // Gigya logic: validate gigya user -> get Gigya account info -> check if account exists in Magento ->
         // login /create in magento :
 
-        $valid_gigya_user = $this->gigyaValidateUser();
+        $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromService($this->getRequest()->getParam('login_data'));
+
         // if gigya user not validated return error
         if (!$valid_gigya_user) {
             $this->messageManager->addError(__('The user is not validated. Please try again or contact support.'));
             return $this->accountRedirect->getRedirect();
-        }
-        // we have a valid gigya user. verify that required fields exist
+        } // we have a valid gigya user. verify that required fields exist
         else {
             $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
             if (!empty($required_field_message)) {
@@ -189,55 +207,30 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 return $this->accountRedirect->getRedirect();
             }
 
-            // Required fields exist, check if user exists in Magento
-            // (consider doing this without overriding accountManagement.
-            // instantiate customerRepository in this class instead, and use it directly)
-            $customer = $this->accountManagement->gigyaUserExists($valid_gigya_user->getGigyaLoginId());
-            if ($customer) {
-                $this->gigyaSetCustomerFields($customer, $valid_gigya_user);
-                $this->accountManagement->gigyaUpdateCustomer($customer);
-                $this->gigyaLoginUser($customer);
-                // dispatch field mapping event
-                $this->_eventManager->dispatch('gigya_post_user_create',[
-                    "gigya_user" => $valid_gigya_user,
-                    "customer" => $customer,
-                    "accountManagement" => $this->accountManagement
-                ]);
-                $redirect = $this->accountRedirect->getRedirect();
-            } else {
-                $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
+            try {
+
+                $customer = $this->syncHelper->setGigyaAccountOnSession($valid_gigya_user);
+
+                if ($customer) {
+                    $this->gigyaLoginUser($customer);
+                    // dispatch field mapping event
+                    $this->_eventManager->dispatch('gigya_post_user_create', [
+                        "gigya_user" => $valid_gigya_user,
+                        "customer" => $customer,
+                        "accountManagement" => $this->accountManagement
+                    ]);
+                    $redirect = $this->accountRedirect->getRedirect();
+                } else {
+                    $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
+                }
+            } catch(\Exception $e) {
+                $this->messageManager->addError($e->getMessage());
+                $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
+                $resultRedirect->setUrl($this->_redirect->error($defaultUrl));
             }
 
             return $redirect;
         }
-    }
-
-    /**
-     * Use gigyaMageHelper to validate and get user
-     * @return false/object:gigya_user
-     */
-    protected function gigyaValidateUser()
-    {
-        $gigya_validation_post = $this->getRequest()->getParam('login_data');
-        $gigya_validation_o = json_decode($gigya_validation_post);
-        $valid_gigya_user = $this->gigyaMageHelper->validateAndFetchRaasUser(
-            $gigya_validation_o->UID,
-            $gigya_validation_o->UIDSignature,
-            $gigya_validation_o->signatureTimestamp
-        );
-        return $valid_gigya_user;
-    }
-
-    /**
-     * @param object $customer
-     * @param object $gigya_user_account
-     */
-    protected function gigyaSetCustomerFields(&$customer, $gigya_user_account)
-    {
-        $customer->setEmail($gigya_user_account->getGigyaLoginId());
-        $customer->setFirstname($gigya_user_account->getProfile()->getFirstName());
-        $customer->setLastname($gigya_user_account->getProfile()->getLastName());
-        $customer->setCustomAttribute("gigya_uid", $gigya_user_account->getUID());
     }
 
     /**
@@ -323,9 +316,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         try {
             $customer = $this->customerExtractor->extract('customer_account_create', $this->_request);
 
-            $this->gigyaSetCustomerFields($customer, $gigya_user_account);
-
-            $password =  $this->gigyaMageHelper->generatePassword();
+            $password = $this->gigyaMageHelper->generatePassword();
             $redirectUrl = $this->session->getBeforeAuthUrl();
 
             $customer = $this->accountManagement
@@ -359,7 +350,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 $resultRedirect = $this->accountRedirect->getRedirect();
             }
 //             dispatch field mapping event
-            $this->_eventManager->dispatch('gigya_post_user_create',[
+            $this->_eventManager->dispatch('gigya_post_user_create', [
                 "gigya_user" => $gigya_user_account,
                 "customer" => $customer,
                 "accountManagement" => $this->accountManagement

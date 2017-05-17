@@ -17,6 +17,10 @@
     {
       "type": "vcs",
       "url": "https://github.com/gigya/php_cms_kit.git"
+    },
+    {
+      "type": "composer",
+      "url": "https://repo.magento.com/"
     }
   ],
   "require": {
@@ -24,6 +28,17 @@
     "magento/module-customer": "100.1.*",
     "gigya/cms-starter-kit": "^1.1.7"
   },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "phpmd/phpmd": "*",
+    "pdepend/pdepend": "*",
+    "sjparkinson/static-review": "*",
+    "friendsofphp/php-cs-fixer": "*",
+    "lusitanian/oauth": "*",
+    "squizlabs/php_codesniffer": "2.6.2",
+    "magento/marketplace-eqp": "*"
+    },	
+  
   "autoload": {
     "psr-4": { "Gigya\\GigyaIM\\": "" },
     "files": [ "registration.php" ]
