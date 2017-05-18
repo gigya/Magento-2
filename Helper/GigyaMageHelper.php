@@ -41,13 +41,12 @@ class GigyaMageHelper extends AbstractHelper
         \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
         Context $context,
         Logger $logger,
-        ScopeConfigInterface $scopeConfig,
         ModuleListInterface $moduleList
     ) {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig = $context->getScopeConfig();
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
