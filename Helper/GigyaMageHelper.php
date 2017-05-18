@@ -5,11 +5,13 @@
 namespace Gigya\GigyaIM\Helper;
 
 use Gigya\CmsStarterKit\user\GigyaUser;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
 
 class GigyaMageHelper extends AbstractHelper
@@ -42,7 +44,8 @@ class GigyaMageHelper extends AbstractHelper
         Context $context,
         Logger $logger,
         ScopeConfigInterface $scopeConfig,
-        ModuleListInterface $moduleList
+        ModuleListInterface $moduleList,
+        Filesystem $fileSystem
     ) {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
@@ -52,6 +55,7 @@ class GigyaMageHelper extends AbstractHelper
         $this->setAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
         $this->_moduleList = $moduleList;
+        $this->_fileSystem = $fileSystem;
     }
 
     /**
@@ -159,7 +163,8 @@ class GigyaMageHelper extends AbstractHelper
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->keyFileLocation = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $settings['key_file_location'];
+        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
+            . DIRECTORY_SEPARATOR . $settings['key_file_location'];
         $this->debug = $settings['debug_mode'];
     }
 
