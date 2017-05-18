@@ -15,6 +15,7 @@ class Domain implements \Magento\Framework\Option\ArrayInterface
             ['value' => "eu1.gigya.com", 'label' => __('EU')],
             ['value' => "au1.gigya.com", 'label' => __('AU')],
             ['value' => "ru1.gigya.com", 'label' => __('RU')],
+            ['value' => "cn1.gigya-api.cn", 'label' => __('CN')],
         ];
     }
 }
