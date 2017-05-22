@@ -90,16 +90,11 @@ class GigyaScript extends Template
     }
 
     /**
-     * Check if user is logged in
+     * Check URL used for checking the login state
      * @return int
      */
-    public function getMagentoUserLogin() {
-        $logged_in = $this->_customerSession->isLoggedIn();
-        if ($logged_in) {
-            return 1;
-        } else {
-            return 0;
-        }
+    public function getMagentoLoginStateUrl() {
+        return $this->getUrl('gigya_raas/raas/state');
     }
 
     /**
