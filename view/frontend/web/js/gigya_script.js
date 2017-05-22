@@ -12,7 +12,6 @@ define([
      * Sync gigya-magento sessions
      * Event handlers (login, update)
      */
-    gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
     if ( $('input[name="form_key"]').val().length ){
@@ -51,17 +50,32 @@ define([
         } else {
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
-        // if Gigya is logged out, but Magento is logged in: log Magento out
-        // this scenario may result in double page load for user, but is used only to fix an end case situation.
-        if (!gigyaMage2.Params.gigya_user_logged_in && gigyaMage2.Params.magento_user_logged_in) {
-            $('a[href$="logout/"]').click();
-        }
+        gigyaMage2.Params.magento_user_logged_in = false;
+        var action = login_state_url;
+        $.ajax({
+            type : "GET",
+            url : action,
+            showLoader: false
+        })
+            .done(function(data) {
+                if(typeof data.logged_in != 'undefined')
+                {
+                    gigyaMage2.Params.magento_user_logged_in = data.logged_in;
+                }
 
-        // If Gigya is logged in but Magento is logged out: currently, do nothing. you can add logout from gigya here.
-        if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
-//                var logoutSync = {"function": "accounts.logout", "parameters": {} };
-//                window.gigyaInit.push(logoutSync);
-        }
+                // if Gigya is logged out, but Magento is logged in: log Magento out
+                // this scenario may result in double page load for user, but is used only to fix an end case situation.
+                if (!gigyaMage2.Params.gigya_user_logged_in && gigyaMage2.Params.magento_user_logged_in) {
+                    $('a[href$="logout/"]').click();
+                }
+
+                // If Gigya is logged in but Magento is logged out: currently, do nothing. you can add logout from gigya here.
+                if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
+        //                var logoutSync = {"function": "accounts.logout", "parameters": {} };
+        //                window.gigyaInit.push(logoutSync);
+                }
+
+            });
     };
 
     /**
