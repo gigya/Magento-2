@@ -5,7 +5,6 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
@@ -191,7 +190,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         // Gigya logic: validate gigya user -> get Gigya account info -> check if account exists in Magento ->
         // login /create in magento :
 
-        $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromService($this->getRequest()->getParam('login_data'));
+        $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
 
         // if gigya user not validated return error
         if (!$valid_gigya_user) {
@@ -209,7 +208,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
 
             try {
 
-                $customer = $this->syncHelper->setGigyaAccountOnSession($valid_gigya_user);
+                $customer = $this->gigyaMageHelper->setMagentoLoggingContext($valid_gigya_user);
 
                 if ($customer) {
                     $this->gigyaLoginUser($customer);
@@ -219,6 +218,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                         "customer" => $customer,
                         "accountManagement" => $this->accountManagement
                     ]);
+                    $this->customerRepository->save($customer);
                     $redirect = $this->accountRedirect->getRedirect();
                 } else {
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);

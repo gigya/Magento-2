@@ -19,7 +19,6 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
-use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -46,9 +45,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
     /** @var GigyaMageHelper  */
     protected $gigyaMageHelper;
 
-    /** @var  SyncHelper */
-    protected $syncHelper;
-
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -56,7 +52,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
      * @param CustomerRepositoryInterface $customerRepository
      * @param Validator $formKeyValidator
      * @param CustomerExtractor $customerExtractor
-     * @param SyncHelper $syncHelper
      */
     public function __construct(
         Context $context,
@@ -64,8 +59,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         AccountManagementInterface $customerAccountManagement,
         CustomerRepositoryInterface $customerRepository,
         Validator $formKeyValidator,
-        CustomerExtractor $customerExtractor,
-        SyncHelper $syncHelper
+        CustomerExtractor $customerExtractor
     ) {
         $this->session = $customerSession;
         $this->customerAccountManagement = $customerAccountManagement;
@@ -74,7 +68,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         $this->customerExtractor = $customerExtractor;
         parent::__construct($context);
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
-        $this->syncHelper = $syncHelper;
     }
 
     /**
@@ -109,13 +102,13 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 
             try {
 
-                $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromService($this->getRequest()->getParam('gigya_user'));
+                $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
-                if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaLoggedInAccount()->getUID()) {
+                if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
                     throw new InputException("Could not validate the given Gigya data");
                 }
 
-                $eligibleCustomer = $this->syncHelper->setGigyaAccountOnSession($gigyaAccount);
+                $eligibleCustomer = $this->gigyaMageHelper->setMagentoLoggingContext($gigyaAccount);
 
                 if ($eligibleCustomer == null || $eligibleCustomer->getId() != $customerId) {
                     throw new InputException("Could not retrieve a valid Magento customer with the given Gigya data");
@@ -124,7 +117,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
                 $this->customerRepository->save($customer);
 
                 $this->_eventManager->dispatch('gigya_post_user_create', [
-                    "gigya_user" => $this->session->getGigyaLoggedInAccount(),
+                    "gigya_user" => $this->session->getGigyaAccountData(),
                     "customer" => $customer
                 ]);
             } catch (AuthenticationException $e) {
