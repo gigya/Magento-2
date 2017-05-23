@@ -64,9 +64,7 @@ class CustomerPlugin
     /**
      * Check if a Magento customer entity's data is to be forwarded to Gigya service.
      *
-     * That's the case when the customer is not null and not flagged as deleted, and most important when its attribute do_not_sync_to_gigya is empty or not true.
-     *
-     * This attribute is not to be persisted into Magento database, it's a flag that could be set wherever in the code for any specific reason.
+     * That's the case when the customer is not flagged as deleted, and when its attribute 'is_synchronized_to_gigya' is empty or not true.
      *
      * @param Customer $customer
      * @return bool
@@ -74,9 +72,8 @@ class CustomerPlugin
     protected function shallUpdateGigyaWithMagentoCustomerData($customer)
     {
         return
-            $customer != null
-            && !$customer->isDeleted()
-            && (empty($customer->getDoNotSyncToGigya()) || $customer->getDoNotSyncToGigya() !== true);
+            !$customer->isDeleted()
+            && (empty($customer->getIsSynchronizedToGigya()) || $customer->getIsSynchronizedToGigya() !== true);
     }
 
     /**
@@ -99,6 +96,7 @@ class CustomerPlugin
      * Forward to the Gigya service the customer data, if necessary.
      *
      * Forwarding is done if $this->shallUpdateGigyaWithMagentoCustomerData() returns true.
+     * Once Gigya service updated on this account, the customer attribute 'is_synchronized_to_gigya' is set to true.
      *
      * @see \Magento\Customer\Model\ResourceModel\Customer::beginTransaction()
      *
@@ -112,9 +110,12 @@ class CustomerPlugin
     ) {
         $this->gigyaAccount = null;
 
-        if ($this->shallUpdateGigyaWithMagentoCustomerData($this->customer)) {
+        if ($this->customer != null && $this->shallUpdateGigyaWithMagentoCustomerData($this->customer)) {
             $this->gigyaAccount = $this->gigyaAccountMapper->enrichGigyaAccount($this->customer);
             $this->gigyaAccountRepository->save($this->gigyaAccount);
+            $this->customer->setIsSynchronizedToGigya(true);
+            // For security we set to null the attribute customer. So that if a subsequent nested transaction is opened we don't re sync with Gigya.
+            $this->customer = null;
         }
 
         return $result;

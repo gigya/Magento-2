@@ -23,7 +23,14 @@ use Monolog\Logger;
  */
 class GigyaAccountService implements GigyaAccountServiceInterface {
 
+    /**
+     * Event dispatched when the Gigya data have correctly been sent to the Gigya remote service.
+     */
     const EVENT_UPDATE_GIGYA_SUCCESS = 'gigya_success_sync_to_gigya';
+
+    /**
+     * Event dispatched when the Gigya data could not be sent to the Gigya remote service or when this service replies with an error (validation or other functionnal error)
+     */
     const EVENT_UPDATE_GIGYA_FAILURE = 'gigya_failed_sync_to_gigya';
 
     /** @var  GigyaMageHelper */
@@ -65,7 +72,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
-            $this->gigyaMageHelper->getGigyaApiHelper()->updateGigyaAccount(
+            $this->gigyaMageHelper->updateGigyaAccount(
                 $gigyaApiData['uid'],
                 $gigyaApiData['profile'],
                 $gigyaApiData['data']
@@ -97,6 +104,11 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             );
             throw $e;
         }
+    }
+
+    function get($uid)
+    {
+        return $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
     }
 
     /**
