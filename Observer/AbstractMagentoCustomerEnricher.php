@@ -16,6 +16,8 @@ use Magento\Framework\Event\ObserverInterface;
  *
  * Will enrich a Magento customer entity's fields with the Gigya account data fetched from the Gigya service.
  *
+ * @see GigyaAccountServiceInterface
+ *
  * @author      vlemaire <info@x2i.fr>
  *
  */

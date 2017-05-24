@@ -14,9 +14,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
  *
  * @inheritdoc
  *
- * The Gigya data will be fetched from the Gigya's service.
- *
- * @see GigyaAccountServiceInterface
+ * Overrides the enrichment function : the Magento customer entity is saved in database when it's been enriched.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -45,6 +43,8 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
 
     /**
      * @inheritdoc
+     *
+     * Once the customer is enriched it's saved.
      */
     protected function enrichMagentoCustomer($magentoCustomer)
     {

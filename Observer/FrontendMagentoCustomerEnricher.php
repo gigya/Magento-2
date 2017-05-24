@@ -14,7 +14,8 @@ use Magento\Framework\App\Action\Context;
  *
  * @inheritdoc
  *
- * The Gigya data shall be set previously on session objects 'gigya_account_data' and 'gigya_account_logging_email'
+ * Overrides the check for knowing if a Magento customer shall be enriched : it's depending on the request's action name.
+ * @see FrontendMagentoCustomerEnricher::shallUpdateMagentoCustomerWithGigyaAccount()
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -44,7 +45,7 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /**
      * @inheritdoc
      *
-     * Based on the request's action name, return true if we are going to login, create or update an account.
+     * Add a check on the request's action name : update shall be performed only if we are going to login, create or update an account.
      */
     public function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
