@@ -5,12 +5,14 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * AbstractMagentoCustomerEnricher
@@ -45,21 +47,27 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     /** @var ManagerInterface */
     protected $eventDispatcher;
 
+    /** @var  LoggerInterface */
+    protected $logger;
+
     /**
      * AbstractMagentoCustomerEnricher constructor.
      *
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
      * @param ManagerInterface $eventDispatcher
+     * @param LoggerInterface $logger
      */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
-        ManagerInterface $eventDispatcher
+        ManagerInterface $eventDispatcher,
+        LoggerInterface $logger
     ) {
-            $this->gigyaAccountRepository = $gigyaAccountRepository;
-            $this->gigyaSyncHelper = $gigyaSyncHelper;
-            $this->eventDispatcher = $eventDispatcher;
+        $this->gigyaAccountRepository = $gigyaAccountRepository;
+        $this->gigyaSyncHelper = $gigyaSyncHelper;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     /**
@@ -81,6 +89,30 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     }
 
     /**
+     * Method called if an exception is catched when dispatching event AbstractMagentoCustomerEnricher::EVENT_POST_SYNC_FROM_GIGYA
+     *
+     * Default behavior is to log a warning (exception is muted)
+     *
+     * @param $e \Exception
+     * @param $magentoCustomer Customer
+     * @param $gigyaAccountData GigyaUser
+     * @param $gigyaAccountLoggingEmail string
+     */
+    protected function processEventPostSyncFromGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
+
+        // Ignore : enrichment shall not fail on third party code exception
+        $this->logger->warning(
+            'Exception raised when enriching Magento customer with Gigya data.',
+            [
+                'exception' => $e,
+                'customer_entity_id' => ($magentoCustomer != null) ? $magentoCustomer->getEntityId() : 'customer is null',
+                'gigya_uid' => ($gigyaAccountData != null) ? $gigyaAccountData->getUID() : 'Gigya data are null',
+                'gigya_logging_email' => $gigyaAccountLoggingEmail
+            ]
+        );
+    }
+
+    /**
      * Performs the enrichment of the customer with the Gigya data.
      *
      * @param $magentoCustomer Customer
@@ -95,11 +127,16 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
         $magentoCustomer->setIsSynchronizedFromGigya(true);
         $this->pushRegisteredCustomer($magentoCustomer);
 
-        $this->eventDispatcher->dispatch(self::EVENT_POST_SYNC_FROM_GIGYA, [
-            "gigya_user" => $gigyaAccountData,
-            "customer" => $magentoCustomer
-        ]);
+        try {
+            $this->eventDispatcher->dispatch(self::EVENT_POST_SYNC_FROM_GIGYA, [
+                "gigya_user" => $gigyaAccountData,
+                "customer" => $magentoCustomer
+            ]);
+        } catch(\Exception $e) {
+            $this->processEventPostSyncFromGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
+        }
     }
+
     /**
      * Will synchronize Magento account entity with Gigya account if needed.
      *

@@ -26,12 +26,6 @@ use Magento\Customer\Model\Backend\Customer;
  */
 class CustomerPlugin
 {
-    /** @var Customer */
-    private $customer = null;
-
-    /** @var GigyaUser */
-    private $gigyaAccount = null;
-
     /** @var  GigyaMageHelper */
     protected $gigyaMageHelper;
 
@@ -54,9 +48,6 @@ class CustomerPlugin
         GigyaAccountRepositoryInterface $gigyaAccountRepository
     )
     {
-        $this->customer = null;
-        $this->gigyaAccount = null;
-
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->gigyaAccountMapper = $gigyaAccountMapper;
         $this->gigyaAccountRepository = $gigyaAccountRepository;
@@ -76,22 +67,6 @@ class CustomerPlugin
     }
 
     /**
-     * Set the value of $this->customer to the customer being saved, for further use.
-     *
-     * @see \Magento\Customer\Model\ResourceModel\Customer::save()
-     *
-     * @param \Magento\Customer\Model\ResourceModel\Customer $subject
-     * @param Customer $object
-     * @return void
-     */
-    public function beforeSave(
-        $subject,
-        $object
-    ) {
-        $this->customer = $object;
-    }
-
-    /**
      * Forward to the Gigya service the customer data, if necessary.
      *
      * Forwarding is done if $this->shallUpdateGigyaWithMagentoCustomerData() returns true.
@@ -100,27 +75,18 @@ class CustomerPlugin
      * @see \Magento\Customer\Model\ResourceModel\Customer::beginTransaction()
      *
      * @param \Magento\Customer\Model\ResourceModel\Customer $subject
-     * @param \Magento\Customer\Model\ResourceModel\Customer $result
-     * @return \Magento\Customer\Model\ResourceModel\Customer
+     * @param Customer $object
+     * @return void
+     * @throws GSApiException If the Gigya account could not be synchronized with the Magento customer.
      */
-    public function afterBeginTransaction(
+    public function beforeSave(
         $subject,
-        $result
+        $object
     ) {
-        $this->gigyaAccount = null;
-
-        if ($this->shallUpdateGigyaWithMagentoCustomerData($this->customer)) {
-            try {
-                $this->gigyaAccount = $this->gigyaAccountMapper->enrichGigyaAccount($this->customer);
-                $this->gigyaAccountRepository->update($this->gigyaAccount);
-                $this->customer->setIsSynchronizedToGigya(true);
-            } catch (\Exception $e) {
-                throw $e;
-            }
-            // For security we set to null the attribute customer. So that if a subsequent nested transaction is opened we don't re sync with Gigya.
-            $this->customer = null;
+        if ($this->shallUpdateGigyaWithMagentoCustomerData($object)) {
+            $gigyaAccount = $this->gigyaAccountMapper->enrichGigyaAccount($object);
+            $this->gigyaAccountRepository->update($gigyaAccount);
+            $object->setIsSynchronizedToGigya(true);
         }
-
-        return $result;
     }
 }

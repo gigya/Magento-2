@@ -9,7 +9,6 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Gigya\FieldMapping\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -19,7 +18,6 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
-use Psr\Log\LoggerInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -46,9 +44,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
     /** @var GigyaMageHelper  */
     protected $gigyaMageHelper;
 
-    /** @var  LoggerInterface */
-    protected $logger;
-
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -56,7 +51,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
      * @param CustomerRepositoryInterface $customerRepository
      * @param Validator $formKeyValidator
      * @param CustomerExtractor $customerExtractor
-     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
@@ -64,8 +58,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         AccountManagementInterface $customerAccountManagement,
         CustomerRepositoryInterface $customerRepository,
         Validator $formKeyValidator,
-        CustomerExtractor $customerExtractor,
-        LoggerInterface $logger
+        CustomerExtractor $customerExtractor
     ) {
         $this->session = $customerSession;
         $this->customerAccountManagement = $customerAccountManagement;
@@ -74,7 +67,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         $this->customerExtractor = $customerExtractor;
         parent::__construct($context);
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
-        $this->logger = $logger;
     }
 
     /**
@@ -123,9 +115,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 
                 $this->customerRepository->save($eligibleCustomer);
 
-            } catch(GigyaFieldMappingException $e) {
-                // Ignore : login shall not fail on field mapping exception
-                $this->logger->warning('Gigya field mapping exception raised during frontend profile update. See Gigya log file for details.');
             } catch (AuthenticationException $e) {
                 $this->messageManager->addError($e->getMessage());
             } catch (InputException $e) {

@@ -5,7 +5,7 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Gigya\FieldMapping\Exception\GigyaFieldMappingException;
+use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
@@ -30,8 +30,6 @@ use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
-use Psr\Log\LoggerInterface;
-
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -98,9 +96,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
     /** @var  SyncHelper */
     protected $syncHelper;
 
-    /** @var  LoggerInterface */
-    protected $logger;
-
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -122,7 +117,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
      * @param AccountRedirect $accountRedirect
      * @param CustomerRepositoryInterface $customerRepository
      * @param SyncHelper $syncHelper
-     * @param LoggerInterface $logger
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -146,8 +140,7 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         DataObjectHelper $dataObjectHelper,
         AccountRedirect $accountRedirect,
         CustomerRepositoryInterface $customerRepository,
-        SyncHelper $syncHelper,
-        LoggerInterface $logger
+        SyncHelper $syncHelper
     )
     {
         $this->session = $customerSession;
@@ -171,7 +164,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
         $this->customerRepository = $customerRepository;
         $this->syncHelper = $syncHelper;
-        $this->logger = $logger;
     }
 
     /**
@@ -226,9 +218,6 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 } else {
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
                 }
-            } catch(GigyaFieldMappingException $e) {
-                // Ignore : login shall not fail on field mapping exception
-                $this->logger->warning('Gigya field mapping exception raised during frontend logging. See Gigya log file for details.');
             } catch(\Exception $e) {
                 $this->messageManager->addError($e->getMessage());
                 $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);

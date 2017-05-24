@@ -9,6 +9,7 @@ use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Event\ManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * BackendMagentoCustomerEnricher
@@ -31,16 +32,37 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
      * @param ManagerInterface $eventDispatcher
+     * @param LoggerInterface $logger
+     * @param CustomerRepositoryInterface $customerRepository
      */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
-        CustomerRepositoryInterface $customerRepository,
-        ManagerInterface $eventDispatcher
+        ManagerInterface $eventDispatcher,
+        LoggerInterface $logger,
+        CustomerRepositoryInterface $customerRepository
     ) {
-        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher);
+        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger);
 
         $this->customerRepository = $customerRepository;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * For backend we shall cancel the update on third party code exception
+     *
+     * @throws \Exception
+     */
+    protected function processEventPostSyncFromGigyaException(
+        $e,
+        $magentoCustomer,
+        $gigyaAccountData,
+        $gigyaAccountLoggingEmail
+    ) {
+        parent::processEventPostSyncFromGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
+
+        throw $e;
     }
 
     /**
