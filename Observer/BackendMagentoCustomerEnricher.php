@@ -23,12 +23,6 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
  */
 class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
 {
-    /** @var  GigyaAccountServiceInterface */
-    protected $gigyaAccountService;
-
-    /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
-
     /** @var  CustomerRepositoryInterface */
     protected $customerRepository;
 
@@ -54,9 +48,8 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      */
     protected function enrichMagentoCustomer($magentoCustomer)
     {
-        $gigyaAccountData = $this->gigyaAccountService->get($magentoCustomer->getGigyaUid());
-        $gigyaAccountLoggingEmail = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccountData)['logging_email'];
-        $this->gigyaSyncHelper->updateMagentoCustomerWithGygiaAccount($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
+        parent::enrichMagentoCustomer($magentoCustomer);
+
         $this->customerRepository->save($magentoCustomer->getDataModel());
     }
 }

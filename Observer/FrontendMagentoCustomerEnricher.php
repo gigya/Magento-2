@@ -5,7 +5,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Magento\Customer\Model\Session;
+use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Framework\App\Action\Context;
 
@@ -21,29 +21,23 @@ use Magento\Framework\App\Action\Context;
  */
 class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
 {
-    /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
-
-    /** @var  Session */
-    protected $session;
-
     /** @var Context */
     protected $context;
 
     /**
      * FrontendMagentoCustomerEnricher constructor.
      *
+     * @param GigyaAccountServiceInterface $gigyaAccountService
      * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param Session $session
      * @param Context $context
      */
     public function __construct(
+        GigyaAccountServiceInterface $gigyaAccountService,
         GigyaSyncHelper $gigyaSyncHelper,
-        Session $session,
         Context $context
     ) {
-        $this->gigyaSyncHelper = $gigyaSyncHelper;
-        $this->session = $session;
+        parent::__construct($gigyaAccountService, $gigyaSyncHelper);
+
         $this->context = $context;
     }
 
@@ -65,18 +59,5 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
         }
 
         return $result;
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * The session variables 'gigya_account_data' and 'gigya_account_logging_email' must be set before.
-     */
-    protected function enrichMagentoCustomer($magentoCustomer)
-    {
-        $gigyaAccountData = $this->session->getGigyaAccountData();
-        $gigyaAccountLoggingEmail = $this->session->getGigyaAccountLoggingEmail();
-
-        $this->gigyaSyncHelper->updateMagentoCustomerWithGygiaAccount($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
     }
 }

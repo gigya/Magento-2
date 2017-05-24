@@ -108,10 +108,11 @@ class GigyaSyncHelper extends AbstractHelper
         // Will be fed with the emails that are already used by a Magento customer account, but to a different or null Gigya UID
         $notUsableEmails = [];
         // Search criteria and filter to use for checking the existence of a Magento customer account with a given email
-        $filter = $this->filterBuilder->setField('email')->setConditionType('eq')->create();
-        $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
-        $filter = $this->filterBuilder->setField('website_id')->setConditionType('eq')->create();
-        $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
+        $filterGroups = [];
+        $searchCustomerByEmailCriteriaFilter = $this->filterBuilder->setField('email')->setConditionType('eq')->create();
+        $filterGroups[] = $this->filterGroupBuilder->addFilter($searchCustomerByEmailCriteriaFilter)->create();
+        $searchCustomerByWebsiteIdCriteriaFilter = $this->filterBuilder->setField('website_id')->setConditionType('eq')->create();
+        $filterGroups[] = $this->filterGroupBuilder->addFilter($searchCustomerByWebsiteIdCriteriaFilter)->create();
         $searchCustomerByEmailCriteria = $this->searchCriteriaBuilder->create()->setFilterGroups($filterGroups);
 
         // 0. search for existing Magento accounts with Gigya loginIDs emails...
@@ -141,6 +142,7 @@ class GigyaSyncHelper extends AbstractHelper
                 if ($magentoLoggingCustomer->getEmail() != $gigyaProfileEmail) {
                     // and Gigya profile email is not already attached to an existing Magento account ?
                     $searchCustomerByEmailCriteriaFilter->setValue($gigyaProfileEmail);
+                    $searchCustomerByWebsiteIdCriteriaFilter->setValue($this->storeManager->getStore()->getWebsiteId());
                     if ($this->customerRepository->getList($searchCustomerByEmailCriteria)->getTotalCount() == 0) {
                         $updateMagentoCustomerWithGigyaProfileEmail = true;
                     }

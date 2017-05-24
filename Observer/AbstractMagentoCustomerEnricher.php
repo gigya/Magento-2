@@ -5,6 +5,8 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Model\Customer;
 use \Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -12,7 +14,7 @@ use Magento\Framework\Event\ObserverInterface;
 /**
  * AbstractMagentoCustomerEnricher
  *
- * Will enrich a Magento customer entity's fields with the Gigya account data.
+ * Will enrich a Magento customer entity's fields with the Gigya account data fetched from the Gigya service.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -20,19 +22,31 @@ use Magento\Framework\Event\ObserverInterface;
 abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
 {
     /**
-     * Performs the enrichment of the customer with the Gigya data.
-     *
-     * @param $magentoCustomer Customer
-     * @return void
-     */
-    protected abstract function enrichMagentoCustomer($magentoCustomer);
-
-    /**
      * Array to push customer entities once they've been enriched. We will avoid to enrich several time the same instance by checking this registry.
      *
      * @var array $customerRegistry
      */
     private $customerRegistry = [];
+
+    /** @var  GigyaAccountServiceInterface */
+    protected $gigyaAccountService;
+
+    /** @var  GigyaSyncHelper */
+    protected $gigyaSyncHelper;
+
+    /**
+     * AbstractMagentoCustomerEnricher constructor.
+     *
+     * @param GigyaAccountServiceInterface $gigyaAccountService
+     * @param GigyaSyncHelper $gigyaSyncHelper
+     */
+    public function __construct(
+        GigyaAccountServiceInterface $gigyaAccountService,
+        GigyaSyncHelper $gigyaSyncHelper
+    ) {
+            $this->gigyaAccountService = $gigyaAccountService;
+            $this->gigyaSyncHelper = $gigyaSyncHelper;
+    }
 
     /**
      * Check if Magento customer entity must be enriched with the Gigya's account data.
@@ -40,7 +54,7 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      * @param Customer $magentoCustomer
      * @return bool True if the customer is not null, not flagged as deleted, and not flagged has already synchronized.
      */
-    public function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
+    protected function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
         $result = $magentoCustomer != null && !$magentoCustomer->isDeleted();
 
@@ -52,6 +66,21 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
         return $result;
     }
 
+    /**
+     * Performs the enrichment of the customer with the Gigya data fetched from the Gigya service.
+     *
+     * @param $magentoCustomer Customer
+     * @return void
+     */
+    protected function enrichMagentoCustomer($magentoCustomer)
+    {
+        $gigyaAccountData = $this->gigyaAccountService->get($magentoCustomer->getGigyaUid());
+        $gigyaAccountLoggingEmail = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccountData)['logging_email'];
+        $this->gigyaSyncHelper->updateMagentoCustomerWithGygiaAccount($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
+
+        $magentoCustomer->setIsSynchronizedFromGigya(true);
+        $this->pushRegisteredCustomer($magentoCustomer);
+    }
     /**
      * Will synchronize Magento account entity with Gigya account if needed.
      *
@@ -66,8 +95,6 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
         if ($this->shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)) {
 
             $this->enrichMagentoCustomer($magentoCustomer);
-            $magentoCustomer->setIsSynchronizedFromGigya(true);
-            $this->pushRegisteredCustomer($magentoCustomer);
         }
     }
 

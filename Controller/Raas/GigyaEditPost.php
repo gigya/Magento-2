@@ -114,7 +114,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
                     throw new InputException("Could not retrieve a valid Magento customer with the given Gigya data");
                 }
 
-                $this->customerRepository->save($customer);
+                $this->customerRepository->save($eligibleCustomer);
 
                 $this->_eventManager->dispatch('gigya_post_user_create', [
                     "gigya_user" => $this->session->getGigyaAccountData(),
