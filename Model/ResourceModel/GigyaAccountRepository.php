@@ -14,8 +14,6 @@ use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
  *
  * @inheritdoc
  *
- * This is a base that will evolve soon while new features are developed.
- *
  * @author      vlemaire <info@x2i.fr>
  *
  */
@@ -39,12 +37,20 @@ class GigyaAccountRepository implements GigyaAccountRepositoryInterface
     /**
      * @inheritdoc
      */
-    function save(GigyaUser $gigyaAccount)
+    function update($gigyaAccount)
     {
         // CATODO : for now we synchronize on update only, not for a new user
         if ($gigyaAccount->getUid()) {
 
             $this->gigyaAccountService->update($gigyaAccount);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function get($uid)
+    {
+        return $this->gigyaAccountService->get($uid);
     }
 }

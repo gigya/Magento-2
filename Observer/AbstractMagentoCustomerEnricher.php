@@ -5,7 +5,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Model\Customer;
 use \Magento\Framework\Event\Observer;
@@ -14,9 +14,9 @@ use Magento\Framework\Event\ObserverInterface;
 /**
  * AbstractMagentoCustomerEnricher
  *
- * Will enrich a Magento customer entity's fields with the Gigya account data fetched from the Gigya service.
+ * Will enrich a Magento customer entity's fields with the Gigya account data.
  *
- * @see GigyaAccountServiceInterface
+ * @see GigyaAccountRepositoryInterface
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -30,8 +30,8 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      */
     private $customerRegistry = [];
 
-    /** @var  GigyaAccountServiceInterface */
-    protected $gigyaAccountService;
+    /** @var  GigyaAccountRepositoryInterface */
+    protected $gigyaAccountRepository;
 
     /** @var  GigyaSyncHelper */
     protected $gigyaSyncHelper;
@@ -39,14 +39,14 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     /**
      * AbstractMagentoCustomerEnricher constructor.
      *
-     * @param GigyaAccountServiceInterface $gigyaAccountService
+     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
      */
     public function __construct(
-        GigyaAccountServiceInterface $gigyaAccountService,
+        GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper
     ) {
-            $this->gigyaAccountService = $gigyaAccountService;
+            $this->gigyaAccountRepository = $gigyaAccountRepository;
             $this->gigyaSyncHelper = $gigyaSyncHelper;
     }
 
@@ -69,20 +69,21 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     }
 
     /**
-     * Performs the enrichment of the customer with the Gigya data fetched from the Gigya service.
+     * Performs the enrichment of the customer with the Gigya data.
      *
      * @param $magentoCustomer Customer
      * @return void
      */
     protected function enrichMagentoCustomer($magentoCustomer)
     {
-        $gigyaAccountData = $this->gigyaAccountService->get($magentoCustomer->getGigyaUid());
+        $gigyaAccountData = $this->gigyaAccountRepository->get($magentoCustomer->getGigyaUid());
         $gigyaAccountLoggingEmail = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccountData)['logging_email'];
         $this->gigyaSyncHelper->updateMagentoCustomerWithGygiaAccount($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
         $magentoCustomer->setIsSynchronizedFromGigya(true);
         $this->pushRegisteredCustomer($magentoCustomer);
     }
+
     /**
      * Will synchronize Magento account entity with Gigya account if needed.
      *

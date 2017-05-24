@@ -72,6 +72,15 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
+
+            /*throw new GSApiException("test", 1, sprintf(
+                    "Test Gigya update failure => retry for uid : %s, customer_entity_id : %s customer_email : %s",
+                    $gigyaApiData['uid'],
+                    $gigyaAccount->getMagentoEntityId(),
+                    $gigyaApiData['profile']['email']
+                )
+            );*/
+
             $this->gigyaMageHelper->updateGigyaAccount(
                 $gigyaApiData['uid'],
                 $gigyaApiData['profile'],

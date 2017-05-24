@@ -64,15 +64,13 @@ class CustomerPlugin
     /**
      * Check if a Magento customer entity's data is to be forwarded to Gigya service.
      *
-     * That's the case when the customer is not flagged as deleted, and when its attribute 'is_synchronized_to_gigya' is empty or not true.
-     *
      * @param Customer $customer
-     * @return bool
+     * @return bool True if the customer is not null, not flagged as deleted, and not flagged has already synchronized.
      */
     protected function shallUpdateGigyaWithMagentoCustomerData($customer)
     {
         return
-            !$customer->isDeleted()
+            $customer != null && !$customer->isDeleted()
             && (empty($customer->getIsSynchronizedToGigya()) || $customer->getIsSynchronizedToGigya() !== true);
     }
 
@@ -110,9 +108,9 @@ class CustomerPlugin
     ) {
         $this->gigyaAccount = null;
 
-        if ($this->customer != null && $this->shallUpdateGigyaWithMagentoCustomerData($this->customer)) {
+        if ($this->shallUpdateGigyaWithMagentoCustomerData($this->customer)) {
             $this->gigyaAccount = $this->gigyaAccountMapper->enrichGigyaAccount($this->customer);
-            $this->gigyaAccountRepository->save($this->gigyaAccount);
+            $this->gigyaAccountRepository->update($this->gigyaAccount);
             $this->customer->setIsSynchronizedToGigya(true);
             // For security we set to null the attribute customer. So that if a subsequent nested transaction is opened we don't re sync with Gigya.
             $this->customer = null;

@@ -5,7 +5,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 
@@ -27,17 +27,16 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /**
      * BackendMagentoCustomerEnricher constructor.
      *
-     * @param GigyaAccountServiceInterface $gigyaAccountService
+     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param CustomerRepositoryInterface $customerRepository
      */
     public function __construct(
-        GigyaAccountServiceInterface $gigyaAccountService,
+        GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
         CustomerRepositoryInterface $customerRepository
     ) {
-        $this->gigyaAccountService = $gigyaAccountService;
-        $this->gigyaSyncHelper = $gigyaSyncHelper;
+        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper);
+
         $this->customerRepository = $customerRepository;
     }
 

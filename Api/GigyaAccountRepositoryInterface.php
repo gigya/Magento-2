@@ -5,6 +5,7 @@
 
 namespace Gigya\GigyaIM\Api;
 
+use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaUser;
 
 /**
@@ -18,9 +19,18 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 interface GigyaAccountRepositoryInterface
 {
     /**
-     * Sends the user's Magento account data to the Gigya service.
+     * Update or create a Gigya customer account.
      *
-     * @param GigyaUser $gigyaAccount
+     * @param GigyaUser $gigyaAccount Shall have a uid not null.
+     * @throws GSApiException If error encountered on service call or functional error returned by service. Check error code to identify the case.
      */
-    function save(GigyaUser $gigyaAccount);
+    function update($gigyaAccount);
+
+    /**
+     * Get a Gigya customer account.
+     *
+     * @param string $uid
+     * @return GigyaUser
+     */
+    function get($uid);
 }
