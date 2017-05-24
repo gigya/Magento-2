@@ -53,5 +53,19 @@
                 </field>
             </group>
         </section>
+        <section id="gigya_section_fieldmapping" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Field Mapping</label>
+            <tab>gigyaim_tab</tab>
+            <resource>Gigya_GigyaIM::fieldmapping_config</resource>
+            <group id="general_fieldmapping" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="mapping_file_path" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mapping file path</label>
+                    <comment>
+                        <![CDATA[The full folder path and file name of your field mapping file.<br/> For example: /var/www/magento2/assets/fieldmapping.json]]>
+                    </comment>
+                </field>
+            </group>
+        </section>
     </system>
 </config>

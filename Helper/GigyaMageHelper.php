@@ -19,7 +19,6 @@ use Magento\Framework\Module\ModuleListInterface;
 class GigyaMageHelper extends AbstractHelper
 {
     const MODULE_NAME = 'Gigya_GigyaIM';
-    const FIELDMAP_MODULE = 'Gigya_FieldMapping';
     private $extra_profile_fields_config = "https://s3.amazonaws.com/gigya-cms-configs/extraProfileFieldsMap.json";
 
     private $apiKey;
@@ -274,10 +273,7 @@ class GigyaMageHelper extends AbstractHelper
     protected function setExtraProfileFields()
     {
         $extra_profile_fields_list = null;
-        // if field mapping module is on, set $config_file_path
-        if (is_null($this->_moduleList->getOne(self::FIELDMAP_MODULE)['setup_version'])) {
-            return $extra_profile_fields_list;
-        }
+
         $config_file_path = $this->scopeConfig->
         getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
 
