@@ -91,20 +91,20 @@ class CustomerExtractorPlugin
         $result = $proceed($formCode, $request, $attributeValues);
 
         if ($this->shallUpdateMagentoCustomerDataWithSessionGigyaAccount($formCode)) {
-            /** @var GigyaUser $gigyaLoggedInAccount */
-            $gigyaLoggedInAccount = $this->session->getGigyaLoggedInAccount();
-            /** @var string $gigyaLoggedInEmail */
-            $gigyaLoggedInEmail = $this->session->getGigyaLoggedInEmail();
+            /** @var GigyaUser $gigyaAccountData */
+            $gigyaAccountData = $this->session->getGigyaAccountData();
+            /** @var string $gigyaAccountLoggingEmail */
+            $gigyaAccountLoggingEmail = $this->session->getGigyaAccountLoggingEmail();
 
-            $this->gigyaSyncHelper->updateMagentoCustomerDataWithSessionGygiaAccount($result, $gigyaLoggedInAccount, $gigyaLoggedInEmail);
+            $this->gigyaSyncHelper->updateMagentoCustomerDataWithSessionGygiaAccount($result, $gigyaAccountData, $gigyaAccountLoggingEmail);
         }
 
         if ($this->shallUpdateSessionGigyaAccountWithMagentoCustomerData($formCode)) {
-            /** @var GigyaUser $gigyaLoggedInAccount */
-            $gigyaLoggedInAccount = $this->session->getGigyaLoggedInAccount();
+            /** @var GigyaUser $gigyaAccountData */
+            $gigyaAccountData = $this->session->getGigyaAccountData();
 
-            $this->gigyaSyncHelper->updateSessionGygiaAccountWithMagentoCustomerData($gigyaLoggedInAccount, $result);
-            $this->session->setGigyaLoggedInEmail($result->getEmail());
+            $this->gigyaSyncHelper->updateSessionGygiaAccountWithMagentoCustomerData($gigyaAccountData, $result);
+            $this->session->setGigyaAccountLoggingEmail($result->getEmail());
         }
 
         return $result;

@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright © 2016 X2i.
+ * Copyright © 2017 Clever-age
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="customer_save_after_data_object">
-        <!-- Sends the customer's account data to Gigya -->
-        <observer name="gigya_sync_account" instance="Gigya\GigyaIM\Observer\Backend\SyncAccountObserver" />
+    <event name="customer_load_after">
+        <observer name="gigyaBackendCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendMagentoCustomerEnricher" />
     </event>
 </config>

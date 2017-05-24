@@ -17,21 +17,17 @@
     <preference for="Gigya\GigyaIM\Block\Form\GigyaRegister"
                 type="Magento\Customer\Block\Form\Register" />
 
-    <preference for="Gigya\GigyaIM\Api\Data\GigyaCustomerAccountInterface"
-                type="Gigya\GigyaIM\Model\GigyaCustomerAccount" />
-
-    <preference for="Gigya\GigyaIM\Api\GigyaCustomerAccountRepositoryInterface"
-                type="Gigya\GigyaIM\Model\ResourceModel\GigyaCustomerAccountRepository" />
-
-    <preference for="Gigya\GigyaIM\Api\GigyaCustomerAccountServiceInterface"
-                type="Gigya\GigyaIM\Model\GigyaCustomerAccountService" />
-
-    <type name="Gigya\GigyaIM\Model\GigyaCustomerAccountService">
+    <preference for="Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface"
+                type="Gigya\GigyaIM\Model\ResourceModel\GigyaAccountRepository" />
+    <preference for="Gigya\GigyaIM\Api\GigyaAccountServiceInterface"
+                type="Gigya\GigyaIM\Model\GigyaAccountService" />
+    <type name="Gigya\GigyaIM\Model\GigyaAccountService">
         <arguments>
             <argument name="logger" xsi:type="object">Gigya\GigyaIM\Logger\Logger</argument>
         </arguments>
     </type>
 
+    <!-- FO sync -->
     <type name="Magento\Customer\Model\CustomerExtractor">
         <plugin name="gigyaIM_customerExtractor" type="Gigya\GigyaIM\Plugin\Customer\Model\CustomerExtractorPlugin" />
     </type>
