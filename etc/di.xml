@@ -50,4 +50,15 @@
             </argument>
         </arguments>
     </type>
+
+    <virtualType name="Gigya\GigyaIM\Model\Session\Storage" type="Magento\Framework\Session\Storage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">gigyaim</argument>
+        </arguments>
+    </virtualType>
+    <type name="Gigya\GigyaIM\Model\Session">
+        <arguments>
+            <argument name="storage" xsi:type="object">Gigya\GigyaIM\Model\Session\Storage</argument>
+        </arguments>
+    </type>
 </config>

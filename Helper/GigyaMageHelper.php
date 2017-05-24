@@ -5,6 +5,8 @@
 namespace Gigya\GigyaIM\Helper;
 
 use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Model\Config;
+use Gigya\GigyaIM\Model\SettingsFactory;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
@@ -29,6 +31,7 @@ class GigyaMageHelper extends AbstractHelper
     public $gigyaApiHelper;
     protected $settingsFactory;
     protected $_moduleList;
+    protected $configModel;
 
     public $_logger;
 
@@ -38,15 +41,16 @@ class GigyaMageHelper extends AbstractHelper
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
     public function __construct(
-        \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
+        SettingsFactory $settingsFactory, // virtual class
         Context $context,
         Logger $logger,
-        ModuleListInterface $moduleList
+        ModuleListInterface $moduleList,
+        Config $configModel
     ) {
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
-        $this->scopeConfig = $context->getScopeConfig();
+        $this->configModel = $configModel;
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->gigyaApiHelper = $this->getGigyaApiHelper();
@@ -154,7 +158,7 @@ class GigyaMageHelper extends AbstractHelper
      */
     private function setGigyaSettings()
     {
-        $settings = $this->scopeConfig->getValue("gigya_section/general");
+        $settings = $this->configModel->getGigyaGeneralConfig();
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
@@ -261,8 +265,7 @@ class GigyaMageHelper extends AbstractHelper
         if (is_null($this->_moduleList->getOne(self::FIELDMAP_MODULE)['setup_version'])) {
             return $extra_profile_fields_list;
         }
-        $config_file_path = $this->scopeConfig->
-        getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
+        $config_file_path = $this->configModel->getMappingFilePath();
 
         // if map fields file exists, read map fields file and build gigya fields array
         if (is_null($config_file_path)) {

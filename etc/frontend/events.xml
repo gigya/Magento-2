@@ -8,4 +8,7 @@
     <event name="customer_save_before">
         <observer name="gigyaCustomerSyncObserver" instance="Gigya\GigyaIM\Observer\UpdateMagentoCustomerWithSessionGigyaAccount" />
     </event>
+    <event name="controller_action_predispatch">
+        <observer name="gigyaExtendSession" instance="Gigya\GigyaIM\Observer\Session\Extend" />
+    </event>
 </config>

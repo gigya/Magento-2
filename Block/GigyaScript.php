@@ -62,7 +62,7 @@ class GigyaScript extends Template
      */
     public function getUserSessionLifetime()
     {
-        return $this->_customerSession->getCookieLifetime();
+        return -1;
     }
 
     /**
@@ -90,11 +90,16 @@ class GigyaScript extends Template
     }
 
     /**
-     * Check URL used for checking the login state
+     * Retrieve URL used for checking the login state
      * @return int
      */
     public function getMagentoLoginStateUrl() {
         return $this->getUrl('gigya_raas/raas/state');
+    }
+
+    public function getLogoutUrl()
+    {
+        return $this->getUrl('customer/account/logout');
     }
 
     /**
