@@ -5,6 +5,7 @@
 
 namespace Gigya\GigyaIM\Plugin\Customer\Model\ResourceModel;
 
+use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
@@ -109,9 +110,13 @@ class CustomerPlugin
         $this->gigyaAccount = null;
 
         if ($this->shallUpdateGigyaWithMagentoCustomerData($this->customer)) {
-            $this->gigyaAccount = $this->gigyaAccountMapper->enrichGigyaAccount($this->customer);
-            $this->gigyaAccountRepository->update($this->gigyaAccount);
-            $this->customer->setIsSynchronizedToGigya(true);
+            try {
+                $this->gigyaAccount = $this->gigyaAccountMapper->enrichGigyaAccount($this->customer);
+                $this->gigyaAccountRepository->update($this->gigyaAccount);
+                $this->customer->setIsSynchronizedToGigya(true);
+            } catch (\Exception $e) {
+                throw $e;
+            }
             // For security we set to null the attribute customer. So that if a subsequent nested transaction is opened we don't re sync with Gigya.
             $this->customer = null;
         }

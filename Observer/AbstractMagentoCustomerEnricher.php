@@ -8,6 +8,7 @@ namespace Gigya\GigyaIM\Observer;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Model\Customer;
+use Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
@@ -24,6 +25,11 @@ use Magento\Framework\Event\ObserverInterface;
 abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
 {
     /**
+     * This event is dispatched when the enrichment has been done
+     */
+    const EVENT_POST_SYNC_FROM_GIGYA = 'post_sync_from_gigya';
+
+    /**
      * Array to push customer entities once they've been enriched. We will avoid to enrich several time the same instance by checking this registry.
      *
      * @var array $customerRegistry
@@ -36,18 +42,24 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     /** @var  GigyaSyncHelper */
     protected $gigyaSyncHelper;
 
+    /** @var ManagerInterface */
+    protected $eventDispatcher;
+
     /**
      * AbstractMagentoCustomerEnricher constructor.
      *
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param ManagerInterface $eventDispatcher
      */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
-        GigyaSyncHelper $gigyaSyncHelper
+        GigyaSyncHelper $gigyaSyncHelper,
+        ManagerInterface $eventDispatcher
     ) {
             $this->gigyaAccountRepository = $gigyaAccountRepository;
             $this->gigyaSyncHelper = $gigyaSyncHelper;
+            $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -78,12 +90,16 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     {
         $gigyaAccountData = $this->gigyaAccountRepository->get($magentoCustomer->getGigyaUid());
         $gigyaAccountLoggingEmail = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccountData)['logging_email'];
-        $this->gigyaSyncHelper->updateMagentoCustomerWithGygiaAccount($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
+        $this->gigyaSyncHelper->updateMagentoCustomerWithGygiaRequiredFields($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
         $magentoCustomer->setIsSynchronizedFromGigya(true);
         $this->pushRegisteredCustomer($magentoCustomer);
-    }
 
+        $this->eventDispatcher->dispatch(self::EVENT_POST_SYNC_FROM_GIGYA, [
+            "gigya_user" => $gigyaAccountData,
+            "customer" => $magentoCustomer
+        ]);
+    }
     /**
      * Will synchronize Magento account entity with Gigya account if needed.
      *

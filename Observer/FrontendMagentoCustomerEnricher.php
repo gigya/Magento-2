@@ -8,6 +8,7 @@ namespace Gigya\GigyaIM\Observer;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\Event\ManagerInterface;
 
 /**
  * FrontendMagentoCustomerEnricher
@@ -30,14 +31,16 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      *
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param ManagerInterface $eventDispatcher
      * @param Context $context
      */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
+        ManagerInterface $eventDispatcher,
         Context $context
     ) {
-        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper);
+        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher);
 
         $this->context = $context;
     }

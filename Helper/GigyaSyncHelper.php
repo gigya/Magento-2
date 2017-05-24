@@ -208,7 +208,7 @@ class GigyaSyncHelper extends AbstractHelper
      * @param string $gigyaAccountLoggingEmail
      * @return void
      */
-    public function updateMagentoCustomerWithGygiaAccount($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail)
+    public function updateMagentoCustomerWithGygiaRequiredFields($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail)
     {
         $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
