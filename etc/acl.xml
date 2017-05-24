@@ -7,6 +7,7 @@
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
                             <resource id="Gigya_GigyaIM::config" title="Edit Gigya General Settings" sortOrder="50" />
+                            <resource id="Gigya_GigyaIM::fieldmapping_config" title="Edit Gigya Field Mapping Module" sortOrder="100" />
                         </resource>
                     </resource>
                 </resource>
