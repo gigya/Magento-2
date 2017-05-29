@@ -89,7 +89,7 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     }
 
     /**
-     * Method called if an exception is catched when dispatching event AbstractMagentoCustomerEnricher::EVENT_POST_SYNC_FROM_GIGYA
+     * Method called if an exception is caught when dispatching event AbstractMagentoCustomerEnricher::EVENT_POST_SYNC_FROM_GIGYA
      *
      * Default behavior is to log a warning (exception is muted)
      *

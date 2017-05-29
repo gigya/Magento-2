@@ -8,7 +8,8 @@ namespace Gigya\GigyaIM\Observer;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Framework\Event\ManagerInterface;
+use \Magento\Framework\Event\ManagerInterface as EventManager;
+use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -26,31 +27,37 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /** @var  CustomerRepositoryInterface */
     protected $customerRepository;
 
+    /** @var  MessageManager */
+    protected $messageManager;
+
     /**
      * BackendMagentoCustomerEnricher constructor.
      *
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param ManagerInterface $eventDispatcher
+     * @param EventManager $eventDispatcher
      * @param LoggerInterface $logger
      * @param CustomerRepositoryInterface $customerRepository
+     * @param MessageManager $messageManager
      */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
-        ManagerInterface $eventDispatcher,
+        EventManager $eventDispatcher,
         LoggerInterface $logger,
-        CustomerRepositoryInterface $customerRepository
+        CustomerRepositoryInterface $customerRepository,
+        MessageManager $messageManager
     ) {
         parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger);
 
         $this->customerRepository = $customerRepository;
+        $this->messageManager = $messageManager;
     }
 
     /**
      * @inheritdoc
      *
-     * For backend we shall cancel the update on third party code exception
+     * Display a warning. The exception is muted so that the Magento customer entity will be saved with the Gigya required fields.
      *
      * @throws \Exception
      */
@@ -62,7 +69,7 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     ) {
         parent::processEventPostSyncFromGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
-        throw $e;
+        $this->messageManager->addWarningMessage("Error sync data from Gigya , User profile didn’t update.Please verify mapping fields between Gigya and Magento. " . $e->getMessage());
     }
 
     /**
