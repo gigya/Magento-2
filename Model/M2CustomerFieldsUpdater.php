@@ -15,6 +15,7 @@ namespace Gigya\GigyaIM\Model;
 
 use Gigya\CmsStarterKit\fieldMapping;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Data\Customer;
 
 class M2CustomerFieldsUpdater extends fieldMapping\CmsUpdater
 {
@@ -90,6 +91,10 @@ class M2CustomerFieldsUpdater extends fieldMapping\CmsUpdater
         return $magento_bool;
     }
 
+    /**
+     * @param Customer $cmsAccount
+     * @param null $cmsAccountSaver
+     */
     public function saveCmsAccount(&$cmsAccount, $cmsAccountSaver = null) {
 
         $this->customerRepository->save($cmsAccount);

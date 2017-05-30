@@ -68,7 +68,6 @@ class CustomerExtractorPlugin
     /**
      * Will synchronize data between instances of Gigya account entity and Magento account entity.
      *
-     * @see GigyaSyncHelper::updateSessionGygiaAccountWithMagentoCustomerData()
      * @see GigyaSyncHelper::updateMagentoCustomerDataWithSessionGygiaAccount()
      *
      * @see \Magento\Customer\Model\CustomerExtractor::extract()
@@ -100,10 +99,6 @@ class CustomerExtractorPlugin
         }
 
         if ($this->shallUpdateSessionGigyaAccountWithMagentoCustomerData($formCode)) {
-            /** @var GigyaUser $gigyaAccountData */
-            $gigyaAccountData = $this->session->getGigyaAccountData();
-
-            $this->gigyaSyncHelper->updateSessionGygiaAccountWithMagentoCustomerData($gigyaAccountData, $result);
             $this->session->setGigyaAccountLoggingEmail($result->getEmail());
         }
 

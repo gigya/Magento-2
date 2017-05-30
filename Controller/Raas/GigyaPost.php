@@ -286,15 +286,15 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 'This account is not confirmed. <a href="%1">Click here</a> to resend confirmation email.',
                 $value
             );
-            $this->messageManager->addError($message);
+            $this->messageManager->addErrorMessage($message);
             $this->session->setUsername($customer['data']['email']);
         } catch (AuthenticationException $e) {
             $message = __('Invalid login or password.');
-            $this->messageManager->addError($message);
+            $this->messageManager->addErrorMessage($message);
             $this->session->setUsername($customer['data']['email']);
         } catch (\Exception $e) {
             // PA DSS violation: throwing or logging an exception here can disclose customer password
-            $this->messageManager->addError(
+            $this->messageManager->addErrorMessage(
                 __('An unspecified error occurred. Please contact us for assistance.')
             );
         }
@@ -354,14 +354,15 @@ class GigyaPost extends \Magento\Customer\Controller\AbstractAccount
                 $url
             );
             // @codingStandardsIgnoreEnd
-            $this->messageManager->addError($message);
+            $this->messageManager->addErrorMessage($message);
         } catch (InputException $e) {
-            $this->messageManager->addError($this->escaper->escapeHtml($e->getMessage()));
+            $this->messageManager->addErrorMessage($this->escaper->escapeHtml($e->getMessage()));
             foreach ($e->getErrors() as $error) {
-                $this->messageManager->addError($this->escaper->escapeHtml($error->getMessage()));
+                $this->messageManager->addErrorMessage($this->escaper->escapeHtml($error->getMessage()));
             }
         } catch (\Exception $e) {
-            $this->messageManager->addException($e, __('We can\'t save the customer.'));
+            $message = __('We can\'t save the customer. ') . $e->getMessage();
+            $this->messageManager->addErrorMessage($message);
         }
 
         $this->session->setCustomerFormData($this->getRequest()->getPostValue());

@@ -8,6 +8,7 @@
 namespace Gigya\GigyaIM\Helper;
 
 use Gigya\CmsStarterKit\sdk\GSException;
+use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Customer;
@@ -208,7 +209,7 @@ class GigyaSyncHelper extends AbstractHelper
      * @param string $gigyaAccountLoggingEmail
      * @return void
      */
-    public function updateMagentoCustomerWithGygiaRequiredFields($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail)
+    public function updateMagentoCustomerRequiredFieldsWithGygiaData($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail)
     {
         $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
@@ -225,33 +226,16 @@ class GigyaSyncHelper extends AbstractHelper
      * . first_name
      * . last_name
      *
-     * For other fields see // CATODO => field mapping
-     *
-     * @param CustomerInterface $magentoCustomerData
+     * @param CustomerInterface $magentoCustomer
      * @param GigyaUser $gigyaAccount
      * @param string $gigyaLoggingEmail
      * @return void
      */
-    public function updateMagentoCustomerDataWithSessionGygiaAccount($magentoCustomerData, $gigyaAccount, $gigyaLoggingEmail)
+    public function updateMagentoCustomerDataWithSessionGygiaAccount($magentoCustomer, $gigyaAccount, $gigyaLoggingEmail)
     {
-        $magentoCustomerData->setCustomAttribute('gigya_uid',$gigyaAccount->getUID());
-        $magentoCustomerData->setEmail($gigyaLoggingEmail);
-        $magentoCustomerData->setFirstname($gigyaAccount->getProfile()->getFirstName());
-        $magentoCustomerData->setLastname($gigyaAccount->getProfile()->getLastName());
-    }
-
-    /**
-     * Update the required fields of the current logged in Gigya account data with a Magento customer interface (that concerns the data stored on session : no call to Gigya is made here)
-     *
-     * For other fields see // CATODO => field mapping
-     *
-     * @param GigyaUser $gigyaAccount
-     * @param CustomerInterface $magentoCustomerData
-     * @return void
-     */
-    public function updateSessionGygiaAccountWithMagentoCustomerData($gigyaAccount, $magentoCustomerData)
-    {
-        $gigyaAccount->getProfile()->setFirstName($magentoCustomerData->getFirstname());
-        $gigyaAccount->getProfile()->setLastName($magentoCustomerData->getLastname());
+        $magentoCustomer->setCustomAttribute('gigya_uid',$gigyaAccount->getUID());
+        $magentoCustomer->setEmail($gigyaLoggingEmail);
+        $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
+        $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
     }
 }
