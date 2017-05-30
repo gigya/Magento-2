@@ -62,7 +62,7 @@ class GigyaScript extends Template
      */
     public function getUserSessionLifetime()
     {
-        return -1;
+        return 3600;
     }
 
     /**
@@ -100,6 +100,11 @@ class GigyaScript extends Template
     public function getLogoutUrl()
     {
         return $this->getUrl('customer/account/logout');
+    }
+
+    public function getLoginUrl()
+    {
+        return $this->getUrl('gigya_raas/raas/magentoLogin');
     }
 
     /**

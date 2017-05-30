@@ -12,32 +12,53 @@ var login_state_url = "<?php echo $block->getMagentoLoginStateUrl() ?>";
 var logout_url = "<?php echo $block->getLogoutUrl() ?>";
 var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
 var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
+var login_url = "<?php echo $block->getLoginUrl() ?>";
+var magento_user_logged_in = false;
+
+    var m;
 </script>
 
 <script>
+
     require([
         "jquery",
         "gigya_script"
-    ], function($, gigyaMage2) {
+    ], function($, gigyaMage2){
+        m = gigyaMage2;
         "use strict";
-        window.gigyaInit = window.gigyaInit || [];
-        // Set Gigya global configuration object
-        window.__gigyaConf = {
-            // Gigya user session time should be equal to Magento session time
-            sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
-        };
-        
-        gigyaMage2.Functions.loadGigyaScript(
-            "<?php echo $block->getGigyaApiKey() ?>",
-            "<?php echo $block->getLanguage() ?>"
-        );
+        $.ajax({
+            type : "GET",
+            url : login_state_url,
+            showLoader: false
+        })
+        .done(function(data) {
+            if(typeof data.logged_in != 'undefined')
+            {
+                magento_user_logged_in = (data.logged_in == '1');
+                gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
+            }
 
-        // Session synchronization between Gigya and Magento
-        gigyaMage2.Functions.syncSessionStatus();
+            window.gigyaInit = window.gigyaInit || [];
+            // Set Gigya global configuration object
+            window.__gigyaConf = {
+                // Gigya user session time should be equal to Magento session time
+                sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
+            };
 
-        $('a[href$="logout/"]').click(function () {
-            gigya.accounts.logout();
-            return true;
+            gigyaMage2.Functions.loadGigyaScript(
+                "<?php echo $block->getGigyaApiKey() ?>",
+                "<?php echo $block->getLanguage() ?>"
+            );
+
+            // Session synchronization between Gigya and Magento
+            gigyaMage2.Functions.syncSessionStatus();
+
+            $('a[href$="logout/"]').click(function () {
+                gigya.accounts.logout();
+                return true;
+            });
+
         });
     });
+
 </script>

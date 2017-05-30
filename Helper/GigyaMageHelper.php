@@ -11,11 +11,11 @@ use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;
 use Gigya\GigyaIM\Model\Config;
 use Gigya\GigyaIM\Model\SettingsFactory;
-use \Magento\Framework\App\Helper\AbstractHelper;
-use \Magento\Framework\App\Helper\Context;
-use \Gigya\GigyaIM\Logger\Logger;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use \Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Gigya\GigyaIM\Logger\Logger;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\Module\ModuleListInterface;
 
 class GigyaMageHelper extends AbstractHelper
@@ -54,8 +54,7 @@ class GigyaMageHelper extends AbstractHelper
         Context $context,
         Logger $logger,
         ModuleListInterface $moduleList,
-        Config $configModel
-        ModuleListInterface $moduleList,
+        Config $configModel,
         GigyaSyncHelper $gigyaSyncHelper,
         Session $session
     ) {
@@ -280,7 +279,7 @@ class GigyaMageHelper extends AbstractHelper
     {
         $extra_profile_fields_list = null;
         // if field mapping module is on, set $config_file_path
-        if (is_null($this->_moduleList->getOne(self::FIELDMAP_MODULE)['setup_version'])) {
+        if (is_null($this->_moduleList->getOne(self::MODULE_NAME)['setup_version'])) {
             return $extra_profile_fields_list;
         }
         $config_file_path = $this->configModel->getMappingFilePath();

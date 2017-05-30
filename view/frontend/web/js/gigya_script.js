@@ -1,7 +1,8 @@
 define([
     'jquery',
-    'Magento_Ui/js/modal/modal'
-], function($, modal){
+    'Magento_Ui/js/modal/modal',
+    'tinymce'
+], function($, modal, tinymce){
     "use strict";
     var gigyaMage2 = {
         Params : {},
@@ -12,6 +13,7 @@ define([
      * Sync gigya-magento sessions
      * Event handlers (login, update)
      */
+    gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
     if ( $('input[name="form_key"]').val().length ){
@@ -32,27 +34,11 @@ define([
      * get Gigya account status with setLoginStatus as callback, and add it to gigya Init array
      */
     gigyaMage2.Functions.syncSessionStatus = function() {
-
-        gigyaMage2.Params.magento_user_logged_in = false;
-        $.ajax({
-            type : "GET",
-            url : login_state_url,
-            showLoader: false
-        })
-            .done(function(data) {
-                console.log('AJAX');
-                console.log(data);
-                if(typeof data.logged_in != 'undefined')
-                {
-                    gigyaMage2.Params.magento_user_logged_in = data.logged_in;
-                }
-
-                var AccountInfoStatus = {
-                    "function": "accounts.getAccountInfo",
-                    "parameters": { callback : gigyaMage2.Functions.setLoginStatus }
-                };
-                window.gigyaInit.push(AccountInfoStatus);
-            });
+        var AccountInfoStatus = {
+            "function": "accounts.getAccountInfo",
+            "parameters": { callback : gigyaMage2.Functions.setLoginStatus }
+        };
+        window.gigyaInit.push(AccountInfoStatus);
     };
 
     /**
@@ -61,25 +47,48 @@ define([
      * If Gigya is logged in but Magento is logged out: leave Gigya logged in
      */
     gigyaMage2.Functions.setLoginStatus = function (response) {
-
-        console.log('LOGIN STATUS');
-        console.log(gigyaMage2.Params.magento_user_logged_in);
+        console.log(response);
         if ( response.errorCode === 0 ) {
             gigyaMage2.Params.gigya_user_logged_in = true;
         } else {
+            alert(response.errorCode);
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
 
+        console.log('GIGYA logged in: '+gigyaMage2.Params.gigya_user_logged_in);
+        console.log('MAGE2 logged in: '+gigyaMage2.Params.magento_user_logged_in);
         // if Gigya is logged out, but Magento is logged in: log Magento out
         // this scenario may result in double page load for user, but is used only to fix an end case situation.
-        if (!gigyaMage2.Params.gigya_user_logged_in && gigyaMage2.Params.magento_user_logged_in) {
-            alert('LOGOUT');
+        if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
             gigyaMage2.Functions.logoutMagento();
+        }
+        if (gigyaMage2.Params.gigya_user_logged_in && (!gigyaMage2.Params.magento_user_logged_in)) {
+            gigyaMage2.Functions.loginMagento(response);
         }
 
     };
 
-    gigyaMage2.Functions.loginMagento = function () {
+    gigyaMage2.Functions.loginMagento = function (response) {
+        console.log(response);
+        var guid = response.UID;
+        if(guid)
+        {
+            var sid = tinymce.util.Cookie.get('PHPSESSID');
+            var form_key = tinymce.util.Cookie.get('form_key');
+            var domain = window.location.hostname;
+
+            $.ajax({
+                type : "POST",
+                url : login_url,
+                data : {
+                    form_key:form_key, guid: guid, guidsig: response.UIDSignature, sigtime: response.signatureTimestamp, key: gigyaMage2.Functions.loginEncode(
+                    sid+domain+guid+1234
+                )}
+            })
+            .done(function(data) {
+                window.location.reload();
+            });
+        }
 
     };
 
@@ -129,6 +138,11 @@ define([
             .done(function() {
                 window.location.reload();
             });
+    };
+
+    gigyaMage2.Functions.loginEncode = function(data)
+    {
+        return window.btoa(decodeURIComponent(encodeURIComponent( data )));
     };
 
 
