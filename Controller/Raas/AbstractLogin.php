@@ -349,7 +349,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * @param string $url
      * @return DataObject
      */
-    protected function createResponseDataObject($url, $additionalData)
+    protected function createResponseDataObject($url, $additionalData = [])
     {
         return new DataObject([
             self::RESPONSE_OBJECT => $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url),
