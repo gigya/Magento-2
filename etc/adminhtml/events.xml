@@ -6,6 +6,10 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="customer_load_after">
-        <observer name="gigyaBackendCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendMagentoCustomerEnricher" />
+        <!-- Enrich the Magento customer entity with the corresponding Gigya's account data, and save the entity -->
+        <observer name="gigyaBackendMagentoCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendMagentoCustomerEnricher" />
+    </event>
+    <event name="customer_save_before">
+        <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendGigyaAccountEnricher" />
     </event>
 </config>

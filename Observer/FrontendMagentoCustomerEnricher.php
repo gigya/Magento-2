@@ -5,16 +5,20 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\Event\ManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * FrontendMagentoCustomerEnricher
  *
  * @inheritdoc
  *
- * The Gigya data shall be set previously on session objects 'gigya_account_data' and 'gigya_account_logging_email'
+ * Overrides the check for knowing if a Magento customer shall be enriched : it's also depending on the request's action name.
+ * @see FrontendMagentoCustomerEnricher::shallUpdateMagentoCustomerWithGigyaAccount()
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -27,16 +31,22 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /**
      * FrontendMagentoCustomerEnricher constructor.
      *
-     * @param GigyaAccountServiceInterface $gigyaAccountService
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param ManagerInterface $eventDispatcher
+     * @param LoggerInterface $logger
      * @param Context $context
      */
     public function __construct(
-        GigyaAccountServiceInterface $gigyaAccountService,
+        CustomerRepositoryInterface $customerRepository,
+        GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
+        ManagerInterface $eventDispatcher,
+        LoggerInterface $logger,
         Context $context
     ) {
-        parent::__construct($gigyaAccountService, $gigyaSyncHelper);
+        parent::__construct($customerRepository, $gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger);
 
         $this->context = $context;
     }
@@ -44,20 +54,16 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /**
      * @inheritdoc
      *
-     * Based on the request's action name, return true if we are going to login, create or update an account.
+     * Add a check on the request's action name : update shall be performed only if we are going to login, create or update an account.
      */
     public function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
-        $result = parent::shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer);
+        $actionName = $this->context->getRequest()->getActionName();
 
-        if ($result) {
-            $actionName = $this->context->getRequest()->getActionName();
+        $result = $actionName == 'loginPost'
+            || $actionName == 'createPost'
+            || $actionName == 'editPost';
 
-            $result = $actionName == 'loginPost'
-                || $actionName == 'createPost'
-                || $actionName == 'editPost';
-        }
-
-        return $result;
+        return $result && parent::shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer);
     }
 }

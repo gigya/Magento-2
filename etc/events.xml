@@ -6,7 +6,7 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="gigya_post_user_create">
+    <event name="post_sync_from_gigya">
         <observer name="mapFieldsObserver" instance="Gigya\GigyaIM\Observer\MapFieldsObserver" />
     </event>
 </config>

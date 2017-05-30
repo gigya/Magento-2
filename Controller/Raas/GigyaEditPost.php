@@ -9,7 +9,6 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -116,19 +115,14 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 
                 $this->customerRepository->save($eligibleCustomer);
 
-                $this->_eventManager->dispatch('gigya_post_user_create', [
-                    "gigya_user" => $this->session->getGigyaAccountData(),
-                    "customer" => $customer
-                ]);
             } catch (AuthenticationException $e) {
-                $this->messageManager->addError($e->getMessage());
+                $this->messageManager->addErrorMessage($e->getMessage());
             } catch (InputException $e) {
-                $this->messageManager->addException($e, __('Invalid input'));
+                $message = __('Invalid input') . $e->getMessage();
+                $this->messageManager->addErrorMessage($message);
             } catch (\Exception $e) {
-                $message = __('We can\'t save the customer.')
-                    . $e->getMessage()
-                    . '<pre>' . $e->getTraceAsString() . '</pre>';
-                $this->messageManager->addException($e, $message);
+                $message = __('We can\'t save the customer. ') . $e->getMessage();
+                $this->messageManager->addErrorMessage($message);
             }
 
             if ($this->messageManager->getMessages()->getCount() > 0) {
@@ -136,7 +130,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
                 return $resultRedirect->setPath('*/*/edit');
             }
 
-            $this->messageManager->addSuccess(__('You saved the account information.'));
+            $this->messageManager->addSuccessMessage(__('You saved the account information.'));
             return $resultRedirect->setPath('customer/account');
         }
 

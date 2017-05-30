@@ -14,16 +14,25 @@
 namespace Gigya\GigyaIM\Model;
 
 use Gigya\CmsStarterKit\fieldMapping;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Data\Customer;
 
 class M2CustomerFieldsUpdater extends fieldMapping\CmsUpdater
 {
 
+    protected $customerRepository;
+
     public $_logger;
 
     public function __construct(
-        \Gigya\CmsStarterKit\User\GigyaUser $gigyaAccount, $mappingFilePath)
+        \Gigya\CmsStarterKit\User\GigyaUser $gigyaAccount,
+        $mappingFilePath,
+        CustomerRepositoryInterface $customerRepository
+    )
     {
         parent::__construct($gigyaAccount, $mappingFilePath);
+
+        $this->customerRepository = $customerRepository;
     }
 
     public function callCmsHook() {
@@ -44,7 +53,7 @@ class M2CustomerFieldsUpdater extends fieldMapping\CmsUpdater
      */
     public function setAccountValues(&$account) {
         foreach ($this->getGigyaMapping() as $gigyaName => $confs) {
-            /** @var Gigya\CmsStarterKit\fieldMapping\ConfItem $conf */
+            /** @var \Gigya\CmsStarterKit\fieldMapping\ConfItem $conf */
             $value = parent::getValueFromGigyaAccount($gigyaName); // e.g: loginProvider = facebook
             // if no value found, log and skip field
             if (is_null($value)) {
@@ -82,10 +91,12 @@ class M2CustomerFieldsUpdater extends fieldMapping\CmsUpdater
         return $magento_bool;
     }
 
-    public function saveCmsAccount(&$cmsAccount, $cmsAccountSaver) {
-        if ($cmsAccountSaver) {
-            $cmsAccountSaver->gigyaUpdateCustomer($cmsAccount);
-        }
-    }
+    /**
+     * @param Customer $cmsAccount
+     * @param null $cmsAccountSaver
+     */
+    public function saveCmsAccount(&$cmsAccount, $cmsAccountSaver = null) {
 
+        $this->customerRepository->save($cmsAccount);
+    }
 }
