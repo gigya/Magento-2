@@ -31,7 +31,7 @@ class GigyaSyncHelper extends AbstractHelper
     /**
      * @var array
      */
-    protected $productIdsExcludedFromSync = [];
+    protected $customerIdsExcludedFromSync = [];
 
     /**
      * @var \Magento\Framework\Message\ManagerInterface
@@ -91,7 +91,7 @@ class GigyaSyncHelper extends AbstractHelper
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->storeManager = $storeManager;
         $this->session = $customerSession;
-        $this->productIdsExcludedFromSync = [
+        $this->customerIdsExcludedFromSync = [
             self::DIR_CMS2G => [], self::DIR_G2CMS => []
         ];
     }
@@ -257,50 +257,56 @@ class GigyaSyncHelper extends AbstractHelper
     }
 
     /**
-     * @param int $productId
-     * @param string $dir
+     * Disable Gigya synchronisation for a selected customer ID.
+     *
+     * @param int $customerId Customer ID
+     * @param string $dir direction: "cms2g", "g2cms" or "both"
      * @return $this
      */
-    public function excludeProductIdFromSync($productId, $dir = self::DIR_BOTH)
+    public function excludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
     {
         if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
         {
-            $this->productIdsExcludedFromSync[self::DIR_CMS2G][$productId] = true;
+            $this->customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = true;
         }
         if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
         {
-            $this->productIdsExcludedFromSync[self::DIR_G2CMS][$productId] = true;
+            $this->customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = true;
         }
         return $this;
     }
 
     /**
-     * @param int $productId
-     * @param string $dir
+     * Re-enable Gigya synchronisation for a selected customer ID.
+     *
+     * @param int $customerId Customer ID for which excludeCustomerIdFromSync() has been previously run
+     * @param string $dir direction: "cms2g", "g2cms" or "both"
      * @return $this
      */
-    public function undoExcludeProductIdFromSync($productId, $dir = self::DIR_BOTH)
+    public function undoExcludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
     {
         if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
         {
-            $this->productIdsExcludedFromSync[self::DIR_CMS2G][$productId] = false;
+            $this->customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = false;
         }
         if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
         {
-            $this->productIdsExcludedFromSync[self::DIR_G2CMS][$productId] = false;
+            $this->customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = false;
         }
         return $this;
     }
 
     /**
-     * @param int $productId
-     * @param string $dir
+     * Check whether Gigya synchronisation is enabled for a customer ID in a particular direction
+     *
+     * @param int $customerId Customer ID
+     * @param string $dir direction: "cms2g" or "g2cms", but not "both"
      * @return bool
      */
-    public function isProductIdExcludedFromSync($productId, $dir)
+    public function isCustomerIdExcludedFromSync($customerId, $dir)
     {
-        return isset($this->productIdsExcludedFromSync[$dir][$productId])
-            && $this->productIdsExcludedFromSync[$dir][$productId];
+        return isset($this->customerIdsExcludedFromSync[$dir][$customerId])
+            && $this->customerIdsExcludedFromSync[$dir][$customerId];
     }
 
 }
