@@ -81,7 +81,12 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      */
     protected function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
-        $result = $magentoCustomer != null && !$magentoCustomer->isDeleted() && !$magentoCustomer->isObjectNew();
+        $result = $magentoCustomer != null &&
+            !$magentoCustomer->isDeleted() &&
+            !$magentoCustomer->isObjectNew() &&
+            !$this->gigyaSyncHelper->isProductIdExcludedFromSync(
+                $magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS
+            );
 
         $result = $result && !$this->retrieveRegisteredCustomer($magentoCustomer);
 

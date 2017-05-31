@@ -32,6 +32,11 @@
         <plugin name="gigyaIM_customerExtractor" type="Gigya\GigyaIM\Plugin\Customer\Model\CustomerExtractorPlugin" />
     </type>
 
+    <!-- disable Gigya Sync before customer delete -->
+    <type name="Magento\Customer\Api\CustomerRepositoryInterface">
+        <plugin name="gigyaIM_allowDeleteInvalidCustomer" type="Gigya\GigyaIM\Plugin\Customer\Api\AllowDeleteInvalidCustomer" />
+    </type>
+
     <!-- Register Gigya Logger -->
     <type name="Gigya\GigyaIM\Logger\Handler">
         <arguments>
