@@ -198,16 +198,19 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
             $magentoCustomerDataModel = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
             $customerEntityId = $magentoCustomerDataModel->getId();
             $excludeSyncCms2G = true;
-            if (!$this->gigyaSyncHelper->isProductIdExcludedFromSync($customerEntityId, GigyaSyncHelper::DIR_CMS2G)) {
-                $this->gigyaSyncHelper->excludeProductIdFromSync($magentoCustomerDataModel->getId(),
+            if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId, GigyaSyncHelper::DIR_CMS2G)) {
+                // We prevent synchronizing the M2 customer data to the Gigya account : that should be done only on explicit customer save,
+                // here the very first action is to load the M2 customer
+                $this->gigyaSyncHelper->excludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
                     GigyaSyncHelper::DIR_CMS2G);
                 $excludeSyncCms2G = false;
             }
             try {
                 $this->customerRepository->save($magentoCustomerDataModel);
             } finally {
+                // If the synchro to Gigya was not already disabled we re-enable it
                 if (!$excludeSyncCms2G) {
-                    $this->gigyaSyncHelper->undoExcludeProductIdFromSync($magentoCustomerDataModel->getId(),
+                    $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
                         GigyaSyncHelper::DIR_CMS2G);
                 }
             }

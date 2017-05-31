@@ -74,7 +74,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
             && !$magentoCustomer->isObjectNew()
             && !$this->retrieveRegisteredCustomer($magentoCustomer)
             && !(empty($magentoCustomer->getGigyaUid()))
-            && !$this->gigyaSyncHelper->isProductIdExcludedFromSync(
+            && !$this->gigyaSyncHelper->isCustomerIdExcludedFromSync(
                 $magentoCustomer->getId(), GigyaSyncHelper::DIR_CMS2G
             );
 
