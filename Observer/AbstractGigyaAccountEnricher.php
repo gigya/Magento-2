@@ -61,13 +61,16 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      * Check if a Magento customer entity's data are to be forwarded to Gigya service.
      *
      * @param Customer $magentoCustomer
-     * @return bool True if the customer is not null, not flagged as deleted, not a new customer and not flagged has already synchronized.
+     * @return bool True if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non empty gigya_uid value
      */
     protected function shallUpdateGigyaWithMagentoCustomerData($magentoCustomer)
     {
-        $result = $magentoCustomer != null && !$magentoCustomer->isDeleted() && !$magentoCustomer->isObjectNew();
-
-        $result = $result && !$this->retrieveRegisteredCustomer($magentoCustomer);
+        $result =
+            $magentoCustomer != null
+            && !$magentoCustomer->isDeleted()
+            && !$magentoCustomer->isObjectNew()
+            && !$this->retrieveRegisteredCustomer($magentoCustomer)
+            && !(empty($magentoCustomer->getGigyaUid()));
 
         return $result;
     }

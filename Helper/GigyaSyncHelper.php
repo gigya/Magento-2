@@ -156,13 +156,14 @@ class GigyaSyncHelper extends AbstractHelper
                 $magentoLoggingEmail = $magentoLoggingCustomer->getEmail();
             }
         } else {
-            // 2. no customer account exists on Magento with this Gigya UID and one of the Gigya loginIDs emails : check if we can create on with one of the Gigya loginIDs emails
+            // 2. no customer account exists on Magento with this Gigya UID and one of the Gigya loginIDs emails : check if we can create it with one of the Gigya loginIDs emails
             // 2.1 Gigya profile email is the preferred one
             $updateMagentoCustomerWithGigyaProfileEmail = false;
             // Gigya profile email is in the Gigya loginIDs emails ?
             if (in_array($gigyaProfileEmail, $gigyaLoginIdsEmails)) {
                 // and Gigya profile email is not already attached to an existing Magento account ?
                 $searchCustomerByEmailCriteriaFilter->setValue($gigyaProfileEmail);
+                $searchCustomerByWebsiteIdCriteriaFilter->setValue($this->storeManager->getStore()->getWebsiteId());
                 if ($this->customerRepository->getList($searchCustomerByEmailCriteria)->getTotalCount() == 0) {
                     $updateMagentoCustomerWithGigyaProfileEmail = true;
                 }
