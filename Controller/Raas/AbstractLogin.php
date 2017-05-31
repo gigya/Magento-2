@@ -182,7 +182,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         // if gigya user not validated return error
         if (!$valid_gigya_user) {
             $this->messageManager->addError(__('The user is not validated. Please try again or contact support.'));
-            return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
+            return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
+                ['login_successful' => false]);
         } // we have a valid gigya user. verify that required fields exist
         else {
             $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
@@ -191,25 +192,28 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 foreach ($required_field_message as $message) {
                     $this->messageManager->addError($message);
                 }
-                return $this->encapsulateResponse($this->accountRedirect->getRedirect());
+                return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
             }
 
-            $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
 
+            $loginSuccess = false;
             try {
-
                 $customer = $this->gigyaMageHelper->setMagentoLoggingContext($valid_gigya_user);
 
                 if ($customer) {
-                    $this->gigyaLoginUser($customer);
+                    $loginSuccess = $this->gigyaLoginUser($customer);
                     $this->customerRepository->save($customer);
+                    $redirect = $this->encapsulateResponse(
+                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]);
                 } else {
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
+                    $loginSuccess = true;
                 }
             } catch(\Exception $e) {
                 $this->messageManager->addError($e->getMessage());
                 $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
-                $redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl));
+                $redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl),
+                    ['login_successful' => $loginSuccess]);
             }
 
             return $redirect;
@@ -253,6 +257,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         try {
             $this->session->setCustomerDataAsLoggedIn($customer);
             $this->session->regenerateId();
+            return true;
         } catch (EmailNotConfirmedException $e) {
             $value = $this->customerUrl->getEmailConfirmationUrl($customer['data']['email']);
             $message = __(
@@ -261,15 +266,18 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             );
             $this->messageManager->addErrorMessage($message);
             $this->session->setUsername($customer['data']['email']);
+            return false;
         } catch (AuthenticationException $e) {
             $message = __('Invalid login or password.');
             $this->messageManager->addErrorMessage($message);
             $this->session->setUsername($customer['data']['email']);
+            return false;
         } catch (\Exception $e) {
             // PA DSS violation: throwing or logging an exception here can disclose customer password
             $this->messageManager->addErrorMessage(
                 __('An unspecified error occurred. Please contact us for assistance.')
             );
+            return false;
         }
     }
 
@@ -361,11 +369,11 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * @param \Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\Result\Forward $resultRedirect
      * @return DataObject
      */
-    protected function encapsulateResponse($resultRedirect)
+    protected function encapsulateResponse($resultRedirect, $additionalData = [])
     {
         return new DataObject([
             self::RESPONSE_OBJECT => $resultRedirect,
-            self::RESPONSE_DATA => []
+            self::RESPONSE_DATA => $additionalData
         ]);
     }
 
