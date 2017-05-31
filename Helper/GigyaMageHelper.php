@@ -57,7 +57,7 @@ class GigyaMageHelper extends AbstractHelper
         parent::__construct($context);
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
-	$this->scopeConfig = $context->getScopeConfig();
+	    $this->scopeConfig = $context->getScopeConfig();
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->_moduleList = $moduleList;
