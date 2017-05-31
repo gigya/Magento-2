@@ -25,7 +25,7 @@ class M2CustomerFieldsUpdater extends fieldMapping\CmsUpdater
     public $_logger;
 
     public function __construct(
-        \Gigya\CmsStarterKit\User\GigyaUser $gigyaAccount,
+        \Gigya\CmsStarterKit\user\GigyaUser $gigyaAccount,
         $mappingFilePath,
         CustomerRepositoryInterface $customerRepository
     )
