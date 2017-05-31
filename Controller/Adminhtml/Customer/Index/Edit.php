@@ -10,8 +10,7 @@ use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 /**
  * Edit
  *
- * When a customer page details is to be displayed on backend we try to enrich the Customer entity with the Gigya account data.
- * If an exception occurs during the field mapping we shall not be able to
+ * When a customer is saved from backend page : if an exception is thrown during field mapping an error is displayed and the update is canceled.
  *
  * @author      vlemaire <info@x2i.fr>
  *
