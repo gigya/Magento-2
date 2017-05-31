@@ -5,6 +5,7 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\ResourceConnection;
@@ -60,7 +61,9 @@ class RetryGigyaUpdateCron
             $customerEntityId = $retryRow['customer_entity_id'];
             $retryCount = 1 + $retryRow['retry_count'];
             try {
+                //
                 $customer = $this->customerRepository->getById($customerEntityId);
+                // When the save is performed the observer of the event 'customer_save_before' will forward the data to Gigya
                 $this->customerRepository->save($customer);
             } catch (\Exception $e) {
                 $this->logger->warning(sprintf('Retry update number [%d] Gigya failed for customer entity id [%d]', $retryCount, $customerEntityId));

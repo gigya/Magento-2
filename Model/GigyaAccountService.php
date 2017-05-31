@@ -61,7 +61,9 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         // not forbidden by Gigya : for special mapping purpose
         'profile',
         'loginIDs',
-        'nestedValue'
+        'nestedValue',
+        // not forbidden by Gigya : Magento internal entity id
+        'customerEntityId'
     ];
 
     /** @var array All Gigya profile attributes */
@@ -84,17 +86,15 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      *
      * @param GigyaMageHelper $gigyaMageHelper
      * @param Context $context
-     * @param Logger $logger
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
-        Context $context,
-        Logger $logger
+        Context $context
     )
     {
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->eventManager = $context->getEventDispatcher();
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
 
         $gigyaCoreMethods = get_class_methods(GigyaUser::class);
         foreach($gigyaCoreMethods as $gigyaCoreMethod) {
@@ -127,7 +127,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             /*throw new GSApiException("test", 1, sprintf(
                     "Test Gigya update failure => retry for uid : %s, customer_entity_id : %s customer_email : %s",
                     $gigyaApiData['uid'],
-                    $gigyaAccount->getMagentoEntityId(),
+                    $gigyaAccount->getCustomerEntityId(),
                     $gigyaApiData['profile']['email']
                 )
             );*/
@@ -142,7 +142,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                 $gigyaApiData
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_SUCCESS, [
-                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId()
+                    'customer_entity_id' => $gigyaAccount->getCustomerEntityId()
                 ]
             );
         } catch(GSApiException $e) {
@@ -158,7 +158,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                 ]
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_FAILURE, [
-                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId(),
+                    'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
                     'gigya_data' => $gigyaApiData,
                     'message' => $message
                 ]

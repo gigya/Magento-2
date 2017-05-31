@@ -135,6 +135,8 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
             }
         }
 
+        $gigyaAccountData->setCustomerEntityId($magentoCustomer->getEntityId());
+
         return $gigyaAccountData;
     }
 

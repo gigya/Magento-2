@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Observer;
 
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\App\State as AppState;
 use Magento\Framework\DB\Adapter\AdapterInterface;
@@ -48,25 +49,25 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /**
      * SyncCustomerToGigyaObserver constructor.
      *
-     * @param ResourceConnection $connection
+     * @param ResourceConnection $resourceConnection
      * @param GigyaMageHelper $gigyaMageHelper
      * @param AppState $state
      * @param LoggerInterface $logger
      */
     public function __construct(
-        ResourceConnection $connection,
+        ResourceConnection $resourceConnection,
         GigyaMageHelper $gigyaMageHelper,
         AppState $state,
         LoggerInterface $logger
     )
     {
-        $this->resourceConnection = $connection;
+        $this->resourceConnection = $resourceConnection;
         $this->gigyaMageHelper = $gigyaMageHelper;
+        $this->appState = $state;
         $this->logger = $logger;
 
         $this->maxGigyaUpdateRetryCount = $this->gigyaMageHelper->getMaxRetryCountForGigyaUpdate();
     }
-
 
     /**
      * Depending on event GigyaAccountService::EVENT_UPDATE_GIGYA_FAILURE or GigyaAccountService::EVENT_UPDATE_GIGYA_SUCCESS
@@ -76,7 +77,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        switch ($observer->getEventName()) {
+        switch ($observer->getEvent()->getName()) {
 
             case GigyaAccountService::EVENT_UPDATE_GIGYA_FAILURE :
                 $this->performUpdateFailure($observer);
@@ -143,7 +144,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
             'date' => date('Y-m-d H:i:s', gmdate('U'))
         ];
 
-        $connection = $this->resourceConnection->getConnection();
+        $connection = $this->resourceConnection->getConnection('gigya_retry');
         $connection->beginTransaction();
 
         try {
@@ -164,7 +165,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                 );
             } else {
                 // If failure after an automatic update retry by the cron we increment the retry count
-                if ($this->appState->getAreaCode() == 'crontab') {
+                if ($this->appState->getAreaCode() == Area::AREA_CRONTAB) {
                     $retryCount = (int)$allRetriesRow[0]['retry_count'];
                     if ($retryCount == $this->maxGigyaUpdateRetryCount) {
                         $this->logger->warning(
@@ -235,7 +236,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
 
-        $connection = $this->resourceConnection->getConnection();
+        $connection = $this->resourceConnection->getConnection('gigya_retry');
         $connection->beginTransaction();
 
         $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
