@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Model;
 
 
 use Gigya\CmsStarterKit\sdk\GSApiException;
+use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
@@ -17,6 +18,11 @@ use Monolog\Logger;
  * GigyaAccountService
  *
  * @inheritdoc
+ *
+ * CATODO :
+ * review the mapping from GigyaUser to array for calling updateGigyaAccount
+ * the best would be that a method self::update with a Gigya account data as a flatten array could be exposed
+ * because as it's done for now we may not be able to update complex data, and diverge if the Gigya models change.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -42,6 +48,37 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     /** @var  Logger */
     protected $logger;
 
+    /** @var array All GigyaUser first level attributes but the profile */
+    private $gigyaCoreAttributes = [];
+
+    /** @var array Gigya user attributes that shall not be updated (Gigya service validation rule) */
+    private $gigyaCoreForbiddenAttributes = [ // CATODO : should be in config.xml
+        'UID',
+        'UIDSignature',
+        'signatureTimestamp',
+        'emails',
+        'identities',
+        // not forbidden by Gigya : for special mapping purpose
+        'profile',
+        'loginIDs',
+        'nestedValue'
+    ];
+
+    /** @var array All Gigya profile attributes */
+    private $gigyaProfileAttributes = [];
+
+    /** @var array Gigya profile attributes that shall not be updated (Gigya service validation rule) */
+    private $gigyaProfileForbiddenAttributes = [ // CATODO : should be in config.xml
+        // Dynamic fields
+        'likes',
+        'favorites',
+        'skills',
+        'education',
+        'phones',
+        'works',
+        'publications'
+    ];
+
     /**
      * GigyaAccountService constructor.
      *
@@ -58,6 +95,20 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->eventManager = $context->getEventDispatcher();
         $this->logger = $logger;
+
+        $gigyaCoreMethods = get_class_methods(GigyaUser::class);
+        foreach($gigyaCoreMethods as $gigyaCoreMethod) {
+            if (strpos($gigyaCoreMethod, 'get') === 0) {
+                $this->gigyaCoreAttributes[] = lcfirst(substr($gigyaCoreMethod, 3));
+            }
+        }
+
+        $gigyaProfileMethods = get_class_methods(GigyaProfile::class);
+        foreach($gigyaProfileMethods as $gigyaProfileMethod) {
+            if (strpos($gigyaProfileMethod, 'get') === 0) {
+                $this->gigyaProfileAttributes[] = lcfirst(substr($gigyaProfileMethod, 3));
+            }
+        }
     }
 
     /**
@@ -91,24 +142,25 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                 $gigyaApiData
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_SUCCESS, [
-                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId(),
-                    'gigya_data' => $gigyaApiData
+                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId()
                 ]
             );
         } catch(GSApiException $e) {
+            $message = $e->getLongMessage();
             $this->logger->error(
                 'Failure encountered on call to Gigya service api',
                 [
                     'gigya_data' => $gigyaApiData,
                     'exception' => [
                         'code' => $e->getCode(),
-                        'message' => $e->getLongMessage()
+                        'message' => $message
                     ]
                 ]
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_FAILURE, [
                     'customer_entity_id' => $gigyaAccount->getMagentoEntityId(),
-                    'gigya_data' => $gigyaApiData
+                    'gigya_data' => $gigyaApiData,
+                    'message' => $message
                 ]
             );
             throw $e;
@@ -130,11 +182,18 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     {
         $profile = $gigyaAccount->getProfile();
 
-        return [
-            'email' => $profile->getEmail(),
-            'firstName' => $profile->getFirstName(),
-            'lastName' => $profile->getLastName()
-        ];
+        $result = [];
+
+        foreach ($this->gigyaProfileAttributes as $gigyaProfileAttribute) {
+            if (!in_array($gigyaProfileAttribute, $this->gigyaProfileForbiddenAttributes)) {
+                $value = call_user_func(array($profile, 'get' . $gigyaProfileAttribute));
+                if (!is_null($value)) {
+                    $result[$gigyaProfileAttribute] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -145,9 +204,18 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     protected function getGigyaApiCoreData(GigyaUser $gigyaAccount)
     {
-        return [
-            'loginIDs' => $gigyaAccount->getLoginIDs()['emails']
-        ];
+        $result = [ 'loginIDs' => $gigyaAccount->getLoginIDs()['emails'] ];
+
+        foreach ($this->gigyaCoreAttributes as $gigyaCoreAttribute) {
+            if (!in_array($gigyaCoreAttribute, $this->gigyaCoreForbiddenAttributes)) {
+                $value = call_user_func(array($gigyaAccount, 'get' . $gigyaCoreAttribute));
+                if (!is_null($value)) {
+                    $result[$gigyaCoreAttribute] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**

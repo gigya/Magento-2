@@ -146,6 +146,18 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
+     * Return the max number of attempt of automatic Gigya update retry.
+     *
+     * Configuration in BO.
+     *
+     * @return int
+     */
+    public function getMaxRetryCountForGigyaUpdate()
+    {
+        return (int)$this->scopeConfig->getValue('gigya_section/general/synchro/gigya_update_max_retry');
+    }
+
+    /**
      * @return mixed
      */
     public function getDebug()

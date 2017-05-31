@@ -153,7 +153,7 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
      *
      * @param $cmsName string
      *      A 'path' to the value to retrieve on the Customer entity. Syntax is : word[.word]+ where word is the snake case name of a property (eg 'my_attribute')
-     *      If word begins with custom, like in customMy_attribute, we'll call magentoCustomer->getCustomAttriubte('my_attribute')
+     *      If word begins with custom_, like in custom_my_attribute, we'll call magentoCustomer->getCustomAttriubte('my_attribute')
      *      Otherwise we'll call magentoCustomer->getMyAttribute
      * @return mixed
      * @throws GigyaFieldMappingException
@@ -170,8 +170,8 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
         try {
             while (($subPath = array_shift($subPaths)) != null) {
 
-                if (strpos($subPath, 'custom') === 0) {
-                    $subPath = substr($subPath, 6);
+                if (strpos($subPath, 'custom_') === 0) {
+                    $subPath = substr($subPath, 7);
                     $methodName = 'getCustomAttribute';
                     $methodParams = strtolower($subPath);
                     $value = call_user_func(array($value, $methodName), $methodParams);
@@ -242,8 +242,6 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
 
     /**
      * Nothing done here. This method exists for interface compatibility with php_cms_kit (aka cms-starter-kit) module
-     *
-     * Save will be performed by CATODO
      *
      * Reasons are : retry on Gigya update + gigyaUid can be set by parent class only on constructor (M2 good practice is to use a singleton)
      */
