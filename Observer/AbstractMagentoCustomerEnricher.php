@@ -9,6 +9,7 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\Event\Observer;
@@ -25,7 +26,7 @@ use Psr\Log\LoggerInterface;
  * When it's triggered it will :
  * . check that the Magento data have to be enriched
  * . enrich the Magento required fields with the Gigya attributes (first name, last name, email)
- * . trigger the event AbstractMagentoCustomerEnricher::EVENT_POST_SYNC_FROM_GIGYA so that the Gigya data could be enriched with third party code and with the extended fields mapping
+ * . trigger the event AbstractMagentoCustomerEnricher::EVENT_MAP_GIGYA_TO_MAGENTO so that the Gigya data could be enriched with third party code and with the extended fields mapping
  *
  */
 abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implements ObserverInterface
@@ -33,7 +34,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     /**
      * This event is dispatched when the enrichment has been done
      */
-    const EVENT_POST_SYNC_FROM_GIGYA = 'post_sync_from_gigya';
+    const EVENT_MAP_GIGYA_TO_MAGENTO = 'gigya_map_to_magento';
 
     /** @var  CustomerRepositoryInterface\ */
     protected $customerRepository;
@@ -85,12 +86,11 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 
         $result = $result && !$this->retrieveRegisteredCustomer($magentoCustomer);
 
-
         return $result;
     }
 
     /**
-     * Method called if an exception is caught when dispatching event AbstractMagentoCustomerEnricher::EVENT_POST_SYNC_FROM_GIGYA
+     * Method called if an exception is caught when dispatching event AbstractMagentoCustomerEnricher::EVENT_MAP_GIGYA_TO_MAGENTO
      *
      * Default behavior is to log a warning (exception is muted)
      *
@@ -100,7 +100,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * @param $gigyaAccountLoggingEmail string
      * @return boolean Whether the enrichment can go on or not. Default is true.
      */
-    protected function processEventPostSyncFromGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
+    protected function processEventMapGigyaToMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
 
         // Ignore : enrichment shall not fail on third party code exception
         $this->logger->warning(
@@ -139,14 +139,14 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     /**
      * Performs the enrichment of the customer with the Gigya data.
      *
-     * The event AbstractMagentoCustomerEnricher::EVENT_POST_SYNC_FROM_GIGYA is triggered here with parameters :
+     * The event AbstractMagentoCustomerEnricher::EVENT_MAP_GIGYA_TO_MAGENTO is triggered here with parameters :
      * gigya_user => GigyaUser
      * customer => CustomerInterface
      *
      * @param $magentoCustomer Customer
      * @param $gigyaAccountData GigyaUser
      * @param $gigyaAccountLoggingEmail string
-     * @return Customer
+     * @return CustomerInterface The updated Magento customer entity.
      * @throws \Exception
      */
     protected function enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
@@ -155,20 +155,21 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 
         $this->gigyaSyncHelper->updateMagentoCustomerRequiredFieldsWithGygiaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
+        $magentoCustomerDataModel = $magentoCustomer->getDataModel();
         try {
-            $this->eventDispatcher->dispatch(self::EVENT_POST_SYNC_FROM_GIGYA, [
+            $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_TO_MAGENTO, [
                 "gigya_user" => $gigyaAccountData,
-                "customer" => $magentoCustomer->getDataModel()
+                "customer" => $magentoCustomerDataModel
             ]);
         } catch (\Exception $e) {
-            if (!$this->processEventPostSyncFromGigyaException($e, $magentoCustomer, $gigyaAccountData,
+            if (!$this->processEventMapGigyaToMagentoException($e, $magentoCustomer, $gigyaAccountData,
                 $gigyaAccountLoggingEmail)
             ) {
                 throw $e;
             }
         }
 
-        return $magentoCustomer;
+        return $magentoCustomerDataModel;
     }
 
     /**
@@ -185,7 +186,8 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         if ($this->shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)) {
 
             $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
-            $this->enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
+            $magentoCustomerDataModel = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
+            $this->customerRepository->save($magentoCustomerDataModel);
         }
     }
 }

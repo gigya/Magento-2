@@ -213,8 +213,12 @@ class GigyaSyncHelper extends AbstractHelper
     {
         $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
-        $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
-        $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+        if (empty($magentoCustomer->getFirstname())) {
+            $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
+        }
+        if (empty($magentoCustomer->getLastname())) {
+            $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+        }
     }
 
     /**
