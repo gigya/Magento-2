@@ -87,7 +87,10 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
             && !$magentoCustomer->isDeleted()
             && !$magentoCustomer->isObjectNew()
             && !$this->retrieveRegisteredCustomer($magentoCustomer)
-            && !(empty($magentoCustomer->getGigyaUid()));
+            && !(empty($magentoCustomer->getGigyaUid()))
+            && !$this->gigyaSyncHelper->isProductIdExcludedFromSync(
+                $magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS
+            );
 
         return $result;
     }

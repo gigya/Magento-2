@@ -24,6 +24,15 @@ use Magento\Customer\Model\Session;
 
 class GigyaSyncHelper extends AbstractHelper
 {
+    const DIR_BOTH = 'both';
+    const DIR_G2CMS = 'g2cms';
+    const DIR_CMS2G = 'cms2g';
+
+    /**
+     * @var array
+     */
+    protected $productIdsExcludedFromSync = [];
+
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
@@ -82,6 +91,9 @@ class GigyaSyncHelper extends AbstractHelper
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->storeManager = $storeManager;
         $this->session = $customerSession;
+        $this->productIdsExcludedFromSync = [
+            self::DIR_CMS2G => [], self::DIR_G2CMS => []
+        ];
     }
 
     /**
@@ -243,4 +255,52 @@ class GigyaSyncHelper extends AbstractHelper
         $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
         $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
     }
+
+    /**
+     * @param int $productId
+     * @param string $dir
+     * @return $this
+     */
+    public function excludeProductIdFromSync($productId, $dir = self::DIR_BOTH)
+    {
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
+        {
+            $this->productIdsExcludedFromSync[self::DIR_CMS2G][$productId] = true;
+        }
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
+        {
+            $this->productIdsExcludedFromSync[self::DIR_G2CMS][$productId] = true;
+        }
+        return $this;
+    }
+
+    /**
+     * @param int $productId
+     * @param string $dir
+     * @return $this
+     */
+    public function undoExcludeProductIdFromSync($productId, $dir = self::DIR_BOTH)
+    {
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
+        {
+            $this->productIdsExcludedFromSync[self::DIR_CMS2G][$productId] = false;
+        }
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
+        {
+            $this->productIdsExcludedFromSync[self::DIR_G2CMS][$productId] = false;
+        }
+        return $this;
+    }
+
+    /**
+     * @param int $productId
+     * @param string $dir
+     * @return bool
+     */
+    public function isProductIdExcludedFromSync($productId, $dir)
+    {
+        return isset($this->productIdsExcludedFromSync[$dir][$productId])
+            && $this->productIdsExcludedFromSync[$dir][$productId];
+    }
+
 }

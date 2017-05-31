@@ -1,0 +1,17 @@
+<?php
+// @codingStandardsIgnoreFile
+
+/**
+ * @var $block \Gigya\GigyaIM\Block\Adminhtml\Customer\Edit\Tab\View\GigyaUID
+ */
+
+$customer = $block->getCustomerFromParentBlock();
+if($customer):
+    $guid = $customer->getCustomAttribute('gigya_uid')->getValue();
+    ?>
+    <tr>
+        <th><?php /* @escapeNotVerified */ echo __('Gigya UID:') ?></th>
+        <td><?php /* @escapeNotVerified */ echo $guid ? $guid : __('N/A') ?></td>
+    </tr>
+    <?php
+endif;
