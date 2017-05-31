@@ -9,7 +9,6 @@ use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\Event\ManagerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -34,7 +33,6 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      * @param CustomerRepositoryInterface $customerRepository
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param ManagerInterface $eventDispatcher
      * @param LoggerInterface $logger
      * @param Context $context
      */
@@ -42,11 +40,10 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
         CustomerRepositoryInterface $customerRepository,
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
-        ManagerInterface $eventDispatcher,
         LoggerInterface $logger,
         Context $context
     ) {
-        parent::__construct($customerRepository, $gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger);
+        parent::__construct($customerRepository, $gigyaAccountRepository, $gigyaSyncHelper, $context->getEventManager(), $logger);
 
         $this->context = $context;
     }
