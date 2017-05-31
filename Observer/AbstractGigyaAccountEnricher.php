@@ -23,14 +23,14 @@ use Psr\Log\LoggerInterface;
  *
  * When it's triggered it will :
  * . check that the Gigya data have to be enriched
- * . trigger the event AbstractGigyaAccountEnricher::EVENT_PRE_SYNC_TO_GIGYA so that the Gigya data could be enriched with third party code and with the extended fields mapping
+ * . trigger the event AbstractGigyaAccountEnricher::EVENT_MAP_GIGYA_FROM_MAGENTO so that the Gigya data could be enriched with third party code and with the extended fields mapping
  */
 class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverInterface
 {
     /**
      * This event is dispatched before the enrichment is done
      */
-    const EVENT_PRE_SYNC_TO_GIGYA = 'pre_sync_to_gigya';
+    const EVENT_MAP_GIGYA_FROM_MAGENTO = 'gigya_map_from_magento';
 
     /** @var  GigyaSyncHelper */
     protected $gigyaSyncHelper;
@@ -61,19 +61,22 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      * Check if a Magento customer entity's data are to be forwarded to Gigya service.
      *
      * @param Customer $magentoCustomer
-     * @return bool True if the customer is not null, not flagged as deleted, not a new customer and not flagged has already synchronized.
+     * @return bool True if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non empty gigya_uid value
      */
     protected function shallUpdateGigyaWithMagentoCustomerData($magentoCustomer)
     {
-        $result = $magentoCustomer != null && !$magentoCustomer->isDeleted() && !$magentoCustomer->isObjectNew();
-
-        $result = $result && !$this->retrieveRegisteredCustomer($magentoCustomer);
+        $result =
+            $magentoCustomer != null
+            && !$magentoCustomer->isDeleted()
+            && !$magentoCustomer->isObjectNew()
+            && !$this->retrieveRegisteredCustomer($magentoCustomer)
+            && !(empty($magentoCustomer->getGigyaUid()));
 
         return $result;
     }
 
     /**
-     * Method called if an exception is caught when dispatching event AbstractGigyaAccountEnricher::EVENT_PRE_SYNC_TO_GIGYA
+     * Method called if an exception is caught when dispatching event AbstractGigyaAccountEnricher::EVENT_MAP_GIGYA_FROM_MAGENTO
      *
      * Default behavior is to log a warning (exception is muted)
      *
@@ -83,7 +86,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      * @param $gigyaAccountLoggingEmail string
      * @return boolean Whether the enrichment can go on or not. Default is true.
      */
-    protected function processEventPreSyncToGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
+    protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
     {
 
         $this->logger->warning(
@@ -114,12 +117,12 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
         $gigyaAccountLoggingEmail = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccountData)['logging_email'];
 
         try {
-            $this->eventDispatcher->dispatch(self::EVENT_PRE_SYNC_TO_GIGYA, [
+            $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO, [
                 "gigya_user" => $gigyaAccountData,
-                "customer" => $magentoCustomer
+                "customer" => $magentoCustomer->getDataModel()
             ]);
         } catch (\Exception $e) {
-            if (!$this->processEventPreSyncToGigyaException($e, $magentoCustomer, $gigyaAccountData,
+            if (!$this->processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData,
                 $gigyaAccountLoggingEmail)
             ) {
                 throw $e;
@@ -142,7 +145,8 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
 
         if ($this->shallUpdateGigyaWithMagentoCustomerData($magentoCustomer)) {
 
-            $this->enrichGigyaAccount($magentoCustomer);
+            $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
+            $this->gigyaAccountRepository->update($gigyaAccountData);
         }
     }
 }
