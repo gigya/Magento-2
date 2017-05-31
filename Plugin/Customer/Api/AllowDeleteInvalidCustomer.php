@@ -47,9 +47,9 @@ class AllowDeleteInvalidCustomer
     )
     {
         $customerId = $customer->getId();
-        $this->gigyaSyncHelper->excludeProductIdFromSync($customerId);
+        $this->gigyaSyncHelper->excludeCustomerIdFromSync($customerId);
         $return = $proceed($customer);
-        $this->gigyaSyncHelper->undoExcludeProductIdFromSync($customerId);
+        $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($customerId);
         return $return;
     }
 
@@ -66,9 +66,9 @@ class AllowDeleteInvalidCustomer
         \Closure $proceed, $customerId
     )
     {
-        $this->gigyaSyncHelper->excludeProductIdFromSync($customerId);
+        $this->gigyaSyncHelper->excludeCustomerIdFromSync($customerId);
         $return = $proceed($customerId);
-        $this->gigyaSyncHelper->undoExcludeProductIdFromSync($customerId);
+        $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($customerId);
         return $return;
     }
 }
