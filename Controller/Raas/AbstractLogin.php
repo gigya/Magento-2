@@ -359,6 +359,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected function createResponseDataObject($url, $additionalData)
     {
+        $additionalData['location'] = $url;
         return new DataObject([
             self::RESPONSE_OBJECT => $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url),
             self::RESPONSE_DATA => $additionalData
@@ -371,6 +372,26 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected function encapsulateResponse($resultRedirect, $additionalData = [])
     {
+        $url = null;
+        if($resultRedirect instanceof \Magento\Framework\Controller\Result\Redirect)
+        {
+            $response = clone $this->getResponse();
+            $resultRedirect->renderResult($response);
+            $header = $response->getHeader('Location');
+            /* @var $header \Zend\Http\Header\Location */
+            $header->getUri();
+            $url = $response->getRedirect();
+        }
+        else
+        if($resultRedirect instanceof \Magento\Framework\Controller\Result\Forward)
+        {
+            $request = $this->getRequest();
+            $url = $this->urlModel->getUrl(
+                sprintf('%s/%s/%s', $request->getModuleName(), $request->getControllerName(), $request->getActionName()),
+                $request->getParams());
+
+        }
+        $additionalData['location'] = $url;
         return new DataObject([
             self::RESPONSE_OBJECT => $resultRedirect,
             self::RESPONSE_DATA => $additionalData

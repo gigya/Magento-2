@@ -104,7 +104,7 @@ class GigyaScript extends Template
 
     public function getLoginUrl()
     {
-        return $this->getUrl('gigya_raas/raas/magentoLogin');
+        return $this->getUrl('gigya_raas/raas_automatic/login');
     }
 
     /**

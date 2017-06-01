@@ -86,7 +86,15 @@ define([
                 )}
             })
             .done(function(data) {
-                window.location.reload();
+                if(data.logged_in)
+                {
+                    if(typeof data.location != 'undefined')
+                    {
+                        window.location.href = data.location;
+                    }
+                    window.location.reload();
+
+                }
             });
         }
 
