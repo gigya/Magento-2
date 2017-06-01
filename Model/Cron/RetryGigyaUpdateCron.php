@@ -46,7 +46,7 @@ class RetryGigyaUpdateCron
      */
     public function execute(\Magento\Cron\Model\Schedule $schedule)
     {
-        $connection = $this->resourceConnection->getConnection();
+        $connection = $this->resourceConnection->getConnection('gigya');
 
         $selectRetryRows = $connection
             ->select()

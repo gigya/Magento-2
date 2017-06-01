@@ -48,7 +48,7 @@ class CronGigyaAccountService extends GigyaAccountService {
      */
     function get($uid)
     {
-        $connection = $this->resourceConnection->getConnection();
+        $connection = $this->resourceConnection->getConnection('gigya');
 
         $selectRetryRows = $connection
             ->select()
