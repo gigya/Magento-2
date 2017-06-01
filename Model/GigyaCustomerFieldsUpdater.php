@@ -83,6 +83,16 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
                 "customer" => $this->getMagentoCustomer()
             ]
         );
+
+        $cmsArray = [];
+
+        $cmsKeyed = $this->getMappingFromCache()->getCmsKeyed();
+        foreach ($cmsKeyed as $cmsName => $confs) {
+            $value = $this->getValueFromMagentoCustomer($cmsName);
+            $cmsArray[$cmsName] = $value;
+        }
+
+        $this->setCmsArray($cmsArray);
     }
 
     /**
@@ -203,16 +213,6 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
         }
 
         parent::retrieveFieldMappings();
-
-        $cmsArray = [];
-
-        $cmsKeyed = $this->getMappingFromCache()->getCmsKeyed();
-        foreach ($cmsKeyed as $cmsName => $confs) {
-            $value = $this->getValueFromMagentoCustomer($cmsName);
-            $cmsArray[$cmsName] = $value;
-        }
-
-        $this->setCmsArray($cmsArray);
     }
 
     /**
