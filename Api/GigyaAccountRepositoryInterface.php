@@ -19,7 +19,7 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 interface GigyaAccountRepositoryInterface
 {
     /**
-     * Update or create a Gigya customer account.
+     * Update an existing Gigya customer account.
      *
      * @param GigyaUser $gigyaAccount Shall have a uid not null.
      * @throws GSApiException If error encountered on service call or functional error returned by service. Check error code to identify the case.

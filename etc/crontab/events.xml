@@ -14,9 +14,6 @@
         <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendGigyaAccountEnricher" />
     </event>
     <event name="gigya_failed_sync_to_gigya">
-        <observer name="gigyaBackendGigyaUpdateFailedObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
-    </event>
-    <event name="gigya_success_sync_to_gigya">
-        <observer name="gigyaBackendGigyaUpdateSucceededObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
+        <observer name="gigyaBackendGigyaUpdateObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
     </event>
 </config>

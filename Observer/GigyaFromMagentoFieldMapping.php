@@ -68,7 +68,7 @@ class GigyaFromMagentoFieldMapping implements ObserverInterface
 
             try {
                 $this->customerFieldsUpdater->updateGigya();
-            } catch (CmsUpdaterException $e) {
+            } catch (\Exception $e) {
                 $message = "error " . $e->getCode() . ". message: " . $e->getMessage() . ". File: " .$e->getFile();
                 $this->logger->error(
                     $message,

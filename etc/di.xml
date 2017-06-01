@@ -5,9 +5,10 @@
                 type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />
     <preference for="Magento\Customer\Controller\Account\CreatePost"
                 type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />
-    <!--<preference for="Magento\Customer\Controller\Raas\GigyaPost"     type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />-->
     <preference for="Magento\Customer\Controller\Account\EditPost"
                 type="Gigya\GigyaIM\Controller\Raas\GigyaEditPost" />
+    <preference for="Magento\Customer\Controller\Adminhtml\Index\Edit"
+                type="Gigya\GigyaIM\Controller\Adminhtml\Customer\Index\Edit" />
 
     <!-- screensets blocks override -->
     <preference for="Gigya\GigyaIM\Block\Account\Dashboard\GigyaInfo"

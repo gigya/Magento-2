@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/Module/etc/module.xsd">
-    <module name="Gigya_GigyaIM" setup_version="5.0.0">
+    <module name="Gigya_GigyaIM" setup_version="5.0.2">
         <sequence>
             <module name="Magento_Customer"/>
         </sequence>

@@ -77,8 +77,11 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     /**
      * Check if Magento customer entity must be enriched with the Gigya's account data.
      *
+     * Will return true if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non empty gigya_uid value,
+     * and if this customer id is not explicitly flagged has not to be synchronized (@see GigyaSyncHelper::isProductIdExcludedFromSync())
+     *
      * @param Customer $magentoCustomer
-     * @return bool True if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non empty gigya_uid value
+     * @return bool
      */
     protected function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
@@ -193,7 +196,24 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 
             $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
             $magentoCustomerDataModel = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
-            $this->customerRepository->save($magentoCustomerDataModel);
+            $customerEntityId = $magentoCustomerDataModel->getId();
+            $excludeSyncCms2G = true;
+            if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId, GigyaSyncHelper::DIR_CMS2G)) {
+                // We prevent synchronizing the M2 customer data to the Gigya account : that should be done only on explicit customer save,
+                // here the very first action is to load the M2 customer
+                $this->gigyaSyncHelper->excludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
+                    GigyaSyncHelper::DIR_CMS2G);
+                $excludeSyncCms2G = false;
+            }
+            try {
+                $this->customerRepository->save($magentoCustomerDataModel);
+            } finally {
+                // If the synchro to Gigya was not already disabled we re-enable it
+                if (!$excludeSyncCms2G) {
+                    $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
+                        GigyaSyncHelper::DIR_CMS2G);
+                }
+            }
         }
     }
 }
