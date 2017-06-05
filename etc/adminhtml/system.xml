@@ -53,8 +53,8 @@
                 </field>
             </group>
             <group id="synchro" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>General</label>
-                <field id="gigya_update_max_retry" translate="label" type="integer" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Synchronizing Magento from / to Gigya</label>
+                <field id="gigya_update_max_retry" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Maximum number of attemps of an automatic Gigya update retry]]></label>
                     <comment><![CDATA[Retries happen when a customer update to Gigya has failed, when it's been edited and saved in back office. A cron is dedicated to retry regularly the update.]]></comment>
                     <validate>required-entry integer validate-greater-than-zero</validate>

@@ -58,7 +58,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         ResourceConnection $resourceConnection,
         GigyaMageHelper $gigyaMageHelper,
         AppState $state,
-        LoggerInterface $logger
+        GigyaLogger $logger
     )
     {
         $this->resourceConnection = $resourceConnection;
