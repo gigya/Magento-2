@@ -138,7 +138,7 @@ class GigyaSyncHelper extends AbstractHelper
         $searchResult = $this->customerRepository->getList($searchCriteria);
         // ...and among these, check if one is set to the Gigya UID
         foreach ($searchResult->getItems() as $customer) {
-            $magentoUid = $customer->getCustomAttribute('gigya_uid')->getValue();
+            $magentoUid = $customer->getCustomAttribute('gigya_uid') ? $customer->getCustomAttribute('gigya_uid')->getValue() : null;
             if ($magentoUid === $gigyaUid) {
                 $magentoLoggingCustomer = $customer;
             } else {
