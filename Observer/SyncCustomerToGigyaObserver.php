@@ -13,7 +13,7 @@ use Magento\Framework\App\State as AppState;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * SyncCustomerToGigyaObserver
@@ -40,7 +40,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /** @var  AppState */
     protected $appState;
 
-    /** @var  LoggerInterface */
+    /** @var  GigyaLogger */
     protected $logger;
 
     /** @var int */
@@ -52,7 +52,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      * @param ResourceConnection $resourceConnection
      * @param GigyaMageHelper $gigyaMageHelper
      * @param AppState $state
-     * @param LoggerInterface $logger
+     * @param GigyaLogger $logger
      */
     public function __construct(
         ResourceConnection $resourceConnection,

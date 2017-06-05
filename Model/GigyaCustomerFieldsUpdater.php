@@ -9,7 +9,7 @@ use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * GigyaCustomerFieldsUpdater
@@ -34,7 +34,7 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
     /** @var  EventManagerInterface */
     protected $eventManager;
 
-    /** @var LoggerInterface */
+    /** @var GigyaLogger */
     protected $logger;
 
     /** @var  Customer */
@@ -52,13 +52,13 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
      * @param GigyaMageHelper $gigyaMageHelper
      * @param CacheType $gigyaCacheType
      * @param EventManagerInterface $eventManager
-     * @param LoggerInterface $logger
+     * @param GigyaLogger $logger
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
         CacheType $gigyaCacheType,
         EventManagerInterface $eventManager,
-        LoggerInterface $logger
+        GigyaLogger $logger
     )
     {
         $apiHelper = $gigyaMageHelper->getGigyaApiHelper();
