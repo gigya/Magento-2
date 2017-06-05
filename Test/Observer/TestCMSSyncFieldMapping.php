@@ -3,7 +3,7 @@
  * Copyright © 2016 X2i.
  */
 
-namespace Gigya\GigyaIM\Observer;
+namespace Gigya\GigyaIM\Test\Observer;
 
 
 use Gigya\CmsStarterKit\user\GigyaProfile;

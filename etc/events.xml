@@ -16,10 +16,10 @@
 
     <!-- FOR TEST DEMO ONLY -->
     <event name="gigya_pre_field_mapping">
-        <observer name="testCMSSyncFieldMapping" instance="Gigya\GigyaIM\Observer\TestCMSSyncFieldMapping" />
+        <observer name="testCMSSyncFieldMapping" instance="Gigya\GigyaIM\Test\Observer\TestCMSSyncFieldMapping" />
     </event>
     <!-- pre_sync_to_gigya -->
     <event name="pre_sync_to_gigya">
-        <observer name="testGigyaSyncFieldMapping" instance="Gigya\GigyaIM\Observer\TestGigyaSyncFieldMapping" />
+        <observer name="testGigyaSyncFieldMapping" instance="Gigya\GigyaIM\Test\Observer\TestGigyaSyncFieldMapping" />
     </event>
 </config>

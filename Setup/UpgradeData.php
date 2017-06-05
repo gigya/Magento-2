@@ -16,7 +16,7 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 /**
  * UpgradeData
  *
- * For testing only : add a custom attribute on the Customer : 'gigya_username'
+ * CATODO : For testing only : add a custom attribute on the Customer : 'gigya_username'
  *
  * It's displayed and editable on back office customer page detail.
  *

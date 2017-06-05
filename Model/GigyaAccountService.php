@@ -11,8 +11,8 @@ use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
-use \Magento\Framework\Model\Context;
-use Monolog\Logger;
+use \Magento\Framework\Event\ManagerInterface as EventManager;
+use \Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * GigyaAccountService
@@ -42,10 +42,10 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     /** @var  GigyaMageHelper */
     protected $gigyaMageHelper;
 
-    /** @var \Magento\Framework\Event\ManagerInterface */
+    /** @var EventManager */
     protected $eventManager;
 
-    /** @var  Logger */
+    /** @var  GigyaLogger */
     protected $logger;
 
     /** @var array All GigyaUser first level attributes but the profile */
@@ -85,16 +85,18 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      * GigyaAccountService constructor.
      *
      * @param GigyaMageHelper $gigyaMageHelper
-     * @param Context $context
+     * @param EventManager $eventManager
+     * @param GigyaLogger $logger
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
-        Context $context
+        EventManager $eventManager,
+        GigyaLogger $logger
     )
     {
         $this->gigyaMageHelper = $gigyaMageHelper;
-        $this->eventManager = $context->getEventDispatcher();
-        $this->logger = $context->getLogger();
+        $this->eventManager = $eventManager;
+        $this->logger = $logger;
 
         $gigyaCoreMethods = get_class_methods(GigyaUser::class);
         foreach($gigyaCoreMethods as $gigyaCoreMethod) {
@@ -123,14 +125,6 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
-
-            /*throw new GSApiException("test", 1, sprintf(
-                    "Test Gigya update failure => retry for uid : %s, customer_entity_id : %s customer_email : %s",
-                    $gigyaApiData['uid'],
-                    $gigyaAccount->getCustomerEntityId(),
-                    $gigyaApiData['profile']['email']
-                )
-            );*/
 
             $this->gigyaMageHelper->updateGigyaAccount(
                 $gigyaApiData['uid'],
