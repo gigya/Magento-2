@@ -12,14 +12,14 @@ use Magento\Framework\App\ResourceConnection;
 use Psr\Log\LoggerInterface;
 
 /**
- * RetryGigyaUpdateCron
+ * RetryGigyaUpdate
  *
  * Fetch the db table 'gigya_sync_retry' to perform the Gigya update retries.
  *
  * @author      vlemaire <info@x2i.fr>
  *
  */
-class RetryGigyaUpdateCron
+class RetryGigyaUpdate
 {
     /** @var  ResourceConnection */
     protected $resourceConnection;
