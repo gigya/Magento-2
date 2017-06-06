@@ -208,8 +208,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 }
             } catch(\Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
-                $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
-                $redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl));
+                $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
             }
 
             return $redirect;
