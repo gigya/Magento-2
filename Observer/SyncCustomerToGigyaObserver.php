@@ -137,6 +137,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
 
         $binds = [
             'customer_entity_id' => $customerEntityId,
+            'gigya_uid' => $gigyaAccountData['uid'],
             'direction' => self::DIRECTION_CMS2G,
             'data' => serialize($gigyaAccountData),
             'message' => $message,
