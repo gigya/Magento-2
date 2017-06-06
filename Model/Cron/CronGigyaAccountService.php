@@ -11,7 +11,8 @@ use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver;
 use Magento\Framework\App\ResourceConnection;
-use \Magento\Framework\Model\Context;
+use \Magento\Framework\Event\ManagerInterface as EventManager;
+use \Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * CronGigyaAccountService
@@ -28,13 +29,22 @@ class CronGigyaAccountService extends GigyaAccountService {
     /** @var  ResourceConnection */
     protected $resourceConnection;
 
+    /**
+     * CronGigyaAccountService constructor.
+     *
+     * @param GigyaMageHelper $gigyaMageHelper
+     * @param EventManager $eventManager
+     * @param GigyaLogger $logger
+     * @param ResourceConnection $connection
+     */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
-        Context $context,
+        EventManager $eventManager,
+        GigyaLogger $logger,
         ResourceConnection $connection
     )
     {
-        parent::__construct($gigyaMageHelper, $context);
+        parent::__construct($gigyaMageHelper, $eventManager, $logger);
 
         $this->resourceConnection = $connection;
     }
@@ -43,8 +53,6 @@ class CronGigyaAccountService extends GigyaAccountService {
      * @inheritdoc
      *
      * Get the Gigya user data as stored in db table 'gigya_sync_retry'
-     *
-     * @param string $uid /!\ Not the true Gigya UID : it's the customer_entity_id to retrieve the table row.
      */
     function get($uid)
     {
@@ -54,12 +62,12 @@ class CronGigyaAccountService extends GigyaAccountService {
             ->select()
             ->from('gigya_sync_retry')
             ->reset(\Zend_Db_Select::COLUMNS)
-            ->columns([ 'customer_entity_id', 'retry_count' ])
+            ->columns([ 'data' ])
             ->where('direction = "' . SyncCustomerToGigyaObserver::DIRECTION_CMS2G . '"')
-            ->where('customer_entity_id = '.$uid);
+            ->where('gigya_uid = "'.$uid . '"');
 
         $retryRow = $connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
 
-        return GigyaUserFactory::createGigyaUserFromArray(unserialize($retryRow['data']));
+        return GigyaUserFactory::createGigyaUserFromArray(unserialize($retryRow[0]['data']));
     }
 }
