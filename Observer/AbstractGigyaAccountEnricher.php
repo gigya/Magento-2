@@ -12,7 +12,7 @@ use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * AbstractGigyaAccountEnricher
@@ -41,14 +41,22 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     /** @var ManagerInterface */
     protected $eventDispatcher;
 
-    /** @var  LoggerInterface */
+    /** @var  GigyaLogger */
     protected $logger;
 
+    /**
+     * AbstractGigyaAccountEnricher constructor.
+     *
+     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
+     * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param ManagerInterface $eventDispatcher
+     * @param GigyaLogger $logger
+     */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
         ManagerInterface $eventDispatcher,
-        LoggerInterface $logger
+        GigyaLogger $logger
     )
     {
         $this->gigyaAccountRepository = $gigyaAccountRepository;

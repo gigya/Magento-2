@@ -5,21 +5,20 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
-use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\ResourceConnection;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
- * RetryGigyaUpdateCron
+ * RetryGigyaUpdate
  *
  * Fetch the db table 'gigya_sync_retry' to perform the Gigya update retries.
  *
  * @author      vlemaire <info@x2i.fr>
  *
  */
-class RetryGigyaUpdateCron
+class RetryGigyaUpdate
 {
     /** @var  ResourceConnection */
     protected $resourceConnection;
@@ -27,13 +26,20 @@ class RetryGigyaUpdateCron
     /** @var  CustomerRepositoryInterface\ */
     protected $customerRepository;
 
-    /** @var  LoggerInterface */
+    /** @var  GigyaLogger */
     protected $logger;
 
+    /**
+     * RetryGigyaUpdate constructor.
+     *
+     * @param ResourceConnection $connection
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param GigyaLogger $logger
+     */
     public function __construct(
         ResourceConnection $connection,
         CustomerRepositoryInterface $customerRepository,
-        LoggerInterface $logger
+        GigyaLogger $logger
     )
     {
         $this->resourceConnection = $connection;

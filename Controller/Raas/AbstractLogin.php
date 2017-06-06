@@ -207,7 +207,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
                 }
             } catch(\Exception $e) {
-                $this->messageManager->addError($e->getMessage());
+                $this->messageManager->addErrorMessage($e->getMessage());
                 $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
                 $redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl));
             }

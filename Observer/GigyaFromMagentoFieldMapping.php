@@ -12,7 +12,7 @@ use Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater;
 use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * GigyaFromMagentoFieldMapping
@@ -28,7 +28,7 @@ class GigyaFromMagentoFieldMapping implements ObserverInterface
     protected $customerFieldsUpdater;
 
     /**
-     * @var LoggerInterface
+     * @var GigyaLogger
      */
     protected $logger;
 
@@ -39,12 +39,12 @@ class GigyaFromMagentoFieldMapping implements ObserverInterface
      * MagentoToGigyaFieldMapping constructor.
      *
      * @param ScopeConfigInterface $scopeConfig
-     * @param LoggerInterface $logger
+     * @param GigyaLogger $logger
      * @param GigyaCustomerFieldsUpdater $customerFieldsUpdater
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        LoggerInterface $logger,
+        GigyaLogger $logger,
         GigyaCustomerFieldsUpdater $customerFieldsUpdater
     )
     {

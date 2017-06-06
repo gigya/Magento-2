@@ -5,6 +5,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
@@ -14,7 +15,7 @@ use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\ManagerInterface;
 use \Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * AbstractMagentoCustomerEnricher
@@ -48,7 +49,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     /** @var ManagerInterface */
     protected $eventDispatcher;
 
-    /** @var  LoggerInterface */
+    /** @var  GigyaLogger */
     protected $logger;
 
     /**
@@ -58,14 +59,14 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
      * @param ManagerInterface $eventDispatcher
-     * @param LoggerInterface $logger
+     * @param GigyaLogger $logger
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
         ManagerInterface $eventDispatcher,
-        LoggerInterface $logger
+        GigyaLogger $logger
     ) {
         $this->customerRepository = $customerRepository;
         $this->gigyaAccountRepository = $gigyaAccountRepository;
@@ -194,25 +195,36 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 
         if ($this->shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)) {
 
-            $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
-            $magentoCustomerDataModel = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
-            $customerEntityId = $magentoCustomerDataModel->getId();
-            $excludeSyncCms2G = true;
-            if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId, GigyaSyncHelper::DIR_CMS2G)) {
-                // We prevent synchronizing the M2 customer data to the Gigya account : that should be done only on explicit customer save,
-                // here the very first action is to load the M2 customer
-                $this->gigyaSyncHelper->excludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
-                    GigyaSyncHelper::DIR_CMS2G);
-                $excludeSyncCms2G = false;
-            }
             try {
-                $this->customerRepository->save($magentoCustomerDataModel);
-            } finally {
-                // If the synchro to Gigya was not already disabled we re-enable it
-                if (!$excludeSyncCms2G) {
-                    $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
+                $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
+                $magentoCustomerDataModel = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer,
+                    $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
+                $customerEntityId = $magentoCustomerDataModel->getId();
+                $excludeSyncCms2G = true;
+                if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId,
+                    GigyaSyncHelper::DIR_CMS2G)
+                ) {
+                    // We prevent synchronizing the M2 customer data to the Gigya account : that should be done only on explicit customer save,
+                    // here the very first action is to load the M2 customer
+                    $this->gigyaSyncHelper->excludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
                         GigyaSyncHelper::DIR_CMS2G);
+                    $excludeSyncCms2G = false;
                 }
+                try {
+                    $this->customerRepository->save($magentoCustomerDataModel);
+                } finally {
+                    // If the synchro to Gigya was not already disabled we re-enable it
+                    if (!$excludeSyncCms2G) {
+                        $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($magentoCustomerDataModel->getId(),
+                            GigyaSyncHelper::DIR_CMS2G);
+                    }
+                }
+            } catch(GSApiException $e) {
+                $this->logger->error('Could not update Magento customer account with Gigya data due to Gigya service call error', [
+                    'customer_entity_id' => $magentoCustomer->getEntityId(),
+                    'gigya_uid' => $magentoCustomer->getGigyaUid(),
+                    'exception' => $e
+                ]);
             }
         }
     }

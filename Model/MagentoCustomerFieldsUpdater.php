@@ -6,7 +6,7 @@ use Gigya\CmsStarterKit\fieldMapping;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * MagentoCustomerFieldsUpdater
@@ -29,7 +29,7 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
     /** @var  EventManagerInterface */
     protected $eventManager;
 
-    /** @var LoggerInterface  */
+    /** @var GigyaLogger  */
     public $logger;
 
     /** @var fieldMapping\Conf|bool  */
@@ -40,12 +40,12 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
      *
      * @param CacheType $gigyaCacheType
      * @param EventManagerInterface $eventManager
-     * @param LoggerInterface $logger
+     * @param GigyaLogger $logger
      */
     public function __construct(
         CacheType $gigyaCacheType,
         EventManagerInterface $eventManager,
-        LoggerInterface $logger
+        GigyaLogger $logger
     )
     {
         parent::__construct(new GigyaUser(null), null);
