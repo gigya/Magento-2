@@ -52,4 +52,10 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory">
+        <arguments>
+            <argument name="connectionFactory" xsi:type="object">Magento\Framework\App\ResourceConnection\ConnectionFactory</argument>
+        </arguments>
+    </type>
 </config>
