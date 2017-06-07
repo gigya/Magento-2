@@ -119,11 +119,12 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     /**
      * Performs the enrichment of the Gigya account with the Magento data.
      *
-     * @param $magentoCustomer Customer
+     * @param Customer $magentoCustomer
+     * @param \Magento\Customer\Api\Data\CustomerInterface $magentoCustomerData
      * @return GigyaUser
      * @throws \Exception
      */
-    protected function enrichGigyaAccount($magentoCustomer)
+    protected function enrichGigyaAccount($magentoCustomer, $magentoCustomerData)
     {
         $this->pushRegisteredCustomer($magentoCustomer);
 
@@ -133,7 +134,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
         try {
             $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO, [
                 "gigya_user" => $gigyaAccountData,
-                "customer" => $magentoCustomer->getDataModel()
+                "customer" => $magentoCustomerData
             ]);
         } catch (\Exception $e) {
             if (!$this->processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData,
@@ -158,10 +159,11 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     {
         /** @var Customer $customer */
         $magentoCustomer = $observer->getData('customer');
+        $magentoCustomerData = $observer->getData('customer_data');
 
         if ($this->shallUpdateGigyaWithMagentoCustomerData($magentoCustomer)) {
 
-            $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
+            $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer, $magentoCustomerData);
             $this->gigyaAccountRepository->update($gigyaAccountData);
         }
     }

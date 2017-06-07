@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+    <type name="Magento\Customer\Model\ResourceModel\CustomerRepository">
+        <plugin name="gigya_customer_repository_event" type="Gigya\GigyaIM\Plugin\Customer\ResourceModel\RepositoryAdditionalEvent" />
+    </type>
     <!-- CATODO TESTING ONLY : BEGIN -->
     <preference for="Gigya\GigyaIM\Helper\GigyaMageHelper"
                 type="Gigya\GigyaIM\Test\Helper\TestGigyaMageHelper" />

@@ -6,8 +6,10 @@ use Gigya\CmsStarterKit\fieldMapping;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Customer\Model\Data\Customer;
+use Magento\Framework\DataObject;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
@@ -46,6 +48,12 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
     /** @var fieldMapping\Conf|bool  */
     private $confMapping = false;
 
+    /** @var GigyaSyncHelper */
+    private $gigyaSyncHelper;
+
+    /** @var array */
+    private $magentoCustomerArray;
+
     /**
      * GigyaCustomerFieldsUpdater constructor.
      *
@@ -58,7 +66,8 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
         GigyaMageHelper $gigyaMageHelper,
         CacheType $gigyaCacheType,
         EventManagerInterface $eventManager,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+        GigyaSyncHelper $gigyaSyncHelper
     )
     {
         $apiHelper = $gigyaMageHelper->getGigyaApiHelper();
@@ -68,6 +77,8 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
         $this->gigyaCacheType = $gigyaCacheType;
         $this->eventManager = $eventManager;
         $this->logger = $logger;
+        $this->gigyaSyncHelper = $gigyaSyncHelper;
+        $this->magentoCustomerArray = [];
     }
 
     /**
@@ -77,12 +88,14 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
      *
      */
     public function callCmsHook() {
+        $customerData = new DataObject(['customer_data' => $this->magentoCustomerArray]);
         $this->eventManager->dispatch(
             "pre_sync_to_gigya",
             [
-                "customer" => $this->getMagentoCustomer()
+                "data_object" => $customerData
             ]
         );
+        $this->magentoCustomerArray = $customerData->getData('customer_data');
 
         $cmsArray = [];
 
@@ -127,6 +140,7 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
     public function setMagentoCustomer($magentoCustomer)
     {
         $this->magentoCustomer = $magentoCustomer;
+        $this->magentoCustomerArray = $this->gigyaSyncHelper->getCustomerData($magentoCustomer);
     }
 
     public function setGigyaUser($gigyaUser)
@@ -176,24 +190,22 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
             return null;
         }
 
-        $value = $this->magentoCustomer;
-        try {
-            while (($subPath = array_shift($subPaths)) != null) {
+        $value = null;
 
-                if (strpos($subPath, 'custom_') === 0) {
-                    $subPath = substr($subPath, 7);
-                    $methodName = 'getCustomAttribute';
-                    $methodParams = strtolower($subPath);
-                    $value = call_user_func(array($value, $methodName), $methodParams);
-                    /* value is of type AttributeValue */
-                    $value = $value->getValue();
-                } else {
-                    $methodName = 'get' . ucfirst($this->mixify($subPath, '_'));
-                    $value = call_user_func(array($value, $methodName));
-                }
+        while (($subPath = array_shift($subPaths)) != null) {
+            if(isset($this->magentoCustomerArray[$subPath]))
+            {
+                $value = $this->magentoCustomerArray[$subPath];
             }
-        } catch(\Exception $e) {
-            throw new GigyaFieldMappingException(sprintf('Field mapping Magento to Gigya : exception while looking for Customer entity value [%s] : %s', $cmsName, $e->getMessage()));
+            else
+            {
+                throw new GigyaFieldMappingException(
+                    sprintf(
+                        'Field mapping Magento to Gigya : exception while looking for Customer entity value [%s]',
+                        $cmsName
+                    )
+                );
+            }
         }
 
         return $value;
