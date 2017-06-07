@@ -150,7 +150,8 @@ class GigyaMageHelper extends AbstractHelper
      */
     public function setKeyFileLocation($keyFileLocation)
     {
-        $this->keyFileLocation = $keyFileLocation;
+        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
+            . DIRECTORY_SEPARATOR . $keyFileLocation;
     }
 
     /**
