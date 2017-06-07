@@ -8,6 +8,7 @@ namespace Gigya\GigyaIM\Observer;
 use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
+use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
@@ -175,7 +176,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
             if (!$this->processEventMapGigyaToMagentoException($e, $magentoCustomer, $gigyaAccountData,
                 $gigyaAccountLoggingEmail)
             ) {
-                throw $e;
+                throw new GigyaFieldMappingException($e);
             }
         }
 

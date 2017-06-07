@@ -9,11 +9,13 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
 
 class GigyaMageHelper extends AbstractHelper
@@ -41,6 +43,9 @@ class GigyaMageHelper extends AbstractHelper
     /** @var  Session */
     protected $session;
 
+    /** @var Filesystem  */
+    protected $_fileSystem;
+
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const CHARS_PASSWORD_DIGITS = '23456789';
@@ -52,12 +57,15 @@ class GigyaMageHelper extends AbstractHelper
         Logger $logger,
         ModuleListInterface $moduleList,
         GigyaSyncHelper $gigyaSyncHelper,
-        Session $session
+        Session $session,
+        Filesystem $fileSystem
     ) {
         parent::__construct($context);
+
         $this->settingsFactory = $settingsFactory;
         $this->_logger = $logger;
 	    $this->scopeConfig = $context->getScopeConfig();
+        $this->_fileSystem = $fileSystem;
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->_moduleList = $moduleList;
@@ -154,7 +162,7 @@ class GigyaMageHelper extends AbstractHelper
      */
     public function getMaxRetryCountForGigyaUpdate()
     {
-        return (int)$this->scopeConfig->getValue('gigya_section/general/synchro/gigya_update_max_retry');
+        return (int)$this->scopeConfig->getValue('gigya_section/synchro/gigya_update_max_retry');
     }
 
     /**
@@ -182,7 +190,8 @@ class GigyaMageHelper extends AbstractHelper
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->keyFileLocation = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $settings['key_file_location'];
+        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
+            . DIRECTORY_SEPARATOR . $settings['key_file_location'];
         $this->debug = $settings['debug_mode'];
     }
 

@@ -86,6 +86,10 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
             case GigyaAccountService::EVENT_UPDATE_GIGYA_SUCCESS :
                 $this->performUpdateSuccess($observer);
                 break;
+
+            case AbstractGigyaAccountEnricher::EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE :
+                $this->performFieldMappingFailure($observer);
+                break;
         }
     }
 
@@ -140,7 +144,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
             'gigya_uid' => $gigyaAccountData['uid'],
             'direction' => self::DIRECTION_CMS2G,
             'data' => serialize($gigyaAccountData),
-            'message' => $message,
+            'message' => $message != null ? (strlen($message) > 255 ? substr($message, 255) : $message) : null,
             'retry_count' => 0,
             'date' => date('Y-m-d H:i:s', gmdate('U'))
         ];
@@ -228,7 +232,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     }
 
     /**
-     * If a retry row has been stored we will delete it.
+     * If a retry row has been stored we will delete it when the a customer update has succeeded.
      *
      * @param \Magento\Framework\Event\Observer $observer
      */
@@ -237,6 +241,43 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
 
+        $this->deleteRetryEntry(
+            $customerEntityId,
+            'Previously failed Gigya update has now succeeded.',
+            'Could not remove retry entry for Magento to Gigya update after a successful update on the same customer.'
+        );
+    }
+
+    /**
+     * Delete the retry row, if any, if a customer update has failed due to a field mapping error.
+     *
+     * @param $observer
+     */
+    protected function performFieldMappingFailure($observer)
+    {
+        /** @var integer $customerEntityId */
+        $customerEntityId = $observer->getData('customer_entity_id');
+
+        $this->deleteRetryEntry(
+            $customerEntityId,
+            'Previously failed Gigya update now fails due to field mapping. No automatic retry will be performed on it.',
+            'Could not remove retry entry for Magento to Gigya update after a field mapping error on the same customer.'
+        );
+    }
+
+    /**
+     * Delete a row from 'gigya_sync_retry'
+     *
+     * @param $customerEntityId integer Customer entity id of the row to delete.
+     * @param $successMessage string Message to log (info) in case of delete is successful.
+     * @param $failureMessage string Message to log (critical) on case of delete is failure.
+     */
+    protected function deleteRetryEntry(
+        $customerEntityId,
+        $successMessage,
+        $failureMessage
+    )
+    {
         $connection = $this->resourceConnection->getConnection('gigya_retry');
         $connection->beginTransaction();
 
@@ -249,14 +290,14 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                     'customer_entity_id = ' . $customerEntityId
                 );
                 $this->logger->info(
-                    'Previously failed retry update Gigya has now succeeded.',
+                    $successMessage,
                     [ 'customer_entity_id' => $customerEntityId ]
                 );
 
                 $connection->commit();
             } catch (\Exception $e) {
                 $this->logger->critical(
-                    'Could not remove retry entry for Magento to Gigya update after a successful update on the same customer.',
+                    $failureMessage,
                     [
                         'exception' => $e,
                         'customer_entity_id' => $customerEntityId

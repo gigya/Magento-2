@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Observer;
 
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
+use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\ManagerInterface;
@@ -31,6 +32,10 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      * This event is dispatched before the enrichment is done
      */
     const EVENT_MAP_GIGYA_FROM_MAGENTO = 'gigya_map_from_magento';
+
+    const EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS = 'gigya_success_map_from_magento';
+
+    const EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE = 'gigya_failed_map_from_magento';
 
     /** @var  GigyaSyncHelper */
     protected $gigyaSyncHelper;
@@ -102,7 +107,6 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      */
     protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
     {
-
         $this->logger->warning(
             'Exception raised when enriching Gigya account with Magento data.',
             [
@@ -135,11 +139,19 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
                 "gigya_user" => $gigyaAccountData,
                 "customer" => $magentoCustomer->getDataModel()
             ]);
+            $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS, [
+                "gigya_uid" => $gigyaAccountData->getUID(),
+                "customer_entity_id" => $magentoCustomer->getEntityId()
+            ]);
         } catch (\Exception $e) {
+            $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE, [
+                "gigya_uid" => $gigyaAccountData->getUID(),
+                "customer_entity_id" => $magentoCustomer->getEntityId()
+            ]);
             if (!$this->processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData,
                 $gigyaAccountLoggingEmail)
             ) {
-                throw $e;
+                throw new GigyaFieldMappingException($e);
             }
         }
 
