@@ -140,7 +140,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                 ]
             );
         } catch(GSApiException $e) {
-            $message = $e->getLongMessage();
+            $message = $e->getMessage();
             $this->logger->error(
                 'Failure encountered on call to Gigya service api',
                 [

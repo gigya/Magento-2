@@ -79,7 +79,12 @@ class RetryGigyaUpdate
                 // When the save is performed the observer of the event 'customer_save_before' will forward the data to Gigya
                 $this->customerRepository->save($customer);
             } catch (\Exception $e) {
-                $this->logger->warning(sprintf('Retry update number [%d] Gigya failed for customer entity id [%d]', $retryCount, $customerEntityId));
+                $this->logger->warning('Retry update Gigya failed.',
+                    [
+                        'customer_entity_id' => $customerEntityId,
+                        'retry_count' => $retryCount
+                    ]
+                );
             }
         }
     }

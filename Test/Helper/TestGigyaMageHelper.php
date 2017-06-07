@@ -15,23 +15,6 @@ use Magento\Framework\Module\ModuleListInterface;
 
 class TestGigyaMageHelper extends GigyaMageHelper
 {
-    /** @var  ScopeConfigInterface */
-    protected $config;
-
-    public function __construct(
-        \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory,
-        Context $context,
-        Logger $logger,
-        ModuleListInterface $moduleList,
-        GigyaSyncHelper $gigyaSyncHelper,
-        Session $session,
-        ScopeConfigInterface $config
-    ) {
-        parent::__construct($settingsFactory, $context, $logger, $moduleList, $gigyaSyncHelper, $session);
-
-        $this->config = $config;
-    }
-
     /**
      * @inheritdoc
      *
@@ -41,7 +24,7 @@ class TestGigyaMageHelper extends GigyaMageHelper
      */
     public function updateGigyaAccount($uid, $profile = array(), $data = array())
     {
-        if ($this->config->getValue('gigya_section/test/gigya_test_gigya_update_error') == true) {
+        if ($this->scopeConfig->getValue('gigya_section/test/gigya_test_gigya_update_error') == true) {
             throw new GSApiException(
                 "For testing : force error on Gigya API update call",
                 400009,

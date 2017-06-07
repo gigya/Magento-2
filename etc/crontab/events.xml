@@ -14,6 +14,15 @@
         <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendGigyaAccountEnricher" />
     </event>
     <event name="gigya_failed_sync_to_gigya">
-        <observer name="gigyaBackendGigyaUpdateObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
+        <!-- Persist the Gigya data to unable a further retry -->
+        <observer name="gigyaBackendGigyaUpdateFailedObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
+    </event>
+    <event name="gigya_success_sync_to_gigya">
+        <!-- Delete the persisted Gigya data, if any, that were stored for a further retry -->
+        <observer name="gigyaBackendGigyaUpdateSucceededObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
+    </event>
+    <event name="gigya_failed_map_from_magento">
+        <!-- Delete the persisted Gigya data, if any, that were stored for a further retry -->
+        <observer name="gigyaGigyaFromMagentoFieldMappingObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
     </event>
 </config>
