@@ -9,6 +9,7 @@ namespace Gigya\GigyaIM\Model\Cron;
 use Gigya\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
+use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver;
 use Magento\Framework\App\ResourceConnection;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
@@ -29,6 +30,9 @@ class CronGigyaAccountService extends GigyaAccountService {
     /** @var  ResourceConnection */
     protected $resourceConnection;
 
+    /** @var ConnectionFactory */
+    protected $connectionFactory;
+
     /**
      * CronGigyaAccountService constructor.
      *
@@ -36,16 +40,18 @@ class CronGigyaAccountService extends GigyaAccountService {
      * @param EventManager $eventManager
      * @param GigyaLogger $logger
      * @param ResourceConnection $connection
+     * @param ConnectionFactory $connectionFactory
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
         EventManager $eventManager,
         GigyaLogger $logger,
-        ResourceConnection $connection
+        ResourceConnection $connection,
+        ConnectionFactory $connectionFactory
     )
     {
         parent::__construct($gigyaMageHelper, $eventManager, $logger);
-
+        $this->connectionFactory = $connectionFactory;
         $this->resourceConnection = $connection;
     }
 
@@ -56,7 +62,7 @@ class CronGigyaAccountService extends GigyaAccountService {
      */
     function get($uid)
     {
-        $connection = $this->resourceConnection->getConnection('gigya');
+        $connection = $this->connectionFactory->getNewConnection();
 
         $selectRetryRows = $connection
             ->select()

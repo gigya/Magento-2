@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Observer;
 
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
+use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\App\State as AppState;
@@ -46,6 +47,9 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /** @var int */
     private $maxGigyaUpdateRetryCount;
 
+    /** @var ConnectionFactory */
+    protected $connectionFactory;
+
     /**
      * SyncCustomerToGigyaObserver constructor.
      *
@@ -53,12 +57,14 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      * @param GigyaMageHelper $gigyaMageHelper
      * @param AppState $state
      * @param GigyaLogger $logger
+     * @param ConnectionFactory $connectionFactory
      */
     public function __construct(
         ResourceConnection $resourceConnection,
         GigyaMageHelper $gigyaMageHelper,
         AppState $state,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+        ConnectionFactory $connectionFactory
     )
     {
         $this->resourceConnection = $resourceConnection;
@@ -67,6 +73,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $this->logger = $logger;
 
         $this->maxGigyaUpdateRetryCount = $this->gigyaMageHelper->getMaxRetryCountForGigyaUpdate();
+        $this->connectionFactory = $connectionFactory;
     }
 
     /**
@@ -145,7 +152,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
             'date' => date('Y-m-d H:i:s', gmdate('U'))
         ];
 
-        $connection = $this->resourceConnection->getConnection('gigya_retry');
+        $connection = $this->connectionFactory->getNewConnection();
         $connection->beginTransaction();
 
         try {
@@ -237,7 +244,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
 
-        $connection = $this->resourceConnection->getConnection('gigya_retry');
+        $connection = $this->connectionFactory->getNewConnection();
         $connection->beginTransaction();
 
         $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
