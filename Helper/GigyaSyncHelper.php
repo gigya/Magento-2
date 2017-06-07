@@ -21,12 +21,18 @@ use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Model\Session;
+use Magento\Framework\Api\ExtensibleDataObjectConverter;
 
 class GigyaSyncHelper extends AbstractHelper
 {
     const DIR_BOTH = 'both';
     const DIR_G2CMS = 'g2cms';
     const DIR_CMS2G = 'cms2g';
+
+    /**
+     * @var ExtensibleDataObjectConverter
+     */
+    protected $extensibleDataObjectConverter;
 
     /**
      * @var array
@@ -88,7 +94,8 @@ class GigyaSyncHelper extends AbstractHelper
         FilterGroupBuilder $filterGroupBuilder,
         StoreManagerInterface $storeManager,
         Session $customerSession,
-        \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepository
+        \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepository,
+        ExtensibleDataObjectConverter $extensibleDataObjectConverter
     )
     {
         parent::__construct($helperContext);
@@ -103,6 +110,7 @@ class GigyaSyncHelper extends AbstractHelper
             self::DIR_CMS2G => [], self::DIR_G2CMS => []
         ];
         $this->attributeRepository = $attributeRepository;
+        $this->extensibleDataObjectConverter = $extensibleDataObjectConverter;
     }
 
     /**
@@ -324,89 +332,16 @@ class GigyaSyncHelper extends AbstractHelper
      */
     public function getCustomerData(\Magento\Customer\Api\Data\CustomerInterface $customer)
     {
-        $flattened = [];
-        $this->flattenArray($this->getArrayFromDataObject($customer), $flattened);
-        return $flattened;
-    }
-
-    /**
-     * @param $object
-     * @return mixed
-     */
-    protected function getArrayFromDataObject($object)
-    {
-        if(is_array($object))
+        $customerData = $this->extensibleDataObjectConverter->toNestedArray(
+            $customer,
+            [],
+            '\Magento\Customer\Api\Data\CustomerInterface'
+        );
+        foreach($customer->getCustomAttributes() as $code => $attributeObject)
         {
-            foreach($object as $key => $value)
-            {
-                $object[$key] = $this->getArrayFromDataObject($value);
-            }
+            unset($customerData[$code]);
+            $customerData['custom_'.$code] = $attributeObject->getValue();
         }
-        else
-        if(is_object($object))
-        {
-            $data = [];
-
-            $methods = get_class_methods($object);
-            foreach($methods as $method)
-            {
-                $match = [];
-                if(preg_match('/^get([A-Z].*)$/', $method, $match) && (!preg_match('/^get(Custom|Extension)Attribute/', $method)))
-                {
-                    $attributeName = $match[1];
-                    $attributeName = preg_replace('/^_(.*)$/', '$1', strtolower(preg_replace('([A-Z])', '_$0', $attributeName)));
-                    $data[$attributeName] = call_user_func([$object, $method]);
-                }
-            }
-
-            /* @var $object \Magento\Customer\Api\Data\CustomerInterface */
-
-            if(method_exists($object, 'getCustomAttributes'))
-            {
-                foreach($object->getCustomAttributes() as $attribute)
-                {
-                    $code = $attribute->getAttributeCode();
-                    $data['custom_'.$code] = $attribute->getValue();
-                }
-            }
-
-            if(method_exists($object, 'getExtensionAttributes'))
-            {
-                $extension = $object->getExtensionAttributes();
-                if($extension)
-                {
-                    $extensionData = $this->getArrayFromDataObject($extension);
-                    foreach($extensionData as $code => $extensionAttribute)
-                    {
-                        $data['extension_'.$code] = $extensionAttribute;
-                    }
-                }
-            }
-
-            foreach($data as $key => $value)
-            {
-                $data[$key] = $this->getArrayFromDataObject($value);
-            }
-
-            return $data;
-        }
-        return $object;
+        return $customerData;
     }
-
-    protected function flattenArray($array, &$target, $prefix = '')
-    {
-        foreach($array as $key => $value)
-        {
-            if(is_array($value))
-            {
-                $target = $this->flattenArray($value, $target, $prefix.$key.'_');
-            }
-            else
-            {
-                $target[$prefix.$key] = $value;
-            }
-        }
-        return $target;
-    }
-
 }
