@@ -13,7 +13,6 @@
         <observer name="gigyaFromMagentoFieldMappingObserver" instance="Gigya\GigyaIM\Observer\GigyaFromMagentoFieldMapping" />
     </event>
 
-
     <!-- FOR TEST DEMO ONLY -->
     <event name="gigya_pre_field_mapping">
         <observer name="testCMSSyncFieldMapping" instance="Gigya\GigyaIM\Test\Observer\TestCMSSyncFieldMapping" />

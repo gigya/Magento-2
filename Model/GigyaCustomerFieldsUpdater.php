@@ -185,6 +185,9 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
                     $methodName = 'getCustomAttribute';
                     $methodParams = strtolower($subPath);
                     $value = call_user_func(array($value, $methodName), $methodParams);
+                    if ($value == null) {
+                        throw new \Exception('Custom attribute '.$subPath.' is not set');
+                    }
                     /* value is of type AttributeValue */
                     $value = $value->getValue();
                 } else {

@@ -29,7 +29,7 @@
                     <depends>
                         <field id="key_save_type">file</field>
                     </depends>
-                    <comment><![CDATA[Path to key file should be relative to site document root.]]></comment>
+                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.]]></comment>
                     <validate>validate-no-empty</validate>
                 </field>
                 <field id="language" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
