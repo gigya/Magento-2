@@ -103,6 +103,23 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             // END : Add column 'gigya_uid' to table 'gigya_sync_retry'
         } // END : if version < 5.0.3
 
+        if (version_compare($context->getVersion(), '5.0.4') < 0) {
+
+            // BEGIN : Add column 'original_data' to table 'gigya_sync_retry'
+            $setup->getConnection()->addColumn(
+                $setup->getTable('gigya_sync_retry'),
+                'original_data',
+                [
+                    'type' => Table::TYPE_TEXT,
+                    'length' => 255,
+                    'nullable' => true,
+                    'after' => 'data',
+                    'comment' => 'Original data to roll back to'
+                ]
+            );
+            // END : Add column 'original_data' to table 'gigya_sync_retry'
+        } // END : if version < 5.0.3
+
         $installer->endSetup();
     }
 }
