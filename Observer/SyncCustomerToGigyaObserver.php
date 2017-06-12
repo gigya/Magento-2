@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Observer;
 
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
+use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\App\State as AppState;
@@ -46,6 +47,9 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /** @var int */
     private $maxGigyaUpdateRetryCount;
 
+    /** @var ConnectionFactory */
+    protected $connectionFactory;
+
     /**
      * SyncCustomerToGigyaObserver constructor.
      *
@@ -53,12 +57,14 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      * @param GigyaMageHelper $gigyaMageHelper
      * @param AppState $state
      * @param GigyaLogger $logger
+     * @param ConnectionFactory $connectionFactory
      */
     public function __construct(
         ResourceConnection $resourceConnection,
         GigyaMageHelper $gigyaMageHelper,
         AppState $state,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+        ConnectionFactory $connectionFactory
     )
     {
         $this->resourceConnection = $resourceConnection;
@@ -67,6 +73,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $this->logger = $logger;
 
         $this->maxGigyaUpdateRetryCount = $this->gigyaMageHelper->getMaxRetryCountForGigyaUpdate();
+        $this->connectionFactory = $connectionFactory;
     }
 
     /**
@@ -149,12 +156,12 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
             'date' => date('Y-m-d H:i:s', gmdate('U'))
         ];
 
-        $connection = $this->resourceConnection->getConnection('gigya_retry');
-        $connection->beginTransaction();
+        $connection = $this->connectionFactory->getNewConnection();
 
         try {
             $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
 
+            $connection->beginTransaction();
             if (empty($allRetriesRow)) {
                 $connection->insert(
                     $this->resourceConnection->getTableName('gigya_sync_retry'),
@@ -278,12 +285,12 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $failureMessage
     )
     {
-        $connection = $this->resourceConnection->getConnection('gigya_retry');
-        $connection->beginTransaction();
+        $connection = $this->connectionFactory->getNewConnection();
 
         $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
 
         if (!empty($allRetriesRow)) {
+            $connection->beginTransaction();
             try {
                 $connection->delete(
                     'gigya_sync_retry',

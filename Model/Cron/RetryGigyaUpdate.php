@@ -6,6 +6,7 @@
 namespace Gigya\GigyaIM\Model\Cron;
 
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\ResourceConnection;
@@ -33,23 +34,29 @@ class RetryGigyaUpdate
     /** @var  GigyaLogger */
     protected $logger;
 
+    /** @var ConnectionFactory */
+    protected $connectionFactory;
+
     /**
      * RetryGigyaUpdate constructor.
      *
      * @param ResourceConnection $connection
      * @param CustomerRepositoryInterface $customerRepository
      * @param GigyaLogger $logger
+     * @param ConnectionFactory $connectionFactory
      */
     public function __construct(
         ResourceConnection $connection,
         CustomerRepositoryInterface $customerRepository,
         GigyaSyncHelper $gigyaSyncHelper,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+        ConnectionFactory $connectionFactory
     )
     {
         $this->resourceConnection = $connection;
         $this->customerRepository = $customerRepository;
         $this->gigyaSyncHelper = $gigyaSyncHelper;
+        $this->connectionFactory = $connectionFactory;
         $this->logger = $logger;
     }
 
@@ -58,7 +65,7 @@ class RetryGigyaUpdate
      */
     public function execute(\Magento\Cron\Model\Schedule $schedule)
     {
-        $connection = $this->resourceConnection->getConnection('gigya');
+        $connection = $this->connectionFactory->getNewConnection();
 
         $selectRetryRows = $connection
             ->select()
