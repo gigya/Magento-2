@@ -103,6 +103,23 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             // END : Add column 'gigya_uid' to table 'gigya_sync_retry'
         } // END : if version < 5.0.3
 
+        if (version_compare($context->getVersion(), '5.0.4') < 0) {
+
+            // BEGIN : Add column 'customer_entity_email' to table 'gigya_sync_retry'
+            $setup->getConnection()->addColumn(
+                $setup->getTable('gigya_sync_retry'),
+                'customer_entity_email',
+                [
+                    'type' => Table::TYPE_TEXT,
+                    'length' => 255,
+                    'nullable' => false,
+                    'after' => 'customer_entity_id',
+                    'comment' => 'The email set on this Magento customer account'
+                ]
+            );
+            // END : Add column 'customer_entity_email' to table 'gigya_sync_retry'
+        } // END : if version < 5.0.4
+
         $installer->endSetup();
     }
 }

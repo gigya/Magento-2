@@ -141,6 +141,8 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     {
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
+        /** @var string $customerEntityEmail */
+        $customerEntityEmail = $observer->getData('customer_entity_email');
         /** @var array $gigyaAccountData with entries uid, profile, data */
         $gigyaAccountData = $observer->getData('gigya_data');
         /** @var string $message */
@@ -148,6 +150,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
 
         $binds = [
             'customer_entity_id' => $customerEntityId,
+            'customer_entity_email' => $customerEntityEmail,
             'gigya_uid' => $gigyaAccountData['uid'],
             'direction' => self::DIRECTION_CMS2G,
             'data' => serialize($gigyaAccountData),
@@ -171,6 +174,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                     'Inserted a new row in gigya_sync_retry for Magento to Gigya retry',
                     [
                         'customer_entity_id' => $customerEntityId,
+                        'customer_entity_email' => $customerEntityEmail,
                         'gigya_data' => $gigyaAccountData,
                         'message' => $message
                     ]
@@ -187,6 +191,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                             ),
                             [
                                 'customer_entity_id' => $customerEntityId,
+                                'customer_entity_email' => $customerEntityEmail,
                                 'gigya_data' => $gigyaAccountData,
                                 'message' => $message
                             ]
@@ -216,6 +221,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                         'Reset a row in gigya_sync_retry for Magento to Gigya retry',
                         [
                             'customer_entity_id' => $customerEntityId,
+                            'customer_entity_email' => $customerEntityEmail,
                             'gigya_data' => $gigyaAccountData,
                             'message' => $message
                         ]
@@ -231,6 +237,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                 [
                     'exception' => $e,
                     'customer_entity_id' => $customerEntityId,
+                    'customer_entity_email' => $customerEntityEmail,
                     'gigya_data' => $gigyaAccountData
                 ]
             );
