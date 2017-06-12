@@ -21,9 +21,9 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  *
  * Is triggered when a Gigya data update (synchronizing with the Gigya service) has failed or succeeded.
  *
- * If failure : @see SyncCustomerToGigyaObserver::performUpdateFailure()
+ * If failure : @see SyncCustomerToGigyaObserver::performGigyaUpdateFailure()
  *
- * If success : @see SyncCustomerToGigyaObserver::performUpdateSuccess()
+ * If success : @see SyncCustomerToGigyaObserver::performGigyaUpdateSuccess()
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -87,11 +87,11 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         switch ($observer->getEvent()->getName()) {
 
             case GigyaAccountService::EVENT_UPDATE_GIGYA_FAILURE :
-                $this->performUpdateFailure($observer);
+                $this->performGigyaUpdateFailure($observer);
                 break;
 
             case GigyaAccountService::EVENT_UPDATE_GIGYA_SUCCESS :
-                $this->performUpdateSuccess($observer);
+                $this->performGigyaUpdateSuccess($observer);
                 break;
 
             case AbstractGigyaAccountEnricher::EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE :
@@ -137,7 +137,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      * @param Observer $observer
      * @return void
      */
-    protected function performUpdateFailure($observer)
+    protected function performGigyaUpdateFailure($observer)
     {
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
@@ -250,7 +250,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      *
      * @param \Magento\Framework\Event\Observer $observer
      */
-    protected function performUpdateSuccess($observer)
+    protected function performGigyaUpdateSuccess($observer)
     {
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
@@ -258,7 +258,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $this->deleteRetryEntry(
             $customerEntityId,
             'Previously failed Gigya update has now succeeded.',
-            'Could not remove retry entry for Magento to Gigya update after a successful update on the same customer.'
+            'Could not remove retry entry for Magento to Gigya update after a successful update on the same Gigya account.'
         );
     }
 
