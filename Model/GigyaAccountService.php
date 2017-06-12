@@ -51,22 +51,6 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     /** @var array All GigyaUser first level attributes but the profile */
     private $gigyaCoreAttributes = [];
 
-    /** @var array Gigya user attributes that shall not be updated (Gigya service validation rule) */
-    private $gigyaCoreForbiddenAttributes = [ // CATODO : should be in config.xml
-        'UID',
-        'UIDSignature',
-        'signatureTimestamp',
-        'emails',
-        'identities',
-        // not forbidden by Gigya : for special mapping purpose
-        'profile',
-        'loginIDs',
-        'nestedValue',
-        // not forbidden by Gigya : GigyaIM module internals
-        'customerEntityId',
-        'customerEntityEmail'
-    ];
-
     /** @var array All Gigya profile attributes */
     private $gigyaProfileAttributes = [];
 
