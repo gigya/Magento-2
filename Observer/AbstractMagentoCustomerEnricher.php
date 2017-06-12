@@ -225,11 +225,6 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
                 }
                 try {
                     $this->customerRepository->save($magentoCustomer->getDataModel());
-                    $this->eventDispatcher->dispatch(self::EVENT_UPDATE_MAGENTO_SUCCESS, [
-                            'customer_entity_id' => $magentoCustomer->getEntityId()
-                        ]
-                    );
-
                 } finally {
                     // If the synchro to Gigya was not already disabled we re-enable it
                     if (!$excludeSyncCms2G) {
@@ -243,13 +238,6 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
                     'gigya_uid' => $magentoCustomer->getGigyaUid(),
                     'exception' => $e
                 ]);
-                $this->eventDispatcher->dispatch(self::EVENT_UPDATE_MAGENTO_FAILURE, [
-                        'customer_entity_id' => $magentoCustomer->getEntityId(),
-                        'customer_entity_email' => $magentoCustomer->getEmail(),
-                        'gigya_data' => $gigyaData != null ? $gigyaData['gigya_user'] : 'unknown',
-                        'message' => $e->getMessage()
-                    ]
-                );
             }
         }
     }
