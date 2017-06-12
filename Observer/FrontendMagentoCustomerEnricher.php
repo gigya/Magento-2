@@ -17,7 +17,7 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * @inheritdoc
  *
  * Overrides the check for knowing if a Magento customer shall be enriched : it's also depending on the request's action name.
- * @see FrontendMagentoCustomerEnricher::shallUpdateMagentoCustomerWithGigyaAccount()
+ * @see FrontendMagentoCustomerEnricher::shallEnrichMagentoCustomerWithGigyaAccount()
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -53,7 +53,7 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      *
      * Add a check on the request's action name : update shall be performed only if we are going to login, create or update an account.
      */
-    public function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
+    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
         $actionName = $this->context->getRequest()->getActionName();
 
@@ -61,6 +61,6 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
             || $actionName == 'createPost'
             || $actionName == 'editPost';
 
-        return $result && parent::shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer);
+        return $result && parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer);
     }
 }
