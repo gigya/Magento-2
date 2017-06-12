@@ -95,17 +95,6 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     }
 
     /**
-     * @param $magentoCustomer Customer
-     * @return bool
-     */
-    protected function shallUpdateGigya($magentoCustomer)
-    {
-        $result = $magentoCustomer->getData('update_gigya') === true;
-
-        return $result;
-    }
-
-    /**
      * Method called if an exception is caught when dispatching event AbstractGigyaAccountEnricher::EVENT_MAP_GIGYA_FROM_MAGENTO
      *
      * Default behavior is to log a warning (exception is muted)
@@ -167,6 +156,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
         }
 
         $gigyaAccountData->setCustomerEntityId($magentoCustomer->getEntityId());
+        $gigyaAccountData->setCustomerEntityEmail($magentoCustomer->getEmail());
 
         return $gigyaAccountData;
     }
@@ -186,13 +176,6 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
 
         if ($this->shallEnrichGigyaWithMagentoCustomerData($magentoCustomer)) {
             $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
-            $magentoCustomer->setData('update_gigya', true);
-        }
-
-        if ($this->shallUpdateGigya($magentoCustomer)) {
-            if ($gigyaAccountData == null) {
-                $gigyaAccountData = $this->gigyaAccountRepository->get($magentoCustomer->getGigyaUid());
-            }
             $this->gigyaAccountRepository->update($gigyaAccountData);
         }
     }

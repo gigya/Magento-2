@@ -62,8 +62,9 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         'profile',
         'loginIDs',
         'nestedValue',
-        // not forbidden by Gigya : Magento internal entity id
-        'customerEntityId'
+        // not forbidden by Gigya : GigyaIM module internals
+        'customerEntityId',
+        'customerEntityEmail'
     ];
 
     /** @var array All Gigya profile attributes */
@@ -153,6 +154,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_FAILURE, [
                     'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
+                    'customer_entity_email' => $gigyaAccount->getCustomerEntityEmail(),
                     'gigya_data' => $gigyaApiData,
                     'message' => $message
                 ]

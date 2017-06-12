@@ -69,19 +69,22 @@ class CronGigyaAccountService extends GigyaAccountService {
             ->select()
             ->from('gigya_sync_retry')
             ->reset(\Zend_Db_Select::COLUMNS)
-            ->columns([ 'customer_entity_id', 'data' ])
+            ->columns([ 'customer_entity_id', 'customer_entity_email', 'data' ])
             ->where('direction = "' . SyncCustomerToGigyaObserver::DIRECTION_CMS2G . '"')
             ->where('gigya_uid = "'.$uid . '"');
 
         $allRetryRows = $connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
 
         if (!empty($allRetryRows) && count($allRetryRows) === 1) {
-            $savedGigyaData = unserialize($allRetryRows[0]['data']);
+            $row = $allRetryRows[0];
+            $savedGigyaData = unserialize($row['data']);
             /** @var GigyaUser $result */
             $gigyaAccountData = GigyaUserFactory::createGigyaUserFromArray($savedGigyaData);
-            // Cf. cms-starter-kit : loginIDs is not mapped by createGigyaUserFromArray...
+            $gigyaAccountData->setCustomerEntityId($row['customer_entity_id']);
+            $customerEntityEmail = $row['customer_entity_email'];
+            $gigyaAccountData->setCustomerEntityEmail($customerEntityEmail);
             $gigyaAccountData->setLoginIDs([
-                'emails' => $savedGigyaData['data']['loginIDs']
+               'emails' => [ $customerEntityEmail ]
             ]);
             return $gigyaAccountData;
         } else {
