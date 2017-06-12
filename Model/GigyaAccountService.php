@@ -191,28 +191,6 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     }
 
     /**
-     * Facility to build the core data correctly formatted for the service call.
-     *
-     * @param GigyaUser $gigyaAccount
-     * @return array
-     */
-    protected function getGigyaApiCoreData(GigyaUser $gigyaAccount)
-    {
-        $result = [ 'loginIDs' => $gigyaAccount->getLoginIDs()['emails'] ];
-
-        foreach ($this->gigyaCoreAttributes as $gigyaCoreAttribute) {
-            if (!in_array($gigyaCoreAttribute, $this->gigyaCoreForbiddenAttributes)) {
-                $value = call_user_func(array($gigyaAccount, 'get' . $gigyaCoreAttribute));
-                if (!is_null($value)) {
-                    $result[$gigyaCoreAttribute] = $value;
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Builds the whole data correctly formatted for the service call.
      *
      * @param GigyaUser $gigyaAccount
@@ -223,7 +201,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return [
             'uid' => $gigyaAccount->getUid(),
             'profile' => $this->getGigyaApiProfile($gigyaAccount),
-            'data' => $this->getGigyaApiCoreData($gigyaAccount)
+            'data' => $gigyaAccount->getData()
         ];
     }
 }

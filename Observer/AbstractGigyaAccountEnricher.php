@@ -71,7 +71,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     }
 
     /**
-     * Check if a Magento customer entity's data are to be forwarded to Gigya service.
+     * Check if a Magento customer entity's data are to used to enrich the data to the Gigya service.
      *
      * Will return true if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non empty gigya_uid value,
      * and if this customer id is not explicitly flagged has not to be synchronized (@see GigyaSyncHelper::isProductIdExcludedFromSync())
@@ -79,7 +79,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      * @param Customer $magentoCustomer
      * @return bool
      */
-    protected function shallUpdateGigyaWithMagentoCustomerData($magentoCustomer)
+    protected function shallEnrichGigyaWithMagentoCustomerData($magentoCustomer)
     {
         $result =
             $magentoCustomer != null
@@ -90,6 +90,17 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
             && !$this->gigyaSyncHelper->isCustomerIdExcludedFromSync(
                 $magentoCustomer->getId(), GigyaSyncHelper::DIR_CMS2G
             );
+
+        return $result;
+    }
+
+    /**
+     * @param $magentoCustomer Customer
+     * @return bool
+     */
+    protected function shallUpdateGigya($magentoCustomer)
+    {
+        $result = $magentoCustomer->getData('update_gigya') === true;
 
         return $result;
     }
@@ -170,10 +181,18 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     {
         /** @var Customer $customer */
         $magentoCustomer = $observer->getData('customer');
+        /** @var GigyaUser $gigyaAccountData */
+        $gigyaAccountData = null;
 
-        if ($this->shallUpdateGigyaWithMagentoCustomerData($magentoCustomer)) {
-
+        if ($this->shallEnrichGigyaWithMagentoCustomerData($magentoCustomer)) {
             $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
+            $magentoCustomer->setData('update_gigya', true);
+        }
+
+        if ($this->shallUpdateGigya($magentoCustomer)) {
+            if ($gigyaAccountData == null) {
+                $gigyaAccountData = $this->gigyaAccountRepository->get($magentoCustomer->getGigyaUid());
+            }
             $this->gigyaAccountRepository->update($gigyaAccountData);
         }
     }

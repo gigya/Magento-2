@@ -85,7 +85,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * @param Customer $magentoCustomer
      * @return bool
      */
-    protected function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
+    protected function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
         $result =
             $magentoCustomer != null
@@ -193,7 +193,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         /** @var Customer $customer */
         $magentoCustomer = $observer->getData('customer');
 
-        if ($this->shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)) {
+        if ($this->shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)) {
 
             try {
                 $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);

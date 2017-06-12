@@ -5,6 +5,7 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -27,6 +28,9 @@ class RetryGigyaUpdate
     /** @var  CustomerRepositoryInterface\ */
     protected $customerRepository;
 
+    /** @var  GigyaSyncHelper */
+    protected $gigyaSyncHelper;
+
     /** @var  GigyaLogger */
     protected $logger;
 
@@ -44,12 +48,14 @@ class RetryGigyaUpdate
     public function __construct(
         ResourceConnection $connection,
         CustomerRepositoryInterface $customerRepository,
+        GigyaSyncHelper $gigyaSyncHelper,
         GigyaLogger $logger,
         ConnectionFactory $connectionFactory
     )
     {
         $this->resourceConnection = $connection;
         $this->customerRepository = $customerRepository;
+        $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->connectionFactory = $connectionFactory;
         $this->logger = $logger;
     }
@@ -74,10 +80,26 @@ class RetryGigyaUpdate
             $customerEntityId = $retryRow['customer_entity_id'];
             $retryCount = 1 + $retryRow['retry_count'];
             try {
-                //
-                $customer = $this->customerRepository->getById($customerEntityId);
-                // When the save is performed the observer of the event 'customer_save_before' will forward the data to Gigya
-                $this->customerRepository->save($customer);
+                $magentoCustomer = $this->customerRepository->getById($customerEntityId);
+                $excludeSyncCms2G = true;
+                if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId,
+                    GigyaSyncHelper::DIR_CMS2G)
+                ) {
+                    // We prevent synchronizing the M2 customer data to the Gigya account :
+                    // in the context of the retry the Gigya data have already been enriched with the Magento customer
+                    $this->gigyaSyncHelper->excludeCustomerIdFromSync($magentoCustomer->getId(),
+                        GigyaSyncHelper::DIR_CMS2G);
+                    $excludeSyncCms2G = false;
+                }
+                try {
+                    $this->customerRepository->save($magentoCustomer);
+                } finally {
+                    // If the synchro to Gigya was not already disabled we re-enable it
+                    if (!$excludeSyncCms2G) {
+                        $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($magentoCustomer->getId(),
+                            GigyaSyncHelper::DIR_CMS2G);
+                    }
+                }
             } catch (\Exception $e) {
                 $this->logger->warning('Retry update Gigya failed.',
                     [

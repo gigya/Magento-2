@@ -157,11 +157,11 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         ];
 
         $connection = $this->connectionFactory->getNewConnection();
-        $connection->beginTransaction();
 
         try {
             $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
 
+            $connection->beginTransaction();
             if (empty($allRetriesRow)) {
                 $connection->insert(
                     $this->resourceConnection->getTableName('gigya_sync_retry'),
@@ -286,11 +286,11 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     )
     {
         $connection = $this->connectionFactory->getNewConnection();
-        $connection->beginTransaction();
 
         $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
 
         if (!empty($allRetriesRow)) {
+            $connection->beginTransaction();
             try {
                 $connection->delete(
                     'gigya_sync_retry',

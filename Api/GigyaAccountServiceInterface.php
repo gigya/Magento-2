@@ -25,6 +25,7 @@ interface GigyaAccountServiceInterface
     const ERR_CODE_MISSING_CERTIFICATE = 400003;
     const ERR_CODE_NOT_JOINABLE = 500000;
     const ERR_CODE_TIMEOUT = 504002;
+    const ERR_CODE_INTERNAL_SERVER_ERROR = 500001;
 
     // The email used as the Magento account login id is not available on Gigya side because it's set on another Gigya account.
     const ERR_CODE_LOGIN_ID_ALREADY_EXISTS = 403043;
