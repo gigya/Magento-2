@@ -45,4 +45,12 @@ interface GigyaAccountServiceInterface
      * @return GigyaUser
      */
     function get($uid);
+
+    /**
+     * Update the Gigya service with the latest version of an account.
+     *
+     * @param $uid string
+     * @return void
+     */
+    function rollback($uid);
 }

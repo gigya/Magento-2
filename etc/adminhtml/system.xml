@@ -72,6 +72,10 @@
                     <label>Force error on field mapping Magento to Gigya</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="gigya_test_m2_update_error" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Force error on Magento customer save</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
             </group>
         </section>
         <section id="gigya_section_fieldmapping" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -9,6 +9,7 @@ namespace Gigya\GigyaIM\Model;
 use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
@@ -67,6 +68,22 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     ];
 
     /**
+     * Stores the latest GigyaUser instances get from the Gigya service.
+     * Used for rollback needs.
+     *
+     * @var array of GigyaUser
+     */
+    private static $loadedGigyaUsers = [];
+
+    /**
+     * Stores the latest GigyaUser instances get from the Gigya service, and that have been updated to the Gigya service.
+     * Used for rollback needs.
+     *
+     * @var array of GgigyaUser
+     */
+    private static $loadedAndUpdatedOriginalGigyaUsers = [];
+
+    /**
      * GigyaAccountService constructor.
      *
      * @param GigyaMageHelper $gigyaMageHelper
@@ -110,12 +127,20 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
+            /** @var string $uid */
+            $uid = $gigyaApiData['uid'];
 
             $this->gigyaMageHelper->updateGigyaAccount(
-                $gigyaApiData['uid'],
+                $uid,
                 $gigyaApiData['profile'],
                 $gigyaApiData['data']
             );
+
+            if (array_key_exists($uid, self::$loadedGigyaUsers)) {
+                self::$loadedAndUpdatedOriginalGigyaUsers[$uid] = self::$loadedGigyaUsers[$uid];
+                unset(self::$loadedGigyaUsers[$uid]);
+            }
+
             $this->logger->debug(
                 'Successful call to Gigya service api',
                 $gigyaApiData
@@ -147,9 +172,31 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     function get($uid)
     {
-        return $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
+        $gigyaAccountData = $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
+        // For creating a new instance : the returned instance must not point to the instance that will be stored for an eventual rollback.
+        $result = unserialize(serialize($gigyaAccountData));
+
+        self::$loadedGigyaUsers[$uid] = $gigyaAccountData;
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * The Gigya data for this UID that will be sent for rollback to the Gigya service are the latest loaded with self::get and already successfully updated to Gigya with self::update.
+     */
+    function rollback($uid)
+    {
+        $gigyaUser = (array_key_exists($uid, self::$loadedAndUpdatedOriginalGigyaUsers)) ? self::$loadedAndUpdatedOriginalGigyaUsers[$uid] : null;
+        if ($gigyaUser != null) {
+            $this->update($gigyaUser);
+        }
     }
 
     /**
