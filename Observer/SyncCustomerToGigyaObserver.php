@@ -196,6 +196,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                                 'message' => $message
                             ]
                         );
+
                         $connection->delete(
                             'gigya_sync_retry',
                             'customer_entity_id = ' . $customerEntityId

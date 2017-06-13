@@ -7,6 +7,7 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Model\AbstractExtensibleModel;
 
 /**
  * MagentoCustomerFieldsUpdater
@@ -92,7 +93,16 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
                 }
 
                 if (substr($mageKey, 0, 6) === "custom") {
-                    $account->setCustomAttribute(substr($mageKey, 7), $value);
+                    $key = substr($mageKey, 7);
+
+                    if($account instanceof AbstractExtensibleModel)
+                    {
+                        $account->setCustomAttribute($key, $value);
+                    }
+                    else
+                    {
+                        $account->setData($key, $value);
+                    }
                 } else {
                     $account->setData($mageKey, $value);
                 }
