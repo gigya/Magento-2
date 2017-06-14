@@ -59,7 +59,16 @@ class RollbackGigyaDataPlugin
        try {
            return $proceed($customer);
        } catch(\Exception $e) {
-            $this->gigyaAccountService->rollback($customer->getCustomAttribute('gigya_uid')->getValue());
+           $guid = null;
+           if($customer->getCustomAttribute('gigya_uid'))
+           {
+               $guid = $customer->getCustomAttribute('gigya_uid')->getValue();
+           }
+           if($guid)
+           {
+               $this->gigyaAccountService->rollback($guid);
+           }
+
             throw new GigyaMagentoCustomerSaveException($e);
        }
     }
