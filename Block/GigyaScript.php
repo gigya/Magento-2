@@ -31,6 +31,11 @@ class GigyaScript extends Template
     protected $scopeConfig;
 
     /**
+     * @var bool
+     */
+    protected $allowGigyaLogout;
+
+    /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Customer\Model\Url $customerUrl
@@ -47,6 +52,7 @@ class GigyaScript extends Template
         $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
         $this->scopeConfig = $context->getScopeConfig();
+        $this->allowGigyaLogout = false;
     }
 
     /**
@@ -125,6 +131,17 @@ class GigyaScript extends Template
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
         $local_lang = $resolver->getLocale();
         return substr($local_lang, 0, 2);
+    }
+
+    public function setAllowGigyaLogout($allowGigyaLogout)
+    {
+        $this->allowGigyaLogout = $allowGigyaLogout;
+        return $this;
+    }
+
+    public function getAllowGigyaLogout()
+    {
+        return $this->allowGigyaLogout;
     }
 
     /**
