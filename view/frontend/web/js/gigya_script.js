@@ -16,6 +16,7 @@ define([
     gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
+    gigyaMage2.Params.loginAfter = false;
     if ( $('input[name="form_key"]').val().length ){
         gigyaMage2.Params.form_key = $('input[name="form_key"]').val();
     }
@@ -54,6 +55,14 @@ define([
             alert(response.errorCode);
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
+        gigyaMage2.Params.magento_user_logged_in = false;
+        var action = login_state_url;
+        var allowLogout = allow_gigya_logout;
+        $.ajax({
+            type : "GET",
+            url : action,
+            showLoader: false
+        })
 
         console.log('GIGYA logged in: '+gigyaMage2.Params.gigya_user_logged_in);
         console.log('MAGE2 logged in: '+gigyaMage2.Params.magento_user_logged_in);
@@ -98,6 +107,18 @@ define([
             });
         }
 
+                // if the user just logged in using Gigya, but there was an exception on Magento's side preventing the login
+                if(allowLogout)
+                {
+                    // If Gigya is logged in but Magento is logged out: currently, do nothing. you can add logout from gigya here.
+                    if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
+                        var logoutSync = {"function": "accounts.logout", "parameters": {} };
+                        window.gigyaInit.push(logoutSync);
+                        gigyaMage2.Functions.performGigyaActions();
+                        gigyaMage2.Params.gigya_user_logged_in = false;
+                    }
+                }
+            });
     };
 
     gigyaMage2.Functions.logoutMagento = function () {
@@ -109,6 +130,7 @@ define([
      * @param eventObj
      */
     gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
+        gigyaMage2.Params.loginAfter = true;
         var action = login_post_url;
         var loginData = {
             UIDSignature : eventObj.UIDSignature,
@@ -153,15 +175,7 @@ define([
         return window.btoa(decodeURIComponent(encodeURIComponent( data )));
     };
 
-
-
-    /**
-     * Things to do when gigya script finishes loading
-     * init registered Gigya functions (e.g. showScreenSet from layout files)
-     * register event listeners
-     * @param serviceName
-     */
-    window.onGigyaServiceReady =  function (serviceName) {
+    gigyaMage2.Functions.performGigyaActions = function() {
         if (window.gigyaInit) {
             // If this is the edit profile page, then add the update profile callback function.
             if (window.gigyaInit[0]) {
@@ -204,7 +218,20 @@ define([
             // jQuery(".open-gigya-login").on('click',function(){
             //     jQuery("#gigya-login-popup").modal("openModal");
             // });
+            window.gigyaInit = [];
         }
+    };
+
+
+
+    /**
+     * Things to do when gigya script finishes loading
+     * init registered Gigya functions (e.g. showScreenSet from layout files)
+     * register event listeners
+     * @param serviceName
+     */
+    window.onGigyaServiceReady =  function (serviceName) {
+        gigyaMage2.Functions.performGigyaActions();
     };
 
     return gigyaMage2;

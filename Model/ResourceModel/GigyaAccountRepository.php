@@ -39,7 +39,6 @@ class GigyaAccountRepository implements GigyaAccountRepositoryInterface
      */
     function update($gigyaAccount)
     {
-        // CATODO : for now we synchronize on update only, not for a new user
         if ($gigyaAccount->getUid()) {
 
             $this->gigyaAccountService->update($gigyaAccount);

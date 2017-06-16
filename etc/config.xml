@@ -7,5 +7,10 @@
                 <expiration>1800</expiration>
             </session>
         </gigya_session>
+        <gigya_section>
+            <synchro>
+                <gigya_update_max_retry>5</gigya_update_max_retry>
+            </synchro>
+        </gigya_section>
     </default>
 </config>

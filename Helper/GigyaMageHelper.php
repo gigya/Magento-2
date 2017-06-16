@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Helper;
 use Gigya\CmsStarterKit\sdk\GSException;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Model\Settings;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;
 use Gigya\GigyaIM\Model\Config;
@@ -16,6 +17,8 @@ use Magento\Framework\App\Helper\Context;
 use Gigya\GigyaIM\Logger\Logger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
 
 class GigyaMageHelper extends AbstractHelper
@@ -35,7 +38,8 @@ class GigyaMageHelper extends AbstractHelper
     protected $gigyaApiHelper;
     /** @var GigyaSyncHelper  */
     protected $gigyaSyncHelper;
-    protected $settingsFactory;
+    protected $configSettings;
+    protected $dbSettings;
     protected $_moduleList;
     protected $configModel;
 
@@ -44,6 +48,9 @@ class GigyaMageHelper extends AbstractHelper
     /** @var  Session */
     protected $session;
 
+    /** @var Filesystem  */
+    protected $_fileSystem;
+
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const CHARS_PASSWORD_DIGITS = '23456789';
@@ -51,18 +58,24 @@ class GigyaMageHelper extends AbstractHelper
 
     public function __construct(
         SettingsFactory $settingsFactory, // virtual class
+        Settings $settings,
         Context $context,
         Logger $logger,
         ModuleListInterface $moduleList,
         Config $configModel,
         GigyaSyncHelper $gigyaSyncHelper,
-        Session $session
+        Session $session,
+        Filesystem $fileSystem
     ) {
         parent::__construct($context);
-        $this->settingsFactory = $settingsFactory;
+
+        $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general');
+        $this->dbSettings = $settings->load(1);
         $this->_logger = $logger;
         $this->configModel = $configModel;
 	$this->scopeConfig = $context->getScopeConfig();
+	    $this->scopeConfig = $context->getScopeConfig();
+        $this->_fileSystem = $fileSystem;
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->_moduleList = $moduleList;
@@ -147,7 +160,20 @@ class GigyaMageHelper extends AbstractHelper
      */
     public function setKeyFileLocation($keyFileLocation)
     {
-        $this->keyFileLocation = $keyFileLocation;
+        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
+            . DIRECTORY_SEPARATOR . $keyFileLocation;
+    }
+
+    /**
+     * Return the max number of attempt of automatic Gigya update retry.
+     *
+     * Configuration in BO.
+     *
+     * @return int
+     */
+    public function getMaxRetryCountForGigyaUpdate()
+    {
+        return (int)$this->scopeConfig->getValue('gigya_section/synchro/gigya_update_max_retry');
     }
 
     /**
@@ -175,7 +201,9 @@ class GigyaMageHelper extends AbstractHelper
         $this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->keyFileLocation = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $settings['key_file_location'];
+        $this->debug = $settings['debug_mode'];
+        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
+            . DIRECTORY_SEPARATOR . $settings['key_file_location'];
         $this->debug = $settings['debug_mode'];
     }
 
@@ -200,9 +228,7 @@ class GigyaMageHelper extends AbstractHelper
     private function decAppSecret()
     {
         // get encrypted app secret from DB
-        $settings = $this->settingsFactory->create();
-        $settings = $settings->load(1);
-        $encrypted_secret = $settings->getData('app_secret');
+        $encrypted_secret = $this->dbSettings['app_secret'];
         if (strlen($encrypted_secret) < 5 ) {
             $this->gigyaLog(__FUNCTION__ . " No valid secret key found in DB.");
         }

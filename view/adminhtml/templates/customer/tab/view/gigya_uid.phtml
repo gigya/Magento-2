@@ -1,0 +1,13 @@
+<?php
+// @codingStandardsIgnoreFile
+
+/**
+ * @var $block \Gigya\GigyaIM\Block\Adminhtml\Customer\Edit\Tab\View\GigyaUID
+ */
+
+$guid = $block->getGUIDFromParentBlock();
+?>
+<tr>
+    <th><?php /* @escapeNotVerified */ echo __('Gigya UID:') ?></th>
+    <td><?php /* @escapeNotVerified */ echo $guid ? $guid : __('N/A') ?></td>
+</tr>

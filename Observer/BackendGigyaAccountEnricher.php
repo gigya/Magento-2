@@ -9,7 +9,7 @@ use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * BackendGigyaAccountEnricher
@@ -31,14 +31,14 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
      * @param EventManager $eventDispatcher
-     * @param LoggerInterface $logger
+     * @param GigyaLogger $logger
      * @param MessageManager $messageManager
      */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
         EventManager $eventDispatcher,
-        LoggerInterface $logger,
+        GigyaLogger $logger,
         MessageManager $messageManager
     ) {
         parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger);
@@ -53,11 +53,11 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
      *
      * @return false
      */
-    protected function processEventPreSyncToGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
+    protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
 
-        parent::processEventPreSyncToGigyaException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
+        parent::processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
-        $this->messageManager->addWarningMessage("Error sync data to Gigya , User profile didn’t update.Please verify mapping fields between Gigya and Magento. " . $e->getMessage());
+        $this->messageManager->addWarningMessage("Error sync data to Gigya , User profile didn’t update.Please verify mapping fields between Gigya and Magento.");
 
         return false;
     }

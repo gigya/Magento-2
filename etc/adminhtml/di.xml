@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+    <!-- CATODO TESTING ONLY : BEGIN -->
+    <preference for="Gigya\GigyaIM\Helper\GigyaMageHelper"
+                type="Gigya\GigyaIM\Test\Helper\TestGigyaMageHelper" />
+    <type name="Gigya\GigyaIM\Observer\GigyaFromMagentoFieldMapping">
+        <plugin name="gigyaTest_ErrorOnGigyaFromMagentoFieldMapping" type="Gigya\GigyaIM\Test\Plugin\Observer\ErrorOnGigyaFromMagentoFieldMapping" />
+    </type>
+    <!-- CATODO TESTING ONLY : END -->
+
+    <type name="Magento\Customer\Model\ResourceModel\CustomerRepository">
+        <!-- For triggering a Gigya rollback when a Gigya account has been updated but the corresponding Magento customer save fails -->
+        <plugin name="gigyaIM_rollback" type="Gigya\GigyaIM\Plugin\Customer\Model\RollbackGigyaDataPlugin" />
+    </type>
+
+    <!-- CATODO TESTING ONLY : BEGIN -->
+    <type name="Magento\Customer\Model\Customer">
+        <plugin name="gigyaIM_errorOnMagentoCustomerSave" type="Gigya\GigyaIM\Test\Customer\Model\ErrorOnMagentoCustomerSave" />
+    </type>
+    <!-- CATODO TESTING ONLY : END -->
+</config>

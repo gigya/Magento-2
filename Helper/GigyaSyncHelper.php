@@ -24,6 +24,15 @@ use Magento\Customer\Model\Session;
 
 class GigyaSyncHelper extends AbstractHelper
 {
+    const DIR_BOTH = 'both';
+    const DIR_G2CMS = 'g2cms';
+    const DIR_CMS2G = 'cms2g';
+
+    /**
+     * @var array
+     */
+    protected $customerIdsExcludedFromSync = [];
+
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
@@ -82,6 +91,9 @@ class GigyaSyncHelper extends AbstractHelper
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->storeManager = $storeManager;
         $this->session = $customerSession;
+        $this->customerIdsExcludedFromSync = [
+            self::DIR_CMS2G => [], self::DIR_G2CMS => []
+        ];
     }
 
     /**
@@ -126,7 +138,7 @@ class GigyaSyncHelper extends AbstractHelper
         $searchResult = $this->customerRepository->getList($searchCriteria);
         // ...and among these, check if one is set to the Gigya UID
         foreach ($searchResult->getItems() as $customer) {
-            $magentoUid = $customer->getCustomAttribute('gigya_uid')->getValue();
+            $magentoUid = $customer->getCustomAttribute('gigya_uid') ? $customer->getCustomAttribute('gigya_uid')->getValue() : null;
             if ($magentoUid === $gigyaUid) {
                 $magentoLoggingCustomer = $customer;
             } else {
@@ -156,13 +168,14 @@ class GigyaSyncHelper extends AbstractHelper
                 $magentoLoggingEmail = $magentoLoggingCustomer->getEmail();
             }
         } else {
-            // 2. no customer account exists on Magento with this Gigya UID and one of the Gigya loginIDs emails : check if we can create on with one of the Gigya loginIDs emails
+            // 2. no customer account exists on Magento with this Gigya UID and one of the Gigya loginIDs emails : check if we can create it with one of the Gigya loginIDs emails
             // 2.1 Gigya profile email is the preferred one
             $updateMagentoCustomerWithGigyaProfileEmail = false;
             // Gigya profile email is in the Gigya loginIDs emails ?
             if (in_array($gigyaProfileEmail, $gigyaLoginIdsEmails)) {
                 // and Gigya profile email is not already attached to an existing Magento account ?
                 $searchCustomerByEmailCriteriaFilter->setValue($gigyaProfileEmail);
+                $searchCustomerByWebsiteIdCriteriaFilter->setValue($this->storeManager->getStore()->getWebsiteId());
                 if ($this->customerRepository->getList($searchCustomerByEmailCriteria)->getTotalCount() == 0) {
                     $updateMagentoCustomerWithGigyaProfileEmail = true;
                 }
@@ -213,8 +226,12 @@ class GigyaSyncHelper extends AbstractHelper
     {
         $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
-        $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
-        $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+        if (empty($magentoCustomer->getFirstname())) {
+            $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
+        }
+        if (empty($magentoCustomer->getLastname())) {
+            $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+        }
     }
 
     /**
@@ -238,4 +255,58 @@ class GigyaSyncHelper extends AbstractHelper
         $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
         $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
     }
+
+    /**
+     * Disable Gigya synchronisation for a selected customer ID.
+     *
+     * @param int $customerId Customer ID
+     * @param string $dir direction: "cms2g", "g2cms" or "both"
+     * @return $this
+     */
+    public function excludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
+    {
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
+        {
+            $this->customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = true;
+        }
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
+        {
+            $this->customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = true;
+        }
+        return $this;
+    }
+
+    /**
+     * Re-enable Gigya synchronisation for a selected customer ID.
+     *
+     * @param int $customerId Customer ID for which excludeCustomerIdFromSync() has been previously run
+     * @param string $dir direction: "cms2g", "g2cms" or "both"
+     * @return $this
+     */
+    public function undoExcludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
+    {
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
+        {
+            $this->customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = false;
+        }
+        if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
+        {
+            $this->customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = false;
+        }
+        return $this;
+    }
+
+    /**
+     * Check whether Gigya synchronisation is enabled for a customer ID in a particular direction
+     *
+     * @param int $customerId Customer ID
+     * @param string $dir direction: "cms2g" or "g2cms", but not "both"
+     * @return bool
+     */
+    public function isCustomerIdExcludedFromSync($customerId, $dir)
+    {
+        return isset($this->customerIdsExcludedFromSync[$dir][$customerId])
+            && $this->customerIdsExcludedFromSync[$dir][$customerId];
+    }
+
 }

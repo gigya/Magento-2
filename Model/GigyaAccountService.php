@@ -7,16 +7,23 @@ namespace Gigya\GigyaIM\Model;
 
 
 use Gigya\CmsStarterKit\sdk\GSApiException;
+use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
-use \Magento\Framework\Model\Context;
-use Monolog\Logger;
+use \Magento\Framework\Event\ManagerInterface as EventManager;
+use \Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * GigyaAccountService
  *
  * @inheritdoc
+ *
+ * CATODO :
+ * review the mapping from GigyaUser to array for calling updateGigyaAccount
+ * the best would be that a method self::update with a Gigya account data as a flatten array could be exposed
+ * because as it's done for now we may not be able to update complex data, and diverge if the Gigya models change.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -36,28 +43,76 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     /** @var  GigyaMageHelper */
     protected $gigyaMageHelper;
 
-    /** @var \Magento\Framework\Event\ManagerInterface */
+    /** @var EventManager */
     protected $eventManager;
 
-    /** @var  Logger */
+    /** @var  GigyaLogger */
     protected $logger;
+
+    /** @var array All GigyaUser first level attributes but the profile */
+    private $gigyaCoreAttributes = [];
+
+    /** @var array All Gigya profile attributes */
+    private $gigyaProfileAttributes = [];
+
+    /** @var array Gigya profile attributes that shall not be updated (Gigya service validation rule) */
+    private $gigyaProfileForbiddenAttributes = [ // CATODO : should be in config.xml
+        // Dynamic fields
+        'likes',
+        'favorites',
+        'skills',
+        'education',
+        'phones',
+        'works',
+        'publications'
+    ];
+
+    /**
+     * Stores the latest GigyaUser instances get from the Gigya service.
+     * Used for rollback needs.
+     *
+     * @var array of GigyaUser
+     */
+    private static $loadedGigyaUsers = [];
+
+    /**
+     * Stores the latest GigyaUser instances get from the Gigya service, and that have been updated to the Gigya service.
+     * Used for rollback needs.
+     *
+     * @var array of GgigyaUser
+     */
+    private static $loadedAndUpdatedOriginalGigyaUsers = [];
 
     /**
      * GigyaAccountService constructor.
      *
      * @param GigyaMageHelper $gigyaMageHelper
-     * @param Context $context
-     * @param Logger $logger
+     * @param EventManager $eventManager
+     * @param GigyaLogger $logger
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
-        Context $context,
-        Logger $logger
+        EventManager $eventManager,
+        GigyaLogger $logger
     )
     {
         $this->gigyaMageHelper = $gigyaMageHelper;
-        $this->eventManager = $context->getEventDispatcher();
+        $this->eventManager = $eventManager;
         $this->logger = $logger;
+
+        $gigyaCoreMethods = get_class_methods(GigyaUser::class);
+        foreach($gigyaCoreMethods as $gigyaCoreMethod) {
+            if (strpos($gigyaCoreMethod, 'get') === 0) {
+                $this->gigyaCoreAttributes[] = lcfirst(substr($gigyaCoreMethod, 3));
+            }
+        }
+
+        $gigyaProfileMethods = get_class_methods(GigyaProfile::class);
+        foreach($gigyaProfileMethods as $gigyaProfileMethod) {
+            if (strpos($gigyaProfileMethod, 'get') === 0) {
+                $this->gigyaProfileAttributes[] = lcfirst(substr($gigyaProfileMethod, 3));
+            }
+        }
     }
 
     /**
@@ -72,52 +127,76 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
-
-            /*throw new GSApiException("test", 1, sprintf(
-                    "Test Gigya update failure => retry for uid : %s, customer_entity_id : %s customer_email : %s",
-                    $gigyaApiData['uid'],
-                    $gigyaAccount->getMagentoEntityId(),
-                    $gigyaApiData['profile']['email']
-                )
-            );*/
+            /** @var string $uid */
+            $uid = $gigyaApiData['uid'];
 
             $this->gigyaMageHelper->updateGigyaAccount(
-                $gigyaApiData['uid'],
+                $uid,
                 $gigyaApiData['profile'],
                 $gigyaApiData['data']
             );
+
+            if (array_key_exists($uid, self::$loadedGigyaUsers)) {
+                self::$loadedAndUpdatedOriginalGigyaUsers[$uid] = self::$loadedGigyaUsers[$uid];
+                unset(self::$loadedGigyaUsers[$uid]);
+            }
+
             $this->logger->debug(
                 'Successful call to Gigya service api',
                 $gigyaApiData
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_SUCCESS, [
-                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId(),
-                    'gigya_data' => $gigyaApiData
+                    'customer_entity_id' => $gigyaAccount->getCustomerEntityId()
                 ]
             );
         } catch(GSApiException $e) {
+            $message = $e->getMessage();
             $this->logger->error(
                 'Failure encountered on call to Gigya service api',
                 [
                     'gigya_data' => $gigyaApiData,
                     'exception' => [
                         'code' => $e->getCode(),
-                        'message' => $e->getLongMessage()
+                        'message' => $message
                     ]
                 ]
             );
             $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_FAILURE, [
-                    'customer_entity_id' => $gigyaAccount->getMagentoEntityId(),
-                    'gigya_data' => $gigyaApiData
+                    'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
+                    'customer_entity_email' => $gigyaAccount->getCustomerEntityEmail(),
+                    'gigya_data' => $gigyaApiData,
+                    'message' => $message
                 ]
             );
             throw $e;
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     function get($uid)
     {
-        return $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
+        $gigyaAccountData = $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
+        // For creating a new instance : the returned instance must not point to the instance that will be stored for an eventual rollback.
+        $result = unserialize(serialize($gigyaAccountData));
+
+        self::$loadedGigyaUsers[$uid] = $gigyaAccountData;
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * The Gigya data for this UID that will be sent for rollback to the Gigya service are the latest loaded with self::get and already successfully updated to Gigya with self::update.
+     */
+    function rollback($uid)
+    {
+        $gigyaUser = (array_key_exists($uid, self::$loadedAndUpdatedOriginalGigyaUsers)) ? self::$loadedAndUpdatedOriginalGigyaUsers[$uid] : null;
+        if ($gigyaUser != null) {
+            $this->update($gigyaUser);
+        }
     }
 
     /**
@@ -130,24 +209,18 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     {
         $profile = $gigyaAccount->getProfile();
 
-        return [
-            'email' => $profile->getEmail(),
-            'firstName' => $profile->getFirstName(),
-            'lastName' => $profile->getLastName()
-        ];
-    }
+        $result = [];
 
-    /**
-     * Facility to build the core data correctly formatted for the service call.
-     *
-     * @param GigyaUser $gigyaAccount
-     * @return array
-     */
-    protected function getGigyaApiCoreData(GigyaUser $gigyaAccount)
-    {
-        return [
-            'loginIDs' => $gigyaAccount->getLoginIDs()['emails']
-        ];
+        foreach ($this->gigyaProfileAttributes as $gigyaProfileAttribute) {
+            if (!in_array($gigyaProfileAttribute, $this->gigyaProfileForbiddenAttributes)) {
+                $value = call_user_func(array($profile, 'get' . $gigyaProfileAttribute));
+                if (!is_null($value)) {
+                    $result[$gigyaProfileAttribute] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -161,7 +234,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return [
             'uid' => $gigyaAccount->getUid(),
             'profile' => $this->getGigyaApiProfile($gigyaAccount),
-            'data' => $this->getGigyaApiCoreData($gigyaAccount)
+            'data' => $gigyaAccount->getData()
         ];
     }
 }

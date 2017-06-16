@@ -5,9 +5,10 @@
                 type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />
     <preference for="Magento\Customer\Controller\Account\CreatePost"
                 type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />
-    <!--<preference for="Magento\Customer\Controller\Raas\GigyaPost"     type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />-->
     <preference for="Magento\Customer\Controller\Account\EditPost"
                 type="Gigya\GigyaIM\Controller\Raas\GigyaEditPost" />
+    <preference for="Magento\Customer\Controller\Adminhtml\Index\Edit"
+                type="Gigya\GigyaIM\Controller\Adminhtml\Customer\Index\Edit" />
 
     <!-- screensets blocks override -->
     <preference for="Gigya\GigyaIM\Block\Account\Dashboard\GigyaInfo"
@@ -32,6 +33,11 @@
         <plugin name="gigyaIM_customerExtractor" type="Gigya\GigyaIM\Plugin\Customer\Model\CustomerExtractorPlugin" />
     </type>
 
+    <!-- disable Gigya Sync before customer delete -->
+    <type name="Magento\Customer\Api\CustomerRepositoryInterface">
+        <plugin name="gigyaIM_allowDeleteInvalidCustomer" type="Gigya\GigyaIM\Plugin\Customer\Api\AllowDeleteInvalidCustomer" />
+    </type>
+
     <!-- Register Gigya Logger -->
     <type name="Gigya\GigyaIM\Logger\Handler">
         <arguments>
@@ -44,6 +50,12 @@
             <argument name="handlers"  xsi:type="array">
                 <item name="system" xsi:type="object">Gigya\GigyaIM\Logger\Handler</item>
             </argument>
+        </arguments>
+    </type>
+
+    <type name="Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory">
+        <arguments>
+            <argument name="connectionFactory" xsi:type="object">Magento\Framework\App\ResourceConnection\ConnectionFactory</argument>
         </arguments>
     </type>
 

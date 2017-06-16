@@ -9,8 +9,7 @@ use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\Event\ManagerInterface;
-use Psr\Log\LoggerInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * FrontendMagentoCustomerEnricher
@@ -18,7 +17,7 @@ use Psr\Log\LoggerInterface;
  * @inheritdoc
  *
  * Overrides the check for knowing if a Magento customer shall be enriched : it's also depending on the request's action name.
- * @see FrontendMagentoCustomerEnricher::shallUpdateMagentoCustomerWithGigyaAccount()
+ * @see FrontendMagentoCustomerEnricher::shallEnrichMagentoCustomerWithGigyaAccount()
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -34,19 +33,17 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      * @param CustomerRepositoryInterface $customerRepository
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
      * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param ManagerInterface $eventDispatcher
-     * @param LoggerInterface $logger
+     * @param GigyaLogger $logger
      * @param Context $context
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
-        ManagerInterface $eventDispatcher,
-        LoggerInterface $logger,
+        GigyaLogger $logger,
         Context $context
     ) {
-        parent::__construct($customerRepository, $gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger);
+        parent::__construct($customerRepository, $gigyaAccountRepository, $gigyaSyncHelper, $context->getEventManager(), $logger);
 
         $this->context = $context;
     }
@@ -56,7 +53,7 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      *
      * Add a check on the request's action name : update shall be performed only if we are going to login, create or update an account.
      */
-    public function shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer)
+    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)
     {
         $actionName = $this->context->getRequest()->getActionName();
 
@@ -64,6 +61,6 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
             || $actionName == 'createPost'
             || $actionName == 'editPost';
 
-        return $result && parent::shallUpdateMagentoCustomerWithGigyaAccount($magentoCustomer);
+        return $result && parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer);
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Gigya\GigyaIM\Api\GigyaAccountServiceInterface"
+                type="Gigya\GigyaIM\Model\Cron\CronGigyaAccountService" />
+
+    <!-- CATODO TESTING ONLY : BEGIN -->
+    <preference for="Gigya\GigyaIM\Helper\GigyaMageHelper"
+                type="Gigya\GigyaIM\Test\Helper\TestGigyaMageHelper" />
+    <type name="Gigya\GigyaIM\Observer">
+        <plugin name="gigyaTest_ErrorOnGigyaFromMagentoFieldMapping" type="Gigya\GigyaIM\Test\Plugin\Observer\ErrorOnGigyaFromMagentoFieldMapping" />
+    </type>
+    <!-- CATODO TESTING ONLY : END -->
+</config>

@@ -6,7 +6,21 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="post_sync_from_gigya">
-        <observer name="mapFieldsObserver" instance="Gigya\GigyaIM\Observer\MapFieldsObserver" />
+    <event name="gigya_map_to_magento">
+        <observer name="gigyaToMagentoFieldMappingObserver" instance="Gigya\GigyaIM\Observer\GigyaToMagentoFieldMapping" />
     </event>
+    <event name="gigya_map_from_magento">
+        <observer name="gigyaFromMagentoFieldMappingObserver" instance="Gigya\GigyaIM\Observer\GigyaFromMagentoFieldMapping" />
+    </event>
+
+    <!-- FOR TEST DEMO ONLY -->
+    <event name="gigya_pre_field_mapping">
+        <!-- CATODO : gender mapping to be moved to core code -->
+        <observer name="testCMSSyncFieldMapping" instance="Gigya\GigyaIM\Test\Observer\TestCMSSyncFieldMapping" />
+    </event>
+    <!-- custom mapping from M2 to Gigya (empty for now, intended to test g2cms gender mapping) -->
+    <event name="pre_sync_to_gigya">
+        <observer name="testGigyaSyncFieldMapping" instance="Gigya\GigyaIM\Test\Observer\TestGigyaSyncFieldMapping" />
+    </event>
+    <!-- END TEST DEMO ONLY -->
 </config>
