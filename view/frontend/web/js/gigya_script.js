@@ -1,8 +1,9 @@
 define([
     'jquery',
     'Magento_Ui/js/modal/modal',
-    'tinymce'
-], function($, modal, tinymce){
+    'tinymce',
+    'Magento_Customer/js/customer-data'
+], function($, modal, tinymce, customerData){
     "use strict";
     var gigyaMage2 = {
         Params : {},
@@ -13,7 +14,6 @@ define([
      * Sync gigya-magento sessions
      * Event handlers (login, update)
      */
-    gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
     gigyaMage2.Params.loginAfter = false;
@@ -48,77 +48,66 @@ define([
      * If Gigya is logged in but Magento is logged out: leave Gigya logged in
      */
     gigyaMage2.Functions.setLoginStatus = function (response) {
-        console.log(response);
         if ( response.errorCode === 0 ) {
             gigyaMage2.Params.gigya_user_logged_in = true;
         } else {
-            alert(response.errorCode);
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
-        gigyaMage2.Params.magento_user_logged_in = false;
         var action = login_state_url;
         var allowLogout = allow_gigya_logout;
-        $.ajax({
-            type : "GET",
-            url : action,
-            showLoader: false
-        })
-
-        console.log('GIGYA logged in: '+gigyaMage2.Params.gigya_user_logged_in);
-        console.log('MAGE2 logged in: '+gigyaMage2.Params.magento_user_logged_in);
         // if Gigya is logged out, but Magento is logged in: log Magento out
         // this scenario may result in double page load for user, but is used only to fix an end case situation.
         if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
             gigyaMage2.Functions.logoutMagento();
         }
-        if (gigyaMage2.Params.gigya_user_logged_in && (!gigyaMage2.Params.magento_user_logged_in)) {
-            gigyaMage2.Functions.loginMagento(response);
-        }
 
+        if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
+            // if the user just logged in using Gigya, but there was an exception on Magento's side preventing the login
+            if(allowLogout)
+            {
+                var logoutSync = {"function": "accounts.logout", "parameters": {} };
+                window.gigyaInit.push(logoutSync);
+                gigyaMage2.Functions.performGigyaActions();
+                gigyaMage2.Params.gigya_user_logged_in = false;
+            }
+            else
+            {
+                if (gigyaMage2.Params.gigya_user_logged_in && (!gigyaMage2.Params.magento_user_logged_in)) {
+                    gigyaMage2.Functions.loginMagento(response);
+                }
+            }
+        }
     };
 
     gigyaMage2.Functions.loginMagento = function (response) {
-        console.log(response);
         var guid = response.UID;
         if(guid)
         {
             var sid = tinymce.util.Cookie.get('PHPSESSID');
             var form_key = tinymce.util.Cookie.get('form_key');
             var domain = window.location.hostname;
-
             $.ajax({
                 type : "POST",
                 url : login_url,
                 data : {
-                    form_key:form_key, guid: guid, guidsig: response.UIDSignature, sigtime: response.signatureTimestamp, key: gigyaMage2.Functions.loginEncode(
-                    sid+domain+guid+1234
-                )}
-            })
-            .done(function(data) {
-                if(data.logged_in)
-                {
-                    if(typeof data.location != 'undefined')
-                    {
-                        window.location.href = data.location;
-                    }
-                    window.location.reload();
-
+                    form_key:form_key, guid: guid, login_data: JSON.stringify(response),
+                    key: gigyaMage2.Functions.loginEncode(sid+domain+guid+1234)
                 }
+            })
+            .always(function(data) {
+                    /*
+                if(data.reload)
+                {
+                    window.location.reload();
+                }
+                else
+                {
+
+
+                }*/
+                //globalMessageList.addErrorMessage({'message': 'TEST ERROR'});
             });
         }
-
-                // if the user just logged in using Gigya, but there was an exception on Magento's side preventing the login
-                if(allowLogout)
-                {
-                    // If Gigya is logged in but Magento is logged out: currently, do nothing. you can add logout from gigya here.
-                    if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
-                        var logoutSync = {"function": "accounts.logout", "parameters": {} };
-                        window.gigyaInit.push(logoutSync);
-                        gigyaMage2.Functions.performGigyaActions();
-                        gigyaMage2.Params.gigya_user_logged_in = false;
-                    }
-                }
-            });
     };
 
     gigyaMage2.Functions.logoutMagento = function () {
@@ -165,9 +154,9 @@ define([
             context : loader_context,
             data : data
         })
-            .done(function() {
-                window.location.reload();
-            });
+        .done(function() {
+            window.location.reload();
+        });
     };
 
     gigyaMage2.Functions.loginEncode = function(data)

@@ -73,7 +73,6 @@ class GigyaMageHelper extends AbstractHelper
         $this->dbSettings = $settings->load(1);
         $this->_logger = $logger;
         $this->configModel = $configModel;
-	$this->scopeConfig = $context->getScopeConfig();
 	    $this->scopeConfig = $context->getScopeConfig();
         $this->_fileSystem = $fileSystem;
         $this->setGigyaSettings();

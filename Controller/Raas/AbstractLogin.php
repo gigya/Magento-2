@@ -3,6 +3,7 @@
 namespace Gigya\GigyaIM\Controller\Raas;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
+use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
@@ -31,6 +32,7 @@ use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
+use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
 
 abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccount
 {
@@ -86,7 +88,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected $accountRedirect;
 
-    /** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
+    /** @var  GigyaMageHelper */
     protected $gigyaMageHelper;
 
     /**
@@ -143,7 +145,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         CustomerRepositoryInterface $customerRepository,
         SyncHelper $syncHelper,
         Validator $formKeyValidator,
-        CookieManagerInterface $cookieManager
+        CookieManagerInterface $cookieManager,
+        GigyaMageHelper $gigyaMageHelper
     )
     {
         $this->session = $customerSession;
@@ -164,7 +167,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         $this->dataObjectHelper = $dataObjectHelper;
         $this->accountRedirect = $accountRedirect;
         parent::__construct($context);
-        $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
+        $this->gigyaMageHelper = $gigyaMageHelper;
         $this->customerRepository = $customerRepository;
         $this->syncHelper = $syncHelper;
         $this->formKeyValidator = $formKeyValidator;
@@ -377,12 +380,17 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         $url = null;
         if($resultRedirect instanceof \Magento\Framework\Controller\Result\Redirect)
         {
-            $response = clone $this->getResponse();
+            $response = serialize($this->getResponse());
+            $response = unserialize($response);
+
             $resultRedirect->renderResult($response);
             $header = $response->getHeader('Location');
+            $response->clearHeader('Location');
             /* @var $header \Zend\Http\Header\Location */
-            $header->getUri();
-            $url = $response->getRedirect();
+            if($header)
+            {
+                $url = $header->getUri();
+            }
         }
         else
         if($resultRedirect instanceof \Magento\Framework\Controller\Result\Forward)

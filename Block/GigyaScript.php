@@ -151,7 +151,7 @@ class GigyaScript extends Template
 
     public function getAllowGigyaLogout()
     {
-        return $this->allowGigyaLogout;
+        return $this->allowGigyaLogout ? '1' : '0';
     }
 
     /**
