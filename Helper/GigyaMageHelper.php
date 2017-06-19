@@ -245,7 +245,7 @@ class GigyaMageHelper extends AbstractHelper
             $this->gigyaLog(__FUNCTION__
                 . ": KEY_PATH is not set in Gigya system config.");
         }
-        return $key;
+        return trim($key);
     }
 
     /**
