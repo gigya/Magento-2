@@ -215,7 +215,15 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
             throw new GigyaFieldMappingException("Magento customer is not set");
         }
 
-        parent::retrieveFieldMappings();
+        try {
+            parent::retrieveFieldMappings();
+        } catch(\Exception $e) {
+            if (!$this->confMapping || $this->confMapping->getMappingConf() == null) {
+                throw new GigyaFieldMappingException("Field mapping file could not be found or is empty or is not correctly formated.");
+            } else {
+                throw $e;
+            }
+        }
     }
 
     /**
