@@ -5,6 +5,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
@@ -131,8 +132,10 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     {
         $this->pushRegisteredCustomer($magentoCustomer);
 
-        $gigyaAccountData = $this->gigyaAccountRepository->get($magentoCustomer->getGigyaUid());
-        $gigyaAccountLoggingEmail = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccountData)['logging_email'];
+        $gigyaAccountData = new GigyaUser(null);
+        $gigyaAccountData->setUID($magentoCustomer->getGigyaUid());
+        $gigyaAccountData->setProfile(new GigyaProfile(null));
+        $gigyaAccountLoggingEmail = $magentoCustomer->getEmail();
 
         try {
             $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO, [
