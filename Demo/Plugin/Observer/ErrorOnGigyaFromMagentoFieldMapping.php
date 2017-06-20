@@ -3,7 +3,7 @@
  * Copyright © 2016 X2i.
  */
 
-namespace Gigya\GigyaIM\Test\Plugin\Observer;
+namespace Gigya\GigyaIM\Demo\Plugin\Observer;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Observer\GigyaFromMagentoFieldMapping;

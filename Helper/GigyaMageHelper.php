@@ -11,10 +11,10 @@ use Gigya\GigyaIM\Model\Settings;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use \Magento\Framework\App\Helper\AbstractHelper;
-use \Magento\Framework\App\Helper\Context;
-use \Gigya\GigyaIM\Logger\Logger;
-use \Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Gigya\GigyaIM\Logger\Logger;
+use Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
 
