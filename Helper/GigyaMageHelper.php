@@ -18,10 +18,6 @@ use Gigya\GigyaIM\Logger\Logger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
-use Gigya\GigyaIM\Logger\Logger;
-use Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
 
