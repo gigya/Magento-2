@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Cache/etc/cache.xsd">
+    <type name="gigyaim_fieldmapping_cache" translate="label,description" instance="Gigya\GigyaIM\Model\Cache\Type\FieldMapping">
+        <label>Gigya Cache</label>
+        <description>Save field mapping json file.</description>
+    </type>
+</config>

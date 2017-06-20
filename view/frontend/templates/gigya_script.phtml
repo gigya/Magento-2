@@ -8,9 +8,10 @@
 ?>
 
 <script>
-var magento_user_logged_in = "<?php echo $block->getMagentoUserLogin() ?>";
+var login_state_url = "<?php echo $block->getMagentoLoginStateUrl() ?>";
 var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
 var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
+var allow_gigya_logout = <?php echo $block->getAllowGigyaLogout() ?>;
 </script>
 
 <script>

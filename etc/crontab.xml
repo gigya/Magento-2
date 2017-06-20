@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="gigya_retry_cms2g" instance="Gigya\GigyaIM\Model\Cron\RetryGigyaUpdate" method="execute">
+            <!-- Retry failed Gigya update each 15 minutes. Retries are scheduled on failure when trying to update a customer detail page from backend -->
+            <schedule>* * * * *</schedule>
+        </job>
+    </group>
+</config>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <gigya_section>
+            <synchro>
+                <gigya_update_max_retry>5</gigya_update_max_retry>
+            </synchro>
+        </gigya_section>
+    </default>
+</config>

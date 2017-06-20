@@ -19,6 +19,11 @@
             </block>
             <!-- remove Magento login form: -->
             <referenceContainer name="customer.login.container" remove="true" />
+            <referenceBlock name="Gigya_GigyaIM::GigyaScript">
+                <action method="setAllowGigyaLogout">
+                    <argument name="allowGigyaLogout" xsi:type="boolean">true</argument>
+                </action>
+            </referenceBlock>
         </referenceContainer>
     </body>
 </page>

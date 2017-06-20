@@ -29,7 +29,7 @@
                     <depends>
                         <field id="key_save_type">file</field>
                     </depends>
-                    <comment><![CDATA[Path to key file should be relative to site document root.]]></comment>
+                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.]]></comment>
                     <validate>validate-no-empty</validate>
                 </field>
                 <field id="language" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -50,6 +50,45 @@
                     <comment><![CDATA[Log path - var/log/gigya.log]]></comment>
                     <comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
                     <comment><![CDATA[*Never use debug mode in production environment!]]></comment>
+                </field>
+            </group>
+            <group id="synchro" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Synchronizing Magento from / to Gigya</label>
+                <field id="gigya_update_max_retry" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[Maximum number of attemps of an automatic Gigya update retry]]></label>
+                    <comment><![CDATA[Retries happen when a customer update to Gigya has failed, when it's been edited and saved in back office. A cron is dedicated to retry regularly the update.]]></comment>
+                    <comment><![CDATA[Once this limit is reached for a given customer id there won't be any retry further and a critical si logged.]]></comment>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                </field>
+            </group>
+            <group id="test" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>For testing purpose only, to be deleted in release</label>
+                <field id="gigya_test_gigya_update_error" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Force error on Gigya API update call</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>The error will be triggered ONLY when the M2 customer account is synchronized to Gigya, outside the field mapping part, at the very moment of the Gigya API update call</comment>
+                </field>
+                <field id="gigya_test_fieldmapping_cms2g_error" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Force error on field mapping Magento to Gigya</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="gigya_test_m2_update_error" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Force error on Magento customer save</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+        <section id="gigya_section_fieldmapping" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Field Mapping</label>
+            <tab>gigyaim_tab</tab>
+            <resource>Gigya_GigyaIM::fieldmapping_config</resource>
+            <group id="general_fieldmapping" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="mapping_file_path" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mapping file path</label>
+                    <comment>
+                        <![CDATA[The full folder path and file name of your field mapping file.<br/> For example: /var/www/magento2/assets/fieldmapping.json]]>
+                    </comment>
                 </field>
             </group>
         </section>
