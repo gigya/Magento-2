@@ -4,6 +4,11 @@ namespace Gigya\GigyaIM\Model\Config\Source;
 
 class Domain implements \Magento\Framework\Option\ArrayInterface
 {
+    const DC_US = "us1.gigya.com";
+    const DC_EU = "eu1.gigya.com";
+    const DC_AU = "au1.gigya.com";
+    const DC_RU = "ru1.gigya.com";
+    const DC_CN = "cn1.gigya-api.cn";
     /**
      * @return array
      */
@@ -11,11 +16,11 @@ class Domain implements \Magento\Framework\Option\ArrayInterface
     {
 
         return [
-            ['value' => "us1.gigya.com", 'label' => __('US')],
-            ['value' => "eu1.gigya.com", 'label' => __('EU')],
-            ['value' => "au1.gigya.com", 'label' => __('AU')],
-            ['value' => "ru1.gigya.com", 'label' => __('RU')],
-            ['value' => "cn1.gigya-api.cn", 'label' => __('CN')],
+            ['value' => self::DC_US, 'label' => __('US')],
+            ['value' => self::DC_EU, 'label' => __('EU')],
+            ['value' => self::DC_AU, 'label' => __('AU')],
+            ['value' => self::DC_RU, 'label' => __('RU')],
+            ['value' => self::DC_CN, 'label' => __('CN')],
         ];
     }
 }

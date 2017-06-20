@@ -19,12 +19,16 @@ define([
         gigyaMage2.Params.form_key = $('input[name="form_key"]').val();
     }
 
-    gigyaMage2.Functions.loadGigyaScript = function(api_key, language) {
+    gigyaMage2.Functions.loadGigyaScript = function(api_key, language, domain) {
+        if(!domain)
+        {
+            domain = 'gigya.com';
+        }
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
         gig.async = false;
         gig.src = ('https:' === document.location.protocol ? 'https://cdns' : 'http://cdn') +
-            '.gigya.com/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
+            '.'+domain+'/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
         document.getElementsByTagName('head')[0].appendChild(gig);
     };
 

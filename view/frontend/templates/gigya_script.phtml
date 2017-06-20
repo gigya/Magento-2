@@ -5,6 +5,8 @@
  * Variables can be set and passed from the block object model: block/GigyaScript
  */
 
+$scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigyaScriptDomain();
+
 ?>
 
 <script>
@@ -29,7 +31,8 @@ var allow_gigya_logout = <?php echo $block->getAllowGigyaLogout() ?>;
         
         gigyaMage2.Functions.loadGigyaScript(
             "<?php echo $block->getGigyaApiKey() ?>",
-            "<?php echo $block->getLanguage() ?>"
+            "<?php echo $block->getLanguage() ?>",
+            <?php echo $scriptDomain ? '"'.$scriptDomain.'"' : 'false' ?>
         );
 
         // Session synchronization between Gigya and Magento
