@@ -5,9 +5,9 @@
 
     <!-- CATODO TESTING ONLY : BEGIN -->
     <preference for="Gigya\GigyaIM\Helper\GigyaMageHelper"
-                type="Gigya\GigyaIM\Test\Helper\TestGigyaMageHelper" />
+                type="Gigya\GigyaIM\Demo\Helper\TestGigyaMageHelper" />
     <type name="Gigya\GigyaIM\Observer">
-        <plugin name="gigyaTest_ErrorOnGigyaFromMagentoFieldMapping" type="Gigya\GigyaIM\Test\Plugin\Observer\ErrorOnGigyaFromMagentoFieldMapping" />
+        <plugin name="gigyaTest_ErrorOnGigyaFromMagentoFieldMapping" type="Gigya\GigyaIM\Demo\Plugin\Observer\ErrorOnGigyaFromMagentoFieldMapping" />
     </type>
     <!-- CATODO TESTING ONLY : END -->
 </config>

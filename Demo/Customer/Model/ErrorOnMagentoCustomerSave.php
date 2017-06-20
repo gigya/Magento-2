@@ -3,7 +3,7 @@
  * Copyright © 2016 X2i.
  */
 
-namespace Gigya\GigyaIM\Test\Customer\Model;
+namespace Gigya\GigyaIM\Demo\Customer\Model;
 
 use Magento\Customer\Model\Backend\Customer;
 use Magento\Framework\App\Config\ScopeConfigInterface;

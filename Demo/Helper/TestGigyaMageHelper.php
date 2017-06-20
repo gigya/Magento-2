@@ -2,7 +2,7 @@
 /**
  * Gigya IM Helper
  */
-namespace Gigya\GigyaIM\Test\Helper;
+namespace Gigya\GigyaIM\Demo\Helper;
 
 use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
@@ -10,8 +10,9 @@ use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Model\Session;
 use \Magento\Framework\App\Helper\Context;
 use \Gigya\GigyaIM\Logger\Logger;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Module\ModuleListInterface;
+use Gigya\GigyaIM\Model\Settings;
+use Magento\Framework\Filesystem;
 
 class TestGigyaMageHelper extends GigyaMageHelper
 {

@@ -68,7 +68,7 @@ class GigyaScript extends Template
      */
     public function getUserSessionLifetime()
     {
-        return 3600;
+        return $this->_customerSession->getCookieLifetime();
     }
 
     /**
@@ -151,7 +151,7 @@ class GigyaScript extends Template
 
     public function getAllowGigyaLogout()
     {
-        return $this->allowGigyaLogout ? '1' : '0';
+        return $this->allowGigyaLogout ? 'true' : 'false';
     }
 
     /**
