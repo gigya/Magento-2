@@ -27,8 +27,8 @@ define([
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
         gig.async = false;
-        gig.src = 'https://cdns' +
-            '.gigya.com/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
+        gig.src = 'https://cdns.' + domain +
+            '/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
         document.getElementsByTagName('head')[0].appendChild(gig);
     };
 
