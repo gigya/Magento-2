@@ -31,6 +31,11 @@ class GigyaScript extends Template
     protected $scopeConfig;
 
     /**
+     * @var bool
+     */
+    protected $allowGigyaLogout;
+
+    /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Customer\Model\Url $customerUrl
@@ -40,14 +45,14 @@ class GigyaScript extends Template
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Model\Url $customerUrl,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->_isScopePrivate = false;
         $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig = $context->getScopeConfig();
+        $this->allowGigyaLogout = false;
     }
 
     /**
@@ -91,16 +96,11 @@ class GigyaScript extends Template
     }
 
     /**
-     * Check if user is logged in
+     * Check URL used for checking the login state
      * @return int
      */
-    public function getMagentoUserLogin() {
-        $logged_in = $this->_customerSession->isLoggedIn();
-        if ($logged_in) {
-            return 1;
-        } else {
-            return 0;
-        }
+    public function getMagentoLoginStateUrl() {
+        return $this->getUrl('gigya_raas/raas/state');
     }
 
     /**
@@ -131,6 +131,17 @@ class GigyaScript extends Template
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
         $local_lang = $resolver->getLocale();
         return substr($local_lang, 0, 2);
+    }
+
+    public function setAllowGigyaLogout($allowGigyaLogout)
+    {
+        $this->allowGigyaLogout = $allowGigyaLogout;
+        return $this;
+    }
+
+    public function getAllowGigyaLogout()
+    {
+        return $this->allowGigyaLogout ? 'true' : 'false';
     }
 
     /**

@@ -4,18 +4,23 @@
  */
 namespace Gigya\GigyaIM\Helper;
 
+use Gigya\CmsStarterKit\sdk\GSException;
 use Gigya\CmsStarterKit\user\GigyaUser;
-use \Magento\Framework\App\Helper\AbstractHelper;
-use \Magento\Framework\App\Helper\Context;
-use \Gigya\GigyaIM\Logger\Logger;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use \Gigya\CmsStarterKit\GigyaApiHelper;
+use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Model\Settings;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Gigya\GigyaIM\Logger\Logger;
+use Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
 
 class GigyaMageHelper extends AbstractHelper
 {
     const MODULE_NAME = 'Gigya_GigyaIM';
-    const FIELDMAP_MODULE = 'Gigya_FieldMapping';
     private $extra_profile_fields_config = "https://s3.amazonaws.com/gigya-cms-configs/extraProfileFieldsMap.json";
 
     private $apiKey;
@@ -26,11 +31,21 @@ class GigyaMageHelper extends AbstractHelper
 
     private $appSecret;
 
-    public $gigyaApiHelper;
-    protected $settingsFactory;
+    /** @var GigyaApiHelper  */
+    protected $gigyaApiHelper;
+    /** @var GigyaSyncHelper  */
+    protected $gigyaSyncHelper;
+    protected $configSettings;
+    protected $dbSettings;
     protected $_moduleList;
 
     public $_logger;
+
+    /** @var  Session */
+    protected $session;
+
+    /** @var Filesystem  */
+    protected $_fileSystem;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -38,20 +53,26 @@ class GigyaMageHelper extends AbstractHelper
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
     public function __construct(
-        \Gigya\GigyaIM\Model\SettingsFactory $settingsFactory, // virtual class
+        Settings $settings,
         Context $context,
         Logger $logger,
-        ScopeConfigInterface $scopeConfig,
-        ModuleListInterface $moduleList
+        ModuleListInterface $moduleList,
+        GigyaSyncHelper $gigyaSyncHelper,
+        Session $session,
+        Filesystem $fileSystem
     ) {
         parent::__construct($context);
-        $this->settingsFactory = $settingsFactory;
+
+        $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general');
+        $this->dbSettings = $settings->load(1);
         $this->_logger = $logger;
-        $this->scopeConfig = $scopeConfig;
+	    $this->scopeConfig = $context->getScopeConfig();
+        $this->_fileSystem = $fileSystem;
         $this->setGigyaSettings();
         $this->setAppSecret();
-        $this->gigyaApiHelper = $this->getGigyaApiHelper();
         $this->_moduleList = $moduleList;
+        $this->gigyaSyncHelper = $gigyaSyncHelper;
+        $this->session = $session;
     }
 
     /**
@@ -131,7 +152,20 @@ class GigyaMageHelper extends AbstractHelper
      */
     public function setKeyFileLocation($keyFileLocation)
     {
-        $this->keyFileLocation = $keyFileLocation;
+        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
+            . DIRECTORY_SEPARATOR . $keyFileLocation;
+    }
+
+    /**
+     * Return the max number of attempt of automatic Gigya update retry.
+     *
+     * Configuration in BO.
+     *
+     * @return int
+     */
+    public function getMaxRetryCountForGigyaUpdate()
+    {
+        return (int)$this->scopeConfig->getValue('gigya_section/synchro/gigya_update_max_retry');
     }
 
     /**
@@ -155,22 +189,26 @@ class GigyaMageHelper extends AbstractHelper
      */
     private function setGigyaSettings()
     {
-        $settings = $this->scopeConfig->getValue("gigya_section/general");
-        $this->apiKey = $settings['api_key'];
-        $this->apiDomain = $settings['domain'];
-        $this->appKey = $settings['app_key'];
-        $this->keyFileLocation = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $settings['key_file_location'];
-        $this->debug = $settings['debug_mode'];
+        $this->apiKey = $this->configSettings['api_key'];
+        $this->apiDomain = $this->configSettings['domain'];
+        $this->appKey = $this->configSettings['app_key'];
+        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
+            . DIRECTORY_SEPARATOR . $this->configSettings['key_file_location'];
+        $this->debug = $this->configSettings['debug_mode'];
     }
 
     public function getGigyaApiHelper()
     {
-        return new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
+        if ($this->gigyaApiHelper == null) {
+            $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
+        }
+
+        return $this->gigyaApiHelper;
     }
 
     public function userObjFromArr($userArray)
     {
-        $obj = $this->gigyaApiHelper->userObjFromArray($userArray);
+        $obj = $this->getGigyaApiHelper()->userObjFromArray($userArray);
         return $obj;
     }
 
@@ -180,9 +218,7 @@ class GigyaMageHelper extends AbstractHelper
     private function decAppSecret()
     {
         // get encrypted app secret from DB
-        $settings = $this->settingsFactory->create();
-        $settings = $settings->load(1);
-        $encrypted_secret = $settings->getData('app_secret');
+        $encrypted_secret = $this->dbSettings['app_secret'];
         if (strlen($encrypted_secret) < 5 ) {
             $this->gigyaLog(__FUNCTION__ . " No valid secret key found in DB.");
         }
@@ -209,7 +245,7 @@ class GigyaMageHelper extends AbstractHelper
             $this->gigyaLog(__FUNCTION__
                 . ": KEY_PATH is not set in Gigya system config.");
         }
-        return $key;
+        return trim($key);
     }
 
     /**
@@ -240,7 +276,7 @@ class GigyaMageHelper extends AbstractHelper
     {
         $org_params = $this->createEnvironmentParam();
         $extra_profile_fields_list = $this->setExtraProfileFields();
-        $valid = $this->gigyaApiHelper->validateUid(
+        $valid = $this->getGigyaApiHelper()->validateUid(
             $UID, $UIDSignature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
         );
         if (!$valid) {
@@ -258,10 +294,7 @@ class GigyaMageHelper extends AbstractHelper
     protected function setExtraProfileFields()
     {
         $extra_profile_fields_list = null;
-        // if field mapping module is on, set $config_file_path
-        if (is_null($this->_moduleList->getOne(self::FIELDMAP_MODULE)['setup_version'])) {
-            return $extra_profile_fields_list;
-        }
+
         $config_file_path = $this->scopeConfig->
         getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
 
@@ -394,14 +427,43 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * Use gigyaMageHelper to validate and get user
+     * @see GigyaApiHelper::updateGigyaAccount()
+     *
+     * @return void
+     */
+    public function updateGigyaAccount($uid, $profile = array(), $data = array())
+    {
+        $this->getGigyaApiHelper()->updateGigyaAccount($uid, $profile, $data);
+    }
+
+    /**
+     * Given a frontend Gigya response, retrieve all the Gigya's account data.
      *
      * @param string $loginData A json string issued from frontend Gigya forms.
      * @return false|GigyaUser
+     * @throws GSException If the Gigya service returned an error.
      */
-    public function getGigyaAccountDataFromService($loginData)
+    public function getGigyaAccountDataFromLoginData($loginData)
     {
         $gigya_validation_o = json_decode($loginData);
+        if (!empty($gigya_validation_o->errorCode)) {
+           switch($gigya_validation_o->errorCode)  {
+               case GigyaAccountServiceInterface::ERR_CODE_LOGIN_ID_ALREADY_EXISTS:
+                   $this->_logger->error("Error while retrieving Gigya account data", [
+                       'gigya_data' => $loginData,
+                       'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
+                   ]);
+                   throw new GSException("Email already exists.");
+
+               default:
+                   $this->_logger->error("Error while retrieving Gigya account data", [
+                       'gigya_data' => $loginData,
+                       'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
+                   ]);
+                   throw new GSException(sprintf("Unable to get Gigya account data : %s / %s", $gigya_validation_o->errorCode, $gigya_validation_o->errorMessage));
+           }
+        }
+
         $valid_gigya_user = $this->validateAndFetchRaasUser(
             $gigya_validation_o->UID,
             $gigya_validation_o->UIDSignature,
@@ -409,5 +471,37 @@ class GigyaMageHelper extends AbstractHelper
         );
 
         return $valid_gigya_user;
+    }
+
+    public function getGigyaAccountDataFromUid($uid)
+    {
+        return $this->getGigyaApiHelper()->fetchGigyaAccount($uid);
+    }
+
+    /**
+     * For a given Gigya account data : identify which Magento customer account is to be logged in, and the email that shall be set on this account.
+     *
+     * The Gigya account furnished will be set on session variable 'gigya_account_data' : get it with Magento\Customer\Model\Session::getGigyaAccountData()
+     * The email associated for the Magento account will be set on session variable 'gigya_account_logging_email' : get it with Magento\Customer\Model\Session::getGigyaAccountLoggingEmail()
+     *
+     * @param GigyaUser $gigyaAccount The data returned by the Gigya's service on customer logging or profile edit.
+     * @return CustomerInterface The Magento customer linked with this Gigya account (can be null if no account exists yet)
+     * @throws @see GigyaSyncHelper::getMagentoCustomerAndLoggingEmail()
+     */
+    public function setMagentoLoggingContext($gigyaAccount)
+    {
+        // This value will be set with the preferred email that should be attached with the Magento customer account, among all the Gigya loginIDs emails
+        // We initialize it to null. If it's still null at the end of the algorithm that means that the user can not logged in
+        // because all Gigya loginIDs emails are already set to existing Magento customer accounts with a different or null Gigya UID
+        $this->session->setGigyaAccountLoggingEmail(null);
+        // This will be set with the incoming $gigyaAccount parameter if the customer can be logged in on Magento.
+        $this->session->setGigyaAccountData(null);
+
+        $result = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccount);
+
+        $this->session->setGigyaAccountData($gigyaAccount);
+        $this->session->setGigyaAccountLoggingEmail($result['logging_email']);
+
+        return $result['customer'];
     }
 }

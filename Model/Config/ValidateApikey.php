@@ -44,12 +44,14 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Customer\Model\ResourceModel\Customer $customerResource,
+        \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->_storeManager = $storeManager;
         $this->_customerResource = $customerResource;
+        $this->gigyaMageHelper = $gigyaMageHelper;
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
     }
 
@@ -69,9 +71,6 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         // *** cancel key save type option in admin
 
         // create object manager and reset the settings to newly submitted
-        /** @var \Magento\Framework\ObjectManagerInterface $om */
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $this->gigyaMageHelper = $om->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
         $this->gigyaMageHelper->setApiKey($api_key);
         $this->gigyaMageHelper->setApiDomain($domain);
         $this->gigyaMageHelper->setAppKey($app_key);
