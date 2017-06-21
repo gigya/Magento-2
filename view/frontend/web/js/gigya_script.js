@@ -162,21 +162,6 @@ define([
                     onLogin: gigyaMage2.Functions.gigyaLoginEventHandler
                 }
             );
-
-            /**
-             * add popup modal for gigya login screen
-             */
-            // var gigya_login_modal = {
-            //     type: 'popup',
-            //     responsive: true,
-            //     innerScroll: false
-            // };
-            // var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
-            //
-            // // add popup opener script:
-            // jQuery(".open-gigya-login").on('click',function(){
-            //     jQuery("#gigya-login-popup").modal("openModal");
-            // });
             window.gigyaInit = [];
         }
     };
@@ -191,7 +176,27 @@ define([
      */
     window.onGigyaServiceReady =  function (serviceName) {
         gigyaMage2.Functions.performGigyaActions();
-    };
 
+        /**
+         * add popup modal for gigya login screen
+         */
+        var gigya_login_modal = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: false,
+            buttons: [],
+            clickableOverlay: true
+        };
+        var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
+        window.showGigyaLoginScreenSet = function()
+        {
+            $("#gigya-login-popup").modal("openModal");
+        };
+        // // add popup opener script:
+        $(".open-gigya-login").on('click',function(){
+            showGigyaLoginScreenSet();
+        });
+
+    };
     return gigyaMage2;
 });
