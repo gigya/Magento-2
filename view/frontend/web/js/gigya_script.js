@@ -19,12 +19,16 @@ define([
         gigyaMage2.Params.form_key = $('input[name="form_key"]').val();
     }
 
-    gigyaMage2.Functions.loadGigyaScript = function(api_key, language) {
+    gigyaMage2.Functions.loadGigyaScript = function(api_key, language, domain) {
+        if(!domain)
+        {
+            domain = 'gigya.com';
+        }
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
         gig.async = false;
-        gig.src = ('https:' === document.location.protocol ? 'https://cdns' : 'http://cdn') +
-            '.gigya.com/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
+        gig.src = 'https://cdns.' + domain +
+            '/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
         document.getElementsByTagName('head')[0].appendChild(gig);
     };
 
@@ -158,21 +162,6 @@ define([
                     onLogin: gigyaMage2.Functions.gigyaLoginEventHandler
                 }
             );
-
-            /**
-             * add popup modal for gigya login screen
-             */
-            // var gigya_login_modal = {
-            //     type: 'popup',
-            //     responsive: true,
-            //     innerScroll: false
-            // };
-            // var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
-            //
-            // // add popup opener script:
-            // jQuery(".open-gigya-login").on('click',function(){
-            //     jQuery("#gigya-login-popup").modal("openModal");
-            // });
             window.gigyaInit = [];
         }
     };
@@ -187,7 +176,27 @@ define([
      */
     window.onGigyaServiceReady =  function (serviceName) {
         gigyaMage2.Functions.performGigyaActions();
-    };
 
+        /**
+         * add popup modal for gigya login screen
+         */
+        var gigya_login_modal = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: false,
+            buttons: [],
+            clickableOverlay: true
+        };
+        var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
+        window.showGigyaLoginScreenSet = function()
+        {
+            $("#gigya-login-popup").modal("openModal");
+        };
+        // // add popup opener script:
+        $(".open-gigya-login").on('click',function(){
+            showGigyaLoginScreenSet();
+        });
+
+    };
     return gigyaMage2;
 });
