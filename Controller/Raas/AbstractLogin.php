@@ -313,6 +313,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 ['account_controller' => $this, 'customer' => $customer]
             );
 
+            $this->gigyaMageHelper->setSessionExpirationCookie();
+
             $confirmationStatus = $this->accountManagement->getConfirmationStatus($customer->getId());
             if ($confirmationStatus === AccountManagementInterface::ACCOUNT_CONFIRMATION_REQUIRED) {
                 $email = $this->customerUrl->getEmailConfirmationUrl($customer->getEmail());

@@ -8,6 +8,9 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ScopeInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\UrlInterface;
+use Magento\Store\Model\StoreManagement;
+use Magento\Store\Model\StoreManager;
 
 class Extend implements ObserverInterface
 {
@@ -27,12 +30,24 @@ class Extend implements ObserverInterface
      */
     protected $cookieManager;
 
+    /**
+     * @var UrlInterface
+     */
+    protected $urlInterface;
+
+    /**
+     * @var StoreManager
+     */
+    protected $storeManager;
+
     public function __construct(
         Config $configModel,
         \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,
         \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
         \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory,
-        \Gigya\GigyaIM\Model\Session $sessionModel
+        \Gigya\GigyaIM\Model\Session $sessionModel,
+        UrlInterface $urlInterface,
+        StoreManager $storeManager
     )
     {
         $this->configModel = $configModel;
@@ -40,6 +55,8 @@ class Extend implements ObserverInterface
         $this->cookieManager = $cookieManager;
         $this->cookieMetadataFactory = $cookieMetadataFactory;
         $this->sessionModel = $sessionModel;
+        $this->urlInterface = $urlInterface;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -66,7 +83,13 @@ class Extend implements ObserverInterface
                         $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
                         $publicCookieMetadata
                             ->setDuration($expiration)
-                            ->setPath('/');
+                            ->setPath($this->storeManager->getStore()->getStorePath());
+
+                        if($cookieName == 'PHPSESSID')
+                        {
+                            $domain = preg_replace('/^https?\:\/\/([^:]+)(\:[\d\:\/]*)$/', '$1', $this->urlInterface->getBaseUrl());
+                            $publicCookieMetadata->setDomain('.'.$domain);
+                        }
 
                         $this->cookieManager->setPublicCookie(
                             $cookieName,$existingValue, $publicCookieMetadata
@@ -94,18 +117,23 @@ class Extend implements ObserverInterface
 
                 if($loginToken)
                 {
+
                     $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
                     $publicCookieMetadata
                         ->setDuration($expiration)
                         ->setPath('/');
+
                     $this->cookieManager->setPublicCookie(
                         'gltexp_'.$apiKey,
-                        SigUtils::getDynamicSessionSignature($loginToken,
+                        SigUtils::getDynamicSessionSignature($cookieLoginToken,
                             $expiration, $this->gigyaMageHelper->getAppSecret()
                         ), $publicCookieMetadata
                     );
+                    $this->gigyaMageHelper->setSessionExpirationCookie($expiration);
+
                 }
             }
+            /*
             else
             {
                 // The cookie only arrives once
@@ -129,6 +157,7 @@ class Extend implements ObserverInterface
                     );
                 }
             }
+            */
         }
     }
 

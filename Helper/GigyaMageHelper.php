@@ -5,6 +5,7 @@
 namespace Gigya\GigyaIM\Helper;
 
 use Gigya\CmsStarterKit\sdk\GSException;
+use Gigya\CmsStarterKit\sdk\SigUtils;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Model\Settings;
@@ -514,5 +515,55 @@ class GigyaMageHelper extends AbstractHelper
         $this->session->setGigyaAccountLoggingEmail($result['logging_email']);
 
         return $result['customer'];
+    }
+
+    public function setSessionExpirationCookie($secondsToExpiration = null)
+    {
+
+        $APIKey = $this->getApiKey();
+        $tokenCookieName = "glt_" . $APIKey;
+        if(isset($_COOKIE[$tokenCookieName]))
+        {
+            $tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
+            $loginToken = explode("|", $tokenCookieValue)[0];
+
+            $cookieValue = SigUtils::getDynamicSessionSignature(
+                $loginToken, $this->configModel->getSessionExpiration(), $this->getAppSecret());
+            $cookieName = "gltexp_" . $APIKey;
+            $cookiePath = "/";     // cookie's path must be base domain
+            setcookie($cookieName, $cookieValue, time() + $secondsToExpiration, $cookiePath);
+            /*
+            if(is_null($secondsToExpiration))
+            {
+                $secondsToExpiration = $this->configModel->getSessionExpiration();
+            }
+            $cookieName = "gltexp_" . $APIKey;  // define the cookie name
+            $cookieValue = $this->calculateExpCookieValue($secondsToExpiration);    // calculate the cookie value
+            $cookiePath = "/";     // cookie's path must be base domain
+            setcookie($cookieName, $cookieValue, time() + $secondsToExpiration, $cookiePath);
+            */
+        }
+    }
+
+    protected function calculateExpCookieValue($secondsToExpiration) {
+        $APIKey = $this->getApiKey();
+        $applicationKey = $this->getAppKey();
+        $secretKey = $this->getAppSecret();
+        $currentTime = time(); // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
+        $expirationTime = $currentTime + $secondsToExpiration; // expiration time in Unix time format
+        $tokenCookieName = "glt_" . $APIKey;   //  the name of the token-cookie Gigya stores
+        $tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
+        $loginToken = explode("|", $tokenCookieValue)[0]; // get the login token from the token-cookie.
+        $unsignedExpString = $loginToken . '_' . $expirationTime . '_' . $applicationKey; // define base string for signing
+        $signedExpString = $this->signBaseString($secretKey, $unsignedExpString); // sign the base string using the secret key
+        $cookieValue = $expirationTime . '_' . $applicationKey . '_' . $signedExpString;   // define the cookie value
+        return $cookieValue;
+    }
+
+    protected function signBaseString($key, $unsignedExpString) {
+        $unsignedExpString = utf8_encode($unsignedExpString);
+        $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);
+        $signature = base64_encode($rawHmac);
+        return $signature;
     }
 }

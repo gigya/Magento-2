@@ -36,6 +36,11 @@ class GigyaScript extends Template
     protected $allowGigyaLogout;
 
     /**
+     * @var \Gigya\GigyaIM\Model\Config
+     */
+    protected $configModel;
+
+    /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Customer\Model\Url $customerUrl
@@ -45,6 +50,7 @@ class GigyaScript extends Template
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Model\Url $customerUrl,
+        \Gigya\GigyaIM\Model\Config $configModel,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -52,6 +58,7 @@ class GigyaScript extends Template
         $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
         $this->scopeConfig = $context->getScopeConfig();
+        $this->configModel = $configModel;
         $this->allowGigyaLogout = false;
     }
 
@@ -68,7 +75,14 @@ class GigyaScript extends Template
      */
     public function getUserSessionLifetime()
     {
-        return $this->_customerSession->getCookieLifetime();
+        if($this->configModel->getSessionMode() == \Gigya\GigyaIM\Model\Config::SESSION_MODE_EXTENDED)
+        {
+            return -1;
+        }
+        else
+        {
+            return $this->configModel->getSessionExpiration();
+        }
     }
 
     /**

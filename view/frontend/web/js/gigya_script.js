@@ -53,6 +53,8 @@ define([
         } else {
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
+        //console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
+        //console.log(' MAGE LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
         var action = login_state_url;
         var allowLogout = allow_gigya_logout;
         // if Gigya is logged out, but Magento is logged in: log Magento out
@@ -95,17 +97,10 @@ define([
                 }
             })
             .always(function(data) {
-                    /*
                 if(data.reload)
                 {
                     window.location.reload();
                 }
-                else
-                {
-
-
-                }*/
-                //globalMessageList.addErrorMessage({'message': 'TEST ERROR'});
             });
         }
     };
