@@ -15,6 +15,7 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
+use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -98,6 +99,7 @@ class Login extends AbstractLogin
         Validator $formKeyValidator,
         CookieManagerInterface $cookieManager,
         GigyaMageHelper $gigyaMageHelper,
+        CookieMetadataFactory $cookieMetadataFactory,
         LoginHelper $loginHelper,
         Logger $logger
     )
@@ -125,7 +127,8 @@ class Login extends AbstractLogin
             $syncHelper,
             $formKeyValidator,
             $cookieManager,
-            $gigyaMageHelper
+            $gigyaMageHelper,
+            $cookieMetadataFactory
         );
 
         $this->loginHelper = $loginHelper;
@@ -159,7 +162,7 @@ class Login extends AbstractLogin
 
                     $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
                     $this->doLogin($valid_gigya_user);
-                    return $this->getJsonResponse(1);
+                    return $this->getJsonResponse($this->session->isLoggedIn());
                 }
                 catch(\Exception $e)
                 {
@@ -184,10 +187,14 @@ class Login extends AbstractLogin
      */
     protected function getJsonResponse($doReload, $errorMessage = '')
     {
-        if($errorMessage)
+        if($doReload)
         {
-            $this->messageManager->addErrorMessage($errorMessage);
+            if($errorMessage)
+            {
+                $this->messageManager->addErrorMessage($errorMessage);
+            }
         }
+        $this->applyCookies();
         return $this->resultFactory
             ->create(ResultFactory::TYPE_JSON)
             ->setData([

@@ -21,10 +21,12 @@ use Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 
 class GigyaMageHelper extends AbstractHelper
 {
     const MODULE_NAME = 'Gigya_GigyaIM';
+
     private $extra_profile_fields_config = "https://s3.amazonaws.com/gigya-cms-configs/extraProfileFieldsMap.json";
 
     private $apiKey;
@@ -66,7 +68,8 @@ class GigyaMageHelper extends AbstractHelper
         Config $configModel,
         GigyaSyncHelper $gigyaSyncHelper,
         Session $session,
-        Filesystem $fileSystem
+        Filesystem $fileSystem,
+        CookieManagerInterface $cookieManager
     ) {
         parent::__construct($context);
 
@@ -81,6 +84,7 @@ class GigyaMageHelper extends AbstractHelper
         $this->_moduleList = $moduleList;
         $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->session = $session;
+        $this->cookieManager = $cookieManager;
     }
 
     /**

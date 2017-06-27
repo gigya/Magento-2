@@ -27,7 +27,6 @@ class State extends Action
 
     }
 
-
     /**
      * Dispatch request
      *

@@ -12,7 +12,9 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
+use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Store\Model\StoreManager;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Helper\Address;
@@ -38,6 +40,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 {
     const RESPONSE_OBJECT = 'response_object';
     const RESPONSE_DATA = 'response_data';
+
+    const RETRY_COOKIE_NAME = 'gig_login_retry';
 
     /** @var AccountManagementInterface */
     protected $accountManagement;
@@ -99,6 +103,12 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     /** @var  SyncHelper */
     protected $syncHelper;
 
+    /** @var array */
+    protected $cookies;
+
+    /** @var array */
+    protected $cookiesToDelete;
+
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -146,7 +156,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         SyncHelper $syncHelper,
         Validator $formKeyValidator,
         CookieManagerInterface $cookieManager,
-        GigyaMageHelper $gigyaMageHelper
+        GigyaMageHelper $gigyaMageHelper,
+        CookieMetadataFactory $cookieMetadataFactory
     )
     {
         $this->session = $customerSession;
@@ -172,6 +183,11 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         $this->syncHelper = $syncHelper;
         $this->formKeyValidator = $formKeyValidator;
         $this->cookieManager = $cookieManager;
+        $this->cookieMetadataFactory = $cookieMetadataFactory;
+        $this->storeManager = $storeManager;
+
+        $this->cookies = [];
+        $this->cookiesToDelete = [];
     }
 
     /**
@@ -262,6 +278,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         try {
             $this->session->setCustomerDataAsLoggedIn($customer);
             $this->session->regenerateId();
+            $this->deleteLoginRetryCounter();
             return true;
         } catch (EmailNotConfirmedException $e) {
             $value = $this->customerUrl->getEmailConfirmationUrl($customer['data']['email']);
@@ -270,14 +287,17 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 $value
             );
             $this->messageManager->addErrorMessage($message);
+            $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
             return false;
         } catch (AuthenticationException $e) {
             $message = __('Invalid login or password.');
             $this->messageManager->addErrorMessage($message);
+            $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
             return false;
         } catch (\Exception $e) {
+            $this->incrementLoginRetryCounter();
             // PA DSS violation: throwing or logging an exception here can disclose customer password
             $this->messageManager->addErrorMessage(
                 __('An unspecified error occurred. Please contact us for assistance.')
@@ -327,14 +347,16 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 );
                 // @codingStandardsIgnoreEnd
                 $url = $this->urlModel->getUrl('*/*/index', ['_secure' => true]);
+                $this->incrementLoginRetryCounter();
                 $resultRedirect->setUrl($this->_redirect->success($url));
             } else {
                 $this->session->setCustomerDataAsLoggedIn($customer);
                 $this->messageManager->addSuccess($this->getSuccessMessage());
-
+                $this->deleteLoginRetryCounter();
                 return $this->encapsulateResponse($this->accountRedirect->getRedirect());
             }
         } catch (StateException $e) {
+            $this->incrementLoginRetryCounter();
             $url = $this->urlModel->getUrl('customer/account/forgotpassword');
             // @codingStandardsIgnoreStart
             $message = __(
@@ -344,11 +366,13 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             // @codingStandardsIgnoreEnd
             $this->messageManager->addErrorMessage($message);
         } catch (InputException $e) {
+            $this->incrementLoginRetryCounter();;
             $this->messageManager->addErrorMessage($this->escaper->escapeHtml($e->getMessage()));
             foreach ($e->getErrors() as $error) {
                 $this->messageManager->addErrorMessage($this->escaper->escapeHtml($error->getMessage()));
             }
         } catch (\Exception $e) {
+            $this->incrementLoginRetryCounter();;
             $message = __('We can\'t save the customer. ') . $e->getMessage();
             $this->messageManager->addErrorMessage($message);
         }
@@ -426,5 +450,90 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected function extractDataFromDataObject(DataObject $object)
     {
         return $object->getData(self::RESPONSE_DATA);
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     */
+    protected function setCookie($name, $value)
+    {
+        $this->cookies[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * @param $name
+     * @param $defaultValue
+     * @return mixed
+     */
+    protected function getCookie($name, $defaultValue)
+    {
+        $defaultValue = (int) $this->cookieManager->getCookie($name, $defaultValue);
+        if(!isset($this->cookies[$name]))
+        {
+            $this->cookies[$name] = $defaultValue;
+        }
+        return $this->cookies[$name];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCookies()
+    {
+        return $this->cookies;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isLoginRetryCounterExceeded()
+    {
+        return $this->getCookie(self::RETRY_COOKIE_NAME, 0) >= 3;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function incrementLoginRetryCounter()
+    {
+        return $this->setCookie(self::RETRY_COOKIE_NAME, (int) $this->getCookie(self::RETRY_COOKIE_NAME, 0)+1);
+    }
+
+    /**
+     * @return $this
+     */
+    protected function deleteLoginRetryCounter()
+    {
+        $this->cookiesToDelete[self::RETRY_COOKIE_NAME] = true;
+        if(isset($this->cookies[self::RETRY_COOKIE_NAME]))
+        {
+            unset($this->cookies[self::RETRY_COOKIE_NAME]);
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function applyCookies()
+    {
+        $metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
+
+        $metadata->setDuration(60)->setPath($this->storeManager->getStore()->getStorePath());
+        foreach($this->cookies as $name => $value)
+        {
+            if(isset($this->cookiesToDelete[$name]))
+            {
+                $this->cookieManager->deleteCookie($name);
+            }
+            else
+            {
+                $this->cookieManager->setPublicCookie($name, $value, $metadata);
+            }
+        }
+        return $this;
     }
 }

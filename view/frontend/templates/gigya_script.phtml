@@ -12,9 +12,9 @@ var login_state_url = "<?php echo $block->getMagentoLoginStateUrl() ?>";
 var logout_url = "<?php echo $block->getLogoutUrl() ?>";
 var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
 var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
-var allow_gigya_logout = <?php echo $block->getAllowGigyaLogout() ?>;
 var login_url = "<?php echo $block->getLoginUrl() ?>";
 var magento_user_logged_in = false;
+var enable_login = true;
 
     var m;
 </script>
@@ -27,17 +27,10 @@ var magento_user_logged_in = false;
     ], function($, gigyaMage2){
         m = gigyaMage2;
         "use strict";
-        $.ajax({
-            type : "GET",
-            url : login_state_url,
-            showLoader: false
-        })
-        .done(function(data) {
-            if(typeof data.logged_in != 'undefined')
-            {
-                magento_user_logged_in = (data.logged_in == '1');
-                gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
-            }
+
+        var loadGigyaScript = function(magentoLoggedIn)
+        {
+            gigyaMage2.Params.magento_user_logged_in = magentoLoggedIn;
 
             window.gigyaInit = window.gigyaInit || [];
             // Set Gigya global configuration object
@@ -58,8 +51,31 @@ var magento_user_logged_in = false;
                 gigya.accounts.logout();
                 return true;
             });
+        };
 
-        });
+        var retryCounter = $.cookie("<?php echo \Gigya\GigyaIM\Controller\Raas\AbstractLogin::RETRY_COOKIE_NAME ?>");
+        console.log('retry: '+retryCounter);
+        if(retryCounter && parseInt(retryCounter) >= 3)
+        {
+            enable_login = false;
+            loadGigyaScript(false);
+        }
+        else
+        {
+            $.ajax({
+                type : "GET",
+                url : login_state_url,
+                showLoader: false
+            })
+            .done(function(data) {
+
+                if(typeof data.logged_in != 'undefined')
+                {
+                    magento_user_logged_in = (data.logged_in == '1');
+                    gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
+                }
+                loadGigyaScript(gigyaMage2.Params.magento_user_logged_in);
+            });
+        }
     });
-
 </script>

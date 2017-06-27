@@ -53,55 +53,43 @@ define([
         } else {
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
-        //console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
-        //console.log(' MAGE LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
         var action = login_state_url;
-        var allowLogout = allow_gigya_logout;
         // if Gigya is logged out, but Magento is logged in: log Magento out
         // this scenario may result in double page load for user, but is used only to fix an end case situation.
         if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
             gigyaMage2.Functions.logoutMagento();
         }
 
-        if (gigyaMage2.Params.gigya_user_logged_in && !gigyaMage2.Params.magento_user_logged_in )  {
-            // if the user just logged in using Gigya, but there was an exception on Magento's side preventing the login
-            if(allowLogout)
-            {
-                var logoutSync = {"function": "accounts.logout", "parameters": {} };
-                window.gigyaInit.push(logoutSync);
-                gigyaMage2.Functions.performGigyaActions();
-                gigyaMage2.Params.gigya_user_logged_in = false;
-            }
-            else
-            {
-                if (gigyaMage2.Params.gigya_user_logged_in && (!gigyaMage2.Params.magento_user_logged_in)) {
-                    gigyaMage2.Functions.loginMagento(response);
-                }
-            }
+        // if Gigya is logged in, but Magento is logged out: log Magento in
+        if (gigyaMage2.Params.gigya_user_logged_in && (!gigyaMage2.Params.magento_user_logged_in)) {
+            gigyaMage2.Functions.loginMagento(response);
         }
     };
 
     gigyaMage2.Functions.loginMagento = function (response) {
-        var guid = response.UID;
-        if(guid)
+        if(enable_login)
         {
-            var sid = tinymce.util.Cookie.get('PHPSESSID');
-            var form_key = tinymce.util.Cookie.get('form_key');
-            var domain = window.location.hostname;
-            $.ajax({
-                type : "POST",
-                url : login_url,
-                data : {
-                    form_key:form_key, guid: guid, login_data: JSON.stringify(response),
-                    key: gigyaMage2.Functions.loginEncode(sid+domain+guid+1234)
-                }
-            })
-            .always(function(data) {
-                if(data.reload)
-                {
-                    window.location.reload();
-                }
-            });
+            var guid = response.UID;
+            if(guid)
+            {
+                var sid = tinymce.util.Cookie.get('PHPSESSID');
+                var form_key = tinymce.util.Cookie.get('form_key');
+                var domain = window.location.hostname;
+                $.ajax({
+                    type : "POST",
+                    url : login_url,
+                    data : {
+                        form_key:form_key, guid: guid, login_data: JSON.stringify(response),
+                        key: gigyaMage2.Functions.loginEncode(sid+domain+guid+1234)
+                    }
+                })
+                .always(function(data) {
+                    if(data.reload)
+                    {
+                        window.location.reload();
+                    }
+                });
+            }
         }
     };
 

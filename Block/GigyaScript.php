@@ -31,11 +31,6 @@ class GigyaScript extends Template
     protected $scopeConfig;
 
     /**
-     * @var bool
-     */
-    protected $allowGigyaLogout;
-
-    /**
      * @var \Gigya\GigyaIM\Model\Config
      */
     protected $configModel;
@@ -59,7 +54,6 @@ class GigyaScript extends Template
         $this->_customerSession = $customerSession;
         $this->scopeConfig = $context->getScopeConfig();
         $this->configModel = $configModel;
-        $this->allowGigyaLogout = false;
     }
 
     /**
@@ -155,17 +149,6 @@ class GigyaScript extends Template
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
         $local_lang = $resolver->getLocale();
         return substr($local_lang, 0, 2);
-    }
-
-    public function setAllowGigyaLogout($allowGigyaLogout)
-    {
-        $this->allowGigyaLogout = $allowGigyaLogout;
-        return $this;
-    }
-
-    public function getAllowGigyaLogout()
-    {
-        return $this->allowGigyaLogout ? 'true' : 'false';
     }
 
     /**
