@@ -58,4 +58,10 @@
             <argument name="connectionFactory" xsi:type="object">Magento\Framework\App\ResourceConnection\ConnectionFactory</argument>
         </arguments>
     </type>
+
+    <type name="Magento\Framework\Session\Config">
+        <arguments>
+            <argument name="lifetimePath" xsi:type="string">gigya_session/session/expiration</argument>
+        </arguments>
+    </type>
 </config>
