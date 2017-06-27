@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Observer;
 
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Gigya\GigyaIM\Model\FieldMapping\GigyaFromMagento;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -39,9 +40,10 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
         GigyaSyncHelper $gigyaSyncHelper,
         EventManager $eventDispatcher,
         GigyaLogger $logger,
-        MessageManager $messageManager
+        MessageManager $messageManager,
+        GigyaFromMagento $gigyaFromMagento
     ) {
-        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger);
+        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger, $gigyaFromMagento);
 
         $this->messageManager = $messageManager;
     }

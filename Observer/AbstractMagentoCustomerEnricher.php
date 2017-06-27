@@ -10,6 +10,7 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\ManagerInterface;
@@ -27,16 +28,10 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * When it's triggered it will :
  * . check that the Magento data have to be enriched
  * . enrich the Magento required fields with the Gigya attributes (first name, last name, email)
- * . trigger the event AbstractMagentoCustomerEnricher::EVENT_MAP_GIGYA_TO_MAGENTO so that the Gigya data could be enriched with third party code and with the extended fields mapping
  *
  */
 abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implements ObserverInterface
 {
-    /**
-     * This event is dispatched when the enrichment has been done
-     */
-    const EVENT_MAP_GIGYA_TO_MAGENTO = 'gigya_map_to_magento';
-
     const EVENT_MAP_GIGYA_TO_MAGENTO_SUCCESS = 'gigya_success_map_to_magento';
 
     const EVENT_MAP_GIGYA_TO_MAGENTO_FAILURE = 'gigya_failed_map_to_magento';
@@ -70,13 +65,15 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
         ManagerInterface $eventDispatcher,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+        GigyaToMagento $gigyaToMagentoMapper
     ) {
         $this->customerRepository = $customerRepository;
         $this->gigyaAccountRepository = $gigyaAccountRepository;
         $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
+        $this->gigyaToMagentoMapper = $gigyaToMagentoMapper;
     }
 
     /**
@@ -104,7 +101,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     }
 
     /**
-     * Method called if an exception is caught when dispatching event AbstractMagentoCustomerEnricher::EVENT_MAP_GIGYA_TO_MAGENTO
+     * Method called if an exception is caught when mapping Gigya fields to Magento
      *
      * Default behavior is to log a warning (exception is muted)
      *
@@ -153,10 +150,6 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     /**
      * Performs the enrichment of the customer with the Gigya data.
      *
-     * The event AbstractMagentoCustomerEnricher::EVENT_MAP_GIGYA_TO_MAGENTO is triggered here with parameters :
-     * gigya_user => GigyaUser
-     * customer => CustomerInterface
-     *
      * @param $magentoCustomer Customer
      * @param $gigyaAccountData GigyaUser
      * @param $gigyaAccountLoggingEmail string
@@ -170,10 +163,8 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         $this->gigyaSyncHelper->updateMagentoCustomerRequiredFieldsWithGygiaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
         try {
-            $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_TO_MAGENTO, [
-                "gigya_user" => $gigyaAccountData,
-                "customer" => $magentoCustomer
-            ]);
+            $this->gigyaToMagentoMapper->run($magentoCustomer, $gigyaAccountData);
+
             $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_TO_MAGENTO_SUCCESS, [
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getEntityId()

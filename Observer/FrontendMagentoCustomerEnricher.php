@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Observer;
 
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Action\Context;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -41,9 +42,17 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
         GigyaLogger $logger,
-        Context $context
+        Context $context,
+        GigyaToMagento $gigyaToMagentoMapper
     ) {
-        parent::__construct($customerRepository, $gigyaAccountRepository, $gigyaSyncHelper, $context->getEventManager(), $logger);
+        parent::__construct(
+            $customerRepository,
+            $gigyaAccountRepository,
+            $gigyaSyncHelper,
+            $context->getEventManager(),
+            $logger,
+            $gigyaToMagentoMapper
+        );
 
         $this->context = $context;
     }
