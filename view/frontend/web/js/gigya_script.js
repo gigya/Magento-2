@@ -30,6 +30,8 @@ define([
         gig.src = 'https://cdns.' + domain +
             '/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
         document.getElementsByTagName('head')[0].appendChild(gig);
+
+        window.gigyaCMS = {authenticated: false};
     };
 
     /**
@@ -55,6 +57,7 @@ define([
         } else {
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
+        window.gigyaCMS.authenticated = gigyaMage2.Params.gigya_user_logged_in;
         gigyaMage2.Params.magento_user_logged_in = false;
         var action = login_state_url;
         var allowLogout = allow_gigya_logout;
