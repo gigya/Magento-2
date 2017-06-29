@@ -5,6 +5,8 @@
  * Variables can be set and passed from the block object model: block/GigyaScript
  */
 
+$scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigyaScriptDomain();
+
 ?>
 
 <script>
@@ -52,6 +54,12 @@ var enable_login = true;
                 return true;
             });
         };
+        
+        gigyaMage2.Functions.loadGigyaScript(
+            "<?php echo $block->getGigyaApiKey() ?>",
+            "<?php echo $block->getLanguage() ?>",
+            <?php echo $scriptDomain ? '"'.$scriptDomain.'"' : 'false' ?>
+        );
 
         var retryCounter = $.cookie("<?php echo \Gigya\GigyaIM\Controller\Raas\AbstractLogin::RETRY_COOKIE_NAME ?>");
         console.log('retry: '+retryCounter);
@@ -79,3 +87,4 @@ var enable_login = true;
         }
     });
 </script>
+<?php echo $block->getChildHtml('Gigya_GigyaIM::GigyaModalLogin') ?>

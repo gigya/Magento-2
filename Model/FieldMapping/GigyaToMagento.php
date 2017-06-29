@@ -3,49 +3,46 @@
  *
  */
 
-namespace Gigya\GigyaIM\Observer;
+namespace Gigya\GigyaIM\Model\FieldMapping;
 
-use Gigya\CmsStarterKit\fieldMapping\CmsUpdaterException;
-use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
-use Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater;
-use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Gigya\GigyaIM\Model\MagentoCustomerFieldsUpdater;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Customer\Model\Data\Customer;
+use Gigya\CmsStarterKit\user\GigyaUser;
 
 /**
- * GigyaFromMagentoFieldMapping
+ * GigyaToMagentoFieldMapping
  *
- * Observer for mapping Magento Customer's entity data to Gigya data.
+ * Observer for mapping Gigya's account data to Magento Customer entity.
  *
  */
-class GigyaFromMagentoFieldMapping implements ObserverInterface
+class GigyaToMagento
 {
     /**
-     * @var \Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater
+     * @var MagentoCustomerFieldsUpdater
      */
     protected $customerFieldsUpdater;
 
-    /**
-     * @var GigyaLogger
-     */
+    /** @var GigyaLogger  */
     protected $logger;
 
     /** @var ScopeConfigInterface  */
     protected $scopeConfig;
 
     /**
-     * MagentoToGigyaFieldMapping constructor.
+     * GigyaToMagentoFieldMapping constructor.
      *
      * @param ScopeConfigInterface $scopeConfig
      * @param GigyaLogger $logger
-     * @param GigyaCustomerFieldsUpdater $customerFieldsUpdater
+     * @param MagentoCustomerFieldsUpdater $customerFieldsUpdater
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         GigyaLogger $logger,
-        GigyaCustomerFieldsUpdater $customerFieldsUpdater
+        MagentoCustomerFieldsUpdater $customerFieldsUpdater
     )
     {
         $this->scopeConfig = $scopeConfig;
@@ -53,21 +50,19 @@ class GigyaFromMagentoFieldMapping implements ObserverInterface
         $this->customerFieldsUpdater = $customerFieldsUpdater;
     }
 
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    /**
+     * @param Customer $customer
+     * @param $gigyaUser
+     * @throws GigyaFieldMappingException
+     */
+    public function run($customer, $gigyaUser)
     {
         $config_file_path = $this->scopeConfig->getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
         if (!is_null($config_file_path)) {
-            /** @var Customer $magentoCustomer */
-            $magentoCustomer = $observer->getData('customer');
-            /** @var GigyaUser $gigyaUser */
-            $gigyaUser = $observer->getData('gigya_user');
-
-            $this->customerFieldsUpdater->setMagentoCustomer($magentoCustomer);
-            $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             $this->customerFieldsUpdater->setPath($config_file_path);
-
+            $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             try {
-                $this->customerFieldsUpdater->updateGigya();
+                $this->customerFieldsUpdater->updateCmsAccount($customer);
             } catch (\Exception $e) {
                 $message = "error " . $e->getCode() . ". message: " . $e->getMessage() . ". File: " .$e->getFile();
                 $this->logger->error(
@@ -79,7 +74,6 @@ class GigyaFromMagentoFieldMapping implements ObserverInterface
                 );
                 throw new GigyaFieldMappingException($message);
             }
-
         } else {
             $message = "mapping fields file path is not defined. Define file path at: Stores:Config:Gigya:Field Mapping";
             $this->logger->error(

@@ -8,6 +8,7 @@ namespace Gigya\GigyaIM\Observer;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Exception\GigyaMagentoCustomerSaveException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\CustomerRegistry;
 use Magento\Framework\Event\ManagerInterface;
@@ -48,14 +49,16 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
         GigyaSyncHelper $gigyaSyncHelper,
         ManagerInterface $eventDispatcher,
         GigyaLogger $logger,
-        CustomerRegistry $customerRegistry
+        CustomerRegistry $customerRegistry,
+        GigyaToMagento $gigyaToMagentoMapper
     ) {
         parent::__construct(
           $customerRepository,
             $gigyaAccountRepository,
             $gigyaSyncHelper,
             $eventDispatcher,
-            $logger
+            $logger,
+            $gigyaToMagentoMapper
         );
 
         $this->customerRegistry = $customerRegistry;
