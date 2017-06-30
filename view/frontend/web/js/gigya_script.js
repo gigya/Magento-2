@@ -16,7 +16,6 @@ define([
      */
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
-    gigyaMage2.Params.loginAfter = false;
     if ( $('input[name="form_key"]').val().length ){
         gigyaMage2.Params.form_key = $('input[name="form_key"]').val();
     }
@@ -60,8 +59,9 @@ define([
             gigyaMage2.Params.gigya_user_logged_in = false;
         }
         window.gigyaCMS.authenticated = gigyaMage2.Params.gigya_user_logged_in;
-        gigyaMage2.Params.magento_user_logged_in = false;
         var action = login_state_url;
+        //console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
+        //console.log('  CMS LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
         // if Gigya is logged out, but Magento is logged in: log Magento out
         // this scenario may result in double page load for user, but is used only to fix an end case situation.
         if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
@@ -110,7 +110,6 @@ define([
      * @param eventObj
      */
     gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
-        gigyaMage2.Params.loginAfter = true;
         var action = login_post_url;
         var loginData = {
             UIDSignature : eventObj.UIDSignature,

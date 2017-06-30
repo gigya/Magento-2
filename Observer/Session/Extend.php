@@ -117,18 +117,12 @@ class Extend implements ObserverInterface
 
                 if($loginToken)
                 {
-
+                    /*
                     $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
                     $publicCookieMetadata
                         ->setDuration($expiration)
                         ->setPath('/');
-
-                    $this->cookieManager->setPublicCookie(
-                        'gltexp_'.$apiKey,
-                        SigUtils::getDynamicSessionSignature($cookieLoginToken,
-                            $expiration, $this->gigyaMageHelper->getAppSecret()
-                        ), $publicCookieMetadata
-                    );
+                    */
                     $this->gigyaMageHelper->setSessionExpirationCookie($expiration);
 
                 }
