@@ -124,6 +124,11 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     public function update($gigyaAccount)
     {
+	// CATODO : if Gigya data for rollback could not be fetched while the customer page for edit is loaded in backend : we would not be able to perform a rollback if necessary.
+	// Thus before an update is processed we shall verify if we have the previous Gigya data for rollback.
+	// Cf. Confluence https://x2i-fr.atlassian.net/wiki/display/GIGM2/BO+sync+%3A+use+cases+explained validate #2
+
+
         $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
@@ -195,6 +200,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     {
         $gigyaUser = (array_key_exists($uid, self::$loadedAndUpdatedOriginalGigyaUsers)) ? self::$loadedAndUpdatedOriginalGigyaUsers[$uid] : null;
         if ($gigyaUser != null) {
+
             $this->update($gigyaUser);
         }
     }
