@@ -47,7 +47,8 @@ class Extend implements ObserverInterface
         \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory,
         \Gigya\GigyaIM\Model\Session $sessionModel,
         UrlInterface $urlInterface,
-        StoreManager $storeManager
+        StoreManager $storeManager,
+        \Gigya\GigyaIM\Logger\Logger $logger
     )
     {
         $this->configModel = $configModel;
@@ -57,6 +58,7 @@ class Extend implements ObserverInterface
         $this->sessionModel = $sessionModel;
         $this->urlInterface = $urlInterface;
         $this->storeManager = $storeManager;
+        $this->logger = $logger;
     }
 
     /**
@@ -69,6 +71,8 @@ class Extend implements ObserverInterface
         $request = $observer->getEvent()->getRequest();
         if($request->isAjax())
         {
+            $currentTime = $_SERVER['REQUEST_TIME'];
+            $this->logger->info(" > SESSION : current time: $currentTime");
             if($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED)
             {
                 $apiKey = $this->gigyaMageHelper->getApiKey();
@@ -117,14 +121,7 @@ class Extend implements ObserverInterface
 
                 if($loginToken)
                 {
-                    /*
-                    $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
-                    $publicCookieMetadata
-                        ->setDuration($expiration)
-                        ->setPath('/');
-                    */
                     $this->gigyaMageHelper->setSessionExpirationCookie($expiration);
-
                 }
             }
             /*

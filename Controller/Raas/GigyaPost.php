@@ -47,11 +47,14 @@ class GigyaPost extends AbstractLogin
         //$this->cookies['gltexp_'.$this->gigyaMageHelper->getApiKey()] = $this->gigyaMageHelper->calculateExpCookieValue();
         $this->applyCookies();
 
+        /*
+
         // CATODO : delete if not necessary for session extension
         setrawcookie(
             'gltexp_'.$this->gigyaMageHelper->getApiKey(),
             rawurlencode($this->gigyaMageHelper->calculateExpCookieValue()),
             strval($_SERVER['REQUEST_TIME'] + 30), '/');
+        */
         return $response;
     }
 
