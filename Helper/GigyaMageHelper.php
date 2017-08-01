@@ -574,10 +574,9 @@ class GigyaMageHelper extends AbstractHelper
         $rawHmac           = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($secret), TRUE);
         $sig               = base64_encode($rawHmac);
 
+        return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
 
-        //return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
-
-        return $this->sigUtils->getDynamicSessionSignature($loginToken, $secondsToExpiration, 'HNMarYGobTFTlYwJd+IB4VXXnj6IuVXg2YjDXihORC8=');
+        //return $this->sigUtils->getDynamicSessionSignature($loginToken, $secondsToExpiration, 'HNMarYGobTFTlYwJd+IB4VXXnj6IuVXg2YjDXihORC8=');
 
         //return $expiration . '_' . $applicationKey . '_' . $sig;
 
