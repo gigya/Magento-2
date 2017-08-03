@@ -20,7 +20,9 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
     public function execute()
     {
         try {
-            return parent::execute();
+            $result = parent::execute();
+            $this->messageManager->addSuccessMessage(__('Data are up-to-date.'));
+            return $result;
         } catch (GigyaFieldMappingException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $resultRedirect = $this->resultRedirectFactory->create();
