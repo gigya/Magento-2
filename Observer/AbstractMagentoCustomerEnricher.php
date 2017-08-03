@@ -160,7 +160,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     {
         $this->pushRegisteredCustomer($magentoCustomer);
 
-        $this->gigyaSyncHelper->updateMagentoCustomerRequiredFieldsWithGygiaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
+        $this->gigyaSyncHelper->updateMagentoCustomerRequiredFieldsWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
         try {
             $this->gigyaToMagentoMapper->run($magentoCustomer, $gigyaAccountData);
