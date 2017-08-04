@@ -14,7 +14,6 @@ use Magento\Customer\Api\Data\AddressInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Framework\Api\DataObjectHelper;
-use Magento\Framework\Data\ObjectFactory;
 use Magento\Framework\DataObjectFactory;
 
 /**
@@ -109,6 +108,15 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
         return $this->customerId;
     }
 
+    /**
+     * @inheritdoc
+     *
+     * Display an appropriate status message relative to the Gigya synchronizing process :
+     * . when customer page is loaded we have to tell if the Customer entity is up-to-date with the current Gigya profile data, or not (may be the Customer is already concerned by a retry scheduled, or the Gigya service is not reachable)
+     * . when it's saved we have to tell if a retry is scheduled due to an error on saving (could be a Gigya service call failure as well as a Magento update failure)
+     *
+     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect|\Magento\Framework\Controller\Result\Redirect
+     */
     public function execute()
     {
         try {
