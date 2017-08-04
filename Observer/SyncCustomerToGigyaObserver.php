@@ -6,12 +6,12 @@
 namespace Gigya\GigyaIM\Observer;
 
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Helper\GigyaSyncRetryHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\App\State as AppState;
-use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -30,11 +30,6 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  */
 class SyncCustomerToGigyaObserver implements ObserverInterface
 {
-    const DIRECTION_CMS2G = 'CMS2G';
-
-    /** @var  ResourceConnection */
-    protected $resourceConnection;
-
     /** @var  GigyaMageHelper */
     protected $gigyaMageHelper;
 
@@ -47,33 +42,30 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /** @var int */
     private $maxGigyaUpdateRetryCount;
 
-    /** @var ConnectionFactory */
-    protected $connectionFactory;
+    /** @var  GigyaSyncRetryHelper */
+    protected $gigyaSyncRetryHelper;
 
     /**
      * SyncCustomerToGigyaObserver constructor.
      *
-     * @param ResourceConnection $resourceConnection
      * @param GigyaMageHelper $gigyaMageHelper
      * @param AppState $state
      * @param GigyaLogger $logger
-     * @param ConnectionFactory $connectionFactory
+     * @param GigyaSyncRetryHelper $gigyaSyncRetryHelper
      */
     public function __construct(
-        ResourceConnection $resourceConnection,
         GigyaMageHelper $gigyaMageHelper,
         AppState $state,
         GigyaLogger $logger,
-        ConnectionFactory $connectionFactory
+        GigyaSyncRetryHelper $gigyaSyncRetryHelper
     )
     {
-        $this->resourceConnection = $resourceConnection;
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->appState = $state;
         $this->logger = $logger;
 
         $this->maxGigyaUpdateRetryCount = $this->gigyaMageHelper->getMaxRetryCountForGigyaUpdate();
-        $this->connectionFactory = $connectionFactory;
+        $this->gigyaSyncRetryHelper = $gigyaSyncRetryHelper;
     }
 
     /**
@@ -98,29 +90,6 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                 $this->performFieldMappingFailure($observer);
                 break;
         }
-    }
-
-    /**
-     * Get the rows of db table 'gigya_sync_retry' for the given customer id.
-     *
-     * @param int $customerEntityId
-     * @param AdapterInterface $connection
-     * @return array
-     */
-    protected function getRetriesRows($customerEntityId, $connection)
-    {
-        $selectRetryRows = $connection
-            ->select()
-            ->from('gigya_sync_retry')
-            ->reset(\Zend_Db_Select::COLUMNS)
-            ->columns('retry_count')
-            ->where('customer_entity_id = :customer_entity_id');
-
-        return $connection->fetchAll(
-            $selectRetryRows,
-            [ 'customer_entity_id' => $customerEntityId ],
-            \Zend_Db::FETCH_ASSOC
-        );
     }
 
     /**
@@ -152,37 +121,19 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
             'customer_entity_id' => $customerEntityId,
             'customer_entity_email' => $customerEntityEmail,
             'gigya_uid' => $gigyaAccountData['uid'],
-            'direction' => self::DIRECTION_CMS2G,
-            'data' => serialize($gigyaAccountData),
-            'message' => $message != null ? (strlen($message) > 255 ? substr($message, 255) : $message) : null,
-            'retry_count' => 0,
-            'date' => date('Y-m-d H:i:s', gmdate('U'))
+            'direction' => GigyaSyncRetryHelper::DIRECTION_CMS2G,
+            'data' => $gigyaAccountData,
+            'message' => $message != null ? (strlen($message) > 255 ? substr($message, 255) : $message) : null
         ];
 
-        $connection = $this->connectionFactory->getNewConnection();
-
         try {
-            $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
+            $retryCount = $this->gigyaSyncRetryHelper->getCurrentRetryCount($customerEntityId);
 
-            $connection->beginTransaction();
-            if (empty($allRetriesRow)) {
-                $connection->insert(
-                    $this->resourceConnection->getTableName('gigya_sync_retry'),
-                    $binds
-                );
-                $this->logger->debug(
-                    'Inserted a new row in gigya_sync_retry for Magento to Gigya retry',
-                    [
-                        'customer_entity_id' => $customerEntityId,
-                        'customer_entity_email' => $customerEntityEmail,
-                        'gigya_data' => $gigyaAccountData,
-                        'message' => $message
-                    ]
-                );
+            if ($retryCount == -1) {
+                $this->gigyaSyncRetryHelper->createRetryEntry($binds);
             } else {
                 // If failure after an automatic update retry by the cron we increment the retry count
                 if ($this->appState->getAreaCode() == Area::AREA_CRONTAB) {
-                    $retryCount = (int)$allRetriesRow[0]['retry_count'];
                     if ($retryCount == $this->maxGigyaUpdateRetryCount) {
                         $this->logger->warning(
                             sprintf(
@@ -197,40 +148,16 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                             ]
                         );
 
-                        $connection->delete(
-                            'gigya_sync_retry',
-                            'customer_entity_id = ' . $customerEntityId
-                        );
+                        $this->gigyaSyncRetryHelper->deleteRetryEntry($customerEntityId);
                     } else {
-                        $binds['retry_count'] = ++$retryCount;
-                        unset($binds['customer_entity_id']);
-                        $connection->update(
-                            'gigya_sync_retry',
-                            $binds,
-                            'customer_entity_id = ' . $customerEntityId
-                        );
+                        $this->gigyaSyncRetryHelper->incrementRetryCount($customerEntityId);
                     }
                 } else { // Failure not in the automatic cron update retry context : set the retry count to 0
-                    $binds['retry_count'] = 0;
-                    unset($binds['customer_entity_id']);
-                    $connection->update(
-                        'gigya_sync_retry',
-                        $binds,
-                        'customer_entity_id = ' . $customerEntityId
-                    );
-                    $this->logger->debug(
-                        'Reset a row in gigya_sync_retry for Magento to Gigya retry',
-                        [
-                            'customer_entity_id' => $customerEntityId,
-                            'customer_entity_email' => $customerEntityEmail,
-                            'gigya_data' => $gigyaAccountData,
-                            'message' => $message
-                        ]
-                    );
+                    $this->gigyaSyncRetryHelper->resetRetryCount($customerEntityId);
                 }
-            }
 
-            $connection->commit();
+                $this->gigyaSyncRetryHelper->commit();
+            }
         } catch(\Exception $e) {
 
             $this->logger->critical(
@@ -242,7 +169,8 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
                     'gigya_data' => $gigyaAccountData
                 ]
             );
-            $connection->rollBack();
+
+            $this->gigyaSyncRetryHelper->rollBack();
         }
     }
 
@@ -256,7 +184,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
 
-        $this->deleteRetryEntry(
+        $this->gigyaSyncRetryHelper->deleteRetryEntry(
             $customerEntityId,
             'Previously failed Gigya update has now succeeded.',
             'Could not remove retry entry for Magento to Gigya update after a successful update on the same Gigya account.'
@@ -273,53 +201,10 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var integer $customerEntityId */
         $customerEntityId = $observer->getData('customer_entity_id');
 
-        $this->deleteRetryEntry(
+        $this->gigyaSyncRetryHelper->deleteRetryEntry(
             $customerEntityId,
             'Previously failed Gigya update now fails due to field mapping. No automatic retry will be performed on it.',
             'Could not remove retry entry for Magento to Gigya update after a field mapping error on the same customer.'
         );
-    }
-
-    /**
-     * Delete a row from 'gigya_sync_retry'
-     *
-     * @param $customerEntityId integer Customer entity id of the row to delete.
-     * @param $successMessage string Message to log (info) in case of delete is successful.
-     * @param $failureMessage string Message to log (critical) on case of delete is failure.
-     */
-    protected function deleteRetryEntry(
-        $customerEntityId,
-        $successMessage,
-        $failureMessage
-    )
-    {
-        $connection = $this->connectionFactory->getNewConnection();
-
-        $allRetriesRow = $this->getRetriesRows($customerEntityId, $connection);
-
-        if (!empty($allRetriesRow)) {
-            $connection->beginTransaction();
-            try {
-                $connection->delete(
-                    'gigya_sync_retry',
-                    'customer_entity_id = ' . $customerEntityId
-                );
-                $this->logger->info(
-                    $successMessage,
-                    [ 'customer_entity_id' => $customerEntityId ]
-                );
-
-                $connection->commit();
-            } catch (\Exception $e) {
-                $this->logger->critical(
-                    $failureMessage,
-                    [
-                        'exception' => $e,
-                        'customer_entity_id' => $customerEntityId
-                    ]
-                );
-                $connection->rollBack();
-            }
-        }
     }
 }
