@@ -112,6 +112,29 @@ class GigyaSyncRetryHelper extends AbstractHelper
     }
 
     /**
+     * Get all the scheduled retry entries for the given synchronizing direction.
+     *
+     * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH
+     * @return array [
+     *                 'customer_entity_id' : int,
+     *                 'customer_entity_email' : string,
+     *                 'gigya_uid' : string,
+     *                 'retry_count' : int
+     *               ]
+     */
+    public function getRetryEntries($direction)
+    {
+        $selectRetryRows = $this->connection
+            ->select()
+            ->from('gigya_sync_retry')
+            ->reset(\Zend_Db_Select::COLUMNS)
+            ->columns([ 'customer_entity_id', 'customer_entity_email', 'gigya_uid', 'retry_count' ])
+            ->where('direction = "' . $direction . '"');
+
+        return $this->connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
+    }
+
+    /**
      * Create a new retry entry.
      *
      * @param $binds array [
