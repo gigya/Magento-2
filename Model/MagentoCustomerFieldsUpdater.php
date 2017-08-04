@@ -34,7 +34,7 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
     public $logger;
 
     /** @var fieldMapping\Conf|bool  */
-    private $confMapping = false;
+    protected $confMapping = false;
 
     /**
      * MagentoCustomerFieldsUpdater constructor.
