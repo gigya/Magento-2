@@ -92,5 +92,35 @@ class UpgradeData implements UpgradeDataInterface
 
             $attribute->save();
         }
+
+        if (version_compare($context->getVersion(), '5.0.5') < 0) {
+
+            /** @var CustomerSetup $customerSetup */
+            $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+
+            $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
+            $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+
+            /** @var $attributeSet AttributeSe */
+            $attributeSet = $this->attributeSetFactory->create();
+            $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
+
+            $customerSetup->addAttribute(Customer::ENTITY, 'gigya_account_enriched', [
+                'type' => 'int',
+                'required' => false,
+                'visible' => false,
+                'user_defined' => true,
+                'system' => 0,
+            ]);
+
+            $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'gigya_account_enriched')
+                ->addData([
+                    'attribute_set_id' => $attributeSetId,
+                    'attribute_group_id' => $attributeGroupId,
+                    'used_in_forms' => [],
+                ]);
+
+            $attribute->save();
+        }
     }
 }

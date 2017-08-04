@@ -192,8 +192,11 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      */
     public function execute(Observer $observer)
     {
-        /** @var Customer $customer */
+        /** @var \Magento\Customer\Model\Backend\Customer $magentoCustomer */
         $magentoCustomer = $observer->getData('customer');
+        if (empty($magentoCustomer->getGigyaAccountEnriched())) {
+            $magentoCustomer->setGigyaAccountEnriched(false);
+        }
 
         $gigyaData = null;
         if ($this->shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)) {
@@ -202,6 +205,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
                 $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
                 $magentoCustomer = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer,
                     $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
+                $magentoCustomer->setGigyaAccountEnriched(true);
                 $customerEntityId = $magentoCustomer->getId();
                 $excludeSyncCms2G = true;
                 if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId,
