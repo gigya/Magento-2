@@ -5,11 +5,10 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
-use Gigya\CmsStarterKit\user\GigyaUserFactory;
-use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
-use Gigya\GigyaIM\Helper\GigyaSyncRetryHelper;
+use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
 
 /**
  * RetryGigyaUpdate
@@ -24,63 +23,57 @@ class RetryGigyaUpdate
     /** @var  GigyaLogger */
     protected $logger;
 
-    /** @var  GigyaAccountRepositoryInterface */
-    protected $gigyaAccountRepository;
+    /** @var  RetryGigyaSyncHelper */
+    protected $retryGigyaSyncHelper;
 
-    /** @var  GigyaSyncRetryHelper */
-    protected $gigyaSyncRetryHelper;
+    protected $customerRepository;
 
     /**
      * RetryGigyaUpdate constructor.
      *
      * @param GigyaLogger $logger
-     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-     * @param GigyaSyncRetryHelper $gigyaSyncRetryHelper
+     * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
+     * @param CustomerRepositoryInterface $customerRepository
      */
     public function __construct(
         GigyaLogger $logger,
-        GigyaAccountRepositoryInterface $gigyaAccountRepository,
-        GigyaSyncRetryHelper $gigyaSyncRetryHelper
+        RetryGigyaSyncHelper $retryGigyaSyncHelper,
+        CustomerRepositoryInterface $customerRepository
     )
     {
         $this->logger = $logger;
-        $this->gigyaAccountRepository = $gigyaAccountRepository;
-        $this->gigyaSyncRetryHelper = $gigyaSyncRetryHelper;
+        $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
+     * For all scheduled retry entries will perform a Gigya update on the corresponding accounts.
+     *
      * @param \Magento\Cron\Model\Schedule $schedule
      */
     public function execute(\Magento\Cron\Model\Schedule $schedule)
     {
-        $allRetriesRow = $this->gigyaSyncRetryHelper->getRetryEntries(GigyaSyncRetryHelper::DIRECTION_CMS2G);
+        $allRetriesRow = $this->retryGigyaSyncHelper->getRetryEntries(RetryGigyaSyncHelper::DIRECTION_CMS2G);
 
         foreach($allRetriesRow as $retryRow) {
             $customerEntityId = $retryRow['customer_entity_id'];
             $customerEntityEmail = $retryRow['customer_entity_email'];
+            $gigyaUid = $retryRow['gigya_uid'];
             $retryCount = 1 + $retryRow['retry_count'];
+            /** @var CustomerInterface $customer */
+            $customer = $this->customerRepository->getById($customerEntityId);
             try {
-
-                // TODO : gigya data v0 (cf Service get)
-
-                $savedGigyaData = unserialize($retryRow['data']);
-                /** @var GigyaUser $result */
-                $gigyaAccountData = GigyaUserFactory::createGigyaUserFromArray($savedGigyaData);
-                $gigyaAccountData->setCustomerEntityId($retryRow['customer_entity_id']);
-                $customerEntityEmail = $retryRow['customer_entity_email'];
-                $gigyaAccountData->setCustomerEntityEmail($customerEntityEmail);
-                $gigyaAccountData->setLoginIDs([
-                    'emails' => [ $customerEntityEmail ]
-                ]);
-
-                $this->gigyaAccountRepository->update($gigyaAccountData);
+                $this->customerRepository->save($customer);
             } catch (\Exception $e) {
+                $message = $e->getMessage();
+                $message = $message != null ? (strlen($message) > 255 ? substr($message, 0, 255).' ...': $message) : null;
                 $this->logger->warning('Retry update Gigya failed.',
                     [
                         'customer_entity_id' => $customerEntityId,
                         'customer_entity_email' => $customerEntityEmail,
+                        'gigya_uid' => $gigyaUid,
                         'retry_count' => $retryCount,
-                        'message' => $e->getMessage()
+                        $message
                     ]
                 );
             }

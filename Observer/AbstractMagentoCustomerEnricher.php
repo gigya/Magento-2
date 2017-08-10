@@ -51,6 +51,9 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     /** @var  GigyaLogger */
     protected $logger;
 
+    /** @var GigyaToMagento */
+    protected $gigyaToMagentoMapper;
+
     /**
      * AbstractMagentoCustomerEnricher constructor.
      *
@@ -59,6 +62,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * @param GigyaSyncHelper $gigyaSyncHelper
      * @param ManagerInterface $eventDispatcher
      * @param GigyaLogger $logger
+     * @param GigyaToMagento $gigyaToMagentoMapper
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,

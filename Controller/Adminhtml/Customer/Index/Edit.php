@@ -6,7 +6,7 @@
 namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
-use Gigya\GigyaIM\Helper\GigyaSyncRetryHelper;
+use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -29,13 +29,13 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
     /** @var  int */
     protected $customerId;
 
-    /** @var GigyaSyncRetryHelper */
-    protected $gigyaSyncRetryHelper;
+    /** @var RetryGigyaSyncHelper */
+    protected $retryGigyaSyncHelper;
 
     /**
      * @inheritdoc
      *
-     * @param GigyaSyncRetryHelper $gigyaSyncRetryHelper
+     * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
@@ -63,7 +63,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        GigyaSyncRetryHelper $gigyaSyncRetryHelper
+        RetryGigyaSyncHelper $retryGigyaSyncHelper
     ) {
         parent::__construct(
             $context,
@@ -93,7 +93,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             $resultJsonFactory
         );
 
-        $this->gigyaSyncRetryHelper = $gigyaSyncRetryHelper;
+        $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
     }
 
     /**
@@ -124,7 +124,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
 
             if ($this->customerId) {
 
-                $retryCount = $this->gigyaSyncRetryHelper->getCurrentRetryCount($this->customerId);
+                $retryCount = $this->retryGigyaSyncHelper->getCurrentRetryCount($this->customerId);
 
                 if ($retryCount == -1) {
                     /** @var CustomerInterface $customer */
@@ -137,7 +137,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
                 } else if ($retryCount == 0) {
                     $this->messageManager->addWarningMessage(__('Data are not synchronized to Gigya account, retrying in progress.'));
                 } else if ($retryCount > 0) {
-                    $this->messageManager->addWarningMessage(__('Data synchronizing to Gigya failed failed. Please try to update the data again.'));
+                    $this->messageManager->addWarningMessage(__('Data synchronizing to Gigya failed. Please try to update the data again.'));
                 }
 
                 $result->getLayout()->initMessages();

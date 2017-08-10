@@ -6,17 +6,15 @@
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
-use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Model\MagentoCustomerFieldsUpdater;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
-use Magento\Customer\Model\Data\Customer;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use \Magento\Customer\Model\Customer;
 
 /**
- * GigyaToMagentoFieldMapping
+ * GigyaToMagento
  *
- * Observer for mapping Gigya's account data to Magento Customer entity.
+ * Mapping of Gigya's account data to a Magento Customer entity, based on a json mapping file.
  *
  */
 class GigyaToMagento

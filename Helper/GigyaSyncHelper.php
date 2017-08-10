@@ -8,19 +8,20 @@
 namespace Gigya\GigyaIM\Helper;
 
 use Gigya\CmsStarterKit\sdk\GSException;
-use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\Search\SearchCriteriaBuilder;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context as HelperContext;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Model\Session;
+use Magento\Framework\App\State as AppState;
 
 class GigyaSyncHelper extends AbstractHelper
 {
@@ -60,6 +61,9 @@ class GigyaSyncHelper extends AbstractHelper
      */
     protected $session;
 
+    /** @var  AppState */
+    protected $appState;
+
     /**
      * GigyaSyncHelper constructor.
      *
@@ -80,7 +84,8 @@ class GigyaSyncHelper extends AbstractHelper
         FilterBuilder $filterBuilder,
         FilterGroupBuilder $filterGroupBuilder,
         StoreManagerInterface $storeManager,
-        Session $customerSession
+        Session $customerSession,
+        AppState $state
     )
     {
         parent::__construct($helperContext);
@@ -94,6 +99,7 @@ class GigyaSyncHelper extends AbstractHelper
         $this->customerIdsExcludedFromSync = [
             self::DIR_CMS2G => [], self::DIR_G2CMS => []
         ];
+        $this->appState = $state;
     }
 
     /**
@@ -209,13 +215,15 @@ class GigyaSyncHelper extends AbstractHelper
     /**
      * Update the required fields of a Magento customer model with the current logged in Gigya account data.
      *
+     * /!\ This is done only in frontend context : no required fields on other contexts.
+     *
      * The concerned fields are :
      * . gigya_uid
      * . email
      * . first_name
      * . last_name
      *
-     * For other fields see // CATODO => field mapping
+     * For other fields see Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento
      *
      * @param Customer $magentoCustomer
      * @param GigyaUser $gigyaAccount
@@ -224,13 +232,16 @@ class GigyaSyncHelper extends AbstractHelper
      */
     public function updateMagentoCustomerRequiredFieldsWithGigyaData($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail)
     {
-        $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
-        $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
-        if (empty($magentoCustomer->getFirstname())) {
-            $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
-        }
-        if (empty($magentoCustomer->getLastname())) {
-            $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+        if ($this->appState->getAreaCode() == Area::AREA_FRONTEND) {
+
+            $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
+            $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
+            if (empty($magentoCustomer->getFirstname())) {
+                $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
+            }
+            if (empty($magentoCustomer->getLastname())) {
+                $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+            }
         }
     }
 

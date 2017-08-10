@@ -7,15 +7,23 @@
 
 namespace Gigya\GigyaIM\Helper;
 
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\Search\FilterGroupBuilder;
+use Magento\Framework\Api\Search\SearchCriteriaBuilder;
+use Magento\Framework\App\Helper\Context as HelperContext;
+use Magento\Framework\App\State as AppState;
+use Magento\Framework\Message\ManagerInterface as MessageManager;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Customer\Model\Session;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
-use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 
 /**
- * GigyaSyncRetryHelper
+ * RetryGigyaSyncHelper
  *
  * For scheduling, updating and deleting retry entries for Magento from / to Gigya data synchronizing.
  *
@@ -25,7 +33,7 @@ use Magento\Framework\DB\Adapter\AdapterInterface;
  * @author      vlemaire <info@x2i.fr>
  *
  */
-class GigyaSyncRetryHelper extends AbstractHelper
+class RetryGigyaSyncHelper extends GigyaSyncHelper
 {
     const DIRECTION_CMS2G = 'CMS2G';
     const DIRECTION_G2CMS = 'G2CMS';
@@ -44,20 +52,49 @@ class GigyaSyncRetryHelper extends AbstractHelper
     protected $connection;
 
     /**
-     * GigyaSyncRetryHelper constructor.
+     * RetryGigyaSyncHelper constructor.
+     *
+     * @param Context $helperContext
+     * @param MessageManager $messageManager
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
+     * @param FilterGroupBuilder $filterGroupBuilder
+     * @param StoreManagerInterface $storeManager
+     * @param Session $customerSession
+     * @param AppSate $state
      * @param Context $context
      * @param GigyaLogger $logger
      * @param ResourceConnection $resourceConnection
      * @param ConnectionFactory $connectionFactory
      */
     public function __construct(
+        HelperContext $helperContext,
+        MessageManager $messageManager,
+        CustomerRepositoryInterface $customerRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder,
+        FilterGroupBuilder $filterGroupBuilder,
+        StoreManagerInterface $storeManager,
+        Session $customerSession,
+        AppState $state,
         Context $context,
         GigyaLogger $logger,
         ResourceConnection $resourceConnection,
         ConnectionFactory $connectionFactory
     )
     {
-        parent::__construct($context);
+        parent::__construct(
+            $helperContext,
+            $messageManager,
+            $customerRepository,
+            $searchCriteriaBuilder,
+            $filterBuilder,
+            $filterGroupBuilder,
+            $storeManager,
+            $customerSession,
+            $state
+        );
 
         $this->logger = $logger;
         $this->resourceConnection = $resourceConnection;
@@ -66,21 +103,58 @@ class GigyaSyncRetryHelper extends AbstractHelper
     }
 
     /**
-     * Commit the underlying connection, and re open it.
+     * @inheritdoc
+     *
      */
-    public function commit()
+    public function getMagentoCustomerAndLoggingEmail($gigyaAccount)
     {
-        $this->connection->commit();
-        $this->connection = $this->connectionFactory->getNewConnection();
+        $magentoCustomer = null;
+        $customerEntityId = $gigyaAccount->getCustomerEntityId();
+        $excludeSyncG2Cms = true;
+        if (!$this->isCustomerIdExcludedFromSync($customerEntityId, GigyaSyncHelper::DIR_G2CMS)
+        ) {
+            // We prevent synchronizing the M2 customer data from the Gigya account : that should be done only on explicit customer save,
+            // here the very first action is to load the M2 customer
+            $this->excludeCustomerIdFromSync($customerEntityId, GigyaSyncHelper::DIR_G2CMS);
+            $excludeSyncG2Cms = false;
+        }
+        try {
+            $magentoCustomer = $this->customerRepository->getById($customerEntityId);
+        } finally {
+            // If the synchro from Gigya was not already disabled we re-enable it
+            if (!$excludeSyncG2Cms) {
+                $this->undoExcludeCustomerIdFromSync($magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS);
+            }
+        }
+
+        $loggingEmail = $gigyaAccount->getProfile()->getEmail() ? $gigyaAccount->getProfile()->getEmail() : ($magentoCustomer) ? $magentoCustomer->getEmail() : null;
+
+        return [
+            'customer' => $magentoCustomer,
+            'logging_email' => $loggingEmail
+        ];
     }
 
     /**
-     * Roll back the underlying connection, and re open it.
+     * Commit the underlying transaction if any is opened, and re begin it.
+     */
+    public function commit()
+    {
+        if ($this->connection->getTransactionLevel() != 0) {
+            $this->connection->commit();
+            $this->connection->beginTransaction();
+        }
+    }
+
+    /**
+     * Roll back the underlying transaction if any is opened, and re begin it.
      */
     public function rollBack()
     {
-        $this->connection->rollBack();
-        $this->connection = $this->connectionFactory->getNewConnection();
+        if ($this->connection->getTransactionLevel() != 0) {
+            $this->connection->rollBack();
+            $this->connection->beginTransaction();
+        }
     }
 
     /**
@@ -115,21 +189,36 @@ class GigyaSyncRetryHelper extends AbstractHelper
      * Get all the scheduled retry entries for the given synchronizing direction.
      *
      * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH
+     * @param $uid string Default is null. If not null will get the unique entry scheduled for this Gigya uid.
+     * @param $getGigyaData bool Default is false. If not false will include the Gigya data stored on this entry.
      * @return array [
      *                 'customer_entity_id' : int,
      *                 'customer_entity_email' : string,
      *                 'gigya_uid' : string,
      *                 'retry_count' : int
+     *                 (if $getGigyaData == true) 'data' : json string
      *               ]
      */
-    public function getRetryEntries($direction)
+    public function getRetryEntries($direction, $uid = null, $getGigyaData = false)
     {
+        $where = 'direction = "' . $direction . '"';
+
+        if (!is_null($uid)) {
+            $where .=  ' AND gigya_uid = "'.$uid.'"';
+        }
+
+        $columns = [ 'customer_entity_id', 'customer_entity_email', 'gigya_uid', 'retry_count' ];
+
+        if ($getGigyaData == true) {
+            $columns[] = 'data';
+        }
+
         $selectRetryRows = $this->connection
             ->select()
             ->from('gigya_sync_retry')
             ->reset(\Zend_Db_Select::COLUMNS)
-            ->columns([ 'customer_entity_id', 'customer_entity_email', 'gigya_uid', 'retry_count' ])
-            ->where('direction = "' . $direction . '"');
+            ->columns($columns)
+            ->where($where);
 
         return $this->connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
     }
@@ -199,21 +288,6 @@ class GigyaSyncRetryHelper extends AbstractHelper
     }
 
     /**
-     * Set to 0 the retry count for a given retry entry.
-     *
-     * @param $customerEntityId
-     */
-    public function resetRetryCount($customerEntityId)
-    {
-        $this->setRetryCount($customerEntityId, 0);
-
-        $this->logger->debug(
-            'Reset to 0 gigya_sync_retry.retry_count for Magento to Gigya retry',
-            [ 'customer_entity_id' => $customerEntityId ]
-        );
-    }
-
-    /**
      * Delete an existing retry entry.
      *
      * @param $customerEntityId integer Customer entity id of the row to delete.
@@ -229,7 +303,6 @@ class GigyaSyncRetryHelper extends AbstractHelper
         $retryCount = $this->getCurrentRetryCount($customerEntityId);
 
         if ($retryCount > -1) {
-            $this->connection->beginTransaction();
             try {
                 $this->connection->delete(
                     'gigya_sync_retry',
@@ -246,8 +319,6 @@ class GigyaSyncRetryHelper extends AbstractHelper
                         ['customer_entity_id' => $customerEntityId]
                     );
                 }
-
-                $this->connection->commit();
             } catch (\Exception $e) {
                 $this->connection->rollBack();
                 if (!is_null($failureMessage)) {
