@@ -42,6 +42,7 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      * @param ManagerInterface $eventDispatcher
      * @param GigyaLogger $logger
      * @param CustomerRegistry $customerRegistry
+     * @param GigyaToMagento $gigyaToMagentoMapper
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -53,7 +54,7 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
         GigyaToMagento $gigyaToMagentoMapper
     ) {
         parent::__construct(
-          $customerRepository,
+            $customerRepository,
             $gigyaAccountRepository,
             $gigyaSyncHelper,
             $eventDispatcher,
@@ -69,13 +70,12 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      *
      * If GigyaMagentoCustomerSaveException is caught it's muted. Any other exception is not muted.
      */
-    public function execute(Observer $observer)
-    {
+    public function saveMagentoCustomer($magentoCustomer) {
+
         try {
-            parent::execute($observer);
+            parent::saveMagentoCustomer($magentoCustomer);
         } catch(GigyaMagentoCustomerSaveException $e) {
-            /** @var Customer $customer */
-            $magentoCustomer = $observer->getData('customer');
+            $magentoCustomer->setGigyaAccountEnriched(false);
             $this->customerRegistry->push($magentoCustomer);
         }
     }

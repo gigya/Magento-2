@@ -33,8 +33,6 @@ class GigyaMageHelper extends AbstractHelper
 
     /** @var GigyaApiHelper  */
     protected $gigyaApiHelper;
-    /** @var GigyaSyncHelper  */
-    protected $gigyaSyncHelper;
     protected $configSettings;
     protected $dbSettings;
     protected $_moduleList;
@@ -57,7 +55,6 @@ class GigyaMageHelper extends AbstractHelper
         Context $context,
         Logger $logger,
         ModuleListInterface $moduleList,
-        GigyaSyncHelper $gigyaSyncHelper,
         Session $session,
         Filesystem $fileSystem
     ) {
@@ -71,7 +68,6 @@ class GigyaMageHelper extends AbstractHelper
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->_moduleList = $moduleList;
-        $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->session = $session;
     }
 
@@ -476,32 +472,5 @@ class GigyaMageHelper extends AbstractHelper
     public function getGigyaAccountDataFromUid($uid)
     {
         return $this->getGigyaApiHelper()->fetchGigyaAccount($uid);
-    }
-
-    /**
-     * For a given Gigya account data : identify which Magento customer account is to be logged in, and the email that shall be set on this account.
-     *
-     * The Gigya account furnished will be set on session variable 'gigya_account_data' : get it with Magento\Customer\Model\Session::getGigyaAccountData()
-     * The email associated for the Magento account will be set on session variable 'gigya_account_logging_email' : get it with Magento\Customer\Model\Session::getGigyaAccountLoggingEmail()
-     *
-     * @param GigyaUser $gigyaAccount The data returned by the Gigya's service on customer logging or profile edit.
-     * @return CustomerInterface The Magento customer linked with this Gigya account (can be null if no account exists yet)
-     * @throws @see GigyaSyncHelper::getMagentoCustomerAndLoggingEmail()
-     */
-    public function setMagentoLoggingContext($gigyaAccount)
-    {
-        // This value will be set with the preferred email that should be attached with the Magento customer account, among all the Gigya loginIDs emails
-        // We initialize it to null. If it's still null at the end of the algorithm that means that the user can not logged in
-        // because all Gigya loginIDs emails are already set to existing Magento customer accounts with a different or null Gigya UID
-        $this->session->setGigyaAccountLoggingEmail(null);
-        // This will be set with the incoming $gigyaAccount parameter if the customer can be logged in on Magento.
-        $this->session->setGigyaAccountData(null);
-
-        $result = $this->gigyaSyncHelper->getMagentoCustomerAndLoggingEmail($gigyaAccount);
-
-        $this->session->setGigyaAccountData($gigyaAccount);
-        $this->session->setGigyaAccountLoggingEmail($result['logging_email']);
-
-        return $result['customer'];
     }
 }

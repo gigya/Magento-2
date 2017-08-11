@@ -189,6 +189,16 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     }
 
     /**
+     * Saves the Customer entity in database.
+     *
+     * @param \Magento\Customer\Model\Backend\Customer $magentoCustomer $magentoCustomer
+     */
+    public function saveMagentoCustomer($magentoCustomer) {
+
+        $this->customerRepository->save($magentoCustomer->getDataModel());
+    }
+
+    /**
      * Will synchronize Magento account entity with Gigya account if needed.
      *
      * @param Observer $observer Must hang a data 'customer' of type Magento\Customer\Model\Customer
@@ -222,7 +232,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
                     $excludeSyncCms2G = false;
                 }
                 try {
-                    $this->customerRepository->save($magentoCustomer->getDataModel());
+                    $this->saveMagentoCustomer($magentoCustomer);
                 } finally {
                     // If the synchro to Gigya was not already disabled we re-enable it
                     if (!$excludeSyncCms2G) {

@@ -10,6 +10,7 @@
 namespace Gigya\GigyaIM\Controller\Raas;
 
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -44,11 +45,15 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
     /** @var GigyaMageHelper  */
     protected $gigyaMageHelper;
 
+    /** @var  GigyaSyncHelper */
+    protected $gigyaSyncHelper;
+
     /**
      * @param Context $context
      * @param Session $customerSession
      * @param AccountManagementInterface $customerAccountManagement
      * @param CustomerRepositoryInterface $customerRepository
+     * @param GigyaSyncHelper $gigyaSyncHelper
      * @param Validator $formKeyValidator
      * @param CustomerExtractor $customerExtractor
      */
@@ -57,6 +62,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         Session $customerSession,
         AccountManagementInterface $customerAccountManagement,
         CustomerRepositoryInterface $customerRepository,
+        GigyaSyncHelper $gigyaSyncHelper,
         Validator $formKeyValidator,
         CustomerExtractor $customerExtractor
     ) {
@@ -67,6 +73,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         $this->customerExtractor = $customerExtractor;
         parent::__construct($context);
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
+        $this->gigyaSyncHelper = $gigyaSyncHelper;
     }
 
     /**
@@ -107,7 +114,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
                     throw new InputException("Could not validate the given Gigya data");
                 }
 
-                $eligibleCustomer = $this->gigyaMageHelper->setMagentoLoggingContext($gigyaAccount);
+                $eligibleCustomer = $this->gigyaSyncHelper->setMagentoLoggingContext($gigyaAccount);
 
                 if ($eligibleCustomer == null || $eligibleCustomer->getId() != $customerId) {
                     throw new InputException("Could not retrieve a valid Magento customer with the given Gigya data");

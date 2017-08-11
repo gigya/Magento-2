@@ -2,7 +2,6 @@
 
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
@@ -30,7 +29,7 @@ use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 
 abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccount
 {
@@ -94,8 +93,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected $customerRepository;
 
-    /** @var  SyncHelper */
-    protected $syncHelper;
+    /** @var  GigyaSyncHelper */
+    protected $gigyaSyncHelper;
 
     /**
      * @param Context $context
@@ -117,7 +116,9 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * @param DataObjectHelper $dataObjectHelper
      * @param AccountRedirect $accountRedirect
      * @param CustomerRepositoryInterface $customerRepository
-     * @param SyncHelper $syncHelper
+     * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param Validator $formKeyValidator
+     * @param CookieManagerInterface $cookieManager
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -141,7 +142,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         DataObjectHelper $dataObjectHelper,
         AccountRedirect $accountRedirect,
         CustomerRepositoryInterface $customerRepository,
-        SyncHelper $syncHelper,
+        GigyaSyncHelper $gigyaSyncHelper,
         Validator $formKeyValidator,
         CookieManagerInterface $cookieManager
     )
@@ -166,7 +167,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         parent::__construct($context);
         $this->gigyaMageHelper = $this->_objectManager->create('Gigya\GigyaIM\Helper\GigyaMageHelper');
         $this->customerRepository = $customerRepository;
-        $this->syncHelper = $syncHelper;
+        $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->formKeyValidator = $formKeyValidator;
         $this->cookieManager = $cookieManager;
     }
@@ -198,7 +199,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
             try {
 
-                $customer = $this->gigyaMageHelper->setMagentoLoggingContext($valid_gigya_user);
+                $customer = $this->gigyaSyncHelper->setMagentoLoggingContext($valid_gigya_user);
 
                 if ($customer) {
                     $this->gigyaLoginUser($customer);

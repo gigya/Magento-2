@@ -5,11 +5,8 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
-use Magento\Framework\App\Area;
-use Magento\Framework\App\State as AppState;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -28,41 +25,25 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  */
 class SyncCustomerToGigyaObserver implements ObserverInterface
 {
-    /** @var  GigyaMageHelper */
-    protected $gigyaMageHelper;
-
-    /** @var  AppState */
-    protected $appState;
-
     /** @var  GigyaLogger */
     protected $logger;
 
-    /** @var int */
-    private $maxGigyaUpdateRetryCount;
-
-    /** @var  RetryGigyaSyncHelper */
+    /** @var RetryGigyaSyncHelper  */
     protected $retryGigyaSyncHelper;
 
     /**
      * SyncCustomerToGigyaObserver constructor.
      *
-     * @param GigyaMageHelper $gigyaMageHelper
-     * @param AppState $state
      * @param GigyaLogger $logger
      * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
      */
     public function __construct(
-        GigyaMageHelper $gigyaMageHelper,
-        AppState $state,
         GigyaLogger $logger,
         RetryGigyaSyncHelper $retryGigyaSyncHelper
     )
     {
-        $this->gigyaMageHelper = $gigyaMageHelper;
-        $this->appState = $state;
         $this->logger = $logger;
 
-        $this->maxGigyaUpdateRetryCount = $this->gigyaMageHelper->getMaxRetryCountForGigyaUpdate();
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
     }
 
@@ -115,60 +96,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var string $message */
         $message = $observer->getData('message');
 
-        $binds = [
-            'customer_entity_id' => $customerEntityId,
-            'customer_entity_email' => $customerEntityEmail,
-            'gigya_uid' => $gigyaAccountData['uid'],
-            'direction' => RetryGigyaSyncHelper::DIRECTION_CMS2G,
-            'data' => $gigyaAccountData,
-            'message' => $message != null ? (strlen($message) > 255 ? substr($message, 0, 255).' ...' : $message) : null
-        ];
-
-        try {
-            $retryCount = $this->retryGigyaSyncHelper->getCurrentRetryCount($customerEntityId);
-
-            if ($retryCount == -1) {
-                $this->retryGigyaSyncHelper->createRetryEntry($binds);
-            } else {
-                // If failure after an automatic update retry by the cron we increment the retry count
-                if ($this->appState->getAreaCode() == Area::AREA_CRONTAB) {
-                    if ($retryCount == $this->maxGigyaUpdateRetryCount) {
-                        $this->logger->warning(
-                            sprintf(
-                                'Maximum retry attempts for Magento to Gigya retry has been reached (%d). Retry is now unscheduled.',
-                                $this->maxGigyaUpdateRetryCount
-                            ),
-                            [
-                                'customer_entity_id' => $customerEntityId,
-                                'customer_entity_email' => $customerEntityEmail,
-                                'gigya_data' => $gigyaAccountData,
-                                'message' => $message
-                            ]
-                        );
-
-                        $this->retryGigyaSyncHelper->deleteRetryEntry($customerEntityId);
-                    } else {
-                        $this->retryGigyaSyncHelper->incrementRetryCount($customerEntityId);
-                    }
-                } else { // Failure not in the automatic cron update retry context : reset the scheduled retry entry
-                    $this->retryGigyaSyncHelper->deleteRetryEntry($customerEntityId);
-                    $this->retryGigyaSyncHelper->createRetryEntry($binds);
-                }
-            }
-
-            $this->retryGigyaSyncHelper->commit();
-        } catch(\Exception $e) {
-            $this->retryGigyaSyncHelper->rollBack();
-            $this->logger->critical(
-                'Could not log retry entry for Magento to Gigya update. No automatic retry will be performed on it.',
-                [
-                    'exception' => $e,
-                    'customer_entity_id' => $customerEntityId,
-                    'customer_entity_email' => $customerEntityEmail,
-                    'gigya_data' => $gigyaAccountData
-                ]
-            );
-        }
+        $this->retryGigyaSyncHelper->scheduleRetry($customerEntityId, $customerEntityEmail, $gigyaAccountData, $message);
     }
 
     /**

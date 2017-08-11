@@ -21,6 +21,7 @@ use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\App\Area;
 
 /**
  * RetryGigyaSyncHelper
@@ -51,6 +52,9 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /** @var AdapterInterface */
     protected $connection;
 
+    /** @var int */
+    private $maxGigyaUpdateRetryCount;
+
     /**
      * RetryGigyaSyncHelper constructor.
      *
@@ -67,6 +71,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * @param GigyaLogger $logger
      * @param ResourceConnection $resourceConnection
      * @param ConnectionFactory $connectionFactory
+     * @param GigyaMageHelper $gigyaMageHelper
      */
     public function __construct(
         HelperContext $helperContext,
@@ -81,7 +86,8 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         Context $context,
         GigyaLogger $logger,
         ResourceConnection $resourceConnection,
-        ConnectionFactory $connectionFactory
+        ConnectionFactory $connectionFactory,
+        GigyaMageHelper $gigyaMageHelper
     )
     {
         parent::__construct(
@@ -100,6 +106,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         $this->resourceConnection = $resourceConnection;
         $this->connectionFactory = $connectionFactory;
         $this->connection = $this->connectionFactory->getNewConnection();
+        $this->maxGigyaUpdateRetryCount = $gigyaMageHelper->getMaxRetryCountForGigyaUpdate();
     }
 
     /**
@@ -293,6 +300,8 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /**
      * Delete an existing retry entry.
      *
+     * Won't fail if the given customer entity id has no scheduled retry entry.
+     *
      * @param $customerEntityId integer Customer entity id of the row to delete.
      * @param $successMessage string Message to log (info) in case of delete is successful.
      * @param $failureMessage string Message to log (critical) on case of delete is failure.
@@ -339,6 +348,81 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
                     );
                 }
             }
+        }
+    }
+
+    /**
+     * If a retry row already exists for this Customer id :
+     *  If we are in the 'crontab' area (ie the update has been performed by the automatic update cron) :
+     *      . if the max retry attempt has been reached the row is deleted and a critical message is logged
+     *      . otherwise the retry_count is incremented, and the Gigya data and the date are updated
+     *  Otherwise - not in the 'crontab' area :
+     *      . the row is updated with the error message, the Gigya data and the current date, and the retry_count is set to 0
+     *
+     * If there is no row for this Customer id :
+     * . a new row is inserted
+     *
+     * @param $customerEntityId int
+     * @param $customerEntityEmail string
+     * @param $gigyaAccountData array with entries uid, profile, data
+     * @paream $message string
+     * @return void
+     */
+    public function scheduleRetry($customerEntityId, $customerEntityEmail, $gigyaAccountData, $message) {
+
+        $binds = [
+            'customer_entity_id' => $customerEntityId,
+            'customer_entity_email' => $customerEntityEmail,
+            'gigya_uid' => $gigyaAccountData['uid'],
+            'direction' => RetryGigyaSyncHelper::DIRECTION_CMS2G,
+            'data' => $gigyaAccountData,
+            'message' => $message != null ? (strlen($message) > 255 ? substr($message, 0, 255).' ...' : $message) : null
+        ];
+
+        try {
+            $retryCount = $this->getCurrentRetryCount($customerEntityId);
+
+            if ($retryCount == -1) {
+                $this->createRetryEntry($binds);
+            } else {
+                // If failure after an automatic update retry by the cron : we increment the retry count
+                if ($this->appState->getAreaCode() == Area::AREA_CRONTAB) {
+                    if ($retryCount == $this->maxGigyaUpdateRetryCount) {
+                        $this->logger->warning(
+                            sprintf(
+                                'Maximum retry attempts for Magento to Gigya retry has been reached (%d). Retry is now unscheduled.',
+                                $this->maxGigyaUpdateRetryCount
+                            ),
+                            [
+                                'customer_entity_id' => $customerEntityId,
+                                'customer_entity_email' => $customerEntityEmail,
+                                'gigya_data' => $gigyaAccountData,
+                                'message' => $message
+                            ]
+                        );
+
+                        $this->deleteRetryEntry($customerEntityId);
+                    } else {
+                        $this->incrementRetryCount($customerEntityId);
+                    }
+                } else { // Failure not in the automatic cron update retry context : reset the scheduled retry entry
+                    $this->deleteRetryEntry($customerEntityId);
+                    $this->createRetryEntry($binds);
+                }
+            }
+
+            $this->commit();
+        } catch(\Exception $e) {
+            $this->rollBack();
+            $this->logger->critical(
+                'Could not log retry entry for Magento to Gigya update. No automatic retry will be performed on it.',
+                [
+                    'exception' => $e,
+                    'customer_entity_id' => $customerEntityId,
+                    'customer_entity_email' => $customerEntityEmail,
+                    'gigya_data' => $gigyaAccountData
+                ]
+            );
         }
     }
 }

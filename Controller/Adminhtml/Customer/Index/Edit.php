@@ -132,7 +132,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
                     if ($customer->getCustomAttribute('gigya_account_enriched')->getValue() === true) {
                         $this->messageManager->addSuccessMessage(__('Data are up-to-date with Gigya account.'));
                     } else {
-                        $this->messageManager->addWarningMessage(__('Connection with Gigya is impossible. The data could be outdated, please come back later.'));
+                        $this->messageManager->addWarningMessage(__('Synchronizing with Gigya is impossible. The data could be outdated, please come back later.'));
                     }
                 } else if ($retryCount == 0) {
                     $this->messageManager->addWarningMessage(__('Data are not synchronized to Gigya account, retrying in progress.'));
