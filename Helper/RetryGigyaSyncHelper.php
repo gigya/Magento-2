@@ -62,7 +62,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * @param FilterGroupBuilder $filterGroupBuilder
      * @param StoreManagerInterface $storeManager
      * @param Session $customerSession
-     * @param AppSate $state
+     * @param AppState $state
      * @param Context $context
      * @param GigyaLogger $logger
      * @param ResourceConnection $resourceConnection
@@ -104,6 +104,9 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
 
     /**
      * @inheritdoc
+     *
+     * In the context of the Gigya data update retry we retrieve the Magento customer directly from its id that shall have been set on $gigyaAccount->getCustomerEntityId()
+     * And the logging email is by definition the email set on this very Customer entity.
      *
      */
     public function getMagentoCustomerAndLoggingEmail($gigyaAccount)

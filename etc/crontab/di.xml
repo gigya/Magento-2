@@ -8,4 +8,7 @@
     </type>
     <preference for="Gigya\GigyaIM\Helper\GigyaSyncHelper"
                 type="Gigya\GigyaIM\Helper\RetryGigyaSyncHelper" />
+
+    <preference for="Gigya\GigyaIM\Model\MagentoCustomerFieldsUpdater"
+                type="Gigya\GigyaIM\Model\RetryMagentoCustomerFieldsUpdater" />
 </config>

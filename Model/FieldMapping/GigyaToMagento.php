@@ -49,6 +49,10 @@ class GigyaToMagento
     }
 
     /**
+     * Performs the mapping from Gigya account to Magento Customer entity.
+     *
+     * The mapping rules are retrieved from the json field mapping file pointed to by backend configuration key 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path'
+     *
      * @param Customer $customer
      * @param $gigyaUser
      * @throws GigyaFieldMappingException

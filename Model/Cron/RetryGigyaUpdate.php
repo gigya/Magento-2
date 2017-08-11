@@ -13,7 +13,7 @@ use Magento\Customer\Api\Data\CustomerInterface;
 /**
  * RetryGigyaUpdate
  *
- * Fetch the retry entries scheduled to perform the Gigya update retries.
+ * Fetch the retry entries scheduled to perform the Gigya profile and Magento Customer update retries.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -47,7 +47,7 @@ class RetryGigyaUpdate
     }
 
     /**
-     * For all scheduled retry entries will perform a Gigya update on the corresponding accounts.
+     * For all scheduled retry entries will perform a Gigya & Magento update on the corresponding accounts & Customer entities.
      *
      * @param \Magento\Cron\Model\Schedule $schedule
      */

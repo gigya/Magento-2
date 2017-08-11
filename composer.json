@@ -11,6 +11,14 @@
     {
       "name": "Guy A",
       "email": "guy.av@gigya-inc.com"
+    },
+    {
+      "name": "Alexandre Khayrullin",
+      "email": "akhayrullin@clever-age.com"
+    },
+    {
+      "name": "Vincent Lemaire",
+      "email": "vincentlemaire@clever-age.com"
     }
   ],
   "repositories": [
