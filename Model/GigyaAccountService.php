@@ -124,27 +124,30 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     public function update($gigyaAccount)
     {
-	// CATODO : if Gigya data for rollback could not be fetched while the customer page for edit is loaded in backend : we would not be able to perform a rollback if necessary.
-	// Thus before an update is processed we shall verify if we have the previous Gigya data for rollback.
-	// Cf. Confluence https://x2i-fr.atlassian.net/wiki/display/GIGM2/BO+sync+%3A+use+cases+explained validate #2
-
-
         $gigyaApiData = $this->buildEventData($gigyaAccount);
 
         try {
+
             /** @var string $uid */
             $uid = $gigyaApiData['uid'];
 
+            // 1. Get current Gigya account data : they would be used if we have to perform a rollback
+            // Those data could already have been successfully loaded in self::get, that's why we check their existence.
+            if (!array_key_exists($uid, self::$loadedGigyaUsers)) {
+                self::$loadedGigyaUsers[$uid] = $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
+            }
+
+            // 2. Update the Gigya account
             $this->gigyaMageHelper->updateGigyaAccount(
                 $uid,
                 $gigyaApiData['profile'],
                 $gigyaApiData['data']
             );
 
-            if (array_key_exists($uid, self::$loadedGigyaUsers)) {
-                self::$loadedAndUpdatedOriginalGigyaUsers[$uid] = self::$loadedGigyaUsers[$uid];
-                unset(self::$loadedGigyaUsers[$uid]);
-            }
+            // 3. If we reach this line that means the Gigya account has been successfully updated.
+            // We store the previous data (got in 1.) if a rollback is needed (rollback would occur if Magento Customer save fails)
+            self::$loadedAndUpdatedOriginalGigyaUsers[$uid] = self::$loadedGigyaUsers[$uid];
+            unset(self::$loadedGigyaUsers[$uid]);
 
             $this->logger->debug(
                 'Successful call to Gigya service api',
@@ -182,6 +185,8 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     function get($uid)
     {
+        unset(self::$loadedGigyaUsers[$uid]);
+
         $gigyaAccountData = $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
         // For creating a new instance : the returned instance must not point to the instance that will be stored for an eventual rollback.
         $result = unserialize(serialize($gigyaAccountData));

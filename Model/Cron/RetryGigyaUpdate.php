@@ -5,15 +5,16 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
+use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
-use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
-use Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver;
+use Gigya\GigyaIM\Helper\GigyaSyncRetryHelper;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * RetryGigyaUpdate
  *
- * Fetch the db table 'gigya_sync_retry' to perform the Gigya update retries.
+ * Fetch the retry entries scheduled to perform the Gigya update retries.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -23,27 +24,28 @@ class RetryGigyaUpdate
     /** @var  GigyaLogger */
     protected $logger;
 
-    /** @var ConnectionFactory */
-    protected $connectionFactory;
-
     /** @var  GigyaAccountRepositoryInterface */
     protected $gigyaAccountRepository;
+
+    /** @var  GigyaSyncRetryHelper */
+    protected $gigyaSyncRetryHelper;
 
     /**
      * RetryGigyaUpdate constructor.
      *
      * @param GigyaLogger $logger
-     * @param ConnectionFactory $connectionFactory
+     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
+     * @param GigyaSyncRetryHelper $gigyaSyncRetryHelper
      */
     public function __construct(
         GigyaLogger $logger,
-        ConnectionFactory $connectionFactory,
-        GigyaAccountRepositoryInterface $gigyaAccountRepository
+        GigyaAccountRepositoryInterface $gigyaAccountRepository,
+        GigyaSyncRetryHelper $gigyaSyncRetryHelper
     )
     {
         $this->logger = $logger;
-        $this->connectionFactory = $connectionFactory;
         $this->gigyaAccountRepository = $gigyaAccountRepository;
+        $this->gigyaSyncRetryHelper = $gigyaSyncRetryHelper;
     }
 
     /**
@@ -51,23 +53,26 @@ class RetryGigyaUpdate
      */
     public function execute(\Magento\Cron\Model\Schedule $schedule)
     {
-        $connection = $this->connectionFactory->getNewConnection();
-
-        $selectRetryRows = $connection
-            ->select()
-            ->from('gigya_sync_retry')
-            ->reset(\Zend_Db_Select::COLUMNS)
-            ->columns([ 'customer_entity_id', 'customer_entity_email', 'gigya_uid', 'retry_count' ])
-            ->where('direction = "' . SyncCustomerToGigyaObserver::DIRECTION_CMS2G . '"');
-
-        $allRetriesRow = $connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
+        $allRetriesRow = $this->gigyaSyncRetryHelper->getRetryEntries(GigyaSyncRetryHelper::DIRECTION_CMS2G);
 
         foreach($allRetriesRow as $retryRow) {
             $customerEntityId = $retryRow['customer_entity_id'];
             $customerEntityEmail = $retryRow['customer_entity_email'];
             $retryCount = 1 + $retryRow['retry_count'];
             try {
-                $gigyaAccountData = $this->gigyaAccountRepository->get($retryRow['gigya_uid']);
+
+                // TODO : gigya data v0 (cf Service get)
+
+                $savedGigyaData = unserialize($retryRow['data']);
+                /** @var GigyaUser $result */
+                $gigyaAccountData = GigyaUserFactory::createGigyaUserFromArray($savedGigyaData);
+                $gigyaAccountData->setCustomerEntityId($retryRow['customer_entity_id']);
+                $customerEntityEmail = $retryRow['customer_entity_email'];
+                $gigyaAccountData->setCustomerEntityEmail($customerEntityEmail);
+                $gigyaAccountData->setLoginIDs([
+                    'emails' => [ $customerEntityEmail ]
+                ]);
+
                 $this->gigyaAccountRepository->update($gigyaAccountData);
             } catch (\Exception $e) {
                 $this->logger->warning('Retry update Gigya failed.',
