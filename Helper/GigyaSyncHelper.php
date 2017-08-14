@@ -11,6 +11,7 @@ use Gigya\CmsStarterKit\sdk\GSException;
 use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\Config\Share;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroupBuilder;
@@ -61,6 +62,11 @@ class GigyaSyncHelper extends AbstractHelper
     protected $session;
 
     /**
+     * @var Share
+     */
+    protected $shareConfig;
+
+    /**
      * GigyaSyncHelper constructor.
      *
      * @param HelperContext $helperContext
@@ -80,7 +86,8 @@ class GigyaSyncHelper extends AbstractHelper
         FilterBuilder $filterBuilder,
         FilterGroupBuilder $filterGroupBuilder,
         StoreManagerInterface $storeManager,
-        Session $customerSession
+        Session $customerSession,
+        Share $shareConfig
     )
     {
         parent::__construct($helperContext);
@@ -91,6 +98,7 @@ class GigyaSyncHelper extends AbstractHelper
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->storeManager = $storeManager;
         $this->session = $customerSession;
+        $this->shareConfig = $shareConfig;
         $this->customerIdsExcludedFromSync = [
             self::DIR_CMS2G => [], self::DIR_G2CMS => []
         ];
@@ -132,8 +140,11 @@ class GigyaSyncHelper extends AbstractHelper
         $filterGroups = [];
         $filter = $this->filterBuilder->setConditionType('in')->setField('email')->setValue($gigyaLoginIdsEmails)->create();
         $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
-        $filter = $this->filterBuilder->setConditionType('eq')->setField('website_id')->setValue($this->storeManager->getStore()->getWebsiteId())->create();
-        $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
+        if($this->shareConfig->isWebsiteScope())
+        {
+            $filter = $this->filterBuilder->setConditionType('eq')->setField('website_id')->setValue($this->storeManager->getStore()->getWebsiteId())->create();
+            $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
+        }
         $searchCriteria = $this->searchCriteriaBuilder->create()->setFilterGroups($filterGroups);
         $searchResult = $this->customerRepository->getList($searchCriteria);
         // ...and among these, check if one is set to the Gigya UID
