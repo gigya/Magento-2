@@ -159,6 +159,7 @@ class Login extends AbstractLogin
             {
                 try {
                     $this->session->regenerateId();
+                    $this->extendModel->extendSession(false);
 
                     $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
                     $this->doLogin($valid_gigya_user);

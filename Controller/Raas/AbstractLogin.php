@@ -4,6 +4,7 @@ namespace Gigya\GigyaIM\Controller\Raas;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Model\Session\Extend;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
@@ -110,6 +111,11 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected $cookiesToDelete;
 
     /**
+     * @var Extend
+     */
+    protected $extendModel;
+
+    /**
      * @param Context $context
      * @param Session $customerSession
      * @param ScopeConfigInterface $scopeConfig
@@ -157,7 +163,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         Validator $formKeyValidator,
         CookieManagerInterface $cookieManager,
         GigyaMageHelper $gigyaMageHelper,
-        CookieMetadataFactory $cookieMetadataFactory
+        CookieMetadataFactory $cookieMetadataFactory,
+        Extend $extendModel
     )
     {
         $this->session = $customerSession;
@@ -185,6 +192,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         $this->cookieManager = $cookieManager;
         $this->cookieMetadataFactory = $cookieMetadataFactory;
         $this->storeManager = $storeManager;
+
+        $this->extendModel = $extendModel;
 
         $this->cookies = [];
         $this->cookiesToDelete = [];
