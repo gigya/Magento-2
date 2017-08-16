@@ -581,51 +581,11 @@ class GigyaMageHelper extends AbstractHelper
         $tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
         $loginToken = explode("|", $tokenCookieValue)[0]; // get the login token from the token-cookie.
         $applicationKey = $this->getAppKey();
-        $currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
-        $expiration = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
         $secret = $this->getAppSecret();
 
-        $unsignedExpString = utf8_encode($loginToken . "_" . $expiration . "_" . $applicationKey); // define base string for signing
-        $rawHmac           = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($secret), TRUE);
-        $sig               = base64_encode($rawHmac);
 
         return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
 
-        //return $this->sigUtils->getDynamicSessionSignature($loginToken, $secondsToExpiration, 'HNMarYGobTFTlYwJd+IB4VXXnj6IuVXg2YjDXihORC8=');
-
-        //return $expiration . '_' . $applicationKey . '_' . $sig;
-
-/*
-        $apiKey = $this->gigyaMageHelper->getApiKey();
-
-        $expiration = $this->configModel->getSessionExpiration();
-
-        $cookieLoginToken = explode("|", trim($this->cookieManager->getCookie('glt_'.$apiKey)))[0];
-
-        if($cookieLoginToken)
-        {
-            $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
-            $publicCookieMetadata
-                ->setDuration($expiration)
-                ->setPath('/');
-            $this->cookieManager->setPublicCookie(
-                'gltexp_'.$apiKey,
-                $this->getDynamicSessionSignature($cookieLoginToken,
-                    $expiration, $this->gigyaMageHelper->getAppSecret()
-                ), $publicCookieMetadata
-            );
-        }
-        */
-
-        //return $this->sigUtils->getDynamicSessionSignature($loginToken, $secondsToExpiration, $secret);
-
-/*
-        $unsignedExpString = $loginToken.'_'.$expiration; // define base string for signing
-        //$signedExpString = BASE64(HMACSHA1($secret, $unsignedExpString)); // sign the base string using the secret key
-        $signedExpString = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($secret), TRUE);
-
-        return $expiration.'_'.rawurlencode($signedExpString);   // define the cookie value
-*/
     }
 
     protected function getDynamicSessionSignatureUserSigned($glt_cookie, $timeoutInSeconds, $userKey, $secret)
@@ -648,5 +608,31 @@ class GigyaMageHelper extends AbstractHelper
         $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);
         $signature = base64_encode($rawHmac);
         return $signature;
+    }
+
+    public function transferAttributes(
+        \Magento\Customer\Api\Data\CustomerInterface $from, \Magento\Customer\Api\Data\CustomerInterface $to)
+    {
+        $ext = $from->getExtensionAttributes();
+        if(!is_null($ext))
+        {
+            $to->setExtensionAttributes($ext);
+        }
+        foreach(get_class_methods(\Magento\Customer\Api\Data\CustomerInterface::class) as $method)
+        {
+            $match = [];
+            if(preg_match('/^get(.*)/', $method, $match)
+                && $method != 'getId' && $method != 'getExtensionAttributes'
+                && $method != 'getCustomAttribute' && $method != 'getData')
+            {
+                $getter = $method;
+                $setter = 'set'.$match[1];
+                if(method_exists($to, $setter))
+                {
+                    $to->$setter($from->$getter());
+                }
+            }
+        }
+        return $this;
     }
 }
