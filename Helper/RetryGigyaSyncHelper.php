@@ -7,6 +7,7 @@
 
 namespace Gigya\GigyaIM\Helper;
 
+use Gigya\GigyaIM\Exception\RetryGigyaException;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\Search\SearchCriteriaBuilder;
@@ -36,10 +37,6 @@ use Magento\Framework\App\Area;
  */
 class RetryGigyaSyncHelper extends GigyaSyncHelper
 {
-    const DIRECTION_CMS2G = 'CMS2G';
-    const DIRECTION_G2CMS = 'G2CMS';
-    const DIRECTION_BOTH = 'BOTH';
-
     /** @var  GigyaLogger */
     protected $logger;
 
@@ -170,23 +167,34 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /**
      * Get the current number of retry already performed, if any, for a given customer.
      *
+     * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH  or null (in that case no check is made on the entry direction)
      * @param int $customerEntityId
      * @return int -1 if no retry is currently scheduled, the retry count otherwise.
+     * @throws RetryGigyaException
      */
-    public function getCurrentRetryCount($customerEntityId)
+    public function getCurrentRetryCount($direction, $customerEntityId)
     {
+        if ($direction != null && $direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
+
+        if ($direction != null && $direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
+
+        $where = 'customer_entity_id = ' . $customerEntityId;
+        if (!is_null($direction)) {
+            $where .= ' AND direction = "' . $direction . '"';
+        }
+
         $selectRetryRows = $this->connection
             ->select()
             ->from('gigya_sync_retry')
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns('retry_count')
-            ->where('customer_entity_id = :customer_entity_id');
+            ->where($where);
 
-        $retryRows = $this->connection->fetchAll(
-            $selectRetryRows,
-            [ 'customer_entity_id' => $customerEntityId ],
-            \Zend_Db::FETCH_ASSOC
-        );
+        $retryRows = $this->connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
 
         if (empty($retryRows)) {
             return -1;
@@ -198,9 +206,10 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /**
      * Get all the scheduled retry entries for the given synchronizing direction.
      *
-     * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH
+     * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH or null (in that case no check is made on the entry direction)
      * @param $uid string Default is null. If not null will get the unique entry scheduled for this Gigya uid.
      * @param $getGigyaData bool Default is false. If not false will include the Gigya data stored on this entry.
+     * @throws RetryGigyaException
      * @return array [
      *                 'customer_entity_id' : int,
      *                 'customer_entity_email' : string,
@@ -211,10 +220,19 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      */
     public function getRetryEntries($direction, $uid = null, $getGigyaData = false)
     {
-        $where = 'direction = "' . $direction . '"';
+        if ($direction != null && $direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
 
+        $where = null;
+        if (!is_null($direction)) {
+            $where = 'direction = "' . $direction . '"';
+        }
         if (!is_null($uid)) {
-            $where .=  ' AND gigya_uid = "'.$uid.'"';
+            if (!is_null($where)) {
+                $where .= ' AND ';
+            }
+            $where .=  'gigya_uid = "'.$uid.'"';
         }
 
         $columns = [ 'customer_entity_id', 'customer_entity_email', 'gigya_uid', 'retry_count' ];
@@ -227,8 +245,11 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             ->select()
             ->from('gigya_sync_retry')
             ->reset(\Zend_Db_Select::COLUMNS)
-            ->columns($columns)
-            ->where($where);
+            ->columns($columns);
+
+        if (!is_null($where)) {
+            $selectRetryRows = $selectRetryRows->where($where);
+        }
 
         return $this->connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
     }
@@ -236,20 +257,27 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /**
      * Create a new retry entry.
      *
+     * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH
      * @param $binds array [
      *                       'customer_entity_id' : int
      *                       'customer_entity_email' : string
      *                       'gigya_uid': string
-     *                       'direction' : self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH
      *                       'data' : array [ 'uid', 'profile', 'data' ]
      *                       'message' : string
      *                     ]
+     * @return void
+     * @throws RetryGigyaException
      */
-    public function createRetryEntry($binds)
+    protected function createRetryEntry($direction, $binds)
     {
+        if ($direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
+
         $binds['data'] = serialize($binds['data']);
         $binds['retry_count'] = 0;
         $binds['date'] = date('Y-m-d H:i:s', gmdate('U'));
+        $binds['direction'] = $direction;
 
         $this->connection->insert(
             $this->resourceConnection->getTableName('gigya_sync_retry'),
@@ -257,7 +285,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         );
 
         $this->logger->debug(
-            'Inserted a new row in gigya_sync_retry for Magento to Gigya retry',
+            'Inserted a new row in gigya_sync_retry for '.$direction.' retry',
             [
                 'customer_entity_id' => $binds['customer_entity_id'],
                 'customer_entity_email' => $binds['customer_entity_email'],
@@ -270,29 +298,52 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /**
      * Set the retry count on an existing retry entry.
      *
+     * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH
      * @param $customerEntityId
      * @param $retryCount
+     * @return void
+     * @throws RetryGigyaException
      */
-    protected function setRetryCount($customerEntityId, $retryCount)
+    protected function setRetryCount($direction, $customerEntityId, $retryCount)
     {
+        if ($direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
+
         $this->connection->update(
             'gigya_sync_retry',
-            [ 'retry_count' => $retryCount ],
+            [
+                'direction' => $direction,
+                'retry_count' => $retryCount
+            ],
             'customer_entity_id = ' . $customerEntityId
         );
     }
 
-    public function incrementRetryCount($customerEntityId)
+    /**
+     * Retry count is incremented.
+     *
+     * @param $direction string self::DIRECTION_CMS2G or self::DIRECTION_G2CMS or self::DIRECTION_BOTH
+     * @param $customerEntityId
+     * @return void
+     * @throws RetryGigyaException
+     */
+    public function incrementRetryCount($direction, $customerEntityId)
     {
-        $retryCount = $this->getCurrentRetryCount($customerEntityId);
+        if ($direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
 
-        $this->setRetryCount($customerEntityId, ++$retryCount);
+        $retryCount = $this->getCurrentRetryCount(null, $customerEntityId);
+
+        $this->setRetryCount($direction, $customerEntityId, ++$retryCount);
 
         $this->logger->debug(
-            'Increment gigya_sync_retry.retry_count for Magento to Gigya retry',
+            'Increment gigya_sync_retry.retry_count for '.$direction.' retry',
             [
                 'customer_entity_id' => $customerEntityId,
-                'retry_count' => $retryCount
+                'retry_count' => $retryCount,
+                'direction' => $direction
             ]
         );
     }
@@ -302,23 +353,34 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *
      * Won't fail if the given customer entity id has no scheduled retry entry.
      *
+     * @param $direction string GigyaSyncHelper::DIR_CMS2G or GigyaSyncHelper::DIR_G2CMS or null (in that case no check is made on the entry direction)
      * @param $customerEntityId integer Customer entity id of the row to delete.
      * @param $successMessage string Message to log (info) in case of delete is successful.
      * @param $failureMessage string Message to log (critical) on case of delete is failure.
+     * @throws RetryGigyaException
      */
     public function deleteRetryEntry(
+        $direction,
         $customerEntityId,
         $successMessage = null,
         $failureMessage = null
     )
     {
-        $retryCount = $this->getCurrentRetryCount($customerEntityId);
+        if ($direction != null && $direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
+
+        $retryCount = $this->getCurrentRetryCount($direction, $customerEntityId);
 
         if ($retryCount > -1) {
             try {
+                $where = 'customer_entity_id = ' . $customerEntityId;
+                if (!is_null($direction)) {
+                    $where .= ' AND direction  = "' . $direction . '"';
+                }
                 $this->connection->delete(
                     'gigya_sync_retry',
-                    'customer_entity_id = ' . $customerEntityId
+                     $where
                 );
                 if (!is_null($successMessage)) {
                     $this->logger->info(
@@ -327,7 +389,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
                     );
                 } else {
                     $this->logger->debug(
-                        'Delete row gigya_sync_retry for Magento to Gigya retry',
+                        'Delete row gigya_sync_retry for '.$direction.' retry',
                         ['customer_entity_id' => $customerEntityId]
                     );
                 }
@@ -343,7 +405,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
                     );
                 } else {
                     $this->logger->critical(
-                        'Could not delete row gigya_sync_retry for Magento to Gigya retry',
+                        'Could not delete row gigya_sync_retry for '.$direction.' retry',
                         ['customer_entity_id' => $customerEntityId]
                     );
                 }
@@ -362,35 +424,40 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * If there is no row for this Customer id :
      * . a new row is inserted
      *
+     * @param $direction string GigyaSyncHelper::DIR_CMS2G or GigyaSyncHelper::DIR_G2CMS
      * @param $customerEntityId int
      * @param $customerEntityEmail string
      * @param $gigyaAccountData array with entries uid, profile, data
-     * @paream $message string
+     * @param $message string
      * @return void
+     * @throws RetryGigyaException
      */
-    public function scheduleRetry($customerEntityId, $customerEntityEmail, $gigyaAccountData, $message) {
+    public function scheduleRetry($direction, $customerEntityId, $customerEntityEmail, $gigyaAccountData, $message) {
+
+        if ($direction != GigyaSyncHelper::DIR_CMS2G && $direction != GigyaSyncHelper::DIR_G2CMS) {
+            throw new RetryGigyaException('Direction value should be within ['.GigyaSyncHelper::DIR_CMS2G.', '.GigyaSyncHelper::DIR_G2CMS.']');
+        }
 
         $binds = [
             'customer_entity_id' => $customerEntityId,
             'customer_entity_email' => $customerEntityEmail,
             'gigya_uid' => $gigyaAccountData['uid'],
-            'direction' => RetryGigyaSyncHelper::DIRECTION_CMS2G,
             'data' => $gigyaAccountData,
             'message' => $message != null ? (strlen($message) > 255 ? substr($message, 0, 255).' ...' : $message) : null
         ];
 
         try {
-            $retryCount = $this->getCurrentRetryCount($customerEntityId);
+            $retryCount = $this->getCurrentRetryCount(null, $customerEntityId);
 
             if ($retryCount == -1) {
-                $this->createRetryEntry($binds);
+                $this->createRetryEntry($direction, $binds);
             } else {
                 // If failure after an automatic update retry by the cron : we increment the retry count
                 if ($this->appState->getAreaCode() == Area::AREA_CRONTAB) {
-                    if ($retryCount == $this->maxGigyaUpdateRetryCount) {
+                    if ($retryCount >= $this->maxGigyaUpdateRetryCount - 1) {
                         $this->logger->warning(
                             sprintf(
-                                'Maximum retry attempts for Magento to Gigya retry has been reached (%d). Retry is now unscheduled.',
+                                'Maximum retry attempts for '.$direction.' has been reached (%d). Retry is now unscheduled.',
                                 $this->maxGigyaUpdateRetryCount
                             ),
                             [
@@ -401,13 +468,13 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
                             ]
                         );
 
-                        $this->deleteRetryEntry($customerEntityId);
+                        $this->deleteRetryEntry(null, $customerEntityId);
                     } else {
-                        $this->incrementRetryCount($customerEntityId);
+                        $this->incrementRetryCount($direction, $customerEntityId);
                     }
                 } else { // Failure not in the automatic cron update retry context : reset the scheduled retry entry
-                    $this->deleteRetryEntry($customerEntityId);
-                    $this->createRetryEntry($binds);
+                    $this->deleteRetryEntry(null, $customerEntityId);
+                    $this->createRetryEntry($direction, $binds);
                 }
             }
 
@@ -415,7 +482,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         } catch(\Exception $e) {
             $this->rollBack();
             $this->logger->critical(
-                'Could not log retry entry for Magento to Gigya update. No automatic retry will be performed on it.',
+                'Could not log retry entry for '.$direction.'. No automatic retry will be performed on it.',
                 [
                     'exception' => $e,
                     'customer_entity_id' => $customerEntityId,

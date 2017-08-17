@@ -75,16 +75,9 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      * Stores the latest GigyaUser instances get from the Gigya service, and that have been updated to the Gigya service.
      * Used for rollback needs.
      *
-     * @var array of GgigyaUser
+     * @var array of GigyaUser
      */
     private static $loadedAndUpdatedOriginalGigyaUsers = [];
-
-    /**
-     * Stores the latest GigyaUser instances updated to the Gigya service.
-     *
-     * @var array of GgigyaUser
-     */
-    private static $updatedGigyaUsers = [];
 
     /**
      * GigyaAccountService constructor.
@@ -159,16 +152,16 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     /**
      * @inheritdoc
      *
-     * Dispatch an event :
-     * self::EVENT_UPDATE_GIGYA_SUCCESS
-     * or self::EVENT_UPDATE_GIGYA_FAILURE
+     * @param bool $dispatchEvent If true (default value) will dispatch
+     *                            self::EVENT_UPDATE_GIGYA_SUCCESS
+     *                            or self::EVENT_UPDATE_GIGYA_FAILURE
      */
-    public function update($gigyaAccount)
+    public function update($gigyaAccount, $dispatchEvent = true)
     {
+        $result = null;
         $gigyaApiData = self::getGigyaApiAccountData($gigyaAccount);
 
         try {
-
             /** @var string $uid */
             $uid = $gigyaApiData['uid'];
 
@@ -177,6 +170,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             if (!array_key_exists($uid, self::$loadedGigyaUsers)) {
                 self::$loadedGigyaUsers[$uid] = $this->gigyaMageHelper->getGigyaAccountDataFromUid($uid);
             }
+            $result = self::$loadedGigyaUsers[$uid];
 
             // 2. Update the Gigya account
             $this->gigyaMageHelper->updateGigyaAccount(
@@ -190,17 +184,17 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             self::$loadedAndUpdatedOriginalGigyaUsers[$uid] = self::$loadedGigyaUsers[$uid];
             unset(self::$loadedGigyaUsers[$uid]);
 
-            // 4. We store the GigyaUser that has just been updated to the Gigya service.
-            self::$updatedGigyaUsers[$uid] = $gigyaAccount;
-
             $this->logger->debug(
                 'Successful call to Gigya service api',
                 $gigyaApiData
             );
-            $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_SUCCESS, [
-                    'customer_entity_id' => $gigyaAccount->getCustomerEntityId()
-                ]
-            );
+
+            if ($dispatchEvent) {
+                $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_SUCCESS, [
+                        'customer_entity_id' => $gigyaAccount->getCustomerEntityId()
+                    ]
+                );
+            }
         } catch(GSApiException $e) {
             $message = $e->getMessage();
             $this->logger->error(
@@ -213,15 +207,21 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                     ]
                 ]
             );
-            $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_FAILURE, [
-                    'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
-                    'customer_entity_email' => $gigyaAccount->getCustomerEntityEmail(),
-                    'gigya_data' => $gigyaApiData,
-                    'message' => $message
-                ]
-            );
+
+            if ($dispatchEvent) {
+                $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_FAILURE, [
+                        'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
+                        'customer_entity_email' => $gigyaAccount->getCustomerEntityEmail(),
+                        'gigya_data' => $gigyaApiData,
+                        'message' => $message
+                    ]
+                );
+            }
+
             throw $e;
         }
+
+        return $result;
     }
 
     /**
@@ -243,30 +243,20 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     /**
      * @inheritdoc
      *
-     * The Gigya data for this UID that will be sent for rollback to the Gigya service are the latest loaded with self::get and already successfully updated to Gigya with self::update.
      */
     function rollback($uid)
     {
+        $result = null;
         $gigyaUser = (array_key_exists($uid, self::$loadedAndUpdatedOriginalGigyaUsers)) ? self::$loadedAndUpdatedOriginalGigyaUsers[$uid] : null;
-        $result = true;
         if ($gigyaUser != null) {
             try {
-                $this->update($gigyaUser);
+                $result = $this->update($gigyaUser, false);
             } catch(GSApiException $e) {
                 $this->logger->warning('Could not rollback Gigya data');
-                $result = false;
             }
         }
 
         return $result;
-    }
-
-    /**
-     * @inherited
-     */
-    function getLatestUpdated($uid) {
-
-        return array_key_exists($uid, self::$updatedGigyaUsers) ? self::$updatedGigyaUsers[$uid] : null;
     }
 }
 

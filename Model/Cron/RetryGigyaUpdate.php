@@ -53,7 +53,7 @@ class RetryGigyaUpdate
      */
     public function execute(\Magento\Cron\Model\Schedule $schedule)
     {
-        $allRetriesRow = $this->retryGigyaSyncHelper->getRetryEntries(RetryGigyaSyncHelper::DIRECTION_CMS2G);
+        $allRetriesRow = $this->retryGigyaSyncHelper->getRetryEntries(null);
 
         foreach($allRetriesRow as $retryRow) {
             $customerEntityId = $retryRow['customer_entity_id'];

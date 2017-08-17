@@ -59,7 +59,7 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
 
         parent::processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
-        $this->messageManager->addWarningMessage("Error sync data to Gigya , User profile didn’t update.Please verify mapping fields between Gigya and Magento.");
+        $this->messageManager->addWarningMessage("Error on synchronizing data to Gigya. User profile didn’t update. Please verify mapping fields between Gigya and Magento.");
 
         return false;
     }

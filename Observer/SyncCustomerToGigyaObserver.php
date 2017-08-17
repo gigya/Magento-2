@@ -5,6 +5,8 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Gigya\GigyaIM\Exception\RetryGigyaException;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use Magento\Framework\Event\Observer;
@@ -72,15 +74,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     }
 
     /**
-     * If a retry row already exists for this Customer id :
-     *  If we are in the 'crontab' area (ie the update has been performed by the automatic update cron) :
-     *      . if the max retry attempt has been reached the row is deleted and a critical message is logged
-     *      . otherwise the retry_count is incremented, and the Gigya data and the date are updated
-     *  Otherwise - not in the 'crontab' area :
-     *      . the row is updated with the error message, the Gigya data and the current date, and the retry_count is set to 0
-     *
-     * If there is no row for this Customer id :
-     * . a new row is inserted
+     * Schedule an entry to perform retries. @see RetryGigyaSyncHelper::scheduleRetry()
      *
      * @param Observer $observer
      * @return void
@@ -96,7 +90,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var string $message */
         $message = $observer->getData('message');
 
-        $this->retryGigyaSyncHelper->scheduleRetry($customerEntityId, $customerEntityEmail, $gigyaAccountData, $message);
+        $this->retryGigyaSyncHelper->scheduleRetry(GigyaSyncHelper::DIR_G2CMS, $customerEntityId, $customerEntityEmail, $gigyaAccountData, $message);
     }
 
     /**
@@ -110,6 +104,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $customerEntityId = $observer->getData('customer_entity_id');
 
         $this->retryGigyaSyncHelper->deleteRetryEntry(
+            GigyaSyncHelper::DIR_G2CMS,
             $customerEntityId,
             'Previously failed Gigya update has now succeeded.',
             'Could not remove retry entry for Magento to Gigya update after a successful update on the same Gigya account.'
@@ -119,7 +114,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /**
      * Delete the retry row, if any, if a customer update has failed due to a field mapping error.
      *
-     * @param $observer
+     * @param \Magento\Framework\Event\Observer $observer
      */
     protected function performFieldMappingFailure($observer)
     {
@@ -127,6 +122,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $customerEntityId = $observer->getData('customer_entity_id');
 
         $this->retryGigyaSyncHelper->deleteRetryEntry(
+            null,
             $customerEntityId,
             'Previously failed Gigya update now fails due to field mapping. No automatic retry will be performed on it.',
             'Could not remove retry entry for Magento to Gigya update after a field mapping error on the same customer.'

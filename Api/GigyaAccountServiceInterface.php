@@ -47,18 +47,12 @@ interface GigyaAccountServiceInterface
     function get($uid);
 
     /**
-     * Get the latest state of Gigya customer account successfully updated.
+     * Update the Gigya service with the latest successfully updated version of an account.
+     *
+     * This method shall never send an exception.
      *
      * @param $uid string
-     * @return GigyaUser
-     */
-    function getLatestUpdated($uid);
-
-    /**
-     * Update the Gigya service with the latest version of an account.
-     *
-     * @param $uid string
-     * @return bool False if the rollback failed, True if it succeeded or if the given uid has not been updated so far (thus nothing to roll back)
+     * @return GigyaUser null if the rollback failed or if the given uid has not been updated so far (thus nothing to roll back)
      */
     function rollback($uid);
 }

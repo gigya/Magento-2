@@ -12,6 +12,7 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
@@ -51,7 +52,7 @@ class RetryGigyaAccountService extends GigyaAccountService {
      */
     function get($uid)
     {
-        $savedGigyaData = $this->retryGigyaSyncHelper->getRetryEntries(RetryGigyaSyncHelper::DIRECTION_CMS2G, $uid, true);
+        $savedGigyaData = $this->retryGigyaSyncHelper->getRetryEntries(null, $uid, true);
 
         $result = GigyaUserFactory::createGigyaUserFromArray(unserialize($savedGigyaData[0]['data']));
         $result->setCustomerEntityId($savedGigyaData[0]['customer_entity_id']);

@@ -6,6 +6,7 @@
 namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
@@ -124,20 +125,29 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
 
             if ($this->customerId) {
 
-                $retryCount = $this->retryGigyaSyncHelper->getCurrentRetryCount($this->customerId);
+                $retryG2CMSCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(GigyaSyncHelper::DIR_G2CMS, $this->customerId);
+                $retryCMS2GCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(GigyaSyncHelper::DIR_CMS2G, $this->customerId);
 
-                if ($retryCount == -1) {
-                    /** @var CustomerInterface $customer */
-                    $customer = $this->_customerRepository->getById($this->customerId);
-                    if ($customer->getCustomAttribute('gigya_account_enriched')->getValue() === true) {
-                        $this->messageManager->addSuccessMessage(__('Data are up-to-date with Gigya account.'));
-                    } else {
-                        $this->messageManager->addWarningMessage(__('Synchronizing with Gigya is impossible. The data could be outdated, please come back later.'));
+                if ($retryG2CMSCount == -1) {
+                    if ($retryCMS2GCount == -1) {
+                        /** @var CustomerInterface $customer */
+                        $customer = $this->_customerRepository->getById($this->customerId);
+                        if ($customer->getCustomAttribute('gigya_account_enriched')->getValue() === true) {
+                            $this->messageManager->addSuccessMessage(__('Data are up-to-date with Gigya account.'));
+                        } else {
+                            $this->messageManager->addWarningMessage(__('Data synchronizing from Gigya is impossible. The data could be outdated, please come back later.'));
+                        }
                     }
-                } else if ($retryCount == 0) {
+                } else if ($retryG2CMSCount == 0) {
                     $this->messageManager->addWarningMessage(__('Data are not synchronized to Gigya account, retrying in progress.'));
-                } else if ($retryCount > 0) {
-                    $this->messageManager->addWarningMessage(__('Data synchronizing to Gigya failed. Please try to update the data again.'));
+                } else if ($retryG2CMSCount > 0) {
+                    $this->messageManager->addWarningMessage(__('Retry data synchronizing to Gigya failed. Please wait for next retry or try to update the data again.'));
+                }
+
+                if ($retryCMS2GCount == 0) {
+                    $this->messageManager->addWarningMessage(__('Data are not synchronized to Gigya account, retrying in progress.'));
+                } else if ($retryCMS2GCount > 0) {
+                    $this->messageManager->addWarningMessage(__('Retry data synchronizing to Gigya failed. Please wait for next retry or try to update the data again.'));
                 }
 
                 $result->getLayout()->initMessages();

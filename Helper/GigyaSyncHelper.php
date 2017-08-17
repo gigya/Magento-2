@@ -32,7 +32,7 @@ class GigyaSyncHelper extends AbstractHelper
     /**
      * @var array
      */
-    protected $customerIdsExcludedFromSync = [];
+    protected static $customerIdsExcludedFromSync = [ self::DIR_CMS2G => [], self::DIR_G2CMS => [] ];
 
     /**
      * @var \Magento\Framework\Message\ManagerInterface
@@ -96,9 +96,6 @@ class GigyaSyncHelper extends AbstractHelper
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->storeManager = $storeManager;
         $this->session = $customerSession;
-        $this->customerIdsExcludedFromSync = [
-            self::DIR_CMS2G => [], self::DIR_G2CMS => []
-        ];
         $this->appState = $state;
     }
 
@@ -305,11 +302,11 @@ class GigyaSyncHelper extends AbstractHelper
     {
         if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
         {
-            $this->customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = true;
+            self::$customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = true;
         }
         if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
         {
-            $this->customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = true;
+            self::$customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = true;
         }
         return $this;
     }
@@ -325,11 +322,11 @@ class GigyaSyncHelper extends AbstractHelper
     {
         if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
         {
-            $this->customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = false;
+            self::$customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = false;
         }
         if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
         {
-            $this->customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = false;
+            self::$customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = false;
         }
         return $this;
     }
@@ -343,8 +340,8 @@ class GigyaSyncHelper extends AbstractHelper
      */
     public function isCustomerIdExcludedFromSync($customerId, $dir)
     {
-        return isset($this->customerIdsExcludedFromSync[$dir][$customerId])
-            && $this->customerIdsExcludedFromSync[$dir][$customerId];
+        return isset(self::$customerIdsExcludedFromSync[$dir][$customerId])
+            && self::$customerIdsExcludedFromSync[$dir][$customerId];
     }
 
 }

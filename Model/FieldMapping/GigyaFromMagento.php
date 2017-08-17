@@ -5,12 +5,10 @@
 
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
-use Gigya\CmsStarterKit\fieldMapping\CmsUpdaterException;
 use Magento\Customer\Model\Data\Customer;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater;
-use Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 

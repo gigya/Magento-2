@@ -8,8 +8,8 @@ namespace Gigya\GigyaIM\Plugin\Customer\Model;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Exception\GigyaMagentoCustomerSaveException;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
-use Gigya\GigyaIM\Model\Cron\RetryGigyaUpdate;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
@@ -17,7 +17,7 @@ use Magento\Customer\Api\Data\CustomerInterface;
 /**
  * RollbackGigyaDataPlugin
  *
- * Will trigger the Gigya rollback if a Magento customer save has failed, and schedule a new retry entry (@see RetryGigyaUpdate)
+ * Will perform the Gigya rollback if a Magento customer save has failed, and manage the retry entries.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -45,9 +45,9 @@ class RollbackGigyaDataPlugin
     }
 
     /**
-     * If the Magento customer save fails :
-     * . we have to roll back the Gigya account because it's been updated just before the save.
-     * . retry entry is scheduled.
+     * If the Magento customer save fails AND is to be synchronized to Gigya (*) we have to roll back the Gigya account because it could have been updated just before the save.
+     *
+     * (*) we also save the Magento customer when it's loaded in backend, after being enriched with the current data from Gigya : in this case we do not want to sync back the customer to Gigya.
      *
      * @param CustomerRepositoryInterface $subject
      * @param \Closure $proceed
@@ -61,37 +61,40 @@ class RollbackGigyaDataPlugin
         CustomerInterface $customer
     )
     {
-       try {
-           $result = $proceed($customer);
-           $this->retryGigyaSyncHelper->deleteRetryEntry(
-               $customer->getId(),
-               'Previously failed Magento Customer entity update has now succeeded.',
-               'Could not remove retry entry for Magento update after a successful update on the same Magento Customer entity.'
-           );
-           return $result;
-       } catch(\Exception $e) {
-           $guid = null;
-           if($customer->getCustomAttribute('gigya_uid'))
-           {
-               $guid = $customer->getCustomAttribute('gigya_uid')->getValue();
-           }
-           if(!is_null($guid))
-           {
-               /** @var GigyaUser $previousGigyaAccount */
-               $previousGigyaAccount = $this->gigyaAccountService->getLatestUpdated($guid);
-               if (!is_null($previousGigyaAccount)) {
-                   $this->gigyaAccountService->rollback($guid);
-                   $gigyaAccountData = GigyaAccountService::getGigyaApiAccountData($previousGigyaAccount);
-                   $this->retryGigyaSyncHelper->scheduleRetry(
-                       $customer->getId(),
-                       $customer->getEmail(),
-                       $gigyaAccountData,
-                       'Failure encountered on Magento Customer entity save : ' . $e->getMessage()
-                   );
-               }
-           }
+        $result = null;
+
+        try {
+
+            $result = $proceed($customer);
+
+            if (!$this->retryGigyaSyncHelper->isCustomerIdExcludedFromSync($customer->getId(), GigyaSyncHelper::DIR_CMS2G)) {
+                $this->retryGigyaSyncHelper->deleteRetryEntry(
+                    GigyaSyncHelper::DIR_CMS2G,
+                    $customer->getId(),
+                    'Previously failed Magento Customer entity update has now succeeded.',
+                    'Could not remove retry entry for Magento update after a successful update on the same Magento Customer entity.'
+                );
+            }
+        } catch (\Exception $e) {
+            $uid = $customer->getCustomAttribute('gigya_uid') != null ? $customer->getCustomAttribute('gigya_uid')->getValue() : null;
+            if (!is_null($uid)) {
+                if (!$this->retryGigyaSyncHelper->isCustomerIdExcludedFromSync($customer->getId(), GigyaSyncHelper::DIR_CMS2G)) {
+                    $rolledBackGigyaAccount = $this->gigyaAccountService->rollback($uid);
+                    if (!is_null($rolledBackGigyaAccount)) {
+                        $this->retryGigyaSyncHelper->scheduleRetry(
+                            GigyaSyncHelper::DIR_CMS2G,
+                            $customer->getId(),
+                            $customer->getEmail(),
+                            GigyaAccountService::getGigyaApiAccountData($rolledBackGigyaAccount),
+                            'Failure encountered on Magento Customer entity save : ' . $e->getMessage()
+                        );
+                    }
+                }
+            }
 
             throw new GigyaMagentoCustomerSaveException($e);
-       }
+        }
+
+        return $result;
     }
 }
