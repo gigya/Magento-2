@@ -31,9 +31,9 @@ class GigyaScript extends Template
     protected $scopeConfig;
 
     /**
-     * @var bool
+     * @var \Gigya\GigyaIM\Model\Config
      */
-    protected $allowGigyaLogout;
+    protected $configModel;
 
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
@@ -45,6 +45,7 @@ class GigyaScript extends Template
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Model\Url $customerUrl,
+        \Gigya\GigyaIM\Model\Config $configModel,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -52,7 +53,7 @@ class GigyaScript extends Template
         $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
         $this->scopeConfig = $context->getScopeConfig();
-        $this->allowGigyaLogout = false;
+        $this->configModel = $configModel;
     }
 
     /**
@@ -68,7 +69,14 @@ class GigyaScript extends Template
      */
     public function getUserSessionLifetime()
     {
-        return $this->_customerSession->getCookieLifetime();
+        if($this->configModel->getSessionMode() == \Gigya\GigyaIM\Model\Config::SESSION_MODE_EXTENDED)
+        {
+            return -1;
+        }
+        else
+        {
+            return $this->configModel->getSessionExpiration();
+        }
     }
 
     /**
@@ -96,11 +104,21 @@ class GigyaScript extends Template
     }
 
     /**
-     * Check URL used for checking the login state
+     * Retrieve URL used for checking the login state
      * @return int
      */
     public function getMagentoLoginStateUrl() {
         return $this->getUrl('gigya_raas/raas/state');
+    }
+
+    public function getLogoutUrl()
+    {
+        return $this->getUrl('customer/account/logout');
+    }
+
+    public function getLoginUrl()
+    {
+        return $this->getUrl('gigya_raas/raas_automatic/login');
     }
 
     /**
@@ -131,17 +149,6 @@ class GigyaScript extends Template
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
         $local_lang = $resolver->getLocale();
         return substr($local_lang, 0, 2);
-    }
-
-    public function setAllowGigyaLogout($allowGigyaLogout)
-    {
-        $this->allowGigyaLogout = $allowGigyaLogout;
-        return $this;
-    }
-
-    public function getAllowGigyaLogout()
-    {
-        return $this->allowGigyaLogout ? 'true' : 'false';
     }
 
     /**

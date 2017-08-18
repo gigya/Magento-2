@@ -23,6 +23,7 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\App\Area;
+use Magento\Customer\Model\Config\Share;
 
 /**
  * RetryGigyaSyncHelper
@@ -89,6 +90,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         StoreManagerInterface $storeManager,
         Session $customerSession,
         AppState $state,
+        Share $shareConfig,
         Context $context,
         GigyaLogger $logger,
         ResourceConnection $resourceConnection,
@@ -105,7 +107,8 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             $filterGroupBuilder,
             $storeManager,
             $customerSession,
-            $state
+            $state,
+            $shareConfig
         );
 
         $this->logger = $logger;

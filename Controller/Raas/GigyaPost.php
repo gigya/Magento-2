@@ -43,7 +43,13 @@ class GigyaPost extends AbstractLogin
 
         $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
         $responseObject = $this->doLogin($valid_gigya_user);
-        return $this->extractResponseFromDataObject($responseObject);
+        $response =  $this->extractResponseFromDataObject($responseObject);
+        //$this->cookies['gltexp_'.$this->gigyaMageHelper->getApiKey()] = $this->gigyaMageHelper->calculateExpCookieValue();
+        $this->applyCookies();
+
+        $this->extendModel->setupSessionCookie();
+
+        return $response;
     }
 
     /**

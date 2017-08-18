@@ -8,7 +8,7 @@ var config = {
     },
     shim:{
         'gigya_script':{
-            'deps':['jquery']
+            'deps':['jquery', 'tinymce']
         }
     }
 };

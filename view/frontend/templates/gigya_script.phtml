@@ -11,37 +11,74 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
 
 <script>
 var login_state_url = "<?php echo $block->getMagentoLoginStateUrl() ?>";
+var logout_url = "<?php echo $block->getLogoutUrl() ?>";
 var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
 var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
-var allow_gigya_logout = <?php echo $block->getAllowGigyaLogout() ?>;
+var login_url = "<?php echo $block->getLoginUrl() ?>";
+var magento_user_logged_in = false;
+var enable_login = true;
+
+    var m;
 </script>
 
 <script>
+
     require([
         "jquery",
         "gigya_script"
-    ], function($, gigyaMage2) {
+    ], function($, gigyaMage2){
+        m = gigyaMage2;
         "use strict";
-        window.gigyaInit = window.gigyaInit || [];
-        // Set Gigya global configuration object
-        window.__gigyaConf = {
-            // Gigya user session time should be equal to Magento session time
-            sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
+
+        var loadGigyaScript = function(magentoLoggedIn)
+        {
+            gigyaMage2.Params.magento_user_logged_in = magentoLoggedIn;
+
+            window.gigyaInit = window.gigyaInit || [];
+            // Set Gigya global configuration object
+            window.__gigyaConf = {
+                // Gigya user session time should be equal to Magento session time
+                sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
+            };
+
+            gigyaMage2.Functions.loadGigyaScript(
+                "<?php echo $block->getGigyaApiKey() ?>",
+                "<?php echo $block->getLanguage() ?>",
+                <?php echo $scriptDomain ? '"'.$scriptDomain.'"' : 'false' ?>
+            );
+
+            // Session synchronization between Gigya and Magento
+            gigyaMage2.Functions.syncSessionStatus();
+
+            $('a[href$="logout/"]').click(function () {
+                gigya.accounts.logout();
+                return true;
+            });
         };
-        
-        gigyaMage2.Functions.loadGigyaScript(
-            "<?php echo $block->getGigyaApiKey() ?>",
-            "<?php echo $block->getLanguage() ?>",
-            <?php echo $scriptDomain ? '"'.$scriptDomain.'"' : 'false' ?>
-        );
 
-        // Session synchronization between Gigya and Magento
-        gigyaMage2.Functions.syncSessionStatus();
+        var retryCounter = $.cookie("<?php echo \Gigya\GigyaIM\Controller\Raas\AbstractLogin::RETRY_COOKIE_NAME ?>");
+        if(retryCounter && parseInt(retryCounter) >= 3)
+        {
+            enable_login = false;
+            loadGigyaScript(false);
+        }
+        else
+        {
+            $.ajax({
+                type : "GET",
+                url : login_state_url,
+                showLoader: false
+            })
+            .done(function(data) {
 
-        $('a[href$="logout/"]').click(function () {
-            gigya.accounts.logout();
-            return true;
-        });
+                if(typeof data.logged_in != 'undefined')
+                {
+                    magento_user_logged_in = (data.logged_in == '1');
+                    gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
+                }
+                loadGigyaScript(gigyaMage2.Params.magento_user_logged_in);
+            });
+        }
     });
 </script>
 <?php echo $block->getChildHtml('Gigya_GigyaIM::GigyaModalLogin') ?>

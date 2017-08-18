@@ -5,22 +5,28 @@
 namespace Gigya\GigyaIM\Helper;
 
 use Gigya\CmsStarterKit\sdk\GSException;
+use Gigya\CmsStarterKit\sdk\SigUtils;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Model\Settings;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;
-use Magento\Framework\App\Filesystem\DirectoryList;
+use Gigya\GigyaIM\Model\Config;
+use Gigya\GigyaIM\Model\SettingsFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Gigya\GigyaIM\Logger\Logger;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\CmsStarterKit\GigyaApiHelper;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 
 class GigyaMageHelper extends AbstractHelper
 {
     const MODULE_NAME = 'Gigya_GigyaIM';
+
     private $extra_profile_fields_config = "https://s3.amazonaws.com/gigya-cms-configs/extraProfileFieldsMap.json";
 
     private $apiKey;
@@ -36,6 +42,7 @@ class GigyaMageHelper extends AbstractHelper
     protected $configSettings;
     protected $dbSettings;
     protected $_moduleList;
+    protected $configModel;
 
     public $_logger;
 
@@ -45,30 +52,39 @@ class GigyaMageHelper extends AbstractHelper
     /** @var Filesystem  */
     protected $_fileSystem;
 
+    protected $sigUtils;
+
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const CHARS_PASSWORD_DIGITS = '23456789';
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
     public function __construct(
+        SettingsFactory $settingsFactory, // virtual class
         Settings $settings,
         Context $context,
         Logger $logger,
         ModuleListInterface $moduleList,
+        Config $configModel,
         Session $session,
-        Filesystem $fileSystem
+        Filesystem $fileSystem,
+        CookieManagerInterface $cookieManager,
+        SigUtils $sigUtils
     ) {
         parent::__construct($context);
 
         $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general');
         $this->dbSettings = $settings->load(1);
         $this->_logger = $logger;
+        $this->configModel = $configModel;
 	    $this->scopeConfig = $context->getScopeConfig();
         $this->_fileSystem = $fileSystem;
         $this->setGigyaSettings();
         $this->setAppSecret();
         $this->_moduleList = $moduleList;
         $this->session = $session;
+        $this->cookieManager = $cookieManager;
+        $this->sigUtils = $sigUtils;
     }
 
     /**
@@ -185,12 +201,14 @@ class GigyaMageHelper extends AbstractHelper
      */
     private function setGigyaSettings()
     {
-        $this->apiKey = $this->configSettings['api_key'];
-        $this->apiDomain = $this->configSettings['domain'];
-        $this->appKey = $this->configSettings['app_key'];
+        $settings = $this->configModel->getGigyaGeneralConfig();
+        $this->apiKey = $settings['api_key'];
+        $this->apiDomain = $settings['domain'];
+        $this->appKey = $settings['app_key'];
+        $this->debug = $settings['debug_mode'];
         $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
-            . DIRECTORY_SEPARATOR . $this->configSettings['key_file_location'];
-        $this->debug = $this->configSettings['debug_mode'];
+            . DIRECTORY_SEPARATOR . $settings['key_file_location'];
+        $this->debug = $settings['debug_mode'];
     }
 
     public function getGigyaApiHelper()
@@ -290,9 +308,11 @@ class GigyaMageHelper extends AbstractHelper
     protected function setExtraProfileFields()
     {
         $extra_profile_fields_list = null;
-
-        $config_file_path = $this->scopeConfig->
-        getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
+        // if field mapping module is on, set $config_file_path
+        if (is_null($this->_moduleList->getOne(self::MODULE_NAME)['setup_version'])) {
+            return $extra_profile_fields_list;
+        }
+        $config_file_path = $this->configModel->getMappingFilePath();
 
         // if map fields file exists, read map fields file and build gigya fields array
         if (is_null($config_file_path)) {
@@ -472,5 +492,116 @@ class GigyaMageHelper extends AbstractHelper
     public function getGigyaAccountDataFromUid($uid)
     {
         return $this->getGigyaApiHelper()->fetchGigyaAccount($uid);
+    }
+
+    public function isSessionExpirationCookieExpired()
+    {
+        $APIKey = $this->getApiKey();
+        $value = $this->cookieManager->getCookie("gltexp_" . $APIKey);
+        if(!$value)
+        {
+            return true;
+        }
+        $value = preg_replace('/^(\d+)_.*$/', '$1', $value);
+        if(is_numeric($value))
+        {
+            $value = intval($value);
+            return $value < time();
+        }
+        return true;
+    }
+
+    /*
+     * The following features are temporary: they serve to test/analyze the creation of the Session Extension cookie
+     * CATODO: clean this section up
+     */
+    public function setSessionExpirationCookie($secondsToExpiration = null)
+    {
+        $currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
+        $this->_logger->info(" > SESSION : current time: $currentTime");
+
+        $APIKey = $this->getApiKey();
+        $tokenCookieName = "glt_" . $APIKey;
+        if(isset($_COOKIE[$tokenCookieName]))
+        {
+            if(is_null($secondsToExpiration))
+            {
+                $secondsToExpiration = $this->configModel->getSessionExpiration();
+            }
+            $cookieName = "gltexp_" . $APIKey;  // define the cookie name
+            $cookieValue = $this->calculateExpCookieValue($secondsToExpiration);    // calculate the cookie value
+            $cookiePath = "/";     // cookie's path must be base domain
+
+            $expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
+
+            setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
+            $this->_logger->info(" > SESSION : set cookie at $currentTime, will expire on $expirationTime");
+        }
+    }
+
+    public function calculateExpCookieValue($secondsToExpiration = null) {
+        if(is_null($secondsToExpiration))
+        {
+            $secondsToExpiration = $this->configModel->getSessionExpiration();
+        }
+
+        $APIKey = $this->getApiKey();
+        $tokenCookieName = "glt_" . $APIKey;   //  the name of the token-cookie Gigya stores
+        $tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
+        $loginToken = explode("|", $tokenCookieValue)[0]; // get the login token from the token-cookie.
+        $applicationKey = $this->getAppKey();
+        $secret = $this->getAppSecret();
+
+
+        return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
+
+    }
+
+    protected function getDynamicSessionSignatureUserSigned($glt_cookie, $timeoutInSeconds, $userKey, $secret)
+    {
+        // cookie format:
+        // <expiration time in unix time format>_<User Key>_BASE64(HMACSHA1(secret key, <login token>_<expiration time in unix time format>_<User Key>))
+        $expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $timeoutInSeconds;
+        $expirationTimeUnix = (string)floor($expirationTimeUnixMS);
+        $unsignedExpString = $glt_cookie . "_" . $expirationTimeUnix . "_" . $userKey;
+        $signedExpString = SigUtils::calcSignature($unsignedExpString, $secret); // sign the base string using the secret key
+
+        $ret = $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString;   // define the cookie value
+
+        return $ret;
+    }
+
+
+    protected function signBaseString($key, $unsignedExpString) {
+        $unsignedExpString = utf8_encode($unsignedExpString);
+        $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);
+        $signature = base64_encode($rawHmac);
+        return $signature;
+    }
+
+    public function transferAttributes(
+        \Magento\Customer\Api\Data\CustomerInterface $from, \Magento\Customer\Api\Data\CustomerInterface $to)
+    {
+        $ext = $from->getExtensionAttributes();
+        if(!is_null($ext))
+        {
+            $to->setExtensionAttributes($ext);
+        }
+        foreach(get_class_methods(\Magento\Customer\Api\Data\CustomerInterface::class) as $method)
+        {
+            $match = [];
+            if(preg_match('/^get(.*)/', $method, $match)
+                && $method != 'getId' && $method != 'getExtensionAttributes'
+                && $method != 'getCustomAttribute' && $method != 'getData')
+            {
+                $getter = $method;
+                $setter = 'set'.$match[1];
+                if(method_exists($to, $setter))
+                {
+                    $to->$setter($from->$getter());
+                }
+            }
+        }
+        return $this;
     }
 }
