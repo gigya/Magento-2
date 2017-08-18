@@ -90,7 +90,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         /** @var string $message */
         $message = $observer->getData('message');
 
-        $this->retryGigyaSyncHelper->scheduleRetry(GigyaSyncHelper::DIR_G2CMS, $customerEntityId, $customerEntityEmail, $gigyaAccountData, $message);
+        $this->retryGigyaSyncHelper->scheduleRetry(RetryGigyaSyncHelper::ORIGIN_GIGYA, $customerEntityId, $customerEntityEmail, $gigyaAccountData, $message);
     }
 
     /**
@@ -104,7 +104,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $customerEntityId = $observer->getData('customer_entity_id');
 
         $this->retryGigyaSyncHelper->deleteRetryEntry(
-            GigyaSyncHelper::DIR_G2CMS,
+            RetryGigyaSyncHelper::ORIGIN_GIGYA,
             $customerEntityId,
             'Previously failed Gigya update has now succeeded.',
             'Could not remove retry entry for Magento to Gigya update after a successful update on the same Gigya account.'

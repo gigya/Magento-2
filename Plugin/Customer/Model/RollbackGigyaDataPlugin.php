@@ -69,7 +69,7 @@ class RollbackGigyaDataPlugin
 
             if (!$this->retryGigyaSyncHelper->isCustomerIdExcludedFromSync($customer->getId(), GigyaSyncHelper::DIR_CMS2G)) {
                 $this->retryGigyaSyncHelper->deleteRetryEntry(
-                    GigyaSyncHelper::DIR_CMS2G,
+                    RetryGigyaSyncHelper::ORIGIN_CMS,
                     $customer->getId(),
                     'Previously failed Magento Customer entity update has now succeeded.',
                     'Could not remove retry entry for Magento update after a successful update on the same Magento Customer entity.'
@@ -82,7 +82,7 @@ class RollbackGigyaDataPlugin
                     $rolledBackGigyaAccount = $this->gigyaAccountService->rollback($uid);
                     if (!is_null($rolledBackGigyaAccount)) {
                         $this->retryGigyaSyncHelper->scheduleRetry(
-                            GigyaSyncHelper::DIR_CMS2G,
+                            RetryGigyaSyncHelper::ORIGIN_CMS,
                             $customer->getId(),
                             $customer->getEmail(),
                             GigyaAccountService::getGigyaApiAccountData($rolledBackGigyaAccount),

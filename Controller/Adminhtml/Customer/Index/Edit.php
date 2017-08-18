@@ -125,8 +125,8 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
 
             if ($this->customerId) {
 
-                $retryG2CMSCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(GigyaSyncHelper::DIR_G2CMS, $this->customerId);
-                $retryCMS2GCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(GigyaSyncHelper::DIR_CMS2G, $this->customerId);
+                $retryG2CMSCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(RetryGigyaSyncHelper::ORIGIN_GIGYA, $this->customerId);
+                $retryCMS2GCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(RetryGigyaSyncHelper::ORIGIN_CMS, $this->customerId);
 
                 if ($retryG2CMSCount == -1) {
                     if ($retryCMS2GCount == -1) {
