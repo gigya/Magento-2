@@ -60,8 +60,8 @@ define([
         }
         window.gigyaCMS.authenticated = gigyaMage2.Params.gigya_user_logged_in;
         var action = login_state_url;
-        //console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
-        //console.log('  CMS LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
+        // console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
+        // console.log('  CMS LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
         // if Gigya is logged out, but Magento is logged in: log Magento out
         // this scenario may result in double page load for user, but is used only to fix an end case situation.
         if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
@@ -80,7 +80,6 @@ define([
             var guid = response.UID;
             if(guid)
             {
-                var sid = tinymce.util.Cookie.get('PHPSESSID');
                 var form_key = tinymce.util.Cookie.get('form_key');
                 var domain = window.location.hostname;
                 $.ajax({
@@ -88,7 +87,7 @@ define([
                     url : login_url,
                     data : {
                         form_key:form_key, guid: guid, login_data: JSON.stringify(response),
-                        key: gigyaMage2.Functions.loginEncode(sid+domain+guid+1234)
+                        key: gigyaMage2.Functions.loginEncode(domain+guid+"1234")
                     }
                 })
                 .always(function(data) {

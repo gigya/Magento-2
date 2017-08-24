@@ -80,7 +80,6 @@ class Extend
                     {
                         $path = preg_replace('/\/index\.php\//', '/', $this->storeManager->getStore()->getStorePath());
 
-
                         $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
                         $publicCookieMetadata
                             ->setDuration($expiration)

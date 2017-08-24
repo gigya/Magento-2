@@ -21,11 +21,10 @@ class Login extends AbstractHelper
 
     public function validateAutoLoginParameters(RequestInterface $request)
     {
-        $sid = $this->cookieManager->getCookie('PHPSESSID');
         $domain = preg_replace('/^([^:]+)((\:\d+)?)$/', '$1', $this->host);
         $guid = $request->getParam('guid');
         $salt = '1234';
 
-        return $request->getParam('key') == base64_encode($sid.$domain.$guid.$salt);
+        return $request->getParam('key') == base64_encode($domain.$guid.$salt);
     }
 }
