@@ -94,7 +94,7 @@ class Extend
                                 $sessionPath = '/';
                             }
                             $domain = preg_replace('/^https?\:\/\/([^:\/]+)(\:[\d]+)?\/.*$/', '$1', $this->urlInterface->getBaseUrl());
-                            $publicCookieMetadata->setPath($this->configModel->getMagentoCookiePath());
+                            $publicCookieMetadata->setPath($sessionPath);
                             $publicCookieMetadata->setDomain('.'.$domain);
                         }
 
