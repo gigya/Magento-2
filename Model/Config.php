@@ -62,4 +62,12 @@ class Config
     {
         return $this->scopeConfig->getValue(self::XML_PATH_GENERAL);
     }
+
+    /**
+     * @return string
+     */
+    public function getMagentoCookiePath()
+    {
+        return $this->scopeConfig->getValue(\Magento\Framework\Session\Config::XML_PATH_COOKIE_PATH);
+    }
 }

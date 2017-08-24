@@ -79,13 +79,7 @@ class Extend
                     if(!is_null($existingValue))
                     {
                         $path = preg_replace('/\/index\.php\//', '/', $this->storeManager->getStore()->getStorePath());
-                        if($path != '/')
-                        {
-                            $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
-                            $publicCookieMetadata
-                                ->setPath('/');
-                            $this->cookieManager->deleteCookie($cookieName, $publicCookieMetadata);
-                        }
+
 
                         $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
                         $publicCookieMetadata
@@ -94,7 +88,13 @@ class Extend
 
                         if($cookieName == 'PHPSESSID')
                         {
+                            $sessionPath = $this->configModel->getMagentoCookiePath();
+                            if(!$sessionPath)
+                            {
+                                $sessionPath = '/';
+                            }
                             $domain = preg_replace('/^https?\:\/\/([^:\/]+)(\:[\d]+)?\/.*$/', '$1', $this->urlInterface->getBaseUrl());
+                            $publicCookieMetadata->setPath($this->configModel->getMagentoCookiePath());
                             $publicCookieMetadata->setDomain('.'.$domain);
                         }
 
