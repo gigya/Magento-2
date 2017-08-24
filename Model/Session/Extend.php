@@ -78,12 +78,19 @@ class Extend
                     $existingValue = $this->cookieManager->getCookie($cookieName);
                     if(!is_null($existingValue))
                     {
+                        $path = preg_replace('/\/index\.php\//', '/', $this->storeManager->getStore()->getStorePath());
+                        if($path != '/')
+                        {
+                            $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
+                            $publicCookieMetadata
+                                ->setPath('/');
+                            $this->cookieManager->deleteCookie($cookieName, $publicCookieMetadata);
+                        }
+
                         $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
                         $publicCookieMetadata
                             ->setDuration($expiration)
-                            ->setPath(
-                                preg_replace('/\/index\.php\//', '/', $this->storeManager->getStore()->getStorePath())
-                            );
+                            ->setPath($path);
 
                         if($cookieName == 'PHPSESSID')
                         {
