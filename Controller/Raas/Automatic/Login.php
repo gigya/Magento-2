@@ -37,6 +37,7 @@ use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
+use Gigya\GigyaIM\Model\Session\Extend;
 
 class Login extends AbstractLogin
 {
@@ -101,7 +102,8 @@ class Login extends AbstractLogin
         GigyaMageHelper $gigyaMageHelper,
         CookieMetadataFactory $cookieMetadataFactory,
         LoginHelper $loginHelper,
-        Logger $logger
+        Logger $logger,
+        Extend $extendModel
     )
     {
         parent::__construct(
@@ -128,7 +130,8 @@ class Login extends AbstractLogin
             $formKeyValidator,
             $cookieManager,
             $gigyaMageHelper,
-            $cookieMetadataFactory
+            $cookieMetadataFactory,
+            $extendModel
         );
 
         $this->loginHelper = $loginHelper;
