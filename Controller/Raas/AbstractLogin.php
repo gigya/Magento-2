@@ -116,6 +116,11 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected $extendModel;
 
     /**
+     * @var array
+     */
+    protected $messageStorage;
+
+    /**
      * @param Context $context
      * @param Session $customerSession
      * @param ScopeConfigInterface $scopeConfig
@@ -199,6 +204,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
         $this->cookies = [];
         $this->cookiesToDelete = [];
+        $this->messageStorage = [];
     }
 
     /**
@@ -211,7 +217,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         $resultRedirect = $this->resultRedirectFactory->create();
         // if gigya user not validated return error
         if (!$valid_gigya_user) {
-            $this->messageManager->addError(__('The user is not validated. Please try again or contact support.'));
+            $this->addError(__('The user is not validated. Please try again or contact support.'));
             return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
                 ['login_successful' => false]);
         } // we have a valid gigya user. verify that required fields exist
@@ -220,7 +226,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
             if (!empty($required_field_message)) {
                 foreach ($required_field_message as $message) {
-                    $this->messageManager->addError($message);
+                    $this->addError($message);
                 }
                 return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
             }
@@ -240,12 +246,11 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                     $loginSuccess = true;
                 }
             } catch(\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
+                $this->addError($e->getMessage());
                 $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
-                $this->messageManager->addError($e->getMessage());
                 $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
-                $redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl),
-                    ['login_successful' => $loginSuccess]);
+                //$redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl),
+                //    ['login_successful' => $loginSuccess]);
             }
 
             return $redirect;
@@ -297,20 +302,20 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 'This account is not confirmed. <a href="%1">Click here</a> to resend confirmation email.',
                 $value
             );
-            $this->messageManager->addErrorMessage($message);
+            $this->addError($message);
             $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
             return false;
         } catch (AuthenticationException $e) {
             $message = __('Invalid login or password.');
-            $this->messageManager->addErrorMessage($message);
+            $this->addError($message);
             $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
             return false;
         } catch (\Exception $e) {
             $this->incrementLoginRetryCounter();
             // PA DSS violation: throwing or logging an exception here can disclose customer password
-            $this->messageManager->addErrorMessage(
+            $this->addError(
                 __('An unspecified error occurred. Please contact us for assistance.')
             );
             return false;
@@ -350,7 +355,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             if ($confirmationStatus === AccountManagementInterface::ACCOUNT_CONFIRMATION_REQUIRED) {
                 $email = $this->customerUrl->getEmailConfirmationUrl($customer->getEmail());
                 // @codingStandardsIgnoreStart
-                $this->messageManager->addSuccess(
+                $this->addSuccess(
                     __(
                         'You must confirm your account. Please check your email for the confirmation link or <a href="%1">click here</a> for a new link.',
                         $email
@@ -362,7 +367,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 $resultRedirect->setUrl($this->_redirect->success($url));
             } else {
                 $this->session->setCustomerDataAsLoggedIn($customer);
-                $this->messageManager->addSuccess($this->getSuccessMessage());
+                $this->addSuccess($this->getSuccessMessage());
                 $this->deleteLoginRetryCounter();
                 return $this->encapsulateResponse($this->accountRedirect->getRedirect());
             }
@@ -375,17 +380,17 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 $url
             );
             // @codingStandardsIgnoreEnd
-            $this->messageManager->addErrorMessage($message);
+            $this->addError($message);
         } catch (InputException $e) {
             $this->incrementLoginRetryCounter();;
-            $this->messageManager->addErrorMessage($this->escaper->escapeHtml($e->getMessage()));
+            $this->addError($this->escaper->escapeHtml($e->getMessage()));
             foreach ($e->getErrors() as $error) {
-                $this->messageManager->addErrorMessage($this->escaper->escapeHtml($error->getMessage()));
+                $this->addError($this->escaper->escapeHtml($error->getMessage()));
             }
         } catch (\Exception $e) {
             $this->incrementLoginRetryCounter();;
             $message = __('We can\'t save the customer. ') . $e->getMessage();
-            $this->messageManager->addErrorMessage($message);
+            $this->addError($message);
         }
 
         $this->session->setCustomerFormData($this->getRequest()->getPostValue());
@@ -545,6 +550,63 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             else
             {
                 $this->cookieManager->setPublicCookie($name, $value, $metadata);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $message
+     * @return $this
+     */
+    protected function addError($message)
+    {
+        return $this->addMessage($message, \Magento\Framework\Message\MessageInterface::TYPE_ERROR);
+    }
+
+    /**
+     * @param string $message
+     * @return $this
+     */
+    protected function addSuccess($message)
+    {
+        return $this->addMessage($message, \Magento\Framework\Message\MessageInterface::TYPE_SUCCESS);
+    }
+
+    /**
+     * @param string $message
+     * @param string $type
+     * @return $this
+     */
+    protected function addMessage($message, $type)
+    {
+        if(!isset($this->messageStorage[$type]))
+        {
+            $this->messageStorage[$type] = [];
+        }
+        $this->messageStorage[$type][] = $message;
+        return $this;
+    }
+
+    protected function applyMessages()
+    {
+        foreach($this->messageStorage as $type => $messages)
+        {
+            foreach($messages as $message)
+            {
+                switch($type) {
+                    case \Magento\Framework\Message\MessageInterface::TYPE_SUCCESS:
+                        $this->messageManager->addSuccessMessage($message);
+                        break;
+
+                    case \Magento\Framework\Message\MessageInterface::TYPE_ERROR:
+                        $this->messageManager->addErrorMessage($message);
+                        break;
+
+                    default:
+                        $this->messageManager->addNoticeMessage($message);
+                        break;
+                }
             }
         }
         return $this;

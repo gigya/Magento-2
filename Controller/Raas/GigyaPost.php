@@ -49,6 +49,8 @@ class GigyaPost extends AbstractLogin
 
         $this->extendModel->setupSessionCookie();
 
+        $this->applyMessages();
+
         return $response;
     }
 

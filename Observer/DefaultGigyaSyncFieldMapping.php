@@ -23,7 +23,7 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
 {
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        /** @var Customer $customer */
+        /** @var Customer $magentoCustomer */
         $magentoCustomer = $observer->getData('customer');
         // 'Translate' the gender code from Magento to Gigya value
         switch($magentoCustomer->getGender()) {

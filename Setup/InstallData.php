@@ -62,11 +62,11 @@ class InstallData implements InstallDataInterface
             'label' => 'Gigya UID',
             'input' => 'text',
             'required' => false,
-            'visible' => true,
+            'visible' => false,
             'user_defined' => true,
             'sort_order' => 1000,
             'position' => 1000,
-            'system' => 1,
+            'system' => 0,
         ]);
 
         $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'gigya_uid')
