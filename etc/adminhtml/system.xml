@@ -16,7 +16,7 @@
                     <validate>validate-no-empty</validate>
                 </field>
                 <field id="domain" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Domain</label>
+                    <label>Data Center</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\Domain</source_model>
                 </field>
                 <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
