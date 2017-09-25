@@ -1,0 +1,31 @@
+[
+  {
+    "cmsName": "gender",
+    "cmsType": "int",
+    "gigyaName": "profile.gender",
+    "gigyaType": "string",
+    "direction": "both"
+  },
+  {
+    "cmsName": "firstname",
+    "cmsType": "string",
+    "gigyaName": "profile.firstName",
+    "gigyaType": "string",
+    "direction": "both"
+  },
+  {
+    "cmsName": "lastname",
+    "cmsType": "string",
+    "gigyaName": "profile.lastName",
+    "gigyaType": "string",
+    "direction": "both"
+  },
+  {
+    "cmsName": "email",
+    "cmsType": "string",
+    "gigyaName": "profile.email",
+    "gigyaType": "string",
+    "direction": "both"
+  }
+]
+

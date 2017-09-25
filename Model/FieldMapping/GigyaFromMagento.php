@@ -11,6 +11,7 @@ use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 
 /**
  * GigyaFromMagentoFieldMapping
@@ -18,17 +19,12 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * Observer for mapping Magento Customer's entity data to Gigya data.
  *
  */
-class GigyaFromMagento
+class GigyaFromMagento extends AbstractFieldMapping
 {
     /**
      * @var \Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater
      */
     protected $customerFieldsUpdater;
-
-    /**
-     * @var GigyaLogger
-     */
-    protected $logger;
 
     /** @var ScopeConfigInterface  */
     protected $scopeConfig;
@@ -43,11 +39,11 @@ class GigyaFromMagento
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         GigyaLogger $logger,
-        GigyaCustomerFieldsUpdater $customerFieldsUpdater
+        GigyaCustomerFieldsUpdater $customerFieldsUpdater,
+        ModuleDirReader $moduleDirReader
     )
     {
-        $this->scopeConfig = $scopeConfig;
-        $this->logger = $logger;
+        parent::__construct($scopeConfig, $moduleDirReader, $logger);
         $this->customerFieldsUpdater = $customerFieldsUpdater;
     }
 
@@ -58,7 +54,7 @@ class GigyaFromMagento
      */
     public function run($customer, $gigyaUser)
     {
-        $config_file_path = $this->scopeConfig->getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
+        $config_file_path = $this->getFieldMappingFile();
         if (!is_null($config_file_path)) {
             $this->customerFieldsUpdater->setMagentoCustomer($customer);
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
