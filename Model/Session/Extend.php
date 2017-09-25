@@ -64,7 +64,6 @@ class Extend
     public function extendSession($checkCookieValidity = true)
     {
         $currentTime = $_SERVER['REQUEST_TIME'];
-        $this->logger->info(" > SESSION : current time: $currentTime");
         if($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED)
         {
             if((!$this->gigyaMageHelper->isSessionExpirationCookieExpired()) || (!$checkCookieValidity))

@@ -518,7 +518,6 @@ class GigyaMageHelper extends AbstractHelper
     public function setSessionExpirationCookie($secondsToExpiration = null)
     {
         $currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
-        $this->_logger->info(" > SESSION : current time: $currentTime");
 
         $APIKey = $this->getApiKey();
         $tokenCookieName = "glt_" . $APIKey;
@@ -535,7 +534,6 @@ class GigyaMageHelper extends AbstractHelper
             $expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
 
             setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
-            $this->_logger->info(" > SESSION : set cookie at $currentTime, will expire on $expirationTime");
         }
     }
 
