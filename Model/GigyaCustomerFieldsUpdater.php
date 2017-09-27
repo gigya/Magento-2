@@ -25,7 +25,7 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * @author      vlemaire <info@x2i.fr>
  *
  */
-class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
+class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 {
 
     /** @var CacheType CacheType */
@@ -80,7 +80,7 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
         $this->eventManager->dispatch(
             "pre_sync_to_gigya",
             [
-                "customer" => $this->getMagentoCustomer(),
+                "customer" => $this->getMagentoUser(),
                 "gigya_user" => $this->getGigyaUser()
             ]
         );
@@ -117,22 +117,6 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
                 }
             }
         }
-    }
-
-    /**
-     * @return Customer
-     */
-    public function getMagentoCustomer()
-    {
-        return $this->magentoCustomer;
-    }
-
-    /**
-     * @param Customer $magentoCustomer
-     */
-    public function setMagentoCustomer($magentoCustomer)
-    {
-        $this->magentoCustomer = $magentoCustomer;
     }
 
     public function setGigyaUser($gigyaUser)

@@ -13,9 +13,9 @@ use Magento\Framework\Event\ObserverInterface;
 /**
  * DefaultCMSSyncFieldMapping
  *
- * Default cms2g field mapping implementation. For now only attribute gender.
+ * Default cms2g field mapping implementation. For now only attributes gender and date of birth (BirthDay BirthMonth BirthYear)
  *
- * To be effective one have to declare this observer on event 'gigya_pre_field_mapping'.
+ * To be effective one have to declare this observer on event 'pre_sync_to_gigya'.
  *
  * @author      vlemaire <info@x2i.fr>
  */

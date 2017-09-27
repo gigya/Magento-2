@@ -30,11 +30,11 @@ class GigyaFromMagento extends AbstractFieldMapping
     protected $scopeConfig;
 
     /**
-     * MagentoToGigyaFieldMapping constructor.
-     *
+     * GigyaFromMagento constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param GigyaLogger $logger
      * @param GigyaCustomerFieldsUpdater $customerFieldsUpdater
+     * @param ModuleDirReader $moduleDirReader
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -56,7 +56,7 @@ class GigyaFromMagento extends AbstractFieldMapping
     {
         $config_file_path = $this->getFieldMappingFile();
         if (!is_null($config_file_path)) {
-            $this->customerFieldsUpdater->setMagentoCustomer($customer);
+            $this->customerFieldsUpdater->setMagentoUser($customer);
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             $this->customerFieldsUpdater->setPath($config_file_path);
 
