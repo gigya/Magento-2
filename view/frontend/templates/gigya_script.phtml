@@ -47,9 +47,6 @@ var enable_login = true;
                 <?php echo $scriptDomain ? '"'.$scriptDomain.'"' : 'false' ?>
             );
 
-            // Session synchronization between Gigya and Magento
-            //gigyaMage2.Functions.init();
-
             $('a[href$="logout/"]').click(function () {
                 gigya.accounts.logout();
                 return true;

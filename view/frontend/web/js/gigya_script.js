@@ -9,6 +9,7 @@ define([
         Params : {},
         Functions : {}
     };
+
     /**
      * Load Gigya script
      * Sync gigya-magento sessions
@@ -33,12 +34,15 @@ define([
         document.getElementsByTagName('head')[0].appendChild(gig);
 
         window.gigyaCMS = {authenticated: false};
+
+
     };
 
     /**
      * check gigya user login status
      * get Gigya account status with setLoginStatus as callback, and add it to gigya Init array
      */
+    /*
     gigyaMage2.Functions.syncSessionStatus = function() {
         var AccountInfoStatus = {
             "function": "accounts.getAccountInfo",
@@ -46,6 +50,7 @@ define([
         };
         window.gigyaInit.push(AccountInfoStatus);
     };
+    */
 
     /**
      * sync Magento-Gigya sessions logic
@@ -109,6 +114,7 @@ define([
      * @param eventObj
      */
     gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
+        alert('login');
         var action = login_post_url;
         var loginData = {
             UIDSignature : eventObj.UIDSignature,
@@ -153,8 +159,18 @@ define([
         return window.btoa(decodeURIComponent(encodeURIComponent( data )));
     };
 
+    gigyaMage2.Functions.gigyaLogoutEventHandler = function() {
+        alert('Logout event');
+    };
+
     gigyaMage2.Functions.performGigyaActions = function() {
         if (window.gigyaInit) {
+            gigya.accounts.addEventHandlers(
+                {
+                    onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
+                    onLogout: gigyaMage2.Functions.gigyaLogoutEventHandler
+                }
+            );
             // If this is the edit profile page, then add the update profile callback function.
             if (window.gigyaInit[0]) {
                 if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
@@ -175,12 +191,6 @@ define([
                     }
                 }
             }
-
-            gigya.accounts.addEventHandlers(
-                {
-                    onLogin: gigyaMage2.Functions.gigyaLoginEventHandler
-                }
-            );
             window.gigyaInit = [];
         }
     };

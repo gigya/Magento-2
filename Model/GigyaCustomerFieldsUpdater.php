@@ -80,7 +80,8 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
         $this->eventManager->dispatch(
             "pre_sync_to_gigya",
             [
-                "customer" => $this->getMagentoCustomer()
+                "customer" => $this->getMagentoCustomer(),
+                "gigya_user" => $this->getGigyaUser()
             ]
         );
 
@@ -106,9 +107,14 @@ class GigyaCustomerFieldsUpdater extends fieldMapping\GigyaUpdater
         if (array_key_exists('profile', $updatedGigyaData)) {
             $updatedGigyaProfile = $updatedGigyaData['profile'];
             foreach ($updatedGigyaProfile as $name => $value) {
-                $methodName = 'set' . ucfirst($name);
+                $setterName = 'set' . ucfirst($name);
+                $getterName = 'get' . ucfirst($name);
                 $methodParams = $value;
-                call_user_func(array($this->gigyaUser->getProfile(), $methodName), $methodParams);
+                $hookValue = call_user_func(array($this->gigyaUser->getProfile(), $getterName), $methodParams);
+                if(is_null($hookValue))
+                {
+                    call_user_func(array($this->gigyaUser->getProfile(), $setterName), $methodParams);
+                }
             }
         }
     }
