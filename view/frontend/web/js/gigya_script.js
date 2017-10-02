@@ -22,35 +22,33 @@ define([
     }
 
     gigyaMage2.Functions.loadGigyaScript = function(api_key, language, domain) {
-        if(!domain)
-        {
+
+        if (!domain) {
             domain = 'gigya.com';
         }
+
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
         gig.async = false;
         gig.src = 'https://cdns.' + domain +
             '/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
+        var gig_loaded = function () {
+                gigya.accounts.addEventHandlers(
+                    {
+                        onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
+                        onLogout: gigyaMage2.Functions.gigyaLogoutEventHandler
+                    }
+                );
+            };
+        gig.onreadystatechange= function () {
+            if (this.readyState == 'complete') gig_loaded();
+        }
+        gig.onload= gig_loaded;
+
         document.getElementsByTagName('head')[0].appendChild(gig);
 
         window.gigyaCMS = {authenticated: false};
-
-
     };
-
-    /**
-     * check gigya user login status
-     * get Gigya account status with setLoginStatus as callback, and add it to gigya Init array
-     */
-    /*
-    gigyaMage2.Functions.syncSessionStatus = function() {
-        var AccountInfoStatus = {
-            "function": "accounts.getAccountInfo",
-            "parameters": { callback : gigyaMage2.Functions.setLoginStatus }
-        };
-        window.gigyaInit.push(AccountInfoStatus);
-    };
-    */
 
     /**
      * sync Magento-Gigya sessions logic
@@ -114,7 +112,6 @@ define([
      * @param eventObj
      */
     gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
-        alert('login');
         var action = login_post_url;
         var loginData = {
             UIDSignature : eventObj.UIDSignature,
@@ -160,17 +157,11 @@ define([
     };
 
     gigyaMage2.Functions.gigyaLogoutEventHandler = function() {
-        alert('Logout event');
     };
 
     gigyaMage2.Functions.performGigyaActions = function() {
         if (window.gigyaInit) {
-            gigya.accounts.addEventHandlers(
-                {
-                    onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
-                    onLogout: gigyaMage2.Functions.gigyaLogoutEventHandler
-                }
-            );
+
             // If this is the edit profile page, then add the update profile callback function.
             if (window.gigyaInit[0]) {
                 if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
