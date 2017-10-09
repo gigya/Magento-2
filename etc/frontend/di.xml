@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Session management : align Magento frontend session management with Gigya : cf. https://developers.gigya.com/display/GD/Security+Guidelines#SecurityGuidelines-DefiningaSessionExpirationCookie  -->
+    <type name="Magento\Framework\App\Config">
+        <plugin name="gigyaIM_config" type="Gigya\GigyaIM\Plugin\App\ConfigPlugin" />
+    </type>
+</config>
