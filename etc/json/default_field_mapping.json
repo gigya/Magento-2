@@ -26,6 +26,27 @@
     "gigyaName": "profile.email",
     "gigyaType": "string",
     "direction": "both"
+  },
+  {
+    "cmsName": "dob",
+    "cmsType": "string",
+    "gigyaName": "profile.birthDay",
+    "gigyaType": "string",
+    "direction": "both"
+  },
+  {
+    "cmsName": "dob",
+    "cmsType": "string",
+    "gigyaName": "profile.birthMonth",
+    "gigyaType": "string",
+    "direction": "both"
+  },
+  {
+    "cmsName": "dob",
+    "cmsType": "string",
+    "gigyaName": "profile.birthYear",
+    "gigyaType": "string",
+    "direction": "both"
   }
 ]
 
