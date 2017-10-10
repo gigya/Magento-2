@@ -16,7 +16,9 @@ class SessionMode  implements ArrayInterface
     {
         return [
             ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_FIXED, 'label' => __('Fixed')],
-            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_EXTENDED, 'label' => __('Extended')]
+            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_EXTENDED, 'label' => __('Extended')],
+            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_BROWSER_INSTANCE, 'label' => __('Browser instance')],
+            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_ENDLESS, 'label' => __('Endless')]
         ];
     }
 }

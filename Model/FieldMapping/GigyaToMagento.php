@@ -61,6 +61,7 @@ class GigyaToMagento extends AbstractFieldMapping
         if (!is_null($config_file_path)) {
             $this->customerFieldsUpdater->setPath($config_file_path);
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
+            $this->customerFieldsUpdater->setMagentoUser($customer);
             try {
                 $this->customerFieldsUpdater->updateCmsAccount($customer);
             } catch (\Exception $e) {

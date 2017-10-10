@@ -12,7 +12,6 @@ use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\CustomerRegistry;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\Event\Observer;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**

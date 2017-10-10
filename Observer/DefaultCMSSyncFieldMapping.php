@@ -12,7 +12,7 @@ use Magento\Framework\Event\ObserverInterface;
 /**
  * DefaultCMSSyncFieldMapping
  *
- * Default g2cms field mapping implementation. For now only attribute gender.
+ * Default g2cms field mapping implementation. For now only attributes gender and date of birth (dob)
  *
  * To be effective one have to declare this observer on event 'gigya_pre_field_mapping'.
  *

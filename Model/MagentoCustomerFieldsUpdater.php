@@ -24,7 +24,7 @@ use Magento\Framework\Model\AbstractExtensibleModel;
  * or: $customer->setCustomAttributes(array());
  * located at: /lib/internal/Magento/Framework/Api/AbstractExtensibleObject
  */
-class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
+class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
 {
     /** @var CacheType CacheType */
     protected $gigyaCacheType;
@@ -39,23 +39,16 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
     protected $confMapping = false;
 
     /**
-     * @var Customer
-     */
-    protected $customerModel;
-
-    /**
      * MagentoCustomerFieldsUpdater constructor.
      *
      * @param CacheType $gigyaCacheType
      * @param EventManagerInterface $eventManager
      * @param GigyaLogger $logger
-     * @param CustomerFactory $customerFactory
      */
     public function __construct(
         CacheType $gigyaCacheType,
         EventManagerInterface $eventManager,
-        GigyaLogger $logger,
-        CustomerFactory $customerFactory
+        GigyaLogger $logger
     )
     {
         parent::__construct(new GigyaUser(null), null);
@@ -63,23 +56,19 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
         $this->gigyaCacheType = $gigyaCacheType;
         $this->eventManager = $eventManager;
         $this->logger = $logger;
-        $this->customerModel = $customerFactory->create();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function callCmsHook() {
         /** @var \Magento\Framework\ObjectManagerInterface $om */
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         /** @var \Magento\Framework\Event\ManagerInterface $manager */
         $manager = $om->get('Magento\Framework\Event\ManagerInterface');
-        $gigya_user = array(
+        $params = array(
             "gigya_user" => $this->getGigyaUser(),
-            "customer" => $this->customerModel
+            "customer" => $this->getMagentoUser()
 
         );
-        $manager->dispatch("gigya_pre_field_mapping",$gigya_user);
+        $manager->dispatch("gigya_pre_field_mapping", $params);
     }
 
     public function setGigyaLogger($logger) {
@@ -109,12 +98,6 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
                 if (substr($mageKey, 0, 6) === "custom") {
                     $key = substr($mageKey, 7);
 
-                    // if value was overriden by hook, use this
-                    if($this->customerModel->hasData($key))
-                    {
-                        $value = $this->customerModel->getData($key);
-                    }
-
                     if($account instanceof AbstractExtensibleModel)
                     {
                         $account->setCustomAttribute($key, $value);
@@ -124,11 +107,6 @@ class MagentoCustomerFieldsUpdater extends fieldMapping\CmsUpdater
                         $account->setData($key, $value);
                     }
                 } else {
-                    // if value was overriden by hook, use this
-                    if($this->customerModel->hasData($mageKey))
-                    {
-                        $value = $this->customerModel->getData($mageKey);
-                    }
                     $account->setData($mageKey, $value);
                 }
             }
