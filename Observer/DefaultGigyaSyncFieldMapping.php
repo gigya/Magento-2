@@ -29,11 +29,11 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
         $gigyaProfile = $observer->getData('gigya_user')->getProfile();
         // 'Translate' the gender code from Magento to Gigya value
         switch($magentoCustomer->getGender()) {
-            case '1':
+            case 1:
                 $gigyaProfile->setGender('m');
                 break;
 
-            case '2':
+            case 2:
                 $gigyaProfile->setGender('f');
                 break;
 
@@ -43,13 +43,16 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
 
         $dob = $magentoCustomer->getDob();
 
-        $date = new \Zend_Date($dob, 'YYYY-MM-dd');
-        $birthYear = (int) $date->get(\Zend_Date::YEAR);
-        $birthMonth = (int) $date->get(\Zend_Date::MONTH);
-        $birthDay = (int) $date->get(\Zend_Date::DAY);
+        if ($dob != null) {
 
-        $gigyaProfile->setBirthDay($birthDay);
-        $gigyaProfile->setBirthMonth($birthMonth);
-        $gigyaProfile->setBirthYear($birthYear);
+            $date = new \Zend_Date($dob, 'YYYY-MM-dd');
+            $birthYear = (int)$date->get(\Zend_Date::YEAR);
+            $birthMonth = (int)$date->get(\Zend_Date::MONTH);
+            $birthDay = (int)$date->get(\Zend_Date::DAY);
+
+            $gigyaProfile->setBirthDay($birthDay);
+            $gigyaProfile->setBirthMonth($birthMonth);
+            $gigyaProfile->setBirthYear($birthYear);
+        }
     }
 }

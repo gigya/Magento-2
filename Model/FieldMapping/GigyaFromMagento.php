@@ -55,7 +55,7 @@ class GigyaFromMagento extends AbstractFieldMapping
     public function run($customer, $gigyaUser)
     {
         $config_file_path = $this->getFieldMappingFile();
-        if (!is_null($config_file_path)) {
+        if ($config_file_path != null) {
             $this->customerFieldsUpdater->setMagentoUser($customer);
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             $this->customerFieldsUpdater->setPath($config_file_path);
@@ -76,14 +76,13 @@ class GigyaFromMagento extends AbstractFieldMapping
 
         } else {
             $message = "mapping fields file path is not defined. Define file path at: Stores:Config:Gigya:Field Mapping";
-            $this->logger->error(
+            $this->logger->warn(
                 $message,
                 [
                     'class' => __CLASS__,
                     'function' => __FUNCTION__
                 ]
             );
-            throw new GigyaFieldMappingException($message);
         }
     }
 }

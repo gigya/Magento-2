@@ -12,6 +12,7 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Config\Share;
 use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer as DataCustomer;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\Search\SearchCriteriaBuilder;
@@ -233,7 +234,7 @@ class GigyaSyncHelper extends AbstractHelper
      *
      * For other fields see Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento
      *
-     * @param Customer $magentoCustomer
+     * @param DataCustomer $magentoCustomer
      * @param GigyaUser $gigyaAccount
      * @param string $gigyaAccountLoggingEmail
      * @return void

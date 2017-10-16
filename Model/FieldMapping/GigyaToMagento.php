@@ -9,7 +9,7 @@ use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Model\MagentoCustomerFieldsUpdater;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
-use \Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 
 /**
@@ -58,7 +58,7 @@ class GigyaToMagento extends AbstractFieldMapping
     public function run($customer, $gigyaUser)
     {
         $config_file_path = $this->getFieldMappingFile();
-        if (!is_null($config_file_path)) {
+        if ($config_file_path != null) {
             $this->customerFieldsUpdater->setPath($config_file_path);
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             $this->customerFieldsUpdater->setMagentoUser($customer);
@@ -77,14 +77,13 @@ class GigyaToMagento extends AbstractFieldMapping
             }
         } else {
             $message = "mapping fields file path is not defined. Define file path at: Stores:Config:Gigya:Field Mapping";
-            $this->logger->error(
+            $this->logger->warn(
                 $message,
                 [
                     'class' => __CLASS__,
                     'function' => __FUNCTION__
                 ]
             );
-            throw new GigyaFieldMappingException($message);
         }
     }
 }
