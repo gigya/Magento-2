@@ -43,7 +43,7 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
 
         $dob = $magentoCustomer->getDob();
 
-        if ($dob != null) {
+        if ($dob != null && trim($dob) != '') {
 
             $date = new \Zend_Date($dob, 'YYYY-MM-dd');
             $birthYear = (int)$date->get(\Zend_Date::YEAR);
