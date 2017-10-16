@@ -31,21 +31,21 @@
     "cmsName": "dob",
     "cmsType": "string",
     "gigyaName": "profile.birthDay",
-    "gigyaType": "string",
+    "gigyaType": "int",
     "direction": "both"
   },
   {
     "cmsName": "dob",
     "cmsType": "string",
     "gigyaName": "profile.birthMonth",
-    "gigyaType": "string",
+    "gigyaType": "int",
     "direction": "both"
   },
   {
     "cmsName": "dob",
     "cmsType": "string",
     "gigyaName": "profile.birthYear",
-    "gigyaType": "string",
+    "gigyaType": "int",
     "direction": "both"
   }
 ]
