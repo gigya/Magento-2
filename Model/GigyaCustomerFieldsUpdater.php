@@ -103,14 +103,9 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
         if (array_key_exists('profile', $updatedGigyaData)) {
             $updatedGigyaProfile = $updatedGigyaData['profile'];
             foreach ($updatedGigyaProfile as $name => $value) {
-                $setterName = 'set' . ucfirst($name);
-                $getterName = 'get' . ucfirst($name);
+                $methodName = 'set' . ucfirst($name);
                 $methodParams = $value;
-                $hookValue = call_user_func(array($this->gigyaUser->getProfile(), $getterName), $methodParams);
-                if(is_null($hookValue))
-                {
-                    call_user_func(array($this->gigyaUser->getProfile(), $setterName), $methodParams);
-                }
+                call_user_func(array($this->gigyaUser->getProfile(), $methodName), $methodParams);
             }
         }
     }
