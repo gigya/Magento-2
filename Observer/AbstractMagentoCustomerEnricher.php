@@ -122,7 +122,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
             'Exception raised when enriching Magento customer with Gigya data.',
             [
                 'exception' => $e,
-                'customer_entity_id' => ($magentoCustomer != null) ? $magentoCustomer->getEntityId() : 'customer is null',
+                'customer_entity_id' => ($magentoCustomer != null) ? $magentoCustomer->getId() : 'customer is null',
                 'gigya_uid' => ($gigyaAccountData != null) ? $gigyaAccountData->getUID() : 'Gigya data are null',
                 'gigya_logging_email' => $gigyaAccountLoggingEmail
             ]
@@ -171,12 +171,12 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 
             $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_TO_MAGENTO_SUCCESS, [
                 "gigya_uid" => $gigyaAccountData->getUID(),
-                "customer_entity_id" => $magentoCustomer->getEntityId()
+                "customer_entity_id" => $magentoCustomer->getId()
             ]);
         } catch (\Exception $e) {
             $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_TO_MAGENTO_FAILURE, [
                 "gigya_uid" => $gigyaAccountData->getUID(),
-                "customer_entity_id" => $magentoCustomer->getEntityId()
+                "customer_entity_id" => $magentoCustomer->getId()
             ]);
             if (!$this->processEventMapGigyaToMagentoException($e, $magentoCustomer, $gigyaAccountData,
                 $gigyaAccountLoggingEmail)

@@ -7,7 +7,6 @@ use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
-use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
@@ -36,9 +35,6 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 
     /** @var GigyaLogger */
     protected $logger;
-
-    /** @var  Customer */
-    private $magentoCustomer;
 
     /** @var  GigyaUser */
     private $gigyaUser;
@@ -107,14 +103,9 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
         if (array_key_exists('profile', $updatedGigyaData)) {
             $updatedGigyaProfile = $updatedGigyaData['profile'];
             foreach ($updatedGigyaProfile as $name => $value) {
-                $setterName = 'set' . ucfirst($name);
-                $getterName = 'get' . ucfirst($name);
+                $methodName = 'set' . ucfirst($name);
                 $methodParams = $value;
-                $hookValue = call_user_func(array($this->gigyaUser->getProfile(), $getterName), $methodParams);
-                if(is_null($hookValue))
-                {
-                    call_user_func(array($this->gigyaUser->getProfile(), $setterName), $methodParams);
-                }
+                call_user_func(array($this->gigyaUser->getProfile(), $methodName), $methodParams);
             }
         }
     }
@@ -166,7 +157,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
             return null;
         }
 
-        $value = $this->magentoCustomer;
+        $value = $this->getMagentoUser();
         try {
             while (($subPath = array_shift($subPaths)) != null) {
 
@@ -201,7 +192,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      */
     protected function retrieveFieldMappings()
     {
-        if ($this->magentoCustomer == null) {
+        if ($this->getMagentoUser() == null) {
             throw new GigyaFieldMappingException("Magento customer is not set");
         }
 
@@ -226,7 +217,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      */
     protected function createGigyaArray()
     {
-        if ($this->magentoCustomer == null) {
+        if ($this->getMagentoUser() == null) {
             throw new GigyaFieldMappingException("Magento customer is not set");
         }
 

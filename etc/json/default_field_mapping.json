@@ -1,12 +1,5 @@
 [
   {
-    "cmsName": "gender",
-    "cmsType": "int",
-    "gigyaName": "profile.gender",
-    "gigyaType": "string",
-    "direction": "both"
-  },
-  {
     "cmsName": "firstname",
     "cmsType": "string",
     "gigyaName": "profile.firstName",
@@ -24,27 +17,6 @@
     "cmsName": "email",
     "cmsType": "string",
     "gigyaName": "profile.email",
-    "gigyaType": "string",
-    "direction": "both"
-  },
-  {
-    "cmsName": "dob",
-    "cmsType": "string",
-    "gigyaName": "profile.birthDay",
-    "gigyaType": "string",
-    "direction": "both"
-  },
-  {
-    "cmsName": "dob",
-    "cmsType": "string",
-    "gigyaName": "profile.birthMonth",
-    "gigyaType": "string",
-    "direction": "both"
-  },
-  {
-    "cmsName": "dob",
-    "cmsType": "string",
-    "gigyaName": "profile.birthYear",
     "gigyaType": "string",
     "direction": "both"
   }

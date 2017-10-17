@@ -6,7 +6,7 @@
 namespace Gigya\GigyaIM\Model;
 
 use Gigya\CmsStarterKit\fieldMapping\GigyaUpdater;
-use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer;
 
 /**
  * AbstractGigyaFieldsUpdater
