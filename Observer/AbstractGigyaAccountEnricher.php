@@ -5,8 +5,8 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\CmsStarterKit\user\GigyaProfile;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\User\GigyaProfile;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;

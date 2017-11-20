@@ -6,9 +6,9 @@
 namespace Gigya\GigyaIM\Model;
 
 
-use Gigya\CmsStarterKit\sdk\GSApiException;
-use Gigya\CmsStarterKit\user\GigyaProfile;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\Sdk\GSApiException;
+use Gigya\CmsStarterKit\User\GigyaProfile;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use \Magento\Framework\Event\ManagerInterface as EventManager;

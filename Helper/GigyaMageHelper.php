@@ -4,9 +4,9 @@
  */
 namespace Gigya\GigyaIM\Helper;
 
-use Gigya\CmsStarterKit\sdk\GSException;
-use Gigya\CmsStarterKit\sdk\SigUtils;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\Sdk\GSException;
+use Gigya\CmsStarterKit\Sdk\SigUtils;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Model\Settings;
 use Magento\Customer\Api\Data\CustomerInterface;
@@ -284,7 +284,7 @@ class GigyaMageHelper extends AbstractHelper
      * @param $UID
      * @param $UIDSignature
      * @param $signatureTimestamp
-     * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
+     * @return bool|\Gigya\CmsStarterKit\User\GigyaUser
      */
     public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
     {
@@ -317,7 +317,7 @@ class GigyaMageHelper extends AbstractHelper
         // if map fields file exists, read map fields file and build gigya fields array
         if (is_null($config_file_path)) {
             $this->gigyaLog(
-                "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined. 
+                "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined.
                 Define file path at: Stores:Config:Gigya:Field Mapping"
             );
             return $extra_profile_fields_list;

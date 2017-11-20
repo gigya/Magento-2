@@ -5,7 +5,7 @@
 
 namespace Gigya\GigyaIM\Model\ResourceModel;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 

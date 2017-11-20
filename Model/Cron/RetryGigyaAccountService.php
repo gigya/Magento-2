@@ -6,10 +6,10 @@
 namespace Gigya\GigyaIM\Model\Cron;
 
 
-use Gigya\CmsStarterKit\sdk\GSApiException;
-use Gigya\CmsStarterKit\user\GigyaProfile;
-use Gigya\CmsStarterKit\user\GigyaUser;
-use Gigya\CmsStarterKit\user\GigyaUserFactory;
+use Gigya\CmsStarterKit\Sdk\GSApiException;
+use Gigya\CmsStarterKit\User\GigyaProfile;
+use Gigya\CmsStarterKit\User\GigyaUser;
+use Gigya\CmsStarterKit\User\GigyaUserFactory;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;

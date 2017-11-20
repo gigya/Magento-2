@@ -2,8 +2,8 @@
 
 namespace Gigya\GigyaIM\Model;
 
-use Gigya\CmsStarterKit\fieldMapping;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\FieldMapping;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;

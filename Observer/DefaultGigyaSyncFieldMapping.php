@@ -6,7 +6,7 @@
 namespace Gigya\GigyaIM\Observer;
 
 
-use Gigya\CmsStarterKit\user\GigyaProfile;
+use Gigya\CmsStarterKit\User\GigyaProfile;
 use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\ObserverInterface;
 

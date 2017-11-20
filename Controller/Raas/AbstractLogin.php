@@ -208,10 +208,10 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     }
 
     /**
-     * @param \Gigya\CmsStarterKit\user\GigyaUser $valid_gigya_user
+     * @param \Gigya\CmsStarterKit\User\GigyaUser $valid_gigya_user
      * @return DataObject
      */
-    protected function doLogin(\Gigya\CmsStarterKit\user\GigyaUser $valid_gigya_user)
+    protected function doLogin(\Gigya\CmsStarterKit\User\GigyaUser $valid_gigya_user)
     {
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();

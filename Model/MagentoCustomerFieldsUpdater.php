@@ -2,8 +2,8 @@
 
 namespace Gigya\GigyaIM\Model;
 
-use Gigya\CmsStarterKit\fieldMapping;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\FieldMapping;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\CustomerFactory;
@@ -80,7 +80,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
      */
     public function setAccountValues(&$account) {
         foreach ($this->getGigyaMapping() as $gigyaName => $confs) {
-            /** @var \Gigya\CmsStarterKit\fieldMapping\ConfItem $conf */
+            /** @var \Gigya\CmsStarterKit\FieldMapping\ConfItem $conf */
             $value = parent::getValueFromGigyaAccount($gigyaName); // e.g: loginProvider = facebook
             // if no value found, log and skip field
             if (is_null($value)) {

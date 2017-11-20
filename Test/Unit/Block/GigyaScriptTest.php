@@ -14,7 +14,7 @@ class GigyaScriptTest extends \PHPUnit_Framework_TestCase
      * @var Gigya\GigyaIM\Block\GigyaScript
      */
     protected $block;
-    
+
     protected $scopeConfig;
 
     /**

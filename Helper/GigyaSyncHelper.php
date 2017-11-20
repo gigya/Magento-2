@@ -7,8 +7,8 @@
 
 namespace Gigya\GigyaIM\Helper;
 
-use Gigya\CmsStarterKit\sdk\GSException;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\Sdk\GSException;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Config\Share;
 use Magento\Customer\Model\Customer;

@@ -82,7 +82,7 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         $param = array("filter" => 'full');
         try {
             $gigyaApiHelper->sendApiCall("accounts.getSchema", $param);
-        } catch (\Gigya\CmsStarterKit\sdk\GSApiException $e) {
+        } catch (\Gigya\CmsStarterKit\Sdk\GSApiException $e) {
             $this->gigyaMageHelper->gigyaLog(
                 "Error while trying to save gigya settings. " . $e->getErrorCode() .
                 " " .$e->getMessage() . " " . $e->getCallId()

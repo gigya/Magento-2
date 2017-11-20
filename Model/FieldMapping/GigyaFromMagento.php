@@ -6,7 +6,7 @@
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
 use Magento\Customer\Model\Data\Customer;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\User\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
