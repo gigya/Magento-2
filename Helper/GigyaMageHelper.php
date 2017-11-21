@@ -100,7 +100,7 @@ class GigyaMageHelper extends AbstractHelper
      */
     public function setAppSecret()
     {
-        $this->appSecret = $this->decAppSecret();
+        $this->appSecret = $this->dbSettings['app_secret'];
     }
 
     /**
@@ -224,42 +224,6 @@ class GigyaMageHelper extends AbstractHelper
     {
         $obj = $this->getGigyaApiHelper()->userObjFromArray($userArray);
         return $obj;
-    }
-
-    /**
-     * @return string decrypted app secret
-     */
-    private function decAppSecret()
-    {
-        // get encrypted app secret from DB
-        $encrypted_secret = $this->dbSettings['app_secret'];
-        if (strlen($encrypted_secret) < 5 ) {
-            $this->gigyaLog(__FUNCTION__ . " No valid secret key found in DB.");
-        }
-
-        $key = $this->getEncKey();
-        $dec = GigyaApiHelper::decrypt($encrypted_secret, $key);
-        return $dec;
-    }
-
-    /**
-     * @return string encryption key from file
-     */
-    private function getEncKey()
-    {
-        $key = null;
-        if ($this->keyFileLocation != '') {
-            if (file_exists($this->keyFileLocation)) {
-                $key = file_get_contents($this->keyFileLocation);
-            } else {
-                $this->gigyaLog(__FUNCTION__
-                    . ": Could not find key file as defined in Gigya system config : " . $this->keyFileLocation);
-            }
-        } else {
-            $this->gigyaLog(__FUNCTION__
-                . ": KEY_PATH is not set in Gigya system config.");
-        }
-        return trim($key);
     }
 
     /**
