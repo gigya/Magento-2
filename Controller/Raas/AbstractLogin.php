@@ -44,6 +44,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
     const RETRY_COOKIE_NAME = 'gig_login_retry';
 
+    const EVENT_POST_USER_LOGIN = 'gigya_post_user_login';
+
     /** @var AccountManagementInterface */
     protected $accountManagement;
 
@@ -245,6 +247,13 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
                     $loginSuccess = true;
                 }
+
+                // dispatch gigya login event
+                $this->_eventManager->dispatch(self::EVENT_POST_USER_LOGIN, [
+                    "gigya_user" => $valid_gigya_user,
+                    "customer" => $customer,
+                    "accountManagement" => $this->accountManagement
+                ]);
             } catch(\Exception $e) {
                 $this->addError($e->getMessage());
                 $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
