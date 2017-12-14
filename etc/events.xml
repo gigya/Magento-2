@@ -8,11 +8,11 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
 
     <event name="gigya_pre_field_mapping">
-        <!-- default implementation of g2cms field mapping : for now only gender attribute (it will effectively be mapped only if the field mapping file declares it) -->
+        <!-- default implementation of g2cms field mapping : for now only gender attribute, dob attribute, subscribe attribute -->
         <observer name="defaultCMSSyncFieldMapping" instance="Gigya\GigyaIM\Observer\DefaultCMSSyncFieldMapping" />
     </event>
     <event name="pre_sync_to_gigya">
-        <!-- default implementation of cms2g field mapping : for now only gender attribute (it will effectively be mapped only if the field mapping file declares it) -->
+        <!-- default implementation of cms2g field mapping : for now only gender attribute, dob attribute, subscribe attribute -->
         <observer name="defaultGigyaSyncFieldMapping" instance="Gigya\GigyaIM\Observer\DefaultGigyaSyncFieldMapping" />
     </event>
 

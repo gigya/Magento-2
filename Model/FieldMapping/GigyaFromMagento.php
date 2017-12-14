@@ -85,4 +85,20 @@ class GigyaFromMagento extends AbstractFieldMapping
             );
         }
     }
+
+    /**
+     * Get data file fieldMapping
+     * @return mixed|string
+     */
+    public function getFieldsMappingFile(){
+        return $this->getFieldMappingFile();
+    }
+
+    /**
+     * Get magento custom attribute user overide by observer DefaultGigyaSyncFieldMapping
+     * @return \Magento\Framework\Api\AttributeInterface[]|null
+     */
+    public function getMagentoUserObserver(){
+        return $this->customerFieldsUpdater->getMagentoUser()->getCustomAttributes();
+    }
 }

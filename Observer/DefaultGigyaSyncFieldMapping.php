@@ -40,7 +40,7 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
             default:
                 $gigyaProfile->setGender('u');
         }
-
+        // 'Translate' the date of birth code from Gigya to Magento value
         $dob = $magentoCustomer->getDob();
 
         if ($dob != null && trim($dob) != '') {
@@ -53,6 +53,14 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
             $gigyaProfile->setBirthDay($birthDay);
             $gigyaProfile->setBirthMonth($birthMonth);
             $gigyaProfile->setBirthYear($birthYear);
+        }
+
+        // 'Translate' the subscribe boolean code from Gigya to Magento value
+        if($magentoCustomer->getCustomAttribute('gigya_subscribe')->getValue() == '0'){
+            $magentoCustomer->setCustomAttribute('gigya_subscribe','false');
+        }
+        if($magentoCustomer->getCustomAttribute('gigya_subscribe')->getValue() == '1'){
+            $magentoCustomer->setCustomAttribute('gigya_subscribe','true');
         }
     }
 }
