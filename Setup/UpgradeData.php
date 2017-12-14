@@ -122,5 +122,41 @@ class UpgradeData implements UpgradeDataInterface
 
             $attribute->save();
         }
+
+        if (version_compare($context->getVersion(), '5.0.7') < 0) {
+
+            /** @var CustomerSetup $customerSetup */
+            $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+
+            $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
+            $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+
+            /** @var $attributeSet AttributeSe */
+            $attributeSet = $this->attributeSetFactory->create();
+            $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
+
+            $customerSetup->addAttribute(Customer::ENTITY, 'gigya_subscribe', [
+                'type' => 'int',
+                'label' => 'Subscribe',
+                'input' => 'select',
+                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'global' => 'Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL',
+                'required' => false,
+                'visible' => true,
+                'user_defined' => true,
+                'sort_order' => 1020,
+                'position' => 1020,
+                'system' => 0,
+            ]);
+
+            $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'gigya_subscribe')
+                ->addData([
+                    'attribute_set_id' => $attributeSetId,
+                    'attribute_group_id' => $attributeGroupId,
+                    'used_in_forms' => ['adminhtml_customer'],
+                ]);
+
+            $attribute->save();
+        }
     }
 }

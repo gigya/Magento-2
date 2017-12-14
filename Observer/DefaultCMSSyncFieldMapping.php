@@ -40,7 +40,7 @@ class DefaultCMSSyncFieldMapping implements ObserverInterface
             default:
                 $customer->setGender('3');
         }
-
+        // 'Translate' the date of birth code from Gigya to Magento value
         $birthDay = $gigyaProfile->getBirthDay();
         $birthMonth = $gigyaProfile->getBirthMonth();
         $birthYear = $gigyaProfile->getBirthYear();
@@ -49,5 +49,19 @@ class DefaultCMSSyncFieldMapping implements ObserverInterface
         {
             $customer->setDob(sprintf('%s-%s-%s', $birthYear, str_pad($birthMonth, 2, "0", STR_PAD_LEFT), str_pad($birthDay, 2, "0", STR_PAD_LEFT)));
         }
+
+        // 'Translate' the subscribe boolean code from Gigya to Magento value
+        $gigyaUser = $observer->getData('gigya_user');
+        $customerData = $observer->getData('gigya_user')->getData('subscribe');
+        if(isset($customerData['subscribe'] )){
+            if($customerData['subscribe'] == 'false'){
+                $gigyaUser->setData(array_merge($customerData,array('subscribe'=>0,'data'=>array('subscribe'=>0))));
+            }
+            if($customerData['subscribe'] == 'true'){
+                $gigyaUser->setData(array_merge($customerData,array('subscribe'=>1,'data'=>array('subscribe'=>1))));
+            }
+        }
+
+
     }
 }
