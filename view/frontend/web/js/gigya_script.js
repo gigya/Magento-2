@@ -9,6 +9,7 @@ define([
         Params : {},
         Functions : {}
     };
+    var $formKey = $('input[name="form_key"]');
 
     /**
      * Load Gigya script
@@ -17,7 +18,8 @@ define([
      */
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
-    if ( $('input[name="form_key"]').val().length ){
+    
+    if ( $formKey && $formKey.val() && $formKey.val().length ){
         gigyaMage2.Params.form_key = $('input[name="form_key"]').val();
     }
 
