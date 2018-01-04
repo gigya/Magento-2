@@ -108,6 +108,9 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                 call_user_func(array($this->gigyaUser->getProfile(), $methodName), $methodParams);
             }
         }
+        if (array_key_exists('data', $updatedGigyaData)) {
+            $this->gigyaUser->setData($updatedGigyaData['data']);
+        }
     }
 
     public function setGigyaUser($gigyaUser)
