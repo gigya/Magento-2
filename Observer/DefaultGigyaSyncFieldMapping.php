@@ -54,13 +54,5 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
             $gigyaProfile->setBirthMonth($birthMonth);
             $gigyaProfile->setBirthYear($birthYear);
         }
-
-        // 'Translate' the subscribe boolean code from Gigya to Magento value
-        if($magentoCustomer->getCustomAttribute('gigya_subscribe')->getValue() == '0'){
-            $magentoCustomer->setCustomAttribute('gigya_subscribe','false');
-        }
-        if($magentoCustomer->getCustomAttribute('gigya_subscribe')->getValue() == '1'){
-            $magentoCustomer->setCustomAttribute('gigya_subscribe','true');
-        }
     }
 }

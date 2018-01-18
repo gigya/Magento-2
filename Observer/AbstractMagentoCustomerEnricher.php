@@ -84,7 +84,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * Check if Magento customer entity must be enriched with the Gigya's account data.
      *
      * Will return true if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non empty gigya_uid value,
-     * and if this customer id is not explicitly flagged has not to be synchronized (@see GigyaSyncHelper::isProductIdExcludedFromSync())
+     * and if this customer id is not explicitly flagged has not to be synchronized (@see GigyaSyncHelper::isCustomerIdExcludedFromSync())
      *
      * @param Customer $magentoCustomer
      * @return bool

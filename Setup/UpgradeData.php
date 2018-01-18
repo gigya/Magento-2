@@ -5,6 +5,7 @@
 
 namespace Gigya\GigyaIM\Setup;
 
+use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Customer\Model\Customer;
 use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
@@ -67,7 +68,7 @@ class UpgradeData implements UpgradeDataInterface
             $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
             $attributeSetId = $customerEntity->getDefaultAttributeSetId();
 
-            /** @var $attributeSet AttributeSe */
+            /** @var $attributeSet AttributeSet */
             $attributeSet = $this->attributeSetFactory->create();
             $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
 
@@ -101,7 +102,7 @@ class UpgradeData implements UpgradeDataInterface
             $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
             $attributeSetId = $customerEntity->getDefaultAttributeSetId();
 
-            /** @var $attributeSet AttributeSe */
+            /** @var $attributeSet AttributeSet */
             $attributeSet = $this->attributeSetFactory->create();
             $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
 
@@ -131,7 +132,7 @@ class UpgradeData implements UpgradeDataInterface
             $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
             $attributeSetId = $customerEntity->getDefaultAttributeSetId();
 
-            /** @var $attributeSet AttributeSe */
+            /** @var $attributeSet AttributeSet */
             $attributeSet = $this->attributeSetFactory->create();
             $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
 

@@ -162,30 +162,6 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
         $gigyaAccountData->setCustomerEntityId($magentoCustomer->getEntityId());
         $gigyaAccountData->setCustomerEntityEmail($magentoCustomer->getEmail());
 
-        $customerDatas = $this->gigyaFromMagento->getMagentoUserObserver();
-        $fields =  file_get_contents($this->gigyaFromMagento->getFieldsMappingFile());
-        if($fields && !empty($fields)){
-            $dataFiles = json_decode($fields,true);
-            $dataArray = [];
-            foreach($dataFiles as $dataFile){
-                if(isset($dataFile['cmsName']) && isset($dataFile['direction']) && isset($dataFile['gigyaName'])) {
-                    if (array_key_exists(preg_replace('/custom_/','',$dataFile['cmsName']),$customerDatas)){
-                        if($dataFile['direction'] == 'both' || $dataFile['direction'] == 'cms2g' ){
-                            $dataArray[preg_replace('/data./','',$dataFile['gigyaName'])]=$customerDatas[preg_replace('/custom_/','',$dataFile['cmsName'])]->getValue();
-                        }
-                    }
-                }
-            }
-            // workaround #12 & #13 : BEGIN
-            $currentGigyaAccountData = $gigyaAccountData->getData();
-            if ($currentGigyaAccountData != null) {
-                $gigyaAccountData->setData(array_merge($gigyaAccountData->getData(), $dataArray));
-            } else {
-                $gigyaAccountData->setData($dataArray);
-            }
-            // workaround #12 & #13 :  END
-        }
-
         return $gigyaAccountData;
     }
 
