@@ -176,10 +176,15 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
                     }
                 }
             }
-            $gigyaAccountData->setData($dataArray);
+            // workaround #12 & #13 : BEGIN
+            $currentGigyaAccountData = $gigyaAccountData->getData();
+            if ($currentGigyaAccountData != null) {
+                $gigyaAccountData->setData(array_merge($gigyaAccountData->getData(), $dataArray));
+            } else {
+                $gigyaAccountData->setData($dataArray);
+            }
+            // workaround #12 & #13 :  END
         }
-
-
 
         return $gigyaAccountData;
     }
