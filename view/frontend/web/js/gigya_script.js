@@ -2,8 +2,10 @@ define([
     'jquery',
     'Magento_Ui/js/modal/modal',
     'tinymce',
-    'Magento_Customer/js/customer-data'
-], function($, modal, tinymce, customerData){
+    'Magento_Customer/js/customer-data',
+    'Magento_Customer/js/model/authentication-popup',
+    'mage/url'
+], function($, modal, tinymce, customerData, authenticationPopup, url){
     "use strict";
     var gigyaMage2 = {
         Params : {},
@@ -147,7 +149,7 @@ define([
             data : data
         })
         .done(function() {
-            window.location.reload();
+            location.href = url.build('checkout');
         });
     };
 
@@ -197,26 +199,7 @@ define([
     window.onGigyaServiceReady =  function (serviceName) {
         gigyaMage2.Functions.performGigyaActions();
 
-        /**
-         * add popup modal for gigya login screen
-         */
-        var gigya_login_modal = {
-            type: 'popup',
-            responsive: true,
-            innerScroll: false,
-            buttons: [],
-            clickableOverlay: true
-        };
-        var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
-        window.showGigyaLoginScreenSet = function()
-        {
-            $("#gigya-login-popup").modal("openModal");
-        };
-        // // add popup opener script:
-        $(".open-gigya-login").on('click',function(){
-            showGigyaLoginScreenSet();
-        });
-
+        authenticationPopup.createPopUp($('#gigya-login-popup'));
     };
     return gigyaMage2;
 });
