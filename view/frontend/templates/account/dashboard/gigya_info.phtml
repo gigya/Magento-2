@@ -7,8 +7,8 @@
 // @codingStandardsIgnoreFile
 
 /** @var \Magento\Customer\Block\Account\Dashboard\Info $block */
-
 ?>
+
 <div class="block block-dashboard-info">
     <div class="block-title"><strong><?php /* @escapeNotVerified */ echo __('Account Information') ?></strong></div>
     <div class="block-content">
@@ -17,7 +17,7 @@
         <script>
             window.gigyaInit = window.gigyaInit || [];
             var screenSetParams = {
-                screenSet : "Default-ProfileUpdate",
+                screenSet : "<?= $block->getScreensetName() ?>-ProfileUpdate",
                 containerID : "gigya-edit-profile",
                 mobileScreenSet : "" // optional - for using separate mobile screen set.
             };

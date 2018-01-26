@@ -28,6 +28,8 @@ class Config
 
     const XML_PATH_GENERAL = 'gigya_section/general';
 
+    const XML_PATH_SCREENSET = 'gigya_screensets/screensets/screenset';
+
     /**
      * @var ScopeConfigInterface
      */
@@ -78,5 +80,13 @@ class Config
     public function getMagentoCookiePath()
     {
         return $this->scopeConfig->getValue(\Magento\Framework\Session\Config::XML_PATH_COOKIE_PATH);
+    }
+
+    /**
+     * @return string
+     */
+    public function getScreensetName()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_SCREENSET);
     }
 }

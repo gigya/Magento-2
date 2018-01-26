@@ -21,7 +21,6 @@
  * @see \Magento\Customer\Block\Form\Login
  * @var $block \Magento\Customer\Block\Form\Login
  */
-
 // check display type from xml. set container div class and login div id to match
 $display = $block->getData('display'); // popup /embed
 if ($display == "embed") {
@@ -43,7 +42,7 @@ if ($display == "embed") {
             // add Raas login screens function to Gigya init.
             window.gigyaInit = window.gigyaInit || [];
             var screenSetParams = {
-                screenSet : "Default-RegistrationLogin",
+                screenSet : "<?= $block->getScreensetName() ?>-RegistrationLogin",
                 containerID : "<?php echo $id; ?>",
                 startScreen : "gigya-login-screen",
                 mobileScreenSet : "" // optional - for using separate mobile screen set.

@@ -12,5 +12,10 @@
                 <gigya_update_max_retry>5</gigya_update_max_retry>
             </synchro>
         </gigya_section>
+        <gigya_screensets>
+            <screensets>
+                <screenset>Default</screenset>
+            </screensets>
+        </gigya_screensets>
     </default>
 </config>
