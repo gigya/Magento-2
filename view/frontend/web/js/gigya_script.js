@@ -149,11 +149,11 @@ define([
             data : data
         })
         .done(function() {
-            var checkout = url.build('checkout'),
+            var checkoutUrl = url.build('checkout') + "/",
                 customer = customerData.get('customer');
-            if($.cookie('login_redirect') === checkout + "/" && !customer().firstname) {
+            if($.cookie('login_redirect') === checkoutUrl && !customer().firstname) {
                 $.cookie('login_redirect', null);
-                location.href = checkout;
+                location.href = checkoutUrl;
                 return;
             }
 
