@@ -2,6 +2,10 @@
 
 namespace Gigya\GigyaIM\Block\Form;
 
+/**
+ * Class GigyaRegister
+ * @package Gigya\GigyaIM\Block\Form
+ */
 class GigyaRegister extends \Magento\Customer\Block\Form\Register
 {
     /**
@@ -9,6 +13,20 @@ class GigyaRegister extends \Magento\Customer\Block\Form\Register
      */
     protected $configModel;
 
+    /**
+     * GigyaRegister constructor.
+     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @param \Magento\Directory\Helper\Data $directoryHelper
+     * @param \Magento\Framework\Json\EncoderInterface $jsonEncoder
+     * @param \Magento\Framework\App\Cache\Type\Config $configCacheType
+     * @param \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionCollectionFactory
+     * @param \Magento\Directory\Model\ResourceModel\Country\CollectionFactory $countryCollectionFactory
+     * @param \Magento\Framework\Module\Manager $moduleManager
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param \Magento\Customer\Model\Url $customerUrl
+     * @param \Gigya\GigyaIM\Model\Config $configModel
+     * @param array $data
+     */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Directory\Helper\Data $directoryHelper,
@@ -27,6 +45,9 @@ class GigyaRegister extends \Magento\Customer\Block\Form\Register
             $countryCollectionFactory, $moduleManager, $customerSession, $customerUrl, $data);
     }
 
+    /**
+     * @return string
+     */
     public function getScreensetName()
     {
         return $this->configModel->getScreensetName();

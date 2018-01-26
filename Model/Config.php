@@ -28,6 +28,9 @@ class Config
 
     const XML_PATH_GENERAL = 'gigya_section/general';
 
+    /**
+     * const XML_PATH_SCREENSET
+     */
     const XML_PATH_SCREENSET = 'gigya_screensets/screensets/screenset';
 
     /**
