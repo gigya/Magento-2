@@ -149,7 +149,15 @@ define([
             data : data
         })
         .done(function() {
-            location.href = url.build('checkout');
+            var checkout = url.build('checkout'),
+                customer = customerData.get('customer');
+            if($.cookie('login_redirect') === checkout + "/" && !customer().firstname) {
+                $.cookie('login_redirect', null);
+                location.href = checkout;
+                return;
+            }
+
+            window.location.reload();
         });
     };
 
