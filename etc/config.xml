@@ -12,5 +12,13 @@
                 <gigya_update_max_retry>5</gigya_update_max_retry>
             </synchro>
         </gigya_section>
+        <gigya_screensets>
+            <login_registration>
+                <desktop_screenset_id>Default-RegistrationLogin</desktop_screenset_id>
+            </login_registration>
+            <profile_update>
+                <desktop_screenset_id>Default-ProfileUpdate</desktop_screenset_id>
+            </profile_update>
+        </gigya_screensets>
     </default>
 </config>

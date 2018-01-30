@@ -1,4 +1,5 @@
 <?php
+
 namespace Gigya\GigyaIM\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -6,7 +7,8 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 /**
  * Class Config
  *
- * For session mode (constants SESSION_MODE_XXX) cf. https://developers.gigya.com/display/GD/Security+Guidelines#SecurityGuidelines-DefiningaSessionExpirationCookie
+ * For session mode (constants SESSION_MODE_XXX)
+ * cf. https://developers.gigya.com/display/GD/Security+Guidelines#SecurityGuidelines-DefiningaSessionExpirationCookie
  *
  * @package Gigya\GigyaIM\Model
  */
@@ -27,6 +29,12 @@ class Config
     const XML_PATH_MAPPING_FILE_PATH = 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path';
 
     const XML_PATH_GENERAL = 'gigya_section/general';
+
+    // Screen-sets configuration
+    const XML_PATH_LOGIN_DESKTOP_SCREENSET_ID = 'gigya_screensets/login_registration/desktop_screenset_id';
+    const XML_PATH_LOGIN_MOBILE_SCREENSET_ID = 'gigya_screensets/login_registration/mobile_screenset_id';
+    const XML_PATH_PROFILE_DESKTOP_SCREENSET_ID = 'gigya_screensets/profile_update/desktop_screenset_id';
+    const XML_PATH_PROFILE_MOBILE_SCREENSET_ID = 'gigya_screensets/profile_update/mobile_screenset_id';
 
     /**
      * @var ScopeConfigInterface
@@ -78,5 +86,37 @@ class Config
     public function getMagentoCookiePath()
     {
         return $this->scopeConfig->getValue(\Magento\Framework\Session\Config::XML_PATH_COOKIE_PATH);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLoginDesktopScreensetId()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_DESKTOP_SCREENSET_ID);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLoginMobileScreensetId()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_MOBILE_SCREENSET_ID);
+    }
+
+    /**
+     * @return string
+     */
+    public function getProfileDesktopScreensetId()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_DESKTOP_SCREENSET_ID);
+    }
+
+    /**
+     * @return string
+     */
+    public function getProfileMobileScreensetId()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID);
     }
 }
