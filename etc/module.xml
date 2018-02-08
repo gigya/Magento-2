@@ -3,6 +3,7 @@
     <module name="Gigya_GigyaIM" setup_version="5.0.7">
         <sequence>
             <module name="Magento_Customer"/>
+            <module name="Magento_Checkout"/>
         </sequence>
     </module>
 </config>
