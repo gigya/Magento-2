@@ -11,18 +11,16 @@
  * Create and submit registration form.
  * Submit to Gigya model Controller.
 **/
-
-/** @var \Gigya\GigyaIM\Block\Form\GigyaRegister $block */
 ?>
-
+<!-- Optional TODO: Generate dynamic id to enable more than one screen -->
 <div id="gigya-register" class="gigya-register gigya-loader-location"></div>
 <script>
     window.gigyaInit = window.gigyaInit || [];
     var screenSetParams = {
-        screenSet : "<?php echo $block->getLoginDesktopScreensetId() ?>",
+        screenSet : "Default-RegistrationLogin",
         containerID : "gigya-register",
         startScreen : "gigya-register-screen",
-        mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>" // optional - for using separate mobile screen set.
+        mobileScreenSet : "" // optional - for using separate mobile screen set.
     };
     var raasRegisterScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
     window.gigyaInit.push(raasRegisterScreen);

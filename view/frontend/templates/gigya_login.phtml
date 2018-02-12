@@ -12,18 +12,29 @@
  * Submit to Gigya model Controller.
  **/
 
-/** @var \Gigya\GigyaIM\Block\Form\GigyaLogin $block */
-?>
+// @codingStandardsIgnoreFile
+/** @var \Magento\Customer\Block\Form\Login $block */
 
-<?php
+/**
+ * Customer login form template
+ *
+ * @see \Magento\Customer\Block\Form\Login
+ * @var $block \Magento\Customer\Block\Form\Login
+ */
+
 // check display type from xml. set container div class and login div id to match
 $display = $block->getData('display'); // popup /embed
-$id = 'gigya-login-popup';
-if ($display === 'embed') {
-    $id = 'gigya-login-embed';
+if ($display == "embed") {
+    $id = "gigya-login-embed";
+} else {
+    $id = "gigya-login-popup";
 }
 ?>
 <div class="block block-customer-login">
+    <!--    <button class="open-gigya-login">add this class to any button in order to open Gigya login popup</button>-->
+    <!-- <div class="block-title">
+        <strong id="block-customer-login-heading" role="heading" aria-level="2"><?php /* @escapeNotVerified */ echo __('Registered Customers') ?></strong>
+    </div> -->
     <div class="block-content" aria-labelledby="block-customer-login-heading">
         <!-- Gigya login screen placeholder - id can be dynamic: -->
         <div id="<?php echo $id; ?>" class="gigya-login gigya-loader-location"></div>
@@ -32,10 +43,10 @@ if ($display === 'embed') {
             // add Raas login screens function to Gigya init.
             window.gigyaInit = window.gigyaInit || [];
             var screenSetParams = {
-                screenSet : "<?php echo $block->getLoginDesktopScreensetId() ?>",
+                screenSet : "Default-RegistrationLogin",
                 containerID : "<?php echo $id; ?>",
                 startScreen : "gigya-login-screen",
-                mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>" // optional - for using separate mobile screen set.
+                mobileScreenSet : "" // optional - for using separate mobile screen set.
             };
             var raasLoginScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
             window.gigyaInit.push(raasLoginScreen);

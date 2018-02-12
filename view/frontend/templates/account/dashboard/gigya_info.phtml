@@ -1,7 +1,14 @@
 <?php
-/** @var \Gigya\GigyaIM\Block\Account\Dashboard\GigyaInfo $block */
-?>
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
 
+// @codingStandardsIgnoreFile
+
+/** @var \Magento\Customer\Block\Account\Dashboard\Info $block */
+
+?>
 <div class="block block-dashboard-info">
     <div class="block-title"><strong><?php /* @escapeNotVerified */ echo __('Account Information') ?></strong></div>
     <div class="block-content">
@@ -10,9 +17,9 @@
         <script>
             window.gigyaInit = window.gigyaInit || [];
             var screenSetParams = {
-                screenSet : "<?php echo $block->getProfileDesktopScreensetId() ?>",
+                screenSet : "Default-ProfileUpdate",
                 containerID : "gigya-edit-profile",
-                mobileScreenSet : "<?php echo $block->getProfileMobileScreensetId() ?>" // optional - for using separate mobile screen set.
+                mobileScreenSet : "" // optional - for using separate mobile screen set.
             };
             var raasInfoScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
             window.gigyaInit.push(raasInfoScreen);
