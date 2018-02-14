@@ -137,16 +137,50 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     /**
      * Builds the whole data correctly formatted for the service call.
      *
+     * @see https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST
+     *
      * @param GigyaUser $gigyaAccount
      * @return array With entries uid, profile, data
      */
     public static function getGigyaApiAccountData(GigyaUser $gigyaAccount)
     {
-        return [
-            'uid' => $gigyaAccount->getUid(),
+        $rawAccoundData = [
+            'UID' => $gigyaAccount->getUID(),
+            'regToken' => $gigyaAccount->getRegToken(),
+            'addLoginEmails' => $gigyaAccount->getAddLoginEmails(),
+            'conflictHandling' => $gigyaAccount->getConflictHandling(),
+            'data' => $gigyaAccount->getData(),
+            'isActive' => $gigyaAccount->getIsActive(),
+            'isVerified' => $gigyaAccount->getIsVerified(),
+            'muteWebhooks' => $gigyaAccount->getMuteWebhooks(),
+            'newPassword' => $gigyaAccount->getNewPassword(),
+            'password' => $gigyaAccount->getPassword(),
             'profile' => self::getGigyaApiProfileData($gigyaAccount),
-            'data' => $gigyaAccount->getData()
+            'removeLoginEmails' => $gigyaAccount->getRemoveLoginEmails(),
+            'requirePasswordChange' => $gigyaAccount->getRequirePasswordChange(),
+            'secretAnswer' => $gigyaAccount->getScretAnswer(),
+            'secretQuestion' => $gigyaAccount->getSecretQuestion(),
+            'securityOverride' => $gigyaAccount->getSecurityOverride(),
+            'subscriptions' => $gigyaAccount->getSubscriptions(),
+            'preferences' => $gigyaAccount->getPreferences(),
+            'rba' => $gigyaAccount->getRba(),
+            'username' => $gigyaAccount->getUsername(),
+            'created' => $gigyaAccount->getCreated(),
+            'regSource' => $gigyaAccount->getRegSource(),
+            'format' => $gigyaAccount->getFormat(),
+            'callback' => $gigyaAccount->getCallback(),
+            'httpStatusCodes' => $gigyaAccount->getHttpStatusCode()
         ];
+
+        $accoundData = array_filter(
+            $rawAccoundData,
+            function($value, $key) {
+                return $value !== null;
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        return $accoundData;
     }
 
     /**
@@ -163,7 +197,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 
         try {
             /** @var string $uid */
-            $uid = $gigyaApiData['uid'];
+            $uid = $gigyaApiData['UID'];
 
             // 1. Get current Gigya account data : they would be used if we have to perform a rollback
             // Those data could already have been successfully loaded in self::get, that's why we check their existence.
@@ -175,8 +209,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             // 2. Update the Gigya account
             $this->gigyaMageHelper->updateGigyaAccount(
                 $uid,
-                $gigyaApiData['profile'],
-                $gigyaApiData['data']
+                $gigyaApiData
             );
 
             // 3. If we reach this line that means the Gigya account has been successfully updated.

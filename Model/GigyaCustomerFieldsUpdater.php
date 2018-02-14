@@ -26,7 +26,6 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  */
 class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 {
-
     /** @var CacheType CacheType */
     protected $gigyaCacheType;
 
@@ -72,13 +71,11 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      * Magento customer to use for mapping must be set before this method by calling self::getMagentoCustomer()
      *
      */
-    public function callCmsHook() {
+    public function callCmsHook()
+    {
         $this->eventManager->dispatch(
-            "pre_sync_to_gigya",
-            [
-                "customer" => $this->getMagentoUser(),
-                "gigya_user" => $this->getGigyaUser()
-            ]
+            'pre_sync_to_gigya',
+            ['customer' => $this->getMagentoUser(), 'gigya_user' => $this->getGigyaUser()]
         );
 
         $cmsArray = [];
@@ -147,7 +144,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * @param $cmsName string
      *      A 'path' to the value to retrieve on the Customer entity. Syntax is : word[.word]+ where word is the snake case name of a property (eg 'my_attribute')
-     *      If word begins with custom_, like in custom_my_attribute, we'll call magentoCustomer->getCustomAttriubte('my_attribute')
+     *      If word begins with custom_, like in custom_my_attribute, we'll call magentoCustomer->getCustomAttribute('my_attribute')
      *      Otherwise we'll call magentoCustomer->getMyAttribute
      * @return mixed
      * @throws GigyaFieldMappingException

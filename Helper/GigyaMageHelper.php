@@ -443,13 +443,16 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * @see GigyaApiHelper::updateGigyaAccount()
+     * Method updateGigyaAccount
+     *
+     * @param string $uid UID
+     * @param array $data data
      *
      * @return void
      */
-    public function updateGigyaAccount($uid, $profile = array(), $data = array())
+    public function updateGigyaAccount($uid, $data = array())
     {
-        $this->getGigyaApiHelper()->updateGigyaAccount($uid, $profile, $data);
+        $this->getGigyaApiHelper()->updateGigyaAccount($uid, $data);
     }
 
     /**

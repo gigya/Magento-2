@@ -449,7 +449,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         $binds = [
             'customer_entity_id' => $customerEntityId,
             'customer_entity_email' => $customerEntityEmail,
-            'gigya_uid' => $gigyaAccountData['uid'],
+            'gigya_uid' => $gigyaAccountData['UID'],
             'data' => $gigyaAccountData,
             'message' => $message != null ? (strlen($message) > 255 ? substr($message, 0, 255).' ...' : $message) : null
         ];

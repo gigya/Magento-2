@@ -10,6 +10,9 @@ use Magento\Customer\Model\CustomerFactory;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Event\ManagerInterface;
 
 /**
  * MagentoCustomerFieldsUpdater
@@ -58,17 +61,21 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         $this->logger = $logger;
     }
 
+    /**
+     * Method callCmsHook
+     */
     public function callCmsHook() {
-        /** @var \Magento\Framework\ObjectManagerInterface $om */
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        /** @var \Magento\Framework\Event\ManagerInterface $manager */
+        /** @var ObjectManagerInterface $om */
+        $om = ObjectManager::getInstance();
+        /** @var ManagerInterface $manager */
         $manager = $om->get('Magento\Framework\Event\ManagerInterface');
-        $params = array(
-            "gigya_user" => $this->getGigyaUser(),
-            "customer" => $this->getMagentoUser()
 
-        );
-        $manager->dispatch("gigya_pre_field_mapping", $params);
+        $params = [
+            'gigya_user' => $this->getGigyaUser(),
+            'customer' => $this->getMagentoUser()
+        ];
+
+        $manager->dispatch('gigya_pre_field_mapping', $params);
     }
 
     public function setGigyaLogger($logger) {
