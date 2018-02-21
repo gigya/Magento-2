@@ -1,14 +1,11 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Model;
-
 
 use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\CmsStarterKit\user\GigyaSubscriptionContainer;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
@@ -135,6 +132,39 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
     }
 
     /**
+     * Facility to build the subscriptions data correctly formatted for the service call.
+     *
+     * @param GigyaUser $gigyaAccount
+     * @return array
+     */
+    public static function getGigyaApiSubscriptionsData(GigyaUser $gigyaAccount)
+    {
+        $subscriptions = $gigyaAccount->getSubscriptions();
+
+        $result = [];
+
+        if (count($subscriptions)) {
+            /** @var GigyaSubscriptionContainer $subscriptionContainer */
+            foreach ($subscriptions as $subscriptionId => $subscriptionContainer) {
+                $subscriptionData = $subscriptionContainer->getSubscriptionAsArray();
+
+                // Remove null value
+                $subscriptionData = array_filter(
+                    $subscriptionData,
+                    function($value, $key) {
+                        return $value !== null;
+                    },
+                    ARRAY_FILTER_USE_BOTH
+                );
+
+                $result[$subscriptionId]['email'] = $subscriptionData;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Builds the whole data correctly formatted for the service call.
      *
      * @see https://developers.gigya.com/display/GD/accounts.setAccountInfo+REST
@@ -144,7 +174,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     public static function getGigyaApiAccountData(GigyaUser $gigyaAccount)
     {
-        $rawAccoundData = [
+        $rawAccountData = [
             'UID' => $gigyaAccount->getUID(),
             'regToken' => $gigyaAccount->getRegToken(),
             'addLoginEmails' => $gigyaAccount->getAddLoginEmails(),
@@ -158,10 +188,10 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             'profile' => self::getGigyaApiProfileData($gigyaAccount),
             'removeLoginEmails' => $gigyaAccount->getRemoveLoginEmails(),
             'requirePasswordChange' => $gigyaAccount->getRequirePasswordChange(),
-            'secretAnswer' => $gigyaAccount->getScretAnswer(),
+            'secretAnswer' => $gigyaAccount->getSecretAnswer(),
             'secretQuestion' => $gigyaAccount->getSecretQuestion(),
             'securityOverride' => $gigyaAccount->getSecurityOverride(),
-            'subscriptions' => $gigyaAccount->getSubscriptions(),
+            'subscriptions' => self::getGigyaApiSubscriptionsData($gigyaAccount),
             'preferences' => $gigyaAccount->getPreferences(),
             'rba' => $gigyaAccount->getRba(),
             'username' => $gigyaAccount->getUsername(),
@@ -172,15 +202,15 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             'httpStatusCodes' => $gigyaAccount->getHttpStatusCode()
         ];
 
-        $accoundData = array_filter(
-            $rawAccoundData,
+        $accountData = array_filter(
+            $rawAccountData,
             function($value, $key) {
                 return $value !== null;
             },
             ARRAY_FILTER_USE_BOTH
         );
 
-        return $accoundData;
+        return $accountData;
     }
 
     /**
