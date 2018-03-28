@@ -58,4 +58,9 @@ class GigyaLogin extends Login
     {
         return $this->configModel->getLoginMobileScreensetId();
     }
+
+    public function getRedirectUrl()
+    {
+        return $this->_customerUrl->getLoginPostUrl();
+    }
 }

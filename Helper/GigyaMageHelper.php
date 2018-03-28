@@ -281,22 +281,30 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
+     * Validate RaaS login data
+     *
      * @param $UID
      * @param $UIDSignature
      * @param $signatureTimestamp
+     *
      * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
      */
     public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
     {
-        $org_params = $this->createEnvironmentParam();
-        $extra_profile_fields_list = $this->setExtraProfileFields();
+        $orgParams = $this->createEnvironmentParam();
+        $extraProfileFieldsList = $this->setExtraProfileFields();
+
         $valid = $this->getGigyaApiHelper()->validateUid(
-            $UID, $UIDSignature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
+            $UID, $UIDSignature, $signatureTimestamp, null, $extraProfileFieldsList, $orgParams
         );
+
         if (!$valid) {
-            $this->gigyaLog(__FUNCTION__ .
-                ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
+            $this->gigyaLog(
+                __FUNCTION__ . ': Raas user validation failed. make sure to check your gigya config values. ' .
+                'including encryption key location, and Database gigya settings'
+            );
         }
+
         return $valid;
     }
 
@@ -458,38 +466,39 @@ class GigyaMageHelper extends AbstractHelper
     /**
      * Given a frontend Gigya response, retrieve all the Gigya's account data.
      *
-     * @param string $loginData A json string issued from frontend Gigya forms.
+     * @param array $loginData Login data
+     *
      * @return false|GigyaUser
+     *
      * @throws GSException If the Gigya service returned an error.
      */
     public function getGigyaAccountDataFromLoginData($loginData)
     {
-        $gigya_validation_o = json_decode($loginData);
-        if (!empty($gigya_validation_o->errorCode)) {
-           switch($gigya_validation_o->errorCode)  {
+        if (!empty($loginData['errorCode'])) {
+           switch($loginData['errorCode'])  {
                case GigyaAccountServiceInterface::ERR_CODE_LOGIN_ID_ALREADY_EXISTS:
-                   $this->_logger->error("Error while retrieving Gigya account data", [
+                   $this->_logger->error('Error while retrieving Gigya account data', [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                    ]);
-                   throw new GSException("Email already exists.");
+                   throw new GSException('Email already exists.');
 
                default:
-                   $this->_logger->error("Error while retrieving Gigya account data", [
+                   $this->_logger->error('Error while retrieving Gigya account data', [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                    ]);
-                   throw new GSException(sprintf("Unable to get Gigya account data : %s / %s", $gigya_validation_o->errorCode, $gigya_validation_o->errorMessage));
+                   throw new GSException(sprintf('Unable to get Gigya account data : %s / %s', $loginData['errorCode'], $loginData['errorMessage']));
            }
         }
 
-        $valid_gigya_user = $this->validateAndFetchRaasUser(
-            $gigya_validation_o->UID,
-            $gigya_validation_o->UIDSignature,
-            $gigya_validation_o->signatureTimestamp
+        $validGigyaUser = $this->validateAndFetchRaasUser(
+            $loginData['UID'],
+            $loginData['UIDSignature'],
+            $loginData['signatureTimestamp']
         );
 
-        return $valid_gigya_user;
+        return $validGigyaUser;
     }
 
     public function getGigyaAccountDataFromUid($uid)

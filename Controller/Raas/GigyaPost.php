@@ -41,10 +41,9 @@ class GigyaPost extends AbstractLogin
         // Gigya logic: validate gigya user -> get Gigya account info -> check if account exists in Magento ->
         // login /create in magento :
 
-        $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
-        $responseObject = $this->doLogin($valid_gigya_user);
+        $validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getPostValue());
+        $responseObject = $this->doLogin($validGigyaUser);
         $response =  $this->extractResponseFromDataObject($responseObject);
-        //$this->cookies['gltexp_'.$this->gigyaMageHelper->getApiKey()] = $this->gigyaMageHelper->calculateExpCookieValue();
         $this->applyCookies();
 
         $this->extendModel->setupSessionCookie();

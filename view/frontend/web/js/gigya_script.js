@@ -30,20 +30,14 @@ define([
         var gig = document.createElement('script');
         gig.type = 'text/javascript';
         gig.async = false;
-        gig.src = 'https://cdns.' + domain +
-            '/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
-        var gig_loaded = function () {
-                gigya.accounts.addEventHandlers(
-                    {
-                        onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
-                        onLogout: gigyaMage2.Functions.gigyaLogoutEventHandler
-                    }
-                );
-            };
-        gig.onreadystatechange= function () {
-            if (this.readyState == 'complete') gig_loaded();
-        }
-        gig.onload= gig_loaded;
+        gig.src = 'https://cdns.' + domain + '/js/gigya.js?apiKey=' + api_key + '&lang=' + language + '&enableSSOToken=true';
+
+        // Add SSO token
+        gig.onload = function() {
+            gigya.accounts.addEventHandlers({
+                onLogin: gigya.accounts.setSSOToken({ redirectURL: login_post_url })
+            });
+        };
 
         document.getElementsByTagName('head')[0].appendChild(gig);
 
@@ -111,7 +105,7 @@ define([
      * Login event handler. set parameters for login submission and call Ajax submission
      * @param eventObj
      */
-    gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
+    /*gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
         var action = login_post_url;
         var loginData = {
             UIDSignature : eventObj.UIDSignature,
@@ -124,7 +118,7 @@ define([
             login_data : JSON.stringify(loginData)
         };
         gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
-    };
+    };*/
 
     gigyaMage2.Functions.gigyaAjaxUpdateProfile = function(eventObj) {
         var action = edit_post_url;
@@ -156,8 +150,8 @@ define([
         return window.btoa(decodeURIComponent(encodeURIComponent( data )));
     };
 
-    gigyaMage2.Functions.gigyaLogoutEventHandler = function() {
-    };
+    /*gigyaMage2.Functions.gigyaLogoutEventHandler = function() {
+    };*/
 
     gigyaMage2.Functions.performGigyaActions = function() {
         if (window.gigyaInit) {

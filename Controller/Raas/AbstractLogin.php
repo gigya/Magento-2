@@ -210,60 +210,59 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     }
 
     /**
-     * @param \Gigya\CmsStarterKit\user\GigyaUser $valid_gigya_user
+     * After checking Gigya data, log the current customer to Magento and redirect to the configured page (dashboard or referer)
+     *
+     * @param \Gigya\CmsStarterKit\user\GigyaUser $validGigyaUser
+     *
      * @return DataObject
      */
-    protected function doLogin(\Gigya\CmsStarterKit\user\GigyaUser $valid_gigya_user)
+    protected function doLogin(\Gigya\CmsStarterKit\user\GigyaUser $validGigyaUser)
     {
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
+
         // if gigya user not validated return error
-        if (!$valid_gigya_user) {
+        if (!$validGigyaUser) {
             $this->addError(__('The user is not validated. Please try again or contact support.'));
-            return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
-                ['login_successful' => false]);
-        } // we have a valid gigya user. verify that required fields exist
-        else {
-            $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
-
-            if (!empty($required_field_message)) {
-                foreach ($required_field_message as $message) {
-                    $this->addError($message);
-                }
-                return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
-            }
-
-
-            $loginSuccess = false;
-            try {
-                $customer = $this->gigyaSyncHelper->setMagentoLoggingContext($valid_gigya_user);
-
-                if ($customer) {
-                    $loginSuccess = $this->gigyaLoginUser($customer);
-                    $this->customerRepository->save($customer);
-                    $redirect = $this->encapsulateResponse(
-                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]);
-                } else {
-                    $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
-                    $loginSuccess = true;
-                }
-
-                // dispatch gigya login event
-                $this->_eventManager->dispatch(self::EVENT_POST_USER_LOGIN, [
-                    "gigya_user" => $valid_gigya_user,
-                    "customer" => $customer,
-                    "accountManagement" => $this->accountManagement
-                ]);
-            } catch(\Exception $e) {
-                $this->addError($e->getMessage());
-                $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
-                $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
-                //$redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl),
-                //    ['login_successful' => $loginSuccess]);
-            }
-
-            return $redirect;
+            return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
         }
+
+        $requiredFieldMessage = $this->gigyaMageHelper->verifyGigyaRequiredFields($validGigyaUser);
+
+        if (!empty($requiredFieldMessage)) {
+            foreach ($requiredFieldMessage as $message) {
+                $this->addError($message);
+            }
+            return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
+        }
+
+        $loginSuccess = false;
+        try {
+            $customer = $this->gigyaSyncHelper->setMagentoLoggingContext($validGigyaUser);
+
+            if ($customer) {
+                $loginSuccess = $this->gigyaLoginUser($customer);
+                $this->customerRepository->save($customer);
+                $redirect = $this->encapsulateResponse(
+                    $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]
+                );
+            } else {
+                $redirect = $this->gigyaCreateUser($resultRedirect, $validGigyaUser);
+                $loginSuccess = true;
+            }
+
+            // dispatch gigya login event
+            $this->_eventManager->dispatch(self::EVENT_POST_USER_LOGIN, [
+                'gigya_user'        => $validGigyaUser,
+                'customer'          => $customer,
+                'accountManagement' => $this->accountManagement
+            ]);
+        } catch(\Exception $e) {
+            $this->addError($e->getMessage());
+            $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
+        }
+
+        return $redirect;
     }
 
     /**
