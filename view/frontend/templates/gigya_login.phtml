@@ -35,10 +35,7 @@ if ($display === 'embed') {
                 screenSet : "<?php echo $block->getLoginDesktopScreensetId() ?>",
                 containerID : "<?php echo $id; ?>",
                 startScreen : "gigya-login-screen",
-                mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>", // optional - for using separate mobile screen set.
-                authFlow : "redirect",
-                redirectMethod : "post",
-                redirectURL : "<?php echo $block->getRedirectUrl() ?>",
+                mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>"
             };
             var raasLoginScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
             window.gigyaInit.push(raasLoginScreen);
