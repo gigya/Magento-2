@@ -40,9 +40,9 @@ define([
                     }
                 );
             };
-        gig.onreadystatechange= function () {
-            if (this.readyState == 'complete') gig_loaded();
-        }
+        gig.onreadystatechange = function () {
+            if (this.readyState === 'complete') gig_loaded();
+        };
         gig.onload= gig_loaded;
 
         document.getElementsByTagName('head')[0].appendChild(gig);
@@ -56,11 +56,8 @@ define([
      * If Gigya is logged in but Magento is logged out: leave Gigya logged in
      */
     gigyaMage2.Functions.setLoginStatus = function (response) {
-        if ( response.errorCode === 0 ) {
-            gigyaMage2.Params.gigya_user_logged_in = true;
-        } else {
-            gigyaMage2.Params.gigya_user_logged_in = false;
-        }
+        gigyaMage2.Params.gigya_user_logged_in = ( response.errorCode === 0 );
+
         window.gigyaCMS.authenticated = gigyaMage2.Params.gigya_user_logged_in;
         var action = login_state_url;
         // console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
@@ -164,7 +161,7 @@ define([
 
             // If this is the edit profile page, then add the update profile callback function.
             if (window.gigyaInit[0]) {
-                if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
+                if( window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
                     window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
                 }
             }
@@ -207,6 +204,7 @@ define([
             buttons: [],
             clickableOverlay: true
         };
+
         var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
         window.showGigyaLoginScreenSet = function()
         {
