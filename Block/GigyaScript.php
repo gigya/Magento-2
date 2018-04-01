@@ -141,7 +141,7 @@ class GigyaScript extends Template
 
     public function getLoginRedirectUrl()
     {
-	    return $this->_getSession()->getBeforeAuthUrl(true);
+	    return Mage::getSingleton('customer/session')->getBeforeAuthUrl(true);
     }
 
     /**
