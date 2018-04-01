@@ -118,7 +118,8 @@ define([
         var data = {
             form_key : gigyaMage2.Params.form_key,
             "login[]" : "",
-            login_data : JSON.stringify(loginData)
+            login_data : JSON.stringify(loginData),
+            login_event : true
         };
         gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
     };
@@ -144,11 +145,13 @@ define([
             data : data
         })
         .done(function(data) {
-        	console.log('Astana');
-			console.log('url1: '+login_redirect_url);
-			console.log('url2: '+login_post_url);
-			gigya.accounts.setSSOToken({ redirectURL: login_post_url });
-        	console.log('Canberra');
+            var dataObj = JSON.parse(data);
+            if (typeof dataObj.response_data.location !== 'undefined') {
+                gigya.accounts.setSSOToken({redirectURL: dataObj.response_data.location});
+            }
+            else {
+                window.location.reload();
+            }
         });
     };
 

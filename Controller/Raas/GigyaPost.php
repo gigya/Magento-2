@@ -19,7 +19,6 @@ class GigyaPost extends AbstractLogin
 {
     /**
      * Create customer account action
-     * @return \Magento\Framework\Controller\Result\Forward|\Magento\Framework\Controller\Result\Redirect
      */
     public function execute()
     {
@@ -39,19 +38,23 @@ class GigyaPost extends AbstractLogin
         $this->session->regenerateId();
 
         // Gigya logic: validate gigya user -> get Gigya account info -> check if account exists in Magento ->
-        // login /create in magento :
+	    // login /create in magento :
 
-        $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
-        $responseObject = $this->doLogin($valid_gigya_user);
-        $response =  $this->extractResponseFromDataObject($responseObject);
-        //$this->cookies['gltexp_'.$this->gigyaMageHelper->getApiKey()] = $this->gigyaMageHelper->calculateExpCookieValue();
-        $this->applyCookies();
+	    $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
+	    $responseObject = $this->doLogin($valid_gigya_user);
+	    $response = $this->extractResponseFromDataObject($responseObject);
+		$this->applyCookies();
 
         $this->extendModel->setupSessionCookie();
 
         $this->applyMessages();
 
-        return $response;
+	    if (!empty($_POST['login_event'])) {
+		    echo $responseObject->toJson();
+		    return null;
+	    }
+
+	    return $response;
     }
 
     /**

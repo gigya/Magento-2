@@ -233,7 +233,6 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
             }
 
-
             $loginSuccess = false;
             try {
                 $customer = $this->gigyaSyncHelper->setMagentoLoggingContext($valid_gigya_user);
