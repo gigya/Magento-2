@@ -143,8 +143,12 @@ define([
             context : loader_context,
             data : data
         })
-        .done(function() {
-            window.location.reload();
+        .done(function(data) {
+        	console.log('Astana');
+			console.log('url1: '+login_redirect_url);
+			console.log('url2: '+login_post_url);
+			gigya.accounts.setSSOToken({ redirectURL: login_post_url });
+        	console.log('Canberra');
         });
     };
 

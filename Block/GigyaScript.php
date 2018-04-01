@@ -139,6 +139,11 @@ class GigyaScript extends Template
         return $this->getUrl('gigya_raas/raas_automatic/login');
     }
 
+    public function getLoginRedirectUrl()
+    {
+	    return $this->_getSession()->getBeforeAuthUrl(true);
+    }
+
     /**
      * check language mode in gigya config (mode:auto/en/es..., default:en/other)
      * if auto is selected:
