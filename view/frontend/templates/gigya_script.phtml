@@ -6,29 +6,26 @@
  */
 
 $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigyaScriptDomain();
-
 ?>
 
 <script>
-var login_state_url = "<?php echo $block->getMagentoLoginStateUrl() ?>";
-var logout_url = "<?php echo $block->getLogoutUrl() ?>";
-var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
-var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost') ?>";
-var login_url = "<?php echo $block->getLoginUrl() ?>";
-var magento_user_logged_in = false;
-var enable_login = true;
+	var login_state_url = "<?php echo $block->getMagentoLoginStateUrl(); ?>";
+	var logout_url = "<?php echo $block->getLogoutUrl(); ?>";
+	var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
+	var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost'); ?>";
+	var login_url = "<?php echo $block->getLoginUrl(); ?>";
+	var magento_user_logged_in = false;
+	var enable_login = true;
 
-    var m;
+	var m;
 </script>
-
 <script>
-
-    require([
-        "jquery",
-        "gigya_script"
-    ], function($, gigyaMage2){
-        m = gigyaMage2;
-        "use strict";
+	require([
+		"jquery",
+		"gigya_script"
+	], function ($, gigyaMage2) {
+		m = gigyaMage2;
+		"use strict";
 
         var loadGigyaScript = function(magentoLoggedIn)
         {
@@ -53,28 +50,24 @@ var enable_login = true;
             });
         };
 
-        var retryCounter = $.cookie("<?php echo \Gigya\GigyaIM\Controller\Raas\AbstractLogin::RETRY_COOKIE_NAME ?>");
-        if(retryCounter && parseInt(retryCounter) >= 3)
-        {
-            enable_login = false;
-            loadGigyaScript(false);
-        }
+		var retryCounter = $.cookie("<?php echo \Gigya\GigyaIM\Controller\Raas\AbstractLogin::RETRY_COOKIE_NAME ?>");
+		if (retryCounter && parseInt(retryCounter) >= 3) {
+			enable_login = false;
+			loadGigyaScript(false);
+		}
         else
         {
-            $.ajax({
-                type : "GET",
-                url : login_state_url,
-                showLoader: false
-            })
-            .done(function(data) {
-
-                if(typeof data.logged_in != 'undefined')
-                {
-                    magento_user_logged_in = (data.logged_in == '1');
-                    gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
-                }
-                loadGigyaScript(gigyaMage2.Params.magento_user_logged_in);
-            });
+			$.ajax({
+				type: "GET",
+				url: login_state_url,
+				showLoader: false
+			}).done(function (data) {
+				if (typeof data.logged_in !== 'undefined') {
+					magento_user_logged_in = (data.logged_in == '1');
+					gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
+				}
+				loadGigyaScript(gigyaMage2.Params.magento_user_logged_in);
+			});
         }
     });
 </script>
