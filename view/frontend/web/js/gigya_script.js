@@ -139,16 +139,21 @@ define([
 			showLoader: true,
 			context: loader_context,
 			data: data
-		})
-			.done(function (data) {
+		}).done(function (data) {
+			try {
 				var dataObj = JSON.parse(data);
-				if (typeof dataObj.response_data.location !== 'undefined') {
-					gigya.accounts.setSSOToken({redirectURL: dataObj.response_data.location});
-				}
-				else {
-					window.location.reload();
-				}
-			});
+			}
+			catch (e) {
+				window.location.reload();
+			}
+
+			if (typeof dataObj.response_data.location !== 'undefined') {
+				gigya.accounts.setSSOToken({redirectURL: dataObj.response_data.location});
+			}
+			else {
+				window.location.reload();
+			}
+		});
 	};
 
     gigyaMage2.Functions.loginEncode = function(data)
