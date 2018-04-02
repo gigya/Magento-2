@@ -74,7 +74,10 @@ class Login extends AbstractLogin
      * @param Validator $formKeyValidator
      * @param CookieManagerInterface $cookieManager
      * @param GigyaMageHelper $gigyaMageHelper
+     * @param CookieMetadataFactory $cookieMetadataFactory
      * @param LoginHelper $loginHelper
+     * @param Logger $logger
+     * @param Extend $extendModel
      */
     public function __construct(
         Context $context,
@@ -138,12 +141,16 @@ class Login extends AbstractLogin
         $this->logger = $logger;
     }
 
-    /**
-     * Dispatch request
-     *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
-     */
+	/**
+	 * Dispatch request
+	 *
+	 * @return ResponseInterface|\Magento\Framework\Controller\ResultInterface|mixed
+	 *
+	 * @throws InputException
+	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
+	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+	 * @throws \Zend_Json_Exception
+	 */
     public function execute()
     {
 
@@ -182,13 +189,18 @@ class Login extends AbstractLogin
         }
     }
 
-    /**
-     * Return a JSON response
-     *
-     * @param bool $doReload
-     * @param string $errorMessage
-     * @return mixed
-     */
+	/**
+	 * Return a JSON response
+	 *
+	 * @param $doReload
+	 * @param string $errorMessage
+	 *
+	 * @return mixed
+	 *
+	 * @throws InputException
+	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
+	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+	 */
     protected function getJsonResponse($doReload, $errorMessage = '')
     {
         if($doReload)
