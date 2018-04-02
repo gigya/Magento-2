@@ -40,9 +40,9 @@ define([
                     }
                 );
             };
-        gig.onreadystatechange= function () {
-            if (this.readyState == 'complete') gig_loaded();
-        }
+        gig.onreadystatechange = function () {
+            if (this.readyState === 'complete') gig_loaded();
+        };
         gig.onload= gig_loaded;
 
         document.getElementsByTagName('head')[0].appendChild(gig);
@@ -50,106 +50,106 @@ define([
         window.gigyaCMS = {authenticated: false};
     };
 
-    /**
-     * sync Magento-Gigya sessions logic
-     * if Gigya is logged out, but Magento is logged in: log Magento out
-     * If Gigya is logged in but Magento is logged out: leave Gigya logged in
-     */
-    gigyaMage2.Functions.setLoginStatus = function (response) {
-        if ( response.errorCode === 0 ) {
-            gigyaMage2.Params.gigya_user_logged_in = true;
-        } else {
-            gigyaMage2.Params.gigya_user_logged_in = false;
-        }
-        window.gigyaCMS.authenticated = gigyaMage2.Params.gigya_user_logged_in;
-        var action = login_state_url;
-        // console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
-        // console.log('  CMS LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
-        // if Gigya is logged out, but Magento is logged in: log Magento out
-        // this scenario may result in double page load for user, but is used only to fix an end case situation.
-        if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
-            gigyaMage2.Functions.logoutMagento();
-        }
+	/**
+	 * sync Magento-Gigya sessions logic
+	 * if Gigya is logged out, but Magento is logged in: log Magento out
+	 * If Gigya is logged in but Magento is logged out: leave Gigya logged in
+	 */
+	gigyaMage2.Functions.setLoginStatus = function (response) {
+		gigyaMage2.Params.gigya_user_logged_in = (response.errorCode === 0);
 
-        // if Gigya is logged in, but Magento is logged out: log Magento in
-        if (gigyaMage2.Params.gigya_user_logged_in && (!gigyaMage2.Params.magento_user_logged_in)) {
-            gigyaMage2.Functions.loginMagento(response);
-        }
-    };
+		window.gigyaCMS.authenticated = gigyaMage2.Params.gigya_user_logged_in;
+		var action = login_state_url;
+		// console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
+		// console.log('  CMS LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
+		// if Gigya is logged out, but Magento is logged in: log Magento out
+		// this scenario may result in double page load for user, but is used only to fix an end case situation.
+		if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
+			gigyaMage2.Functions.logoutMagento();
+		}
 
-    gigyaMage2.Functions.loginMagento = function (response) {
-        if(enable_login)
-        {
-            var guid = response.UID;
-            if(guid)
-            {
-                var form_key = tinymce.util.Cookie.get('form_key');
-                var domain = window.location.hostname;
-                $.ajax({
-                    type : "POST",
-                    url : login_url,
-                    data : {
-                        form_key:form_key, guid: guid, login_data: JSON.stringify(response),
-                        key: gigyaMage2.Functions.loginEncode(domain+guid+"1234")
-                    }
-                })
-                .always(function(data) {
-                    if(data.reload)
-                    {
-                        window.location.reload();
-                    }
-                });
-            }
-        }
-    };
+		// if Gigya is logged in, but Magento is logged out: log Magento in
+		if (gigyaMage2.Params.gigya_user_logged_in && (!gigyaMage2.Params.magento_user_logged_in)) {
+			gigyaMage2.Functions.loginMagento(response);
+		}
+	};
 
-    gigyaMage2.Functions.logoutMagento = function () {
-        window.location.href = logout_url;
-    };
+	gigyaMage2.Functions.loginMagento = function (response) {
+		if (enable_login) {
+			var guid = response.UID;
+			if (guid) {
+				var form_key = tinymce.util.Cookie.get('form_key');
+				var domain = window.location.hostname;
+				$.ajax({
+					type: "POST",
+					url: login_url,
+					data: {
+						form_key: form_key, guid: guid, login_data: JSON.stringify(response),
+						key: gigyaMage2.Functions.loginEncode(domain + guid + "1234")
+					}
+				}).always(function (data) {
+					if (data.reload) {
+						window.location.reload();
+					}
+				});
+			}
+		}
+	};
 
-    /**
-     * Login event handler. set parameters for login submission and call Ajax submission
-     * @param eventObj
-     */
-    gigyaMage2.Functions.gigyaLoginEventHandler = function(eventObj) {
-        var action = login_post_url;
-        var loginData = {
-            UIDSignature : eventObj.UIDSignature,
-            signatureTimestamp : eventObj.signatureTimestamp,
-            UID : eventObj.UID
-        };
-        var data = {
-            form_key : gigyaMage2.Params.form_key,
-            "login[]" : "",
-            login_data : JSON.stringify(loginData)
-        };
-        gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
-    };
+	gigyaMage2.Functions.logoutMagento = function () {
+		window.location.href = logout_url;
+	};
 
-    gigyaMage2.Functions.gigyaAjaxUpdateProfile = function(eventObj) {
-        var action = edit_post_url;
-        var data = {
-            form_key : gigyaMage2.Params.form_key,
-            email : eventObj.profile.email,
-            firstname : eventObj.profile.firstName,
-            lastname : eventObj.profile.lastName,
-            gigya_user : JSON.stringify(eventObj.response)
-        };
-        gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
-    };
+	/**
+	 * Login event handler. set parameters for login submission and call Ajax submission
+	 * @param eventObj
+	 */
+	gigyaMage2.Functions.gigyaLoginEventHandler = function (eventObj) {
+		var action = login_post_url;
+		var loginData = {
+			UIDSignature: eventObj.UIDSignature,
+			signatureTimestamp: eventObj.signatureTimestamp,
+			UID: eventObj.UID
+		};
+		var data = {
+			form_key: gigyaMage2.Params.form_key,
+			"login[]": "",
+			login_data: JSON.stringify(loginData),
+			login_event: true
+		};
+		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
+	};
 
-    gigyaMage2.Functions.gigyaAjaxSubmit = function (action, data, loader_context) {
-        $.ajax({
-            type : "POST",
-            url : action,
-            showLoader: true,
-            context : loader_context,
-            data : data
-        })
-        .done(function() {
-            window.location.reload();
-        });
-    };
+	gigyaMage2.Functions.gigyaAjaxUpdateProfile = function (eventObj) {
+		var action = edit_post_url;
+		var data = {
+			form_key: gigyaMage2.Params.form_key,
+			email: eventObj.profile.email,
+			firstname: eventObj.profile.firstName,
+			lastname: eventObj.profile.lastName,
+			gigya_user: JSON.stringify(eventObj.response)
+		};
+		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
+	};
+
+	gigyaMage2.Functions.gigyaAjaxSubmit = function (action, data, loader_context) {
+		$.ajax({
+			type: "POST",
+			url: action,
+			showLoader: true,
+			context: loader_context,
+			data: data
+		})
+			.done(function (data) {
+				var dataObj = JSON.parse(data);
+				if (typeof dataObj.response_data.location !== 'undefined') {
+					gigya.accounts.setSSOToken({redirectURL: dataObj.response_data.location});
+				}
+				else {
+					window.location.reload();
+				}
+			});
+	};
 
     gigyaMage2.Functions.loginEncode = function(data)
     {
@@ -164,7 +164,7 @@ define([
 
             // If this is the edit profile page, then add the update profile callback function.
             if (window.gigyaInit[0]) {
-                if( window.gigyaInit[0].parameters.containerID == "gigya-edit-profile") {
+                if( window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
                     window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
                 }
             }
@@ -207,6 +207,7 @@ define([
             buttons: [],
             clickableOverlay: true
         };
+
         var gigya_login_popup = modal(gigya_login_modal, $('#gigya-login-popup'));
         window.showGigyaLoginScreenSet = function()
         {

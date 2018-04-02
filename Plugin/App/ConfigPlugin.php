@@ -16,14 +16,12 @@ class ConfigPlugin
     const ENDLESS_SESSION_LIFETIME = 60 * 60 * 24 * 365 * 10;
 
     /**
-     *
-     *
      * @param ScopeConfigInterface $subject
      * @param \Closure $proceed
      * @param null $path
      * @param string $scope
      * @param null $scopeCode
-     * @return int|void
+     * @return int|mixed
      */
     public function aroundGetValue(
         ScopeConfigInterface $subject,
