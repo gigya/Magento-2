@@ -8,31 +8,26 @@ use Magento\Framework\Event\ObserverInterface;
 
 class Extend implements ObserverInterface
 {
+	/**
+	 * @var ExtendModel
+	 */
+	protected $sessionExtendModel;
 
-    /**
-     * @var ExtendModel
-     */
+	public function __construct(ExtendModel $sessionExtendModel)
+	{
+		$this->sessionExtendModel = $sessionExtendModel;
+	}
 
-    protected $sessionExtendModel;
-
-    public function __construct(
-        ExtendModel $sessionExtendModel
-    )
-    {
-        $this->sessionExtendModel = $sessionExtendModel;
-    }
-
-    /**
-     * @param Observer $observer
-     * @return void
-     */
-    public function execute(Observer $observer)
-    {
-        /* @var $request \Magento\Framework\App\RequestInterface */
-        $request = $observer->getEvent()->getRequest();
-        if($request->isAjax())
-        {
-            $this->sessionExtendModel->extendSession();
-        }
-    }
+	/**
+	 * @param Observer $observer
+	 * @return void
+	 */
+	public function execute(Observer $observer)
+	{
+		/* @var $request \Magento\Framework\App\RequestInterface */
+		$request = $observer->getEvent()->getRequest();
+		if ($request->isAjax()) {
+			$this->sessionExtendModel->extendSession();
+		}
+	}
 }

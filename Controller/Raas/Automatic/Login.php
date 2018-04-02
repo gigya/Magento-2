@@ -151,43 +151,36 @@ class Login extends AbstractLogin
 	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
 	 * @throws \Zend_Json_Exception
 	 */
-    public function execute()
-    {
+	public function execute()
+	{
+		if ($this->session->isLoggedIn() || !$this->registration->isAllowed()) {
+			return $this->getJsonResponse(0);
+		} else {
 
-        if ($this->session->isLoggedIn() || !$this->registration->isAllowed()) {
-            return $this->getJsonResponse(0);
-        }
-        else
-        {
+			$loginData = $this->getRequest()->getParam('login_data');
+			$loginDataObject = \Zend_Json_Decoder::decode($loginData);
+			$guid = isset($loginDataObject['UID']) ? $loginDataObject['UID'] : '';
+			$request = $this->getRequest();
+			if ($this->formKeyValidator->validate($request) &&
+				$this->loginHelper->validateAutoLoginParameters($request)) {
+				try {
+					$this->session->regenerateId();
+					$this->extendModel->extendSession(false);
 
-            $loginData = $this->getRequest()->getParam('login_data');
-            $loginDataObject = \Zend_Json_Decoder::decode($loginData);
-            $guid = isset($loginDataObject['UID']) ? $loginDataObject['UID'] : '';
-            $request = $this->getRequest();
-            if($this->formKeyValidator->validate($request) &&
-                $this->loginHelper->validateAutoLoginParameters($request))
-            {
-                try {
-                    $this->session->regenerateId();
-                    $this->extendModel->extendSession(false);
-
-                    $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
-                    $this->doLogin($valid_gigya_user);
-                    return $this->getJsonResponse($this->session->isLoggedIn());
-                }
-                catch(\Exception $e)
-                {
-                    $this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
-                    return $this->getJsonResponse(0, $e->getMessage());
-                }
-            }
-            else
-            {
-                $this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
-                return $this->getJsonResponse(0, __('Invalid Form Key'));
-            }
-        }
-    }
+					$valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
+					$this->doLogin($valid_gigya_user);
+					return $this->getJsonResponse($this->session->isLoggedIn());
+				} catch (\Exception $e) {
+					$this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid,
+						\Zend_Date::now()->getIso()));
+					return $this->getJsonResponse(0, $e->getMessage());
+				}
+			} else {
+				$this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
+				return $this->getJsonResponse(0, __('Invalid Form Key'));
+			}
+		}
+	}
 
 	/**
 	 * Return a JSON response

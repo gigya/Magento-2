@@ -7,7 +7,7 @@
 namespace Gigya\GigyaIM\Block;
 
 use Magento\Framework\View\Element\Template;
-use \Gigya\GigyaIM\Model\Config;
+use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
 class GigyaScript extends Template
 {
@@ -40,14 +40,14 @@ class GigyaScript extends Template
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Customer\Model\Url $customerUrl
-     * @param Config $configModel
+     * @param GigyaConfig $configModel
      * @param array $data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Model\Url $customerUrl,
-        Config $configModel,
+	    GigyaConfig $configModel,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -79,19 +79,19 @@ class GigyaScript extends Template
 
         switch($this->configModel->getSessionMode()) {
 
-            case \Gigya\GigyaIM\Model\Config::SESSION_MODE_FIXED:
+            case GigyaConfig::SESSION_MODE_FIXED:
                 $result = $this->configModel->getSessionExpiration();
                 break;
 
-            case \Gigya\GigyaIM\Model\Config::SESSION_MODE_EXTENDED:
+            case GigyaConfig::SESSION_MODE_EXTENDED:
                 $result = -1;
                 break;
 
-            case \Gigya\GigyaIM\Model\Config::SESSION_MODE_BROWSER_INSTANCE:
+            case GigyaConfig::SESSION_MODE_BROWSER_INSTANCE:
                 $result = 0;
                 break;
 
-            case \Gigya\GigyaIM\Model\Config::SESSION_MODE_ENDLESS:
+            case GigyaConfig::SESSION_MODE_ENDLESS:
                 $result = -2;
                 break;
         }
