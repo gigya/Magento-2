@@ -15,6 +15,8 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
+use Magento\Framework\Stdlib\Cookie\FailureToSendException;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -549,9 +551,13 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         return $this;
     }
 
-    /**
-     * @return $this
-     */
+	/**
+	 * @return $this
+	 *
+	 * @throws CookieSizeLimitReachedException
+	 * @throws FailureToSendException
+	 * @throws InputException
+	 */
 	protected function applyCookies()
 	{
 		$metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
