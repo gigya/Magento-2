@@ -122,6 +122,12 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected $messageStorage;
 
+    protected $scopeConfig;
+    protected $formKeyValidator;
+    protected $cookieManager;
+    protected $cookieMetadataFactory;
+    protected $storeManager;
+
     /**
      * @param Context $context
      * @param Session $customerSession
@@ -145,69 +151,71 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * @param GigyaSyncHelper $gigyaSyncHelper
      * @param Validator $formKeyValidator
      * @param CookieManagerInterface $cookieManager
+     * @param GigyaMageHelper $gigyaMageHelper
+     * @param CookieMetadataFactory $cookieMetadataFactory
+     * @param Extend $extendModel
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
-    public function __construct(
-        Context $context,
-        Session $customerSession,
-        ScopeConfigInterface $scopeConfig,
-        StoreManagerInterface $storeManager,
-        AccountManagementInterface $accountManagement,
-        Address $addressHelper,
-        UrlFactory $urlFactory,
-        FormFactory $formFactory,
-        SubscriberFactory $subscriberFactory,
-        RegionInterfaceFactory $regionDataFactory,
-        AddressInterfaceFactory $addressDataFactory,
-        CustomerInterfaceFactory $customerDataFactory,
-        CustomerUrl $customerUrl,
-        Registration $registration,
-        Escaper $escaper,
-        CustomerExtractor $customerExtractor,
-        DataObjectHelper $dataObjectHelper,
-        AccountRedirect $accountRedirect,
-        CustomerRepositoryInterface $customerRepository,
-        GigyaSyncHelper $gigyaSyncHelper,
-        Validator $formKeyValidator,
-        CookieManagerInterface $cookieManager,
-        GigyaMageHelper $gigyaMageHelper,
-        CookieMetadataFactory $cookieMetadataFactory,
-        Extend $extendModel
-    )
-    {
-        $this->session = $customerSession;
-        $this->scopeConfig = $scopeConfig;
-        $this->storeManager = $storeManager;
-        $this->accountManagement = $accountManagement;
-        $this->addressHelper = $addressHelper;
-        $this->formFactory = $formFactory;
-        $this->subscriberFactory = $subscriberFactory;
-        $this->regionDataFactory = $regionDataFactory;
-        $this->addressDataFactory = $addressDataFactory;
-        $this->customerDataFactory = $customerDataFactory;
-        $this->customerUrl = $customerUrl;
-        $this->registration = $registration;
-        $this->escaper = $escaper;
-        $this->customerExtractor = $customerExtractor;
-        $this->urlModel = $urlFactory->create();
-        $this->dataObjectHelper = $dataObjectHelper;
-        $this->accountRedirect = $accountRedirect;
-        parent::__construct($context);
-        $this->gigyaMageHelper = $gigyaMageHelper;
-        $this->customerRepository = $customerRepository;
-        $this->gigyaSyncHelper = $gigyaSyncHelper;
-        $this->formKeyValidator = $formKeyValidator;
-        $this->cookieManager = $cookieManager;
-        $this->cookieMetadataFactory = $cookieMetadataFactory;
-        $this->storeManager = $storeManager;
+	public function __construct(
+		Context $context,
+		Session $customerSession,
+		ScopeConfigInterface $scopeConfig,
+		StoreManagerInterface $storeManager,
+		AccountManagementInterface $accountManagement,
+		Address $addressHelper,
+		UrlFactory $urlFactory,
+		FormFactory $formFactory,
+		SubscriberFactory $subscriberFactory,
+		RegionInterfaceFactory $regionDataFactory,
+		AddressInterfaceFactory $addressDataFactory,
+		CustomerInterfaceFactory $customerDataFactory,
+		CustomerUrl $customerUrl,
+		Registration $registration,
+		Escaper $escaper,
+		CustomerExtractor $customerExtractor,
+		DataObjectHelper $dataObjectHelper,
+		AccountRedirect $accountRedirect,
+		CustomerRepositoryInterface $customerRepository,
+		GigyaSyncHelper $gigyaSyncHelper,
+		Validator $formKeyValidator,
+		CookieManagerInterface $cookieManager,
+		GigyaMageHelper $gigyaMageHelper,
+		CookieMetadataFactory $cookieMetadataFactory,
+		Extend $extendModel
+	) {
+		$this->session = $customerSession;
+		$this->scopeConfig = $scopeConfig;
+		$this->storeManager = $storeManager;
+		$this->accountManagement = $accountManagement;
+		$this->addressHelper = $addressHelper;
+		$this->formFactory = $formFactory;
+		$this->subscriberFactory = $subscriberFactory;
+		$this->regionDataFactory = $regionDataFactory;
+		$this->addressDataFactory = $addressDataFactory;
+		$this->customerDataFactory = $customerDataFactory;
+		$this->customerUrl = $customerUrl;
+		$this->registration = $registration;
+		$this->escaper = $escaper;
+		$this->customerExtractor = $customerExtractor;
+		$this->urlModel = $urlFactory->create();
+		$this->dataObjectHelper = $dataObjectHelper;
+		$this->accountRedirect = $accountRedirect;
+		parent::__construct($context);
+		$this->gigyaMageHelper = $gigyaMageHelper;
+		$this->customerRepository = $customerRepository;
+		$this->gigyaSyncHelper = $gigyaSyncHelper;
+		$this->formKeyValidator = $formKeyValidator;
+		$this->cookieManager = $cookieManager;
+		$this->cookieMetadataFactory = $cookieMetadataFactory;
+		$this->storeManager = $storeManager;
 
-        $this->extendModel = $extendModel;
+		$this->extendModel = $extendModel;
 
-        $this->cookies = [];
-        $this->cookiesToDelete = [];
-        $this->messageStorage = [];
-    }
+		$this->cookies = [];
+		$this->cookiesToDelete = [];
+		$this->messageStorage = [];
+	}
 
     /**
      * @param \Gigya\CmsStarterKit\user\GigyaUser $valid_gigya_user
@@ -544,24 +552,21 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     /**
      * @return $this
      */
-    protected function applyCookies()
-    {
-        $metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
+	protected function applyCookies()
+	{
+		$metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
 
-        $metadata->setDuration(60)->setPath($this->storeManager->getStore()->getStorePath());
-        foreach($this->cookies as $name => $value)
-        {
-            if(isset($this->cookiesToDelete[$name]))
-            {
-                $this->cookieManager->deleteCookie($name);
-            }
-            else
-            {
-                $this->cookieManager->setPublicCookie($name, $value, $metadata);
-            }
-        }
-        return $this;
-    }
+		$metadata->setDuration(60)->setPath($this->storeManager->getStore()->getStorePath());
+		foreach ($this->cookies as $name => $value) {
+			if (isset($this->cookiesToDelete[$name])) {
+				$this->cookieManager->deleteCookie($name);
+			} else {
+				$this->cookieManager->setPublicCookie($name, $value, $metadata);
+			}
+		}
+
+		return $this;
+	}
 
     /**
      * @param string $message

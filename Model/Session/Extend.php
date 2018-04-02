@@ -40,6 +40,10 @@ class Extend
      */
     protected $storeManager;
 
+    protected $cookieMetadataFactory;
+    protected $sessionModel;
+    protected $logger;
+
     public function __construct(
         Config $configModel,
         \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,

@@ -495,22 +495,20 @@ class GigyaMageHelper extends AbstractHelper
         return $this->getGigyaApiHelper()->fetchGigyaAccount($uid);
     }
 
-    public function isSessionExpirationCookieExpired()
-    {
-        $APIKey = $this->getApiKey();
-        $value = $this->cookieManager->getCookie("gltexp_" . $APIKey);
-        if(!$value)
-        {
-            return true;
-        }
-        $value = preg_replace('/^(\d+)_.*$/', '$1', $value);
-        if(is_numeric($value))
-        {
-            $value = intval($value);
-            return $value < time();
-        }
-        return true;
-    }
+	public function isSessionExpirationCookieExpired()
+	{
+		$APIKey = $this->getApiKey();
+		$value = $this->cookieManager->getCookie("gltexp_" . $APIKey);
+		if (!$value) {
+			return true;
+		}
+		$value = preg_replace('/^(\d+)_.*$/', '$1', $value);
+		if (is_numeric($value)) {
+			$value = intval($value);
+			return $value < time();
+		}
+		return true;
+	}
 
     /*
      * The following features are temporary: they serve to test/analyze the creation of the Session Extension cookie
