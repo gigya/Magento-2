@@ -43,6 +43,7 @@ class GigyaMageHelper extends AbstractHelper
     protected $dbSettings;
     protected $_moduleList;
     protected $configModel;
+    protected $cookieManager;
 
     public $_logger;
 
@@ -421,7 +422,7 @@ class GigyaMageHelper extends AbstractHelper
 
     /**
      * Taken from magento 1 helper core
-     * @param $length
+     * @param $len
      * @param $chars
      * @return mixed
      */
@@ -515,59 +516,57 @@ class GigyaMageHelper extends AbstractHelper
      * The following features are temporary: they serve to test/analyze the creation of the Session Extension cookie
      * CATODO: clean this section up
      */
-    public function setSessionExpirationCookie($secondsToExpiration = null)
-    {
-        $currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
+	public function setSessionExpirationCookie($secondsToExpiration = null)
+	{
+		$currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
 
-        $APIKey = $this->getApiKey();
-        $tokenCookieName = "glt_" . $APIKey;
-        if(isset($_COOKIE[$tokenCookieName]))
-        {
-            if(is_null($secondsToExpiration))
-            {
-                $secondsToExpiration = $this->configModel->getSessionExpiration();
-            }
-            $cookieName = "gltexp_" . $APIKey;  // define the cookie name
-            $cookieValue = $this->calculateExpCookieValue($secondsToExpiration);    // calculate the cookie value
-            $cookiePath = "/";     // cookie's path must be base domain
+		$APIKey = $this->getApiKey();
+		$tokenCookieName = "glt_" . $APIKey;
+		if (isset($_COOKIE[$tokenCookieName])) {
+			if (is_null($secondsToExpiration)) {
+				$secondsToExpiration = $this->configModel->getSessionExpiration();
+			}
+			$cookieName = "gltexp_" . $APIKey;  // define the cookie name
+			$cookieValue = $this->calculateExpCookieValue($secondsToExpiration);    // calculate the cookie value
+			$cookiePath = "/";     // cookie's path must be base domain
 
-            $expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
+			$expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
 
-            setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
-        }
-    }
+			setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
+		}
+	}
 
-    public function calculateExpCookieValue($secondsToExpiration = null) {
-        if(is_null($secondsToExpiration))
-        {
-            $secondsToExpiration = $this->configModel->getSessionExpiration();
-        }
+	public function calculateExpCookieValue($secondsToExpiration = null)
+	{
+		if (is_null($secondsToExpiration)) {
+			$secondsToExpiration = $this->configModel->getSessionExpiration();
+		}
 
-        $APIKey = $this->getApiKey();
-        $tokenCookieName = "glt_" . $APIKey;   //  the name of the token-cookie Gigya stores
-        $tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
-        $loginToken = explode("|", $tokenCookieValue)[0]; // get the login token from the token-cookie.
-        $applicationKey = $this->getAppKey();
-        $secret = $this->getAppSecret();
+		$APIKey = $this->getApiKey();
+		$tokenCookieName = "glt_" . $APIKey;   //  the name of the token-cookie Gigya stores
+		$tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
+		$loginToken = explode("|", $tokenCookieValue)[0]; // get the login token from the token-cookie.
+		$applicationKey = $this->getAppKey();
+		$secret = $this->getAppSecret();
 
 
-        return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
+		return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
 
-    }
+	}
 
-    protected function getDynamicSessionSignatureUserSigned($glt_cookie, $timeoutInSeconds, $userKey, $secret)
-    {
-        // cookie format:
-        // <expiration time in unix time format>_<User Key>_BASE64(HMACSHA1(secret key, <login token>_<expiration time in unix time format>_<User Key>))
-        $expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $timeoutInSeconds;
-        $expirationTimeUnix = (string)floor($expirationTimeUnixMS);
-        $unsignedExpString = $glt_cookie . "_" . $expirationTimeUnix . "_" . $userKey;
-        $signedExpString = SigUtils::calcSignature($unsignedExpString, $secret); // sign the base string using the secret key
+	protected function getDynamicSessionSignatureUserSigned($glt_cookie, $timeoutInSeconds, $userKey, $secret)
+	{
+		// cookie format:
+		// <expiration time in unix time format>_<User Key>_BASE64(HMACSHA1(secret key, <login token>_<expiration time in unix time format>_<User Key>))
+		$expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $timeoutInSeconds;
+		$expirationTimeUnix = (string)floor($expirationTimeUnixMS);
+		$unsignedExpString = $glt_cookie . "_" . $expirationTimeUnix . "_" . $userKey;
+		$signedExpString = SigUtils::calcSignature($unsignedExpString, $secret); // sign the base string using the secret key
 
-        $ret = $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString;   // define the cookie value
+		$ret = $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString;   // define the cookie value
 
-        return $ret;
-    }
+		return $ret;
+	}
 
 
     protected function signBaseString($key, $unsignedExpString) {

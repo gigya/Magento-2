@@ -61,81 +61,69 @@ class Extend
         $this->logger = $logger;
     }
 
-    public function extendSession($checkCookieValidity = true)
-    {
-        $currentTime = $_SERVER['REQUEST_TIME'];
-        if($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED)
-        {
-            if((!$this->gigyaMageHelper->isSessionExpirationCookieExpired()) || (!$checkCookieValidity))
-            {
-                $apiKey = $this->gigyaMageHelper->getApiKey();
+	public function extendSession($checkCookieValidity = true)
+	{
+		$currentTime = $_SERVER['REQUEST_TIME'];
+		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED) {
+			if ((!$this->gigyaMageHelper->isSessionExpirationCookieExpired()) || (!$checkCookieValidity)) {
+				$apiKey = $this->gigyaMageHelper->getApiKey();
 
-                $expiration = $this->configModel->getSessionExpiration();
+				$expiration = $this->configModel->getSessionExpiration();
 
-                foreach(['PHPSESSID', 'store', 'private_content_version'] as $cookieName)
-                {
-                    $existingValue = $this->cookieManager->getCookie($cookieName);
-                    if(!is_null($existingValue))
-                    {
-                        $path = preg_replace('/\/index\.php\//', '/', $this->storeManager->getStore()->getStorePath());
+				foreach (['PHPSESSID', 'store', 'private_content_version'] as $cookieName) {
+					$existingValue = $this->cookieManager->getCookie($cookieName);
+					if (!is_null($existingValue)) {
+						$path = preg_replace('/\/index\.php\//', '/', $this->storeManager->getStore()->getStorePath());
 
-                        $publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
-                        $publicCookieMetadata
-                            ->setDuration($expiration)
-                            ->setPath($path);
+						$publicCookieMetadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
+						$publicCookieMetadata
+							->setDuration($expiration)
+							->setPath($path);
 
-                        if($cookieName == 'PHPSESSID')
-                        {
-                            $sessionPath = $this->configModel->getMagentoCookiePath();
-                            if(!$sessionPath)
-                            {
-                                $sessionPath = '/';
-                            }
-                            $domain = preg_replace('/^https?\:\/\/([^:\/]+)(\:[\d]+)?\/.*$/', '$1', $this->urlInterface->getBaseUrl());
-                            $publicCookieMetadata->setPath($sessionPath);
-                            $publicCookieMetadata->setDomain('.'.$domain);
-                        }
+						if ($cookieName == 'PHPSESSID') {
+							$sessionPath = $this->configModel->getMagentoCookiePath();
+							if (!$sessionPath) {
+								$sessionPath = '/';
+							}
+							$domain = preg_replace('/^https?\:\/\/([^:\/]+)(\:[\d]+)?\/.*$/', '$1',
+								$this->urlInterface->getBaseUrl());
+							$publicCookieMetadata->setPath($sessionPath);
+							$publicCookieMetadata->setDomain('.' . $domain);
+						}
 
-                        $this->cookieManager->setPublicCookie(
-                            $cookieName,$existingValue, $publicCookieMetadata
-                        );
-                    }
-                }
+						$this->cookieManager->setPublicCookie($cookieName, $existingValue, $publicCookieMetadata);
+					}
+				}
 
-                $this->setupSessionCookie();
-            }
-        }
-    }
+				$this->setupSessionCookie();
+			}
+		}
+	}
 
-    public function setupSessionCookie()
-    {
-        $apiKey = $this->gigyaMageHelper->getApiKey();
+	public function setupSessionCookie()
+	{
+		$apiKey = $this->gigyaMageHelper->getApiKey();
 
-        $expiration = $this->configModel->getSessionExpiration();
+		$expiration = $this->configModel->getSessionExpiration();
 
-        $cookieLoginToken = explode("|", trim($this->cookieManager->getCookie('glt_'.$apiKey)))[0];
-        $sessionLoginToken = $this->sessionModel->getLoginToken();
+		$cookieLoginToken = explode("|", trim($this->cookieManager->getCookie('glt_' . $apiKey)))[0];
+		$sessionLoginToken = $this->sessionModel->getLoginToken();
 
-        $loginToken = false;
+		$loginToken = false;
 
-        if($sessionLoginToken)
-        {
-            $loginToken = $sessionLoginToken;
-        }
-        else
-        {
-            if($cookieLoginToken)
-            {
-                $this->sessionModel->setLoginToken($cookieLoginToken);
-                $loginToken = $cookieLoginToken;
-            }
-        }
+		if ($sessionLoginToken) {
+			$loginToken = $sessionLoginToken;
+		} else {
+			if ($cookieLoginToken) {
+				$this->sessionModel->setLoginToken($cookieLoginToken);
+				$loginToken = $cookieLoginToken;
+			}
+		}
 
-        if($loginToken)
-        {
-            $this->gigyaMageHelper->setSessionExpirationCookie($expiration);
-        }
-    }
+		if ($loginToken) {
+			$this->gigyaMageHelper->setSessionExpirationCookie($expiration);
+		}
+	}
 
     public function getDynamicSessionSignature($glt_cookie, $timeoutInSeconds, $secret)
     {
