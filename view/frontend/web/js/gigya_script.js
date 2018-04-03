@@ -140,7 +140,13 @@ define([
 			context: loader_context,
 			data: data
 		}).done(function (data) {
-			var dataObj = JSON.parse(data);
+			try {
+				var dataObj = JSON.parse(data);
+			}
+			catch (e) {
+				window.location.reload();
+			}
+
 			if ((typeof dataObj.response_data.location !== 'undefined') && (typeof sendSetSSOToken !== 'undefined') && (sendSetSSOToken)) {
 				gigya.accounts.setSSOToken({redirectURL: dataObj.response_data.location});
 			}
