@@ -65,14 +65,24 @@ class Extend
         $this->logger = $logger;
     }
 
-	public function extendSession($checkCookieValidity = true)
+	/**
+	 * Extends Magento 2 session cookies (but this is NOT where the original session is set, that info comes from di.xml
+	 *
+	 * @param bool $checkCookieValidity
+	 * @param null $sessionExpiration
+	 *
+	 * @throws \Magento\Framework\Exception\InputException
+	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
+	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+	 */
+	public function extendSession($checkCookieValidity = true, $sessionExpiration = null)
 	{
 		$currentTime = $_SERVER['REQUEST_TIME'];
-		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED) {
+		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED or ($this->configModel->getSessionMode() and $sessionExpiration)) {
 			if ((!$this->gigyaMageHelper->isSessionExpirationCookieExpired()) || (!$checkCookieValidity)) {
 				$apiKey = $this->gigyaMageHelper->getApiKey();
 
-				$expiration = $this->configModel->getSessionExpiration();
+				$expiration = (!$sessionExpiration) ? $this->configModel->getSessionExpiration() : $sessionExpiration;
 
 				foreach (['PHPSESSID', 'store', 'private_content_version'] as $cookieName) {
 					$existingValue = $this->cookieManager->getCookie($cookieName);
