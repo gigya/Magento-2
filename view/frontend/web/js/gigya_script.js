@@ -22,7 +22,6 @@ define([
     }
 
     gigyaMage2.Functions.loadGigyaScript = function(api_key, language, domain) {
-
         if (!domain) {
             domain = 'gigya.com';
         }
@@ -43,7 +42,7 @@ define([
         gig.onreadystatechange = function () {
             if (this.readyState === 'complete') gig_loaded();
         };
-        gig.onload= gig_loaded;
+        gig.onload = gig_loaded;
 
         document.getElementsByTagName('head')[0].appendChild(gig);
 
@@ -111,6 +110,12 @@ define([
 			signatureTimestamp: eventObj.signatureTimestamp,
 			UID: eventObj.UID
 		};
+
+		if (typeof (eventObj.expires_in !== 'undefined'))
+		{
+			loginData['expires_in'] = eventObj.expires_in;
+		}
+
 		var data = {
 			form_key: gigyaMage2.Params.form_key,
 			"login[]": "",
