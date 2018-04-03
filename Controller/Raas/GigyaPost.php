@@ -49,7 +49,7 @@ class GigyaPost extends AbstractLogin
 
         $this->applyMessages();
 
-	    if (!empty($_POST['login_event'])) {
+	    if (!empty($this->getRequest()->getParam('login_event'))) {
 		    echo $responseObject->toJson();
 		    return null;
 	    }
