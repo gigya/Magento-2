@@ -519,21 +519,24 @@ class GigyaMageHelper extends AbstractHelper
      */
 	public function setSessionExpirationCookie($secondsToExpiration = null)
 	{
-		$currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
+		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED)
+		{
+			$currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
 
-		$APIKey = $this->getApiKey();
-		$tokenCookieName = "glt_" . $APIKey;
-		if (isset($_COOKIE[$tokenCookieName])) {
-			if (is_null($secondsToExpiration)) {
-				$secondsToExpiration = $this->configModel->getSessionExpiration();
+			$APIKey = $this->getApiKey();
+			$tokenCookieName = "glt_" . $APIKey;
+			if (isset($_COOKIE[$tokenCookieName])) {
+				if (is_null($secondsToExpiration)) {
+					$secondsToExpiration = $this->configModel->getSessionExpiration();
+				}
+				$cookieName = "gltexp_" . $APIKey;  // define the cookie name
+				$cookieValue = $this->calculateExpCookieValue($secondsToExpiration);    // calculate the cookie value
+				$cookiePath = "/";     // cookie's path must be base domain
+
+				$expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
+
+				setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
 			}
-			$cookieName = "gltexp_" . $APIKey;  // define the cookie name
-			$cookieValue = $this->calculateExpCookieValue($secondsToExpiration);    // calculate the cookie value
-			$cookiePath = "/";     // cookie's path must be base domain
-
-			$expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
-
-			setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
 		}
 	}
 
@@ -549,7 +552,6 @@ class GigyaMageHelper extends AbstractHelper
 		$loginToken = explode("|", $tokenCookieValue)[0]; // get the login token from the token-cookie.
 		$applicationKey = $this->getAppKey();
 		$secret = $this->getAppSecret();
-
 
 		return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
 

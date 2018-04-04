@@ -15,6 +15,8 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
+use Magento\Framework\Stdlib\Cookie\FailureToSendException;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -33,6 +35,8 @@ use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\Result\Forward;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 
@@ -265,8 +269,6 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 $this->addError($e->getMessage());
                 $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
                 $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
-                //$redirect = $this->createResponseDataObject($this->_redirect->error($defaultUrl),
-                //    ['login_successful' => $loginSuccess]);
             }
 
             return $redirect;
@@ -304,6 +306,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
     /**
      * @param $customer
+     *
+     * @return bool
      */
     protected function gigyaLoginUser($customer)
     {
@@ -416,8 +420,9 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     }
 
     /**
-     * @param string $type
      * @param string $url
+     * @param array $additionalData
+     *
      * @return DataObject
      */
     protected function createResponseDataObject($url, $additionalData = [])
@@ -433,12 +438,14 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
     /**
      * @param \Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\Result\Forward $resultRedirect
+     * @param array $additionalData
+     *
      * @return DataObject
      */
     protected function encapsulateResponse($resultRedirect, $additionalData = [])
     {
         $url = null;
-        if($resultRedirect instanceof \Magento\Framework\Controller\Result\Redirect)
+        if($resultRedirect instanceof Redirect)
         {
             $response = serialize($this->getResponse());
             $response = unserialize($response);
@@ -453,7 +460,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             }
         }
         else
-        if($resultRedirect instanceof \Magento\Framework\Controller\Result\Forward)
+        if($resultRedirect instanceof Forward)
         {
             $request = $this->getRequest();
             $url = $this->urlModel->getUrl(
@@ -549,9 +556,13 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         return $this;
     }
 
-    /**
-     * @return $this
-     */
+	/**
+	 * @return $this
+	 *
+	 * @throws CookieSizeLimitReachedException
+	 * @throws FailureToSendException
+	 * @throws InputException
+	 */
 	protected function applyCookies()
 	{
 		$metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();

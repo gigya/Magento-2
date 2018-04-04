@@ -22,7 +22,6 @@ define([
     }
 
     gigyaMage2.Functions.loadGigyaScript = function(api_key, language, domain) {
-
         if (!domain) {
             domain = 'gigya.com';
         }
@@ -43,7 +42,7 @@ define([
         gig.onreadystatechange = function () {
             if (this.readyState === 'complete') gig_loaded();
         };
-        gig.onload= gig_loaded;
+        gig.onload = gig_loaded;
 
         document.getElementsByTagName('head')[0].appendChild(gig);
 
@@ -111,6 +110,12 @@ define([
 			signatureTimestamp: eventObj.signatureTimestamp,
 			UID: eventObj.UID
 		};
+
+		if (typeof (eventObj.expires_in !== 'undefined') && eventObj.expires_in !== 473040000)
+		{
+			loginData['expires_in'] = eventObj.expires_in;
+		}
+
 		var data = {
 			form_key: gigyaMage2.Params.form_key,
 			"login[]": "",
@@ -171,11 +176,11 @@ define([
         if (window.gigyaInit) {
 
             // If this is the edit profile page, then add the update profile callback function.
-            if (window.gigyaInit[0]) {
-                if( window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
-                    window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
-                }
-            }
+			if (window.gigyaInit[0]) {
+				if (window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
+					window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
+				}
+			}
 
             var length = window.gigyaInit.length,
                 element = null;
