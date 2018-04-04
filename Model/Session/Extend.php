@@ -77,15 +77,6 @@ class Extend
 	 */
 	public function extendSession($checkCookieValidity = true, $sessionExpiration = null)
 	{
-		$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-		/** @var \Magento\Customer\Model\Session $customerSession */
-		$customerSession = $objectManager->get('Magento\Customer\Model\Session');
-//		$this->logger->addWarning('logged in: '.$customerSession->isLoggedIn());
-//		$this->logger->addWarning('s_exp: '.$sessionExpiration); ////
-//		if ($customerSession->isLoggedIn()) {
-//			// customer login action
-//		}
-
 //		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED) {
 		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED
 			or ($this->configModel->getSessionMode() == 0 and $sessionExpiration)) {
@@ -113,9 +104,6 @@ class Extend
 							$publicCookieMetadata->setDomain('.' . $domain);
 						}
 
-//		$this->logger->addWarning('name: '.$cookieName); ////
-//		$this->logger->addWarning('exp: '.$expiration); ////
-//		$this->logger->addWarning('path: '.$path); ////
 						$this->cookieManager->setPublicCookie($cookieName, $existingValue, $publicCookieMetadata);
 					}
 				}
