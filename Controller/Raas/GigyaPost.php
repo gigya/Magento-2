@@ -65,8 +65,8 @@ class GigyaPost extends AbstractLogin
 	    /* For correct fixed session sync */
 	    try {
 		    $sessionExpiration = 0;
-		    if (!empty($this->getRequest()->getParam('expires_in'))) {
-			    $sessionExpiration = $this->getRequest()->getParam('expires_in');
+		    if (!empty(json_decode($this->getRequest()->getParam('login_data')))) {
+			    $sessionExpiration = json_decode($this->getRequest()->getParam('login_data'))->expires_in;
 		    }
 		    $this->extendModel->extendSession(false, $sessionExpiration);
 	    } catch (\Exception $e) {
