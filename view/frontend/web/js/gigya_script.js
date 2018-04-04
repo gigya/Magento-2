@@ -111,7 +111,7 @@ define([
 			UID: eventObj.UID
 		};
 
-		if (typeof (eventObj.expires_in !== 'undefined'))
+		if (typeof (eventObj.expires_in !== 'undefined') && eventObj.expires_in !== 473040000)
 		{
 			loginData['expires_in'] = eventObj.expires_in;
 		}
@@ -173,11 +173,11 @@ define([
         if (window.gigyaInit) {
 
             // If this is the edit profile page, then add the update profile callback function.
-            if (window.gigyaInit[0]) {
-                if( window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
-                    window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
-                }
-            }
+			if (window.gigyaInit[0]) {
+				if (window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
+					window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
+				}
+			}
 
             var length = window.gigyaInit.length,
                 element = null;
