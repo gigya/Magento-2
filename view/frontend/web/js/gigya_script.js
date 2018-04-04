@@ -152,8 +152,11 @@ define([
 				window.location.reload();
 			}
 
-			if (typeof dataObj.response_data.location !== 'undefined') {
+			if ((typeof dataObj.response_data.location !== 'undefined') && (typeof sendSetSSOToken !== 'undefined') && (sendSetSSOToken)) {
 				gigya.accounts.setSSOToken({redirectURL: dataObj.response_data.location});
+			}
+			else if (typeof dataObj.response_data.location !== 'undefined') {
+				window.location.href = dataObj.response_data.location;
 			}
 			else {
 				window.location.reload();
