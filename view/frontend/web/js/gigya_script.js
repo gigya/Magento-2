@@ -118,6 +118,9 @@ define([
             signatureTimestamp : eventObj.signatureTimestamp,
             UID : eventObj.UID
         };
+        if (typeof eventObj.expires_in != 'undefined') {
+            loginData.expiresIn = eventObj.expires_in;
+        }
         var data = {
             form_key : gigyaMage2.Params.form_key,
             "login[]" : "",
