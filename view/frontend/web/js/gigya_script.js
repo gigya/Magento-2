@@ -111,10 +111,9 @@ define([
 			UID: eventObj.UID
 		};
 
-		if (typeof (eventObj.expires_in !== 'undefined') && eventObj.expires_in !== 473040000)
-		{
-			loginData['expires_in'] = eventObj.expires_in;
-		}
+        if (typeof eventObj.expires_in != 'undefined') {
+            loginData.expiresIn = eventObj.expires_in;
+        }
 
 		var data = {
 			form_key: gigyaMage2.Params.form_key,
