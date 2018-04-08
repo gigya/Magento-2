@@ -5,9 +5,6 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
-use Gigya\GigyaIM\Model\Session\Extend;
-
 use Magento\Customer\Model\Session;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -20,16 +17,6 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
  */
 class GigyaPost extends AbstractLogin
 {
-	/**
-	 * @var GigyaLogger
-	 */
-	protected $logger;
-
-	/**
-	 * @var Extend
-	 */
-	protected $extendModel;
-
     /**
      * Create customer account action
      */
@@ -61,17 +48,6 @@ class GigyaPost extends AbstractLogin
         $this->extendModel->setupSessionCookie();
 
         $this->applyMessages();
-
-	    /* For correct fixed session sync */
-	    try {
-		    $sessionExpiration = 0;
-		    if (!empty(json_decode($this->getRequest()->getParam('login_data')))) {
-			    $sessionExpiration = json_decode($this->getRequest()->getParam('login_data'))->expires_in;
-		    }
-		    $this->extendModel->extendSession(false, $sessionExpiration);
-	    } catch (\Exception $e) {
-		    return false;
-	    }
 
 	    if (!empty($this->getRequest()->getParam('login_event'))) {
 		    echo $responseObject->toJson();
