@@ -5,12 +5,7 @@
  */
 namespace Gigya\GigyaIM\Controller\Raas;
 
-use Magento\Customer\Model\Session;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Customer\Api\AccountManagementInterface;
-use Magento\Customer\Model\Url as CustomerUrl;
 use Magento\Framework\Exception\InputException;
-use Magento\Customer\Api\CustomerRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -42,17 +37,17 @@ class GigyaPost extends AbstractLogin
 
 	    $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
 	    $responseObject = $this->doLogin($valid_gigya_user);
-	    $response = $this->extractResponseFromDataObject($responseObject);
+
+        if (strpos(strtolower($this->getRequest()->getHeader('Accept')), 'json') !== false) {
+            $response = $this->resultJsonFactory->create();
+            $response->setData($this->extractDataFromDataObject($responseObject));
+        } else {
+            $response = $this->extractResponseFromDataObject($responseObject);
+        }
+
 		$this->applyCookies();
-
         $this->extendModel->setupSessionCookie();
-
         $this->applyMessages();
-
-	    if (!empty($this->getRequest()->getParam('login_event'))) {
-		    echo $responseObject->toJson();
-		    return null;
-	    }
 
 	    return $response;
     }

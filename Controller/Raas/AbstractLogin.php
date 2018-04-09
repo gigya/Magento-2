@@ -39,6 +39,7 @@ use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\Forward;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Magento\Framework\Controller\Result\JsonFactory;
 
 
 abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccount
@@ -133,6 +134,11 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected $storeManager;
 
     /**
+     * @var JsonFactory
+     */
+    protected $resultJsonFactory;
+
+    /**
      * @param Context $context
      * @param Session $customerSession
      * @param ScopeConfigInterface $scopeConfig
@@ -186,7 +192,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 		CookieManagerInterface $cookieManager,
 		GigyaMageHelper $gigyaMageHelper,
 		CookieMetadataFactory $cookieMetadataFactory,
-		Extend $extendModel
+		Extend $extendModel,
+        JsonFactory $resultJsonFactory
 	) {
 		$this->session = $customerSession;
 		$this->scopeConfig = $scopeConfig;
@@ -213,8 +220,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 		$this->cookieManager = $cookieManager;
 		$this->cookieMetadataFactory = $cookieMetadataFactory;
 		$this->storeManager = $storeManager;
-
 		$this->extendModel = $extendModel;
+        $this->resultJsonFactory = $resultJsonFactory;
 
 		$this->cookies = [];
 		$this->cookiesToDelete = [];

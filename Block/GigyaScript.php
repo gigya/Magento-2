@@ -8,6 +8,8 @@ namespace Gigya\GigyaIM\Block;
 
 use Magento\Framework\View\Element\Template;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Magento\Framework\Url\EncoderInterface;
+use Magento\Customer\Model\Url;
 
 class GigyaScript extends Template
 {
@@ -37,10 +39,17 @@ class GigyaScript extends Template
     protected $configModel;
 
     /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @var EncoderInterface
+     */
+    protected $urlEncoder;
+
+    /**
+     * GigyaScript constructor.
+     * @param Template\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Customer\Model\Url $customerUrl
      * @param GigyaConfig $configModel
+     * @param EncoderInterface $urlEncoder
      * @param array $data
      */
     public function __construct(
@@ -48,6 +57,7 @@ class GigyaScript extends Template
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Model\Url $customerUrl,
 	    GigyaConfig $configModel,
+        EncoderInterface $urlEncoder,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -56,6 +66,7 @@ class GigyaScript extends Template
         $this->_customerSession = $customerSession;
         $this->scopeConfig = $context->getScopeConfig();
         $this->configModel = $configModel;
+        $this->urlEncoder = $urlEncoder;
     }
 
     /**
@@ -120,6 +131,15 @@ class GigyaScript extends Template
      */
     public function getPostActionUrl()
     {
+        // If there is no referer defined, defines page itself as a referer
+        // This is important in case the customer get to store already logged in from another site
+        $referer = $this->getRequest()->getParam(Url::REFERER_QUERY_PARAM_NAME);
+        if (empty($referer)) {
+            $referer = $this->_urlBuilder->getCurrentUrl();
+            $referer = $this->urlEncoder->encode($referer);
+            $this->getRequest()->setParam(Url::REFERER_QUERY_PARAM_NAME, $referer);
+        }
+
         return $this->_customerUrl->getLoginPostUrl();
     }
 

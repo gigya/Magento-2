@@ -118,8 +118,7 @@ define([
 		var data = {
 			form_key: gigyaMage2.Params.form_key,
 			"login[]": "",
-			login_data: JSON.stringify(loginData),
-			login_event: true
+			login_data: JSON.stringify(loginData)
 		};
 		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
 	};
@@ -142,20 +141,17 @@ define([
 			url: action,
 			showLoader: true,
 			context: loader_context,
-			data: data
-		}).done(function (data) {
-			try {
-				var dataObj = JSON.parse(data);
-			}
-			catch (e) {
-				window.location.reload();
-			}
+			data: data,
+            dataType: 'json'
+		}).done(function (dataObj) {
+			console.log('Response: ');
+			console.log(dataObj);
 
-			if ((typeof dataObj.response_data.location !== 'undefined') && (typeof sendSetSSOToken !== 'undefined') && (sendSetSSOToken)) {
-				gigya.accounts.setSSOToken({redirectURL: dataObj.response_data.location});
+			if ((typeof dataObj.location !== 'undefined') && (typeof sendSetSSOToken !== 'undefined') && (sendSetSSOToken)) {
+				gigya.accounts.setSSOToken({redirectURL: dataObj.location});
 			}
-			else if (typeof dataObj.response_data.location !== 'undefined') {
-				window.location.href = dataObj.response_data.location;
+			else if (typeof dataObj.location !== 'undefined') {
+				window.location.href = dataObj.location;
 			}
 			else {
 				window.location.reload();
