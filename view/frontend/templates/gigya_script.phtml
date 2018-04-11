@@ -48,7 +48,7 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
 
             $('a[href$="logout/"]').click(function () {
                 gigya.accounts.logout();
-                return true;
+                return false;
             });
         };
 

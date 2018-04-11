@@ -165,6 +165,7 @@ define([
     };
 
     gigyaMage2.Functions.gigyaLogoutEventHandler = function() {
+        gigyaMage2.Functions.logoutMagento();
     };
 
     gigyaMage2.Functions.performGigyaActions = function() {
