@@ -38,6 +38,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
 use Gigya\GigyaIM\Model\Session\Extend;
+use Magento\Framework\Controller\Result\JsonFactory;
 
 class Login extends AbstractLogin
 {
@@ -78,6 +79,7 @@ class Login extends AbstractLogin
      * @param LoginHelper $loginHelper
      * @param Logger $logger
      * @param Extend $extendModel
+     * @param JsonFactory $resultJsonFactory
      */
     public function __construct(
         Context $context,
@@ -106,7 +108,8 @@ class Login extends AbstractLogin
         CookieMetadataFactory $cookieMetadataFactory,
         LoginHelper $loginHelper,
         Logger $logger,
-        Extend $extendModel
+        Extend $extendModel,
+        JsonFactory $resultJsonFactory
     )
     {
         parent::__construct(
@@ -134,7 +137,8 @@ class Login extends AbstractLogin
             $cookieManager,
             $gigyaMageHelper,
             $cookieMetadataFactory,
-            $extendModel
+            $extendModel,
+            $resultJsonFactory
         );
 
         $this->loginHelper = $loginHelper;

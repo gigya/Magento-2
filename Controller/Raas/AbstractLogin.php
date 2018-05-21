@@ -164,6 +164,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * @param GigyaMageHelper $gigyaMageHelper
      * @param CookieMetadataFactory $cookieMetadataFactory
      * @param Extend $extendModel
+     * @param JsonFactory $resultJsonFactory
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
