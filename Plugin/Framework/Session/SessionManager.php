@@ -45,7 +45,11 @@ class SessionManager
 
     public function aroundStart(\Magento\Framework\Session\SessionManager $subject, \Closure $proceed)
     {
-        $areaCode = $this->state->getAreaCode();
+        try {
+            $areaCode = $this->appState->getAreaCode();
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $areaCode = null;
+        }
         $sessionMode = $this->config->getSessionMode();
         if ($areaCode != 'frontend' || $sessionMode != GigyaConfig::SESSION_MODE_FIXED) {
             return $proceed();

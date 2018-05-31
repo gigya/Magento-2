@@ -460,8 +460,14 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             if ($retryCount == -1) {
                 $this->createRetryEntry($origin, $binds);
             } else {
+                try {
+                    $areaCode = $this->appState->getAreaCode();
+                } catch (\Magento\Framework\Exception\LocalizedException $e) {
+                    $areaCode = null;
+                }
+
                 // If failure after an automatic update retry by the cron : we increment the retry count
-                if ($this->appState->getAreaCode() == Area::AREA_CRONTAB) {
+                if ($areaCode == Area::AREA_CRONTAB) {
                     if ($retryCount >= $this->maxGigyaUpdateRetryCount - 1) {
                         $this->logger->warning(
                             sprintf(

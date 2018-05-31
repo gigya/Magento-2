@@ -48,7 +48,11 @@ class Config
      */
     public function beforeSetCookieLifetime(\Magento\Framework\Session\Config $subject, $cookieLifetime, $default = null)
     {
-        $areaCode = $this->state->getAreaCode();
+        try {
+            $areaCode = $this->appState->getAreaCode();
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $areaCode = null;
+        }
         $sessionMode = $this->config->getSessionMode();
 
         if ($areaCode == 'frontend' && $sessionMode == GigyaConfig::SESSION_MODE_FIXED) {
