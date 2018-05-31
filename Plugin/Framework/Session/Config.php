@@ -49,7 +49,7 @@ class Config
     public function beforeSetCookieLifetime(\Magento\Framework\Session\Config $subject, $cookieLifetime, $default = null)
     {
         try {
-            $areaCode = $this->appState->getAreaCode();
+            $areaCode = $this->state->getAreaCode();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $areaCode = null;
         }

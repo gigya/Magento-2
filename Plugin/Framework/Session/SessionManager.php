@@ -46,7 +46,7 @@ class SessionManager
     public function aroundStart(\Magento\Framework\Session\SessionManager $subject, \Closure $proceed)
     {
         try {
-            $areaCode = $this->appState->getAreaCode();
+            $areaCode = $this->state->getAreaCode();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $areaCode = null;
         }
