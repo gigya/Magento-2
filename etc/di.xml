@@ -69,5 +69,8 @@
 
     <type name="Magento\Framework\Session\Config">
         <plugin name="gigyaIM_Framework_Session_Config" type="\Gigya\GigyaIM\Plugin\Framework\Session\Config" />
+        <arguments>
+            <argument name="lifetimePath" xsi:type="string">gigya_session/session/expiration</argument>
+        </arguments>
     </type>
 </config>
