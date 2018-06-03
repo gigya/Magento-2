@@ -4,9 +4,4 @@
     <type name="Magento\Framework\App\Config">
         <plugin name="gigyaIM_config" type="Gigya\GigyaIM\Plugin\App\ConfigPlugin" />
     </type>
-    <type name="Magento\Framework\Session\Config">
-        <arguments>
-            <argument name="lifetimePath" xsi:type="string">gigya_session/session/expiration</argument>
-        </arguments>
-    </type>
 </config>
