@@ -5,11 +5,12 @@ namespace Gigya\GigyaIM\Model;
 use Gigya\CmsStarterKit\fieldMapping;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
-use Magento\Customer\Model\Customer;
-use Magento\Customer\Model\CustomerFactory;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Event\ManagerInterface;
 
 /**
  * MagentoCustomerFieldsUpdater
@@ -58,17 +59,21 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         $this->logger = $logger;
     }
 
+    /**
+     * Method callCmsHook
+     */
     public function callCmsHook() {
-        /** @var \Magento\Framework\ObjectManagerInterface $om */
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        /** @var \Magento\Framework\Event\ManagerInterface $manager */
+        /** @var ObjectManagerInterface $om */
+        $om = ObjectManager::getInstance();
+        /** @var ManagerInterface $manager */
         $manager = $om->get('Magento\Framework\Event\ManagerInterface');
-        $params = array(
-            "gigya_user" => $this->getGigyaUser(),
-            "customer" => $this->getMagentoUser()
 
-        );
-        $manager->dispatch("gigya_pre_field_mapping", $params);
+        $params = [
+            'gigya_user' => $this->getGigyaUser(),
+            'customer' => $this->getMagentoUser()
+        ];
+
+        $manager->dispatch('gigya_pre_field_mapping', $params);
     }
 
     public function setGigyaLogger($logger) {
@@ -84,11 +89,11 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
             $value = parent::getValueFromGigyaAccount($gigyaName); // e.g: loginProvider = facebook
             // if no value found, log and skip field
             if (is_null($value)) {
-                $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in gigya user object. check your field mapping configuration");
+                $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in gigya user object. Check your field mapping configuration");
                 continue;
             }
             foreach ($confs as $conf) {
-                $mageKey = $conf->getCmsName();     // e.g: mageKey = prefix
+    	        $mageKey = $conf->getCmsName();     // e.g: mageKey = prefix
                 $value   = $this->castValue($value, $conf);
 
                 if (gettype($value) == "boolean") {
@@ -127,13 +132,16 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         return $magento_bool;
     }
 
-    /**
-     * Nothing done here. This method exists for interface compatibility with php_cms_kit (aka cms-starter-kit) module
-     *
-     * Save will be performed by CATODO
-     *
-     * Reasons is : retry on M2 update
-     */
+	/**
+	 * Nothing done here. This method exists for interface compatibility with php_cms_kit (aka cms-starter-kit) module
+	 *
+	 * Save will be performed by CATODO
+	 *
+	 * Reasons is : retry on M2 update
+	 *
+	 * @param $cmsAccount
+	 * @param $cmsAccountSaver
+	 */
     public function saveCmsAccount(&$cmsAccount, $cmsAccountSaver = null)
     {
     }

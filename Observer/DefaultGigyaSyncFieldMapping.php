@@ -5,10 +5,11 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-
+use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\CmsStarterKit\user\GigyaProfile;
 use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Event\Observer;
 
 /**
  * DefaultCMSSyncFieldMapping
@@ -21,12 +22,21 @@ use Magento\Framework\Event\ObserverInterface;
  */
 class DefaultGigyaSyncFieldMapping implements ObserverInterface
 {
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    /**
+     * Method execute
+     *
+     * @param Observer $observer
+     */
+    public function execute(Observer $observer)
     {
+        /** @var GigyaUser $gigyaUser */
+        $gigyaUser = $observer->getData('gigya_user');
+
         /** @var Customer $magentoCustomer */
         $magentoCustomer = $observer->getData('customer');
         /** @var GigyaProfile $gigyaProfile */
-        $gigyaProfile = $observer->getData('gigya_user')->getProfile();
+        $gigyaProfile = $gigyaUser->getProfile();
+
         // 'Translate' the gender code from Magento to Gigya value
         switch($magentoCustomer->getGender()) {
             case 1:
@@ -40,11 +50,11 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
             default:
                 $gigyaProfile->setGender('u');
         }
+
         // 'Translate' the date of birth code from Gigya to Magento value
         $dob = $magentoCustomer->getDob();
 
-        if ($dob != null && trim($dob) != '') {
-
+        if ($dob !== null && trim($dob) !== '') {
             $date = new \Zend_Date($dob, 'YYYY-MM-dd');
             $birthYear = (int)$date->get(\Zend_Date::YEAR);
             $birthMonth = (int)$date->get(\Zend_Date::MONTH);

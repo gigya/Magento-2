@@ -241,7 +241,13 @@ class GigyaSyncHelper extends AbstractHelper
      */
     public function updateMagentoCustomerRequiredFieldsWithGigyaData($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail)
     {
-        if ($this->appState->getAreaCode() == Area::AREA_FRONTEND) {
+        try {
+            $areaCode = $this->appState->getAreaCode();
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $areaCode = null;
+        }
+
+        if ($areaCode == Area::AREA_FRONTEND) {
 
             $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
             $magentoCustomer->setEmail($gigyaAccountLoggingEmail);

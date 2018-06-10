@@ -14,6 +14,7 @@
                 type="Gigya\GigyaIM\Model\ResourceModel\GigyaAccountRepository" />
     <preference for="Gigya\GigyaIM\Api\GigyaAccountServiceInterface"
                 type="Gigya\GigyaIM\Model\GigyaAccountService" />
+
     <type name="Gigya\GigyaIM\Model\GigyaAccountService">
         <arguments>
             <argument name="logger" xsi:type="object">Gigya\GigyaIM\Logger\Logger</argument>
@@ -59,6 +60,17 @@
     <type name="Gigya\GigyaIM\Model\Session">
         <arguments>
             <argument name="storage" xsi:type="object">Gigya\GigyaIM\Model\Session\Storage</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Session\SessionManager">
+        <plugin name="gigyaIM_Framework_Session_SessionManager" type="\Gigya\GigyaIM\Plugin\Framework\Session\SessionManager" />
+    </type>
+
+    <type name="Magento\Framework\Session\Config">
+        <plugin name="gigyaIM_Framework_Session_Config" type="\Gigya\GigyaIM\Plugin\Framework\Session\Config" />
+        <arguments>
+            <argument name="lifetimePath" xsi:type="string">gigya_session/session/expiration</argument>
         </arguments>
     </type>
 </config>

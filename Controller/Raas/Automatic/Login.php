@@ -74,7 +74,10 @@ class Login extends AbstractLogin
      * @param Validator $formKeyValidator
      * @param CookieManagerInterface $cookieManager
      * @param GigyaMageHelper $gigyaMageHelper
+     * @param CookieMetadataFactory $cookieMetadataFactory
      * @param LoginHelper $loginHelper
+     * @param Logger $logger
+     * @param Extend $extendModel
      */
     public function __construct(
         Context $context,
@@ -138,57 +141,61 @@ class Login extends AbstractLogin
         $this->logger = $logger;
     }
 
-    /**
-     * Dispatch request
-     *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
-     */
-    public function execute()
-    {
+	/**
+	 * Dispatch request
+	 *
+	 * @return ResponseInterface|\Magento\Framework\Controller\ResultInterface|mixed
+	 *
+	 * @throws InputException
+	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
+	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+	 * @throws \Zend_Json_Exception
+	 */
+	public function execute()
+	{
+		if ($this->session->isLoggedIn() || !$this->registration->isAllowed()) {
+			return $this->getJsonResponse(0);
+		} else {
+			$loginData = $this->getRequest()->getParam('login_data');
+			$loginDataObject = \Zend_Json_Decoder::decode($loginData);
+			$guid = isset($loginDataObject['UID']) ? $loginDataObject['UID'] : '';
+			$request = $this->getRequest();
 
-        if ($this->session->isLoggedIn() || !$this->registration->isAllowed()) {
-            return $this->getJsonResponse(0);
-        }
-        else
-        {
+			if ($this->formKeyValidator->validate($request) and $this->loginHelper->validateAutoLoginParameters($request)) {
+				try {
+					$this->session->regenerateId();
+					$this->extendModel->extendSession(false);
 
-            $loginData = $this->getRequest()->getParam('login_data');
-            $loginDataObject = \Zend_Json_Decoder::decode($loginData);
-            $guid = isset($loginDataObject['UID']) ? $loginDataObject['UID'] : '';
-            $request = $this->getRequest();
-            if($this->formKeyValidator->validate($request) &&
-                $this->loginHelper->validateAutoLoginParameters($request))
-            {
-                try {
-                    $this->session->regenerateId();
-                    $this->extendModel->extendSession(false);
+					$valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
+					$this->doLogin($valid_gigya_user);
 
-                    $valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
-                    $this->doLogin($valid_gigya_user);
-                    return $this->getJsonResponse($this->session->isLoggedIn());
-                }
-                catch(\Exception $e)
-                {
-                    $this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
-                    return $this->getJsonResponse(0, $e->getMessage());
-                }
-            }
-            else
-            {
-                $this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
-                return $this->getJsonResponse(0, __('Invalid Form Key'));
-            }
-        }
-    }
+					return $this->getJsonResponse($this->session->isLoggedIn());
+				} catch (\Exception $e) {
+					$this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid,
+						\Zend_Date::now()->getIso()));
 
-    /**
-     * Return a JSON response
-     *
-     * @param bool $doReload
-     * @param string $errorMessage
-     * @return mixed
-     */
+					return $this->getJsonResponse(0, $e->getMessage());
+				}
+			} else {
+				$this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
+
+				return $this->getJsonResponse(0, __('Invalid Form Key'));
+			}
+		}
+	}
+
+	/**
+	 * Return a JSON response
+	 *
+	 * @param $doReload
+	 * @param string $errorMessage
+	 *
+	 * @return mixed
+	 *
+	 * @throws InputException
+	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
+	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+	 */
     protected function getJsonResponse($doReload, $errorMessage = '')
     {
         if($doReload)

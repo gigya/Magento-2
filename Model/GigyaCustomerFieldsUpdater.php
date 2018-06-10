@@ -3,6 +3,7 @@
 namespace Gigya\GigyaIM\Model;
 
 use Gigya\CmsStarterKit\fieldMapping;
+use Gigya\CmsStarterKit\user\GigyaSubscription;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
@@ -26,7 +27,6 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  */
 class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 {
-
     /** @var CacheType CacheType */
     protected $gigyaCacheType;
 
@@ -72,13 +72,11 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      * Magento customer to use for mapping must be set before this method by calling self::getMagentoCustomer()
      *
      */
-    public function callCmsHook() {
+    public function callCmsHook()
+    {
         $this->eventManager->dispatch(
-            "pre_sync_to_gigya",
-            [
-                "customer" => $this->getMagentoUser(),
-                "gigya_user" => $this->getGigyaUser()
-            ]
+            'pre_sync_to_gigya',
+            ['customer' => $this->getMagentoUser(), 'gigya_user' => $this->getGigyaUser()]
         );
 
         $cmsArray = [];
@@ -99,23 +97,47 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
     {
         parent::updateGigya();
 
+        /** @var array $updatedGigyaData */
         $updatedGigyaData = $this->getGigyaArray();
-        if (array_key_exists('profile', $updatedGigyaData)) {
-            $updatedGigyaProfile = $updatedGigyaData['profile'];
-            foreach ($updatedGigyaProfile as $name => $value) {
-                $methodName = 'set' . ucfirst($name);
-                $methodParams = $value;
-                call_user_func(array($this->gigyaUser->getProfile(), $methodName), $methodParams);
+
+        /** @var array $array */
+        foreach ($updatedGigyaData as $key => $array) {
+            if ($key === 'profile') {
+                $updatedGigyaProfile = $array;
+                foreach ($updatedGigyaProfile as $name => $value) {
+                    $methodName = 'set' . ucfirst($name);
+                    $methodParams = $value;
+                    call_user_func(array($this->gigyaUser->getProfile(), $methodName), $methodParams);
+                }
+            } elseif ($key === 'data') {
+                $this->gigyaUser->setData($updatedGigyaData['data']);
+            } elseif ($key === 'subscriptions') {
+                // Specific code for subscriptions
+
+                /** @var array $subscriptionData */
+                foreach ($array as $subscriptionId => $subscriptionData) {
+                    if (array_key_exists('email', $subscriptionData)) {
+                        $subscription = new GigyaSubscription(null);
+
+                        foreach ($subscriptionData['email'] as $subscriptionField => $subscriptionValue) {
+                            $methodName = 'set' . ucfirst($subscriptionField);
+                            $methodParams = $subscriptionValue;
+                            $subscription->$methodName($methodParams);
+                        }
+                        $this->gigyaUser->addSubscription($subscriptionId, $subscription);
+                    }
+                }
+            } else {
+                // Specific code for other fields
+                $methodName = 'set' . ucfirst($key);
+                $methodParams = $array;
+                call_user_func(array($this->gigyaUser, $methodName), $methodParams);
             }
-        }
-        if (array_key_exists('data', $updatedGigyaData)) {
-            $this->gigyaUser->setData($updatedGigyaData['data']);
         }
     }
 
     public function setGigyaUser($gigyaUser)
     {
-
         $this->gigyaUser = $gigyaUser;
     }
 
@@ -147,7 +169,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * @param $cmsName string
      *      A 'path' to the value to retrieve on the Customer entity. Syntax is : word[.word]+ where word is the snake case name of a property (eg 'my_attribute')
-     *      If word begins with custom_, like in custom_my_attribute, we'll call magentoCustomer->getCustomAttriubte('my_attribute')
+     *      If word begins with custom_, like in custom_my_attribute, we'll call magentoCustomer->getCustomAttribute('my_attribute')
      *      Otherwise we'll call magentoCustomer->getMyAttribute
      * @return mixed
      * @throws GigyaFieldMappingException

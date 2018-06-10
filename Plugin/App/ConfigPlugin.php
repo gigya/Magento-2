@@ -13,17 +13,15 @@ class ConfigPlugin
     /**
      * Arbitrarily set 10 years as 'endless' session duration. That should be sufficient.
      */
-    const ENDLESS_SESSION_LIFETIME = 60 * 60 * 24 * 365 * 10;
+    const ENDLESS_SESSION_LIFETIME = 315360000; /* 10 years in seconds */
 
     /**
-     *
-     *
      * @param ScopeConfigInterface $subject
      * @param \Closure $proceed
      * @param null $path
      * @param string $scope
      * @param null $scopeCode
-     * @return int|void
+     * @return int|mixed
      */
     public function aroundGetValue(
         ScopeConfigInterface $subject,

@@ -12,7 +12,11 @@
             var screenSetParams = {
                 screenSet : "<?php echo $block->getProfileDesktopScreensetId() ?>",
                 containerID : "gigya-edit-profile",
-                mobileScreenSet : "<?php echo $block->getProfileMobileScreensetId() ?>" // optional - for using separate mobile screen set.
+                mobileScreenSet : "<?php echo $block->getProfileMobileScreensetId() ?>", // optional - for using separate mobile screen set.
+                onAfterSubmit: function(eventObj) {
+                    // m var not ready on screenSetParams declaration
+                    m.Functions.gigyaAjaxUpdateProfile(eventObj);
+                }
             };
             var raasInfoScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
             window.gigyaInit.push(raasInfoScreen);
