@@ -138,7 +138,6 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 
     public function setGigyaUser($gigyaUser)
     {
-
         $this->gigyaUser = $gigyaUser;
     }
 
