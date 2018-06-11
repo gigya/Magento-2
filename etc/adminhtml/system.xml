@@ -93,7 +93,7 @@
             </group>
         </section>
         <section id="gigya_screensets" translate="label" type="text" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Screen-sets Management</label>
+            <label>Screen-sets</label>
             <tab>gigyaim_tab</tab>
             <resource>Gigya_GigyaIM::config</resource>
             <group id="login_registration" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
