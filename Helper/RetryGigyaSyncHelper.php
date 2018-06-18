@@ -197,7 +197,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
 
         $selectRetryRows = $this->connection
             ->select()
-            ->from('gigya_sync_retry')
+            ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns('retry_count')
             ->where($where);
@@ -251,7 +251,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
 
         $selectRetryRows = $this->connection
             ->select()
-            ->from('gigya_sync_retry')
+	        ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns($columns);
 
