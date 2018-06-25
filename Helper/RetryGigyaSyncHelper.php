@@ -1,9 +1,4 @@
 <?php
-/**
- * Clever-Age
- * Date: 11/05/17
- * Time: 11:19
- */
 
 namespace Gigya\GigyaIM\Helper;
 

@@ -1,12 +1,7 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\GigyaIM\Exception\RetryGigyaException;
-use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use Magento\Framework\Event\Observer;
@@ -49,13 +44,15 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
     }
 
-    /**
-     * Depending on event GigyaAccountService::EVENT_UPDATE_GIGYA_FAILURE or GigyaAccountService::EVENT_UPDATE_GIGYA_SUCCESS
-     * will perform the failure or success algo.
-     *
-     * @param Observer $observer
-     */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+	/**
+	 * Depending on event GigyaAccountService::EVENT_UPDATE_GIGYA_FAILURE or GigyaAccountService::EVENT_UPDATE_GIGYA_SUCCESS
+	 * will perform the failure or success algo.
+	 *
+	 * @param Observer $observer
+	 *
+	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+	 */
+    public function execute(Observer $observer)
     {
         switch ($observer->getEvent()->getName()) {
 
@@ -73,12 +70,15 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         }
     }
 
-    /**
-     * Schedule an entry to perform retries. @see RetryGigyaSyncHelper::scheduleRetry()
-     *
-     * @param Observer $observer
-     * @return void
-     */
+	/**
+	 * Schedule an entry to perform retries. @see RetryGigyaSyncHelper::scheduleRetry()
+	 *
+	 * @param Observer $observer
+	 *
+	 * @return void
+	 *
+	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+	 */
     protected function performGigyaUpdateFailure($observer)
     {
         /** @var integer $customerEntityId */
@@ -93,11 +93,12 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         $this->retryGigyaSyncHelper->scheduleRetry(RetryGigyaSyncHelper::ORIGIN_GIGYA, $customerEntityId, $customerEntityEmail, $gigyaAccountData, $message);
     }
 
-    /**
-     * If a retry row has been stored we will delete it when the a customer update has succeeded.
-     *
-     * @param \Magento\Framework\Event\Observer $observer
-     */
+	/**
+	 * If a retry row has been stored we will delete it when the a customer update has succeeded.
+	 *
+	 * @param \Magento\Framework\Event\Observer $observer
+	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+	 */
     protected function performGigyaUpdateSuccess($observer)
     {
         /** @var integer $customerEntityId */
@@ -111,11 +112,13 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
         );
     }
 
-    /**
-     * Delete the retry row, if any, if a customer update has failed due to a field mapping error.
-     *
-     * @param \Magento\Framework\Event\Observer $observer
-     */
+	/**
+	 * Delete the retry row, if any, if a customer update has failed due to a field mapping error.
+	 *
+	 * @param \Magento\Framework\Event\Observer $observer
+	 *
+	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+	 */
     protected function performFieldMappingFailure($observer)
     {
         /** @var integer $customerEntityId */

@@ -6,6 +6,7 @@ namespace Gigya\GigyaIM\Helper;
 
 use Gigya\GigyaIM\Model\Config\Source\Domain;
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
 
 class GigyaScriptHelper extends AbstractHelper
 {
@@ -18,10 +19,10 @@ class GigyaScriptHelper extends AbstractHelper
      * @param \Magento\Framework\App\Helper\Context $context
      * @param GigyaMageHelper $gigyaMageHelper
      */
-    public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        GigyaMageHelper $gigyaMageHelper
-    ) {
+	public function __construct(
+		Context $context,
+		GigyaMageHelper $gigyaMageHelper
+	) {
         parent::__construct($context);
         $this->gigyaMageHelper = $gigyaMageHelper;
     }

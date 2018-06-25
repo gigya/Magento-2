@@ -26,6 +26,7 @@ class AbstractFieldMapping
      *
      * @param ScopeConfigInterface $scopeConfig
      * @param ModuleDirReader $moduleDirReader
+	 * @param GigyaLogger $logger
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -38,7 +39,7 @@ class AbstractFieldMapping
         $this->logger = $logger;
     }
 
-    protected function getFieldMappingFile()
+    protected function getFieldMappingFilePath()
     {
         $config_file_path = $this->scopeConfig->getValue("gigya_section_fieldmapping/general_fieldmapping/mapping_file_path");
         if($config_file_path)

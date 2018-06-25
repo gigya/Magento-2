@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Model;
 
-class Session extends \Magento\Framework\Session\SessionManager
+use \Magento\Framework\Session\SessionManager;
+
+class Session extends SessionManager
 {
     public function setLoginToken($loginToken)
     {

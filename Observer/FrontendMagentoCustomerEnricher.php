@@ -1,7 +1,4 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Observer;
 
@@ -28,15 +25,16 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /** @var Context */
     protected $context;
 
-    /**
-     * FrontendMagentoCustomerEnricher constructor.
-     *
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-     * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param GigyaLogger $logger
-     * @param Context $context
-     */
+	/**
+	 * FrontendMagentoCustomerEnricher constructor.
+	 *
+	 * @param CustomerRepositoryInterface $customerRepository
+	 * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
+	 * @param GigyaSyncHelper $gigyaSyncHelper
+	 * @param GigyaLogger $logger
+	 * @param Context $context
+	 * @param GigyaToMagento $gigyaToMagentoMapper
+	 */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         GigyaAccountRepositoryInterface $gigyaAccountRepository,

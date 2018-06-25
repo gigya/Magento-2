@@ -212,6 +212,9 @@ class GigyaMageHelper extends AbstractHelper
         $this->debug = $settings['debug_mode'];
     }
 
+	/**
+	 * @return GigyaApiHelper
+	 */
     public function getGigyaApiHelper()
     {
         if ($this->gigyaApiHelper == null) {
