@@ -17,8 +17,9 @@ define([
      */
     gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
     gigyaMage2.Params.form_key = null;
-    if ( $('input[name="form_key"]').val().length ){
-        gigyaMage2.Params.form_key = $('input[name="form_key"]').val();
+    var formKeyObj = $('input[name="form_key"]');
+    if ( formKeyObj.val().length ){
+        gigyaMage2.Params.form_key = formKeyObj.val();
     }
 
     gigyaMage2.Functions.loadGigyaScript = function(api_key, language, domain) {
@@ -60,8 +61,7 @@ define([
 
 		window.gigyaCMS.authenticated = gigyaMage2.Params.gigya_user_logged_in;
 		var action = login_state_url;
-		// console.log('GIGYA LOGGED IN: '+gigyaMage2.Params.gigya_user_logged_in);
-		// console.log('  CMS LOGGED IN: '+gigyaMage2.Params.magento_user_logged_in);
+
 		// if Gigya is logged out, but Magento is logged in: log Magento out
 		// this scenario may result in double page load for user, but is used only to fix an end case situation.
 		if ((!gigyaMage2.Params.gigya_user_logged_in) && gigyaMage2.Params.magento_user_logged_in) {
@@ -112,7 +112,7 @@ define([
 			UID: eventObj.UID
 		};
 
-        if (typeof eventObj.expires_in != 'undefined') {
+        if (typeof eventObj.expires_in !== 'undefined') {
             loginData.expiresIn = eventObj.expires_in;
         }
 
@@ -196,8 +196,6 @@ define([
         }
     };
 
-
-
     /**
      * Things to do when gigya script finishes loading
      * init registered Gigya functions (e.g. showScreenSet from layout files)
@@ -223,8 +221,9 @@ define([
         {
             $("#gigya-login-popup").modal("openModal");
         };
-        // // add popup opener script:
-        $(".open-gigya-login").on('click',function(){
+
+        /* Add popup opener script: */
+        $(".open-gigya-login").on('click', function() {
             showGigyaLoginScreenSet();
         });
 

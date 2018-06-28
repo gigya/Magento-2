@@ -176,11 +176,16 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *
      * @param $origin string self::ORIGIN_GIGYA or self::ORIGIN_CMS or null (in that case no check is made on the entry origin)
      * @param int $customerEntityId
+	 *
      * @return int -1 if no retry is currently scheduled, the retry count otherwise.
+	 *
      * @throws RetryGigyaException
      */
     public function getCurrentRetryCount($origin, $customerEntityId)
     {
+    	if (empty($customerEntityId))
+    		return -1;
+
         if ($origin != null && $origin != self::ORIGIN_GIGYA && $origin != self::ORIGIN_CMS) {
             throw new RetryGigyaException('Origin value should be within ['.self::ORIGIN_GIGYA.', '.self::ORIGIN_CMS.']');
         }
