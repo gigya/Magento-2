@@ -258,10 +258,10 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                     ]
                 );
             }
-        } catch(GSApiException $e) {
+		} catch (GSApiException $e) {
             $message = $e->getLongMessage();
             $this->logger->error(
-                'Failure encountered on call to Gigya service api',
+				'Failure encountered on call to Gigya service API',
                 [
                     'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
                     'gigya_data' => $gigyaApiData,

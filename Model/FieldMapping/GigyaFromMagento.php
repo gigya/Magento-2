@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
@@ -16,8 +13,7 @@ use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 /**
  * GigyaFromMagentoFieldMapping
  *
- * Observer for mapping Magento Customer's entity data to Gigya data.
- *
+ * Observer for mapping Magento Customer's entity data to Gigya data
  */
 class GigyaFromMagento extends AbstractFieldMapping
 {
@@ -30,7 +26,8 @@ class GigyaFromMagento extends AbstractFieldMapping
     protected $scopeConfig;
 
     /**
-     * GigyaFromMagento constructor.
+     * GigyaFromMagento constructor
+	 *
      * @param ScopeConfigInterface $scopeConfig
      * @param GigyaLogger $logger
      * @param GigyaCustomerFieldsUpdater $customerFieldsUpdater
@@ -50,20 +47,21 @@ class GigyaFromMagento extends AbstractFieldMapping
     /**
      * @param Customer $customer
      * @param GigyaUser $gigyaUser
+	 *
      * @throws GigyaFieldMappingException
      */
     public function run($customer, $gigyaUser)
     {
-        $config_file_path = $this->getFieldMappingFile();
+		$config_file_path = $this->getFieldMappingFilePath();
         if ($config_file_path != null) {
             $this->customerFieldsUpdater->setMagentoUser($customer);
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             $this->customerFieldsUpdater->setPath($config_file_path);
 
             try {
-                $this->customerFieldsUpdater->updateGigya();
+				$this->customerFieldsUpdater->updateGigya();
             } catch (\Exception $e) {
-                $message = "error " . $e->getCode() . ". message: " . $e->getMessage() . ". File: " .$e->getFile();
+				$message = "Error " . $e->getCode() . ". Message: " . $e->getMessage() . ". File: " . $e->getFile();
                 $this->logger->error(
                     $message,
                     [
@@ -73,9 +71,8 @@ class GigyaFromMagento extends AbstractFieldMapping
                 );
                 throw new GigyaFieldMappingException($message);
             }
-
         } else {
-            $message = "mapping fields file path is not defined. Define file path at: Stores:Config:Gigya:Field Mapping";
+            $message = "Mapping fields file path is not defined. Define file path at: Stores > Config > Gigya > Field Mapping";
             $this->logger->warn(
                 $message,
                 [
@@ -84,14 +81,6 @@ class GigyaFromMagento extends AbstractFieldMapping
                 ]
             );
         }
-    }
-
-    /**
-     * Get data file fieldMapping
-     * @return mixed|string
-     */
-    public function getFieldsMappingFile(){
-        return $this->getFieldMappingFile();
     }
 
     /**

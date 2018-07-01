@@ -1,7 +1,4 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Observer;
 
@@ -56,10 +53,9 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
      * @return false
      */
     protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
-
         parent::processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
-        $this->messageManager->addWarningMessage("Error on synchronizing data to Gigya. User profile didn’t update. Please verify mapping fields between Gigya and Magento.");
+        $this->messageManager->addWarningMessage("Error on synchronizing data to Gigya. User profile didn't update. Please verify mapping fields between Gigya and Magento.");
 
         return false;
     }

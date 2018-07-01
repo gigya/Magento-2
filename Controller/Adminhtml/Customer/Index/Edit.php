@@ -1,12 +1,8 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
-use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
@@ -16,6 +12,8 @@ use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\DataObjectFactory;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Registry;
 
 /**
  * Edit
@@ -39,8 +37,8 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
      * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
+        Context $context,
+        Registry $coreRegistry,
         \Magento\Framework\App\Response\Http\FileFactory $fileFactory,
         \Magento\Customer\Model\CustomerFactory $customerFactory,
         \Magento\Customer\Model\AddressFactory $addressFactory,

@@ -5,7 +5,10 @@
 
 namespace Gigya\GigyaIM\Model;
 
-class Settings extends \Magento\Framework\Model\AbstractModel implements SettingsInterface, \Magento\Framework\DataObject\IdentityInterface
+use \Magento\Framework\Model\AbstractModel;
+use Magento\Framework\DataObject\IdentityInterface;
+
+class Settings extends AbstractModel implements SettingsInterface, IdentityInterface
 {
     const CACHE_TAG = 'Gigya_GigyaIM_settings';
 

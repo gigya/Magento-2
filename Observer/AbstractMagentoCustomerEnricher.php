@@ -1,11 +1,9 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Observer;
 
 use Gigya\CmsStarterKit\sdk\GSApiException;
+use Gigya\CmsStarterKit\sdk\GSException;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
@@ -139,6 +137,8 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      *                  'gigya_user' => GigyaUser : the data from the Gigya service
      *                  'gigya_logging_email' => string : the email for logging as set on this Gigya account
      *               ]
+	 *
+	 * @throws GSException
      */
     protected function getGigyaDataForEnrichment($magentoCustomer)
     {
@@ -157,7 +157,9 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * @param $magentoCustomer Customer
      * @param $gigyaAccountData GigyaUser
      * @param $gigyaAccountLoggingEmail string
+	 *
      * @return Customer The updated Magento customer entity.
+	 *
      * @throws \Exception
      */
     protected function enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
@@ -188,22 +190,33 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         return $magentoCustomer;
     }
 
-    /**
-     * Saves the Customer entity in database.
-     *
-     * @param \Magento\Customer\Model\Backend\Customer $magentoCustomer $magentoCustomer
-     */
+	/**
+	 * Saves the Customer entity in database
+	 *
+	 * @param \Magento\Customer\Model\Backend\Customer $magentoCustomer $magentoCustomer
+	 *
+	 * @throws \Magento\Framework\Exception\InputException
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Magento\Framework\Exception\State\InputMismatchException
+	 */
     public function saveMagentoCustomer($magentoCustomer) {
 
         $this->customerRepository->save($magentoCustomer->getDataModel());
     }
 
-    /**
-     * Will synchronize Magento account entity with Gigya account if needed.
-     *
-     * @param Observer $observer Must hang a data 'customer' of type Magento\Customer\Model\Customer
-     * @return void
-     */
+	/**
+	 * Will synchronize Magento account entity with Gigya account if needed.
+	 *
+	 * @param Observer $observer
+	 *
+	 * @return void
+	 *
+	 * @throws GSException
+	 * @throws \Exception
+	 * @throws \Magento\Framework\Exception\InputException
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Magento\Framework\Exception\State\InputMismatchException
+	 */
     public function execute(Observer $observer)
     {
         /** @var \Magento\Customer\Model\Backend\Customer $magentoCustomer */

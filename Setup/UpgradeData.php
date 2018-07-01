@@ -1,7 +1,4 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Setup;
 
@@ -10,6 +7,7 @@ use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Customer\Model\Customer;
 use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -17,15 +15,9 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 /**
  * UpgradeData
  *
- * CATODO : For testing only : add a custom attribute on the Customer : 'gigya_username'
- *
  * It's displayed and editable on back office customer page detail.
  *
  * For testing field mapping from M2 to Gigya.
- *
- * @author      ${USER} <info@x2i.fr>
- *
- * XITODO Class long description (optional)
  */
 class UpgradeData implements UpgradeDataInterface
 {
@@ -56,7 +48,11 @@ class UpgradeData implements UpgradeDataInterface
      *
      * @param ModuleDataSetupInterface $setup
      * @param ModuleContextInterface $context
+	 *
      * @return void
+	 *
+	 * @throws LocalizedException
+	 * @throws \Exception
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {

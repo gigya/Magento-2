@@ -57,7 +57,7 @@ class GigyaToMagento extends AbstractFieldMapping
      */
     public function run($customer, $gigyaUser)
     {
-        $config_file_path = $this->getFieldMappingFile();
+        $config_file_path = $this->getFieldMappingFilePath();
         if ($config_file_path != null) {
             $this->customerFieldsUpdater->setPath($config_file_path);
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);

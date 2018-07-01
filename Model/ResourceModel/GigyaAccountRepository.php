@@ -1,7 +1,4 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Model\ResourceModel;
 
@@ -40,8 +37,7 @@ class GigyaAccountRepository implements GigyaAccountRepositoryInterface
     function update($gigyaAccount)
     {
         if ($gigyaAccount->getUid()) {
-
-            $this->gigyaAccountService->update($gigyaAccount);
+        	$this->gigyaAccountService->update($gigyaAccount);
         }
     }
 

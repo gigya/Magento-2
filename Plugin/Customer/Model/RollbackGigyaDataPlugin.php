@@ -1,7 +1,4 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Plugin\Customer\Model;
 
@@ -44,17 +41,20 @@ class RollbackGigyaDataPlugin
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
     }
 
-    /**
-     * If the Magento customer save fails AND is to be synchronized to Gigya (*) we have to roll back the Gigya account because it could have been updated just before the save.
-     *
-     * (*) we also save the Magento customer when it's loaded in backend, after being enriched with the current data from Gigya : in this case we do not want to sync back the customer to Gigya.
-     *
-     * @param CustomerRepositoryInterface $subject
-     * @param \Closure $proceed
-     * @param CustomerInterface $customer
-     * @return CustomerInterface
-     * @throws GigyaMagentoCustomerSaveException
-     */
+	/**
+	 * If the Magento customer save fails AND is to be synchronized to Gigya (*) we have to roll back the Gigya account because it could have been updated just before the save.
+	 *
+	 * (*) we also save the Magento customer when it's loaded in backend, after being enriched with the current data from Gigya : in this case we do not want to sync back the customer to Gigya.
+	 *
+	 * @param CustomerRepositoryInterface $subject
+	 * @param \Closure $proceed
+	 * @param CustomerInterface $customer
+	 *
+	 * @return CustomerInterface
+	 *
+	 * @throws GigyaMagentoCustomerSaveException
+	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+	 */
     public function aroundSave(
         CustomerRepositoryInterface $subject,
         \Closure $proceed,

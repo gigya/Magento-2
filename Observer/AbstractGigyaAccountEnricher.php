@@ -1,10 +1,8 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Observer;
 
+use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
@@ -58,6 +56,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      * @param GigyaSyncHelper $gigyaSyncHelper
      * @param ManagerInterface $eventDispatcher
      * @param GigyaLogger $logger
+     * @param GigyaFromMagento $gigyaFromMagento
      */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
@@ -127,8 +126,10 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     /**
      * Performs the enrichment of the Gigya account with the Magento data.
      *
-     * @param $magentoCustomer Customer
+     * @param Customer $magentoCustomer
+	 *
      * @return GigyaUser
+	 *
      * @throws \Exception
      */
     protected function enrichGigyaAccount($magentoCustomer)
@@ -143,7 +144,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
         try {
             $this->gigyaFromMagento->run($magentoCustomer->getDataModel(), $gigyaAccountData);
 
-            $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS, [
+			$this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS, [
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getEntityId()
             ]);
@@ -170,10 +171,13 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      *
      * @param Observer $observer Must hang a data 'customer' of type Magento\Customer\Model\Customer
      * @return void
+	 *
+	 * @throws \Exception
+	 * @throws GSApiException
      */
     public function execute(Observer $observer)
     {
-        /** @var Customer $customer */
+        /** @var Customer $magentoCustomer */
         $magentoCustomer = $observer->getData('customer');
         /** @var GigyaUser $gigyaAccountData */
         $gigyaAccountData = null;

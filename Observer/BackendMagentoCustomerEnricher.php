@@ -1,12 +1,8 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Observer;
 
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
-use Gigya\GigyaIM\Exception\GigyaMagentoCustomerSaveException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -73,7 +69,7 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
 
         try {
             parent::saveMagentoCustomer($magentoCustomer);
-        } catch(GigyaMagentoCustomerSaveException $e) {
+        } catch(\Exception $e) {
             $magentoCustomer->setGigyaAccountEnriched(false);
             $this->customerRegistry->push($magentoCustomer);
         }

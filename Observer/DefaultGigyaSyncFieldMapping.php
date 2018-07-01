@@ -1,7 +1,4 @@
 <?php
-/**
- * Copyright © 2016 X2i.
- */
 
 namespace Gigya\GigyaIM\Observer;
 
@@ -26,6 +23,8 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
      * Method execute
      *
      * @param Observer $observer
+	 *
+	 * @throws \Zend_Date_Exception
      */
     public function execute(Observer $observer)
     {

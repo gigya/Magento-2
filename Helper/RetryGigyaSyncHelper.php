@@ -1,9 +1,4 @@
 <?php
-/**
- * Clever-Age
- * Date: 11/05/17
- * Time: 11:19
- */
 
 namespace Gigya\GigyaIM\Helper;
 
@@ -181,11 +176,16 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *
      * @param $origin string self::ORIGIN_GIGYA or self::ORIGIN_CMS or null (in that case no check is made on the entry origin)
      * @param int $customerEntityId
+	 *
      * @return int -1 if no retry is currently scheduled, the retry count otherwise.
+	 *
      * @throws RetryGigyaException
      */
     public function getCurrentRetryCount($origin, $customerEntityId)
     {
+    	if (empty($customerEntityId))
+    		return -1;
+
         if ($origin != null && $origin != self::ORIGIN_GIGYA && $origin != self::ORIGIN_CMS) {
             throw new RetryGigyaException('Origin value should be within ['.self::ORIGIN_GIGYA.', '.self::ORIGIN_CMS.']');
         }
@@ -197,7 +197,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
 
         $selectRetryRows = $this->connection
             ->select()
-            ->from('gigya_sync_retry')
+            ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns('retry_count')
             ->where($where);
@@ -251,7 +251,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
 
         $selectRetryRows = $this->connection
             ->select()
-            ->from('gigya_sync_retry')
+	        ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns($columns);
 
