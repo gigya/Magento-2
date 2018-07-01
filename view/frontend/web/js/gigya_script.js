@@ -33,8 +33,7 @@ define([
         gig.src = 'https://cdns.' + domain +
             '/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
         var gig_loaded = function () {
-				gigya._.providers.arProviders.push(new gigya._.providers.Provider(6016, 'testnetwork3', 650, 400, 'login,friends,actions,status,photos,places,checkins', true));
-                gigya.accounts.addEventHandlers(
+				gigya.accounts.addEventHandlers(
                     {
                         onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
                         onLogout: gigyaMage2.Functions.gigyaLogoutEventHandler
