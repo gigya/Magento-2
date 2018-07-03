@@ -9,6 +9,7 @@ use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
+use Magento\Newsletter\Model\Subscriber;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
@@ -39,6 +40,9 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
     /** @var  GigyaUser */
     private $gigyaUser;
 
+	/** @var Subscriber */
+	private $subscriber;
+
     /** @var fieldMapping\Conf|bool  */
     private $confMapping = false;
 
@@ -49,12 +53,14 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      * @param CacheType $gigyaCacheType
      * @param EventManagerInterface $eventManager
      * @param GigyaLogger $logger
+	 * @param Subscriber $subscriber
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
         CacheType $gigyaCacheType,
         EventManagerInterface $eventManager,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+		Subscriber $subscriber
     )
     {
         $apiHelper = $gigyaMageHelper->getGigyaApiHelper();
@@ -64,6 +70,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
         $this->gigyaCacheType = $gigyaCacheType;
         $this->eventManager = $eventManager;
         $this->logger = $logger;
+        $this->subscriber = $subscriber;
     }
 
     /**
@@ -71,6 +78,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * Magento customer to use for mapping must be set before this method by calling self::getMagentoCustomer()
      *
+	 * @throws GigyaFieldMappingException
      */
     public function callCmsHook()
     {
@@ -112,11 +120,11 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
             } elseif ($key === 'data') {
                 $this->gigyaUser->setData($updatedGigyaData['data']);
             } elseif ($key === 'subscriptions') {
-                // Specific code for subscriptions
+                /* Specific code for subscriptions */
 
                 /** @var array $subscriptionData */
                 foreach ($array as $subscriptionId => $subscriptionData) {
-                    if (array_key_exists('email', $subscriptionData)) {
+                	if (array_key_exists('email', $subscriptionData) and is_array($subscriptionData['email'])) {
                         $subscription = new GigyaSubscription(null);
 
                         foreach ($subscriptionData['email'] as $subscriptionField => $subscriptionValue) {
@@ -128,7 +136,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                     }
                 }
             } else {
-                // Specific code for other fields
+                /* Specific code for other fields */
                 $methodName = 'set' . ucfirst($key);
                 $methodParams = $array;
                 call_user_func(array($this->gigyaUser, $methodName), $methodParams);
@@ -182,30 +190,36 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
             return null;
         }
 
-        $value = $this->getMagentoUser();
+        $magentoUser = $this->getMagentoUser();
         try {
             while (($subPath = array_shift($subPaths)) != null) {
-
                 if (strpos($subPath, 'custom_') === 0) {
                     $subPath = substr($subPath, 7);
                     $methodName = 'getCustomAttribute';
                     $methodParams = strtolower($subPath);
-                    $value = call_user_func(array($value, $methodName), $methodParams);
+                    $value = call_user_func(array($magentoUser, $methodName), $methodParams);
                     if ($value == null) {
                         throw new \Exception('Custom attribute '.$subPath.' is not set');
                     }
+
                     /* value is of type AttributeValue */
                     $value = $value->getValue();
-                } else {
+                }
+                elseif ($subPath === 'isSubscribed')
+				{
+					$subscriber = $this->subscriber->loadByCustomerId($magentoUser->getId());
+					$value = $subscriber->isSubscribed();
+				}
+                else {
                     $methodName = 'get' . ucfirst($this->mixify($subPath, '_'));
-                    $value = call_user_func(array($value, $methodName));
+                    $value = call_user_func(array($magentoUser, $methodName));
                 }
             }
         } catch(\Exception $e) {
             throw new GigyaFieldMappingException(sprintf('Field mapping Magento to Gigya : exception while looking for Customer entity value [%s] : %s', $cmsName, $e->getMessage()));
         }
 
-        return $value;
+        return (isset($value)) ? $value : $magentoUser;
     }
 
     /**

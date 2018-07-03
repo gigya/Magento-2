@@ -23,15 +23,16 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
     /** @var  MessageManager */
     protected $messageManager;
 
-    /**
-     * BackendGigyaAccountEnricher constructor.
-     *
-     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-     * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param EventManager $eventDispatcher
-     * @param GigyaLogger $logger
-     * @param MessageManager $messageManager
-     */
+	/**
+	 * BackendGigyaAccountEnricher constructor.
+	 *
+	 * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
+	 * @param GigyaSyncHelper $gigyaSyncHelper
+	 * @param EventManager $eventDispatcher
+	 * @param GigyaLogger $logger
+	 * @param MessageManager $messageManager
+	 * @param GigyaFromMagento $gigyaFromMagento
+	 */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
