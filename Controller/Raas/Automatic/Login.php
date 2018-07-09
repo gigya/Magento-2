@@ -5,6 +5,7 @@ namespace Gigya\GigyaIM\Controller\Raas\Automatic;
 use Gigya\GigyaIM\Controller\Raas\AbstractLogin;
 use Gigya\GigyaIM\Logger\Logger;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
@@ -78,6 +79,7 @@ class Login extends AbstractLogin
      * @param LoginHelper $loginHelper
      * @param Logger $logger
      * @param Extend $extendModel
+	 * @param JsonFactory $jsonFactory
      */
     public function __construct(
         Context $context,
@@ -106,7 +108,8 @@ class Login extends AbstractLogin
         CookieMetadataFactory $cookieMetadataFactory,
         LoginHelper $loginHelper,
         Logger $logger,
-        Extend $extendModel
+        Extend $extendModel,
+		JsonFactory $jsonFactory
     )
     {
         parent::__construct(
@@ -134,7 +137,8 @@ class Login extends AbstractLogin
             $cookieManager,
             $gigyaMageHelper,
             $cookieMetadataFactory,
-            $extendModel
+            $extendModel,
+			$jsonFactory
         );
 
         $this->loginHelper = $loginHelper;
