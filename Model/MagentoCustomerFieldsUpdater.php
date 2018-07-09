@@ -81,13 +81,14 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     }
 
     /**
-     * @param Magento/Customer $account
+     * @param \Magento\Customer\Model\Data\Customer $account
      */
     public function setAccountValues(&$account) {
         foreach ($this->getGigyaMapping() as $gigyaName => $confs) {
             /** @var \Gigya\CmsStarterKit\fieldMapping\ConfItem $conf */
             $value = parent::getValueFromGigyaAccount($gigyaName); // e.g: loginProvider = facebook
-            // if no value found, log and skip field
+
+            /* If no value found, log and skip field */
             if (is_null($value)) {
                 $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in gigya user object. Check your field mapping configuration");
                 continue;
