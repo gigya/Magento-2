@@ -144,9 +144,6 @@ define([
 			data: data,
             dataType: 'json'
 		}).done(function (dataObj) {
-			console.log('Response: ');
-			console.log(dataObj);
-
 			if ((typeof dataObj.location !== 'undefined') && (typeof sendSetSSOToken !== 'undefined') && (sendSetSSOToken)) {
 				gigya.accounts.setSSOToken({redirectURL: dataObj.location});
 			}
