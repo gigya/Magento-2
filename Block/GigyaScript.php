@@ -6,20 +6,18 @@
 
 namespace Gigya\GigyaIM\Block;
 
+use Magento\Customer\Model\Session;
 use Magento\Framework\View\Element\Template;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Framework\Url\EncoderInterface;
 use Magento\Customer\Model\Url;
+use Magento\Framework\View\Element\Template\Context;
 
 class GigyaScript extends Template
 {
     /**
-     * @var int
-     */
-    private $_username = -1;
-
-    /**
-     * @var \Magento\Customer\Model\Session
+     * @var Session
      */
     protected $_customerSession;
 
@@ -27,6 +25,11 @@ class GigyaScript extends Template
      * @var \Magento\Customer\Model\Url
      */
     protected $_customerUrl;
+
+	/**
+	 * @var GigyaLogger
+	 */
+    protected $_logger;
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -43,20 +46,22 @@ class GigyaScript extends Template
      */
     protected $urlEncoder;
 
-    /**
-     * GigyaScript constructor.
-     * @param Template\Context $context
-     * @param \Magento\Customer\Model\Session $customerSession
-     * @param \Magento\Customer\Model\Url $customerUrl
-     * @param GigyaConfig $configModel
-     * @param EncoderInterface $urlEncoder
-     * @param array $data
-     */
+	/**
+	 * GigyaScript constructor.
+	 * @param Context $context
+	 * @param Session $customerSession
+	 * @param Url $customerUrl
+	 * @param GigyaConfig $configModel
+	 * @param GigyaLogger $logger
+	 * @param EncoderInterface $urlEncoder
+	 * @param array $data
+	 */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Model\Url $customerUrl,
+        Context $context,
+        Session $customerSession,
+        Url $customerUrl,
 	    GigyaConfig $configModel,
+        GigyaLogger $logger,
         EncoderInterface $urlEncoder,
         array $data = []
     ) {
@@ -64,6 +69,7 @@ class GigyaScript extends Template
         $this->_isScopePrivate = false;
         $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
+        $this->_logger = $logger;
         $this->scopeConfig = $context->getScopeConfig();
         $this->configModel = $configModel;
         $this->urlEncoder = $urlEncoder;
@@ -115,7 +121,7 @@ class GigyaScript extends Template
      */
     public function getGigyaApiKey()
     {
-        $api = $this->scopeConfig->getValue("gigya_section/general/api_key");
+        $api = $this->scopeConfig->getValue("gigya_section/general/api_key", "website");
         return $api;
     }
 
@@ -172,13 +178,13 @@ class GigyaScript extends Template
 	 */
 	public function getLanguage()
 	{
-		$lang = $this->scopeConfig->getValue("gigya_section/general/language");
+		$lang = $this->scopeConfig->getValue("gigya_section/general/language", "website");
 		if ($lang == "auto") {
 			$lang = $this->checkLocalLang();
 		}
 		if (!array_key_exists($lang, $this->gigyaSupportedLanguages())) {
 			// log: "local language - $local_lang is not supported by gigya, reverting to default lang"
-			$lang = $this->scopeConfig->getValue("gigya_section/general/language_fallback");
+			$lang = $this->scopeConfig->getValue("gigya_section/general/language_fallback", "website");
 		}
 		return $lang;
 	}
