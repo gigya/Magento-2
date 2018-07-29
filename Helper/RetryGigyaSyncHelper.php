@@ -8,6 +8,8 @@ use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\Search\SearchCriteriaBuilder;
 use Magento\Framework\App\Helper\Context as HelperContext;
 use Magento\Framework\App\State as AppState;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -57,24 +59,25 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /** @var int */
     private $maxGigyaUpdateRetryCount;
 
-    /**
-     * RetryGigyaSyncHelper constructor.
-     *
-     * @param Context $helperContext
-     * @param MessageManager $messageManager
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param FilterBuilder $filterBuilder
-     * @param FilterGroupBuilder $filterGroupBuilder
-     * @param StoreManagerInterface $storeManager
-     * @param Session $customerSession
-     * @param AppState $state
-     * @param Context $context
-     * @param GigyaLogger $logger
-     * @param ResourceConnection $resourceConnection
-     * @param ConnectionFactory $connectionFactory
-     * @param GigyaMageHelper $gigyaMageHelper
-     */
+	/**
+	 * RetryGigyaSyncHelper constructor.
+	 *
+	 * @param Context $helperContext
+	 * @param MessageManager $messageManager
+	 * @param CustomerRepositoryInterface $customerRepository
+	 * @param SearchCriteriaBuilder $searchCriteriaBuilder
+	 * @param FilterBuilder $filterBuilder
+	 * @param FilterGroupBuilder $filterGroupBuilder
+	 * @param StoreManagerInterface $storeManager
+	 * @param Session $customerSession
+	 * @param AppState $state
+	 * @param Share $shareConfig
+	 * @param Context $context
+	 * @param GigyaLogger $logger
+	 * @param ResourceConnection $resourceConnection
+	 * @param ConnectionFactory $connectionFactory
+	 * @param GigyaMageHelper $gigyaMageHelper
+	 */
     public function __construct(
         HelperContext $helperContext,
         MessageManager $messageManager,
@@ -134,7 +137,9 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         }
         try {
             $magentoCustomer = $this->customerRepository->getById($customerEntityId);
-        } finally {
+        } catch (NoSuchEntityException $e) {
+		} catch (LocalizedException $e) {
+		} finally {
             // If the synchro from Gigya was not already disabled we re-enable it
             if (!$excludeSyncG2Cms) {
                 $this->undoExcludeCustomerIdFromSync($magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS);
