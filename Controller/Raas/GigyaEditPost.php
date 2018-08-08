@@ -37,9 +37,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
     /** @var CustomerExtractor */
     protected $customerExtractor;
 
-    /**
-     * @var Session
-     */
+    /** @var Session */
     protected $session;
 
     /** @var GigyaMageHelper  */
@@ -76,12 +74,15 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         $this->gigyaSyncHelper = $gigyaSyncHelper;
     }
 
-    /**
-     * Change customer password action
-     *
-     * @return \Magento\Framework\Controller\Result\Redirect
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     */
+	/**
+	 * Change customer password action
+	 *
+	 * @return \Magento\Framework\Controller\Result\Redirect
+	 *
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
+	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+	 */
     public function execute()
     {
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
@@ -94,20 +95,19 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
             $customerId = $this->session->getCustomerId();
             $currentCustomer = $this->customerRepository->getById($customerId);
 
-            // Prepare new customer data
+            /* Prepare new customer data */
             $customer = $this->customerExtractor->extract('customer_account_edit', $this->_request);
             $customer->setId($customerId);
             if ($customer->getAddresses() == null) {
                 $customer->setAddresses($currentCustomer->getAddresses());
             }
 
-            // Change customer password
+            /* Change customer password */
             if ($this->getRequest()->getParam('change_password')) {
                 $this->changeCustomerPassword($currentCustomer->getEmail());
             }
 
             try {
-
                 $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
                 if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
@@ -123,7 +123,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
                 $this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);
 
                 $this->customerRepository->save($eligibleCustomer);
-
             } catch (AuthenticationException $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             } catch (InputException $e) {
@@ -159,21 +158,21 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         $confPass = $this->getRequest()->getPost('password_confirmation');
 
         if (!strlen($newPass)) {
-            $this->messageManager->addError(__('Please enter new password.'));
+            $this->messageManager->addErrorMessage(__('Please enter new password.'));
             return $this;
         }
 
         if ($newPass !== $confPass) {
-            $this->messageManager->addError(__('Confirm your new password.'));
+            $this->messageManager->addErrorMessage(__('Confirm your new password.'));
             return $this;
         }
 
         try {
             $this->customerAccountManagement->changePassword($email, $currPass, $newPass);
         } catch (AuthenticationException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addException($e, __('Something went wrong while changing the password.'));
+            $this->messageManager->addExceptionMessage($e, __('Something went wrong while changing the password.'));
         }
 
         return $this;

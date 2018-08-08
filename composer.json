@@ -19,6 +19,10 @@
     {
       "name": "Vincent Lemaire",
       "email": "vincentlemaire@clever-age.com"
+    },
+    {
+      "name": "Yan Nasonov",
+      "email": "yan.na@gigya-inc.com"
     }
   ],
   "repositories": [
@@ -35,6 +39,7 @@
     "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0",
     "magento/module-customer": "*",
     "magento/module-checkout": "*",
+    "aws/aws-sdk-php": "~3.0",
     "gigya/cms-starter-kit": "1.2.*"
   },
   "require-dev": {
