@@ -1,8 +1,9 @@
 <?php
 /**
  * Validate that admin API settings are correct.
- * on Gigya admin page save, take the submitted API, DC, Aapp key, and apps secret and create Gigya REST request
+ * on Gigya admin page save, take the submitted API, DC, App key, and app secret and create Gigya REST request
  */
+
 namespace Gigya\GigyaIM\Model\Config;
 
 /**
@@ -10,7 +11,7 @@ namespace Gigya\GigyaIM\Model\Config;
  *
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class ValidateApikey extends \Magento\Framework\App\Config\Value
+class ValidateApiKey extends \Magento\Framework\App\Config\Value
 {
     /**
      * @var \Magento\Customer\Model\ResourceModel\Customer
@@ -98,5 +99,4 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
 
         return $this;
     }
-
 }

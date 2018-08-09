@@ -16,7 +16,6 @@ use Gigya\GigyaIM\Model\SettingsFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Gigya\GigyaIM\Logger\Logger;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
@@ -74,7 +73,7 @@ class GigyaMageHelper extends AbstractHelper
     ) {
         parent::__construct($context);
 
-        $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general');
+        $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general', 'website');
         $this->dbSettings = $settings->load(1);
         $this->_logger = $logger;
         $this->configModel = $configModel;
@@ -235,7 +234,7 @@ class GigyaMageHelper extends AbstractHelper
      */
     private function decAppSecret()
     {
-        // get encrypted app secret from DB
+        /* Get encrypted app secret from DB */
         $encrypted_secret = $this->dbSettings['app_secret'];
         if (strlen($encrypted_secret) < 5 ) {
             $this->gigyaLog(__FUNCTION__ . " No valid secret key found in DB.");
@@ -284,12 +283,16 @@ class GigyaMageHelper extends AbstractHelper
         return $org_params;
     }
 
-    /**
-     * @param $UID
-     * @param $UIDSignature
-     * @param $signatureTimestamp
-     * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
-     */
+	/**
+	 * @param $UID
+	 * @param $UIDSignature
+	 * @param $signatureTimestamp
+	 *
+	 * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
+	 *
+	 * @throws GSException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 */
     public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
     {
         $org_params = $this->createEnvironmentParam();
@@ -391,7 +394,8 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * @param $gigya_user_account
+     * @param GigyaUser $gigya_user_account
+	 *
      * @return array $message (validation errors messages)
      */
     public function verifyGigyaRequiredFields($gigya_user_account)
@@ -431,8 +435,8 @@ class GigyaMageHelper extends AbstractHelper
      */
     private function getRandomString($len, $chars)
     {
-        if (is_null($chars)) {
-            $chars = self::CHARS_LOWERS . self::CHARS_UPPERS . self::CHARS_DIGITS;
+        if (empty($chars)) {
+            $chars = self::CHARS_PASSWORD_LOWERS . self::CHARS_PASSWORD_UPPERS . self::CHARS_PASSWORD_DIGITS;
         }
         for ($i = 0, $str = '', $lc = strlen($chars)-1; $i < $len; $i++) {
             $str .= $chars[mt_rand(0, $lc)];
@@ -440,32 +444,41 @@ class GigyaMageHelper extends AbstractHelper
         return $str;
     }
 
+	/**
+	 * @param string $message
+	 */
     public function gigyaLog($message) {
         if ($this->debug) {
             $this->_logger->info($message);
         }
     }
 
-    /**
-     * Method updateGigyaAccount
-     *
-     * @param string $uid UID
-     * @param array $data data
-     *
-     * @return void
-     */
+	/**
+	 * Method updateGigyaAccount
+	 *
+	 * @param string $uid UID
+	 * @param array $data data
+	 *
+	 * @return void
+	 *
+	 * @throws GSException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 */
     public function updateGigyaAccount($uid, $data = array())
     {
         $this->getGigyaApiHelper()->updateGigyaAccount($uid, $data);
     }
 
-    /**
-     * Given a frontend Gigya response, retrieve all the Gigya's account data.
-     *
-     * @param string $loginData A json string issued from frontend Gigya forms.
-     * @return false|GigyaUser
-     * @throws GSException If the Gigya service returned an error.
-     */
+	/**
+	 * Given a frontend Gigya response, retrieve all the Gigya's account data.
+	 *
+	 * @param string $loginData A json string issued from frontend Gigya forms.
+	 *
+	 * @return false|GigyaUser
+	 *
+	 * @throws GSException If the Gigya service returned an error.
+	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 */
     public function getGigyaAccountDataFromLoginData($loginData)
     {
         $gigya_validation_o = json_decode($loginData);
@@ -496,11 +509,22 @@ class GigyaMageHelper extends AbstractHelper
         return $valid_gigya_user;
     }
 
+	/**
+	 * @param $uid
+	 *
+	 * @return GigyaUser
+	 *
+	 * @throws GSException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 */
     public function getGigyaAccountDataFromUid($uid)
     {
         return $this->getGigyaApiHelper()->fetchGigyaAccount($uid);
     }
 
+	/**
+	 * @return bool
+	 */
 	public function isSessionExpirationCookieExpired()
 	{
 		$APIKey = $this->getApiKey();
@@ -508,18 +532,18 @@ class GigyaMageHelper extends AbstractHelper
 		if (!$value) {
 			return true;
 		}
+
 		$value = preg_replace('/^(\d+)_.*$/', '$1', $value);
 		if (is_numeric($value)) {
 			$value = intval($value);
-			return $value < time();
+			return ($value < time());
 		}
 		return true;
 	}
 
-    /*
-     * The following features are temporary: they serve to test/analyze the creation of the Session Extension cookie
-     * CATODO: clean this section up
-     */
+	/**
+	 * @param int $secondsToExpiration
+	 */
 	public function setSessionExpirationCookie($secondsToExpiration = null)
 	{
 		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED)
@@ -532,9 +556,9 @@ class GigyaMageHelper extends AbstractHelper
 				if (is_null($secondsToExpiration)) {
 					$secondsToExpiration = $this->configModel->getSessionExpiration();
 				}
-				$cookieName = "gltexp_" . $APIKey;  // define the cookie name
-				$cookieValue = $this->calculateExpCookieValue($secondsToExpiration);    // calculate the cookie value
-				$cookiePath = "/";     // cookie's path must be base domain
+				$cookieName = "gltexp_" . $APIKey; // define the cookie name
+				$cookieValue = $this->calculateExpCookieValue($secondsToExpiration); // calculate the cookie value
+				$cookiePath = "/"; // cookie's path must be base domain
 
 				$expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
 
@@ -583,14 +607,14 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     public function transferAttributes(
-        \Magento\Customer\Api\Data\CustomerInterface $from, \Magento\Customer\Api\Data\CustomerInterface $to)
+       CustomerInterface $from, CustomerInterface $to)
     {
         $ext = $from->getExtensionAttributes();
         if(!is_null($ext))
         {
             $to->setExtensionAttributes($ext);
         }
-        foreach(get_class_methods(\Magento\Customer\Api\Data\CustomerInterface::class) as $method)
+        foreach(get_class_methods(CustomerInterface::class) as $method)
         {
             $match = [];
             if(preg_match('/^get(.*)/', $method, $match)

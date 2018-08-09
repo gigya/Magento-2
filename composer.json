@@ -43,12 +43,9 @@
     "gigya/cms-starter-kit": "1.2.*"
   },
   "require-dev": {
-    "phpunit/phpunit": "*",
-    "phpmd/phpmd": "*",
-    "pdepend/pdepend": "*",
-    "sjparkinson/static-review": "*",
-    "friendsofphp/php-cs-fixer": "*",
-    "lusitanian/oauth": "*",
+    "phpunit/phpunit": "~5.0",
+    "phpmd/phpmd": "@stable",
+    "pdepend/pdepend": "~2.5.0",
     "squizlabs/php_codesniffer": "2.6.2",
     "magento/marketplace-eqp": "*"
   },	

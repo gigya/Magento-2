@@ -22,7 +22,7 @@
                 <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Application key</label>
                     <validate>validate-no-empty</validate>
-                    <backend_model>Gigya\GigyaIM\Model\Config\ValidateApikey</backend_model>
+                    <backend_model>Gigya\GigyaIM\Model\Config\ValidateApiKey</backend_model>
                 </field>
                 <field id="key_file_location" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Path to your key file</label>
@@ -134,12 +134,12 @@
                     <source_model>Gigya\GigyaIM\Model\Config\Source\DeletionType</source_model>
                 </field>
                 <field id="deletion_job_frequency" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>Job Frequency</label>
-                    <validate>validate-no-empty</validate>
+                    <label>Job Frequency (s)</label>
+                    <validate>required-entry validate-no-empty</validate>
                 </field>
                 <field id="deletion_email_success" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Success</label>
-                    <validate>validate-no-empty</validate>
+                    <validate>required-entry validate-no-empty</validate>
                 </field>
                 <field id="deletion_email_failure" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Failure</label>
@@ -150,23 +150,23 @@
                 <label>AWS Details</label>
                 <field id="deletion_aws_region" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>AWS Region</label>
-                    <validate>validate-no-empty</validate>
+                    <validate>required-entry validate-no-empty</validate>
                 </field>
                 <field id="deletion_aws_bucket" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>AWS Bucket</label>
-                    <validate>validate-no-empty</validate>
+                    <validate>required-entry validate-no-empty</validate>
                 </field>
                 <field id="deletion_aws_access_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>AWS Access Key</label>
-                    <validate>validate-no-empty</validate>
+                    <validate>required-entry validate-no-empty</validate>
+                    <backend_model>Gigya\GigyaIM\Model\Config\ValidateAWSDetails</backend_model>
                 </field>
                 <field id="deletion_aws_secret_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>AWS Secret Key</label>
-                    <validate>validate-no-empty</validate>
+                    <validate>required-entry validate-no-empty</validate>
                 </field>
-                <field id="deletion_aws_folder" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <field id="deletion_aws_directory" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>AWS Object Key Prefix</label>
-                    <validate>validate-no-empty</validate>
                 </field>
             </group>
         </section>
