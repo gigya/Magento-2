@@ -20,5 +20,10 @@
                 <desktop_screenset_id>Default-ProfileUpdate</desktop_screenset_id>
             </profile_update>
         </gigya_screensets>
+        <gigya_delete>
+            <deletion_general>
+                <deletion_job_frequency>1800</deletion_job_frequency>
+            </deletion_general>
+        </gigya_delete>
     </default>
 </config>

@@ -17,34 +17,31 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\CustomerExtractor;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\Exception\AuthenticationException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\InputException;
 
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
 class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 {
-    /** @var AccountManagementInterface */
-    protected $customerAccountManagement;
+	/** @var AccountManagementInterface */
+	protected $customerAccountManagement;
 
-    /** @var CustomerRepositoryInterface  */
-    protected $customerRepository;
+	/** @var CustomerRepositoryInterface */
+	protected $customerRepository;
 
-    /** @var Validator */
-    protected $formKeyValidator;
+	/** @var Validator */
+	protected $formKeyValidator;
 
-    /** @var CustomerExtractor */
-    protected $customerExtractor;
+	/** @var CustomerExtractor */
+	protected $customerExtractor;
 
-    /** @var Session */
-    protected $session;
+	/** @var Session */
+	protected $session;
 
-    /** @var GigyaMageHelper  */
-    protected $gigyaMageHelper;
+	/** @var GigyaMageHelper */
+	protected $gigyaMageHelper;
 
-    /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
+	/** @var  GigyaSyncHelper */
+	protected $gigyaSyncHelper;
 
     /**
      * @param Context $context
@@ -81,7 +78,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 	 *
 	 * @throws \Magento\Framework\Exception\LocalizedException
 	 * @throws \Magento\Framework\Exception\NoSuchEntityException
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
     public function execute()
     {
@@ -123,15 +119,15 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
                 $this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);
 
                 $this->customerRepository->save($eligibleCustomer);
-            } catch (AuthenticationException $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
-            } catch (InputException $e) {
-                $message = __('Invalid input') . $e->getMessage();
-                $this->messageManager->addErrorMessage($message);
-            } catch (\Exception $e) {
-                $message = __('We can\'t save the customer. ') . $e->getMessage();
-                $this->messageManager->addErrorMessage($message);
-            }
+			} catch (InputException $e) {
+				$message = __('Invalid input') . $e->getMessage();
+				$this->messageManager->addErrorMessage($message);
+			} catch (LocalizedException $e) {
+				$this->messageManager->addErrorMessage($e->getMessage());
+			} catch (\Exception $e) {
+				$message = __('We can\'t save the customer. ') . $e->getMessage();
+				$this->messageManager->addErrorMessage($message);
+			}
 
             if ($this->messageManager->getMessages()->getCount() > 0) {
                 $this->session->setCustomerFormData($this->getRequest()->getPostValue());
@@ -145,12 +141,13 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
         return $resultRedirect->setPath('*/*/edit');
     }
 
-    /**
-     * Change customer password
-     *
-     * @param string $email
-     * @return $this
-     */
+	/**
+	 * Change customer password
+	 *
+	 * @param string $email
+	 *
+	 * @return $this
+	 */
     protected function changeCustomerPassword($email)
     {
         $currPass = $this->getRequest()->getPost('current_password');
@@ -169,7 +166,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 
         try {
             $this->customerAccountManagement->changePassword($email, $currPass, $newPass);
-        } catch (AuthenticationException $e) {
+        } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->messageManager->addExceptionMessage($e, __('Something went wrong while changing the password.'));

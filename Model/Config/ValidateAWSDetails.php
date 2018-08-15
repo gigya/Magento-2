@@ -6,7 +6,6 @@ require_once 'vendor/aws/aws-sdk-php/src/functions.php';
 
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
-use Magento\Checkout\Exception;
 use Magento\Framework\Exception\LocalizedException;
 
 class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
@@ -75,6 +74,7 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 			if (empty($aws_region) or empty($aws_bucket) or empty($aws_access_key) or empty($aws_secret_key))
 				throw new LocalizedException(__('Could not saved settings. One of the required parameters is missing.'));
 
+			/* Verify that AWS is installed and the authentication details are correct */
 			if (!class_exists('Aws\\S3\\S3Client'))
 				throw new LocalizedException(__("Could not save settings. AWS PHP SDK is not installed on your system. Please install the package aws\\aws-sdk-php to continue."));
 			try {
@@ -100,30 +100,6 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 					)
 				);
 			}
-
-			/* Create object manager and reset the settings to newly submitted */
-	//		$this->gigyaMageHelper->setApiKey($api_key);
-	//		$this->gigyaMageHelper->setApiDomain($domain);
-	//		$this->gigyaMageHelper->setAppKey($app_key);
-	//		$this->gigyaMageHelper->setKeyFileLocation($key_file_location);
-	//		$this->gigyaMageHelper->setAppSecret();
-	//		$gigyaApiHelper = $this->gigyaMageHelper->getGigyaApiHelper();
-	//
-	//		/* Make the call to Gigya REST API */
-	//		$param = array("filter" => 'full');
-	//		try {
-	//			$gigyaApiHelper->sendApiCall("accounts.getSchema", $param);
-	//		} catch (\Gigya\CmsStarterKit\sdk\GSApiException $e) {
-	//			$this->gigyaMageHelper->gigyaLog(
-	//				"Error while trying to save gigya settings. " . $e->getErrorCode() .
-	//				" " .$e->getMessage() . " " . $e->getCallId()
-	//			);
-	//			throw new \Magento\Framework\Exception\LocalizedException(
-	//				__(
-	//					"Could not save settings. Gigya API test failed with error message: {$e->getMessage()} ."
-	//				)
-	//			);
-	//		}
 		}
 
 		return $this;

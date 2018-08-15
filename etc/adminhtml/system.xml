@@ -135,15 +135,15 @@
                 </field>
                 <field id="deletion_job_frequency" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Job Frequency (s)</label>
-                    <validate>required-entry validate-no-empty</validate>
+                    <validate>required-entry validate-no-empty validate-digits</validate>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\DeletionFrequency</backend_model>
                 </field>
                 <field id="deletion_email_success" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Success</label>
-                    <validate>required-entry validate-no-empty</validate>
+                    <validate>required-entry validate-no-empty validate-email</validate>
                 </field>
                 <field id="deletion_email_failure" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Failure</label>
-                    <validate>validate-no-empty</validate>
                 </field>
             </group>
             <group id="deletion_aws_details" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

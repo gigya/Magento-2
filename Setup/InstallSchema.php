@@ -13,11 +13,18 @@ use Magento\Framework\DB\Ddl\Table;
 
 class InstallSchema implements InstallSchemaInterface
 {
+	/**
+	 * @param SchemaSetupInterface $setup
+	 * @param ModuleContextInterface $context
+	 *
+	 * @throws \Zend_Db_Exception
+	 */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $installer = $setup;
         $installer->startSetup();
-        // Create gigya_settings table
+
+        /* Create gigya_settings table */
         $table = $installer->getConnection()->newTable(
             $installer->getTable('gigya_settings')
         )
