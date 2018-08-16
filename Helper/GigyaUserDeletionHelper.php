@@ -56,7 +56,7 @@ class GigyaUserDeletionHelper extends AbstractHelper
 	 *
 	 * @throws \Magento\Framework\Exception\LocalizedException
 	 */
-	public function searchCustomersByAttributeValue($attributeCode, $value)
+	public function getCustomersByAttributeValue($attributeCode, $value)
 	{
 		$this->filterGroup->setFilters(
 			[

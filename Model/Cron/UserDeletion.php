@@ -6,12 +6,16 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Gigya\GigyaIM\Helper\GigyaUserDeletionHelper;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Magento\Cron\Model\Schedule;
 use Magento\Customer\Model\CustomerFactory;
 use Magento\Customer\Model\ResourceModel\CustomerRepository;
-use Magento\Framework\App\Helper\Context;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Registry;
 
 class UserDeletion
@@ -34,6 +38,18 @@ class UserDeletion
 	/** @var Registry */
 	protected $registry;
 
+	/** @var AdapterInterface */
+	protected $connection;
+
+	/** @var ConnectionFactory */
+	protected $connectionFactory;
+
+	/** @var ResourceConnection */
+	protected $resourceConnection;
+
+	/** @var Attribute */
+	protected $eavAttribute;
+
 	/** @var GigyaUserDeletionHelper */
 	private $helper;
 
@@ -47,6 +63,9 @@ class UserDeletion
 	 * @param WriterInterface $configWriter
 	 * @param GigyaUserDeletionHelper $gigyaUserDeletionHelper
 	 * @param Registry $registry
+	 * @param ResourceConnection $resourceConnection
+	 * @param ConnectionFactory $connectionFactory
+	 * @param Attribute $attribute
 	 */
 	public function __construct(
 		GigyaLogger $logger,
@@ -55,7 +74,10 @@ class UserDeletion
 		CustomerFactory $customerFactory,
 		WriterInterface $configWriter,
 		GigyaUserDeletionHelper $gigyaUserDeletionHelper,
-		Registry $registry
+		Registry $registry,
+		ResourceConnection $resourceConnection,
+		ConnectionFactory $connectionFactory,
+		Attribute $attribute
 	) {
 		$this->logger = $logger;
 		$this->scopeConfig = $context->getScopeConfig();
@@ -64,6 +86,10 @@ class UserDeletion
 		$this->customerFactory = $customerFactory;
 		$this->helper = $gigyaUserDeletionHelper;
 		$this->registry = $registry;
+		$this->connectionFactory = $connectionFactory;
+		$this->connection = $this->connectionFactory->getNewConnection();
+		$this->resourceConnection = $resourceConnection;
+		$this->eavAttribute = $attribute;
 	}
 
 	protected function getS3FileList($credentials)
@@ -183,27 +209,52 @@ class UserDeletion
 	protected function deleteUsers($uid_type, $uid_array, &$failed_users)
 	{
 		$deletion_type = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_type');
+		$deleted_users = array();
 
-//		$this->logger->info('Hard-coded user found: '.var_export($this->helper->searchCustomersByAttributeValue('gigya_uid', 'e8bcae66a06d4f1885a4bcdd4a1e82a3')[0]->getId(), true)); ////
 		foreach ($uid_array as $gigya_uid) {
 			/* Get Magento entity ID for each Gigya UID */
 			if ($uid_type == 'gigya') {
-				$magento_users = $this->helper->searchCustomersByAttributeValue('gigya_uid', $gigya_uid);
+				$magento_users = $this->helper->getCustomersByAttributeValue('gigya_uid', $gigya_uid);
 				if (!empty($magento_users)) {
 					$magento_user = $magento_users[0];
 					$magento_uid = $magento_user->getId();
 
-					$this->logger->info('User found: ' . $magento_user->getEmail()); ////
 //					$this->logger->info(get_class($magento_user));
-					$this->logger->info('Attribute: '.$magento_user->getCustomAttribute('gigya_username')->getValue()); ////
+//					$this->logger->info('Attribute: '.$magento_user->getCustomAttribute('gigya_uid')->getValue()); ////
 
 					if ($deletion_type == 'soft_delete') {
 						try {
-							$timestamp = time();
-							$magento_user->setCustomAttribute('gigya_deleted_timestamp', $timestamp);
-							$this->customerRepository->save($magento_user);
+							/* Check if the user has already been deleted */
+							$attribute_id = $this->eavAttribute->getIdByCode('customer', 'gigya_deleted_timestamp');
+							$select_deleted_rows = $this->connection->select()
+								->from($this->resourceConnection->getTableName('customer_entity_int'))
+								->reset(\Zend_Db_Select::COLUMNS)
+								->columns('value')
+								->where('attribute_id = ' . $attribute_id . ' AND entity_id = ' . $magento_uid);
+							$deleted_rows = $this->connection->fetchAll($select_deleted_rows, [],
+								\Zend_Db::FETCH_ASSOC);
+
+							if (empty($deleted_rows)) {
+								$timestamp = time();
+								//							$magento_user->setCustomAttribute('gigya_deleted_timestamp', $timestamp);
+								//							$this->customerRepository->save($magento_user);
+
+								if ($this->connection->insert($this->resourceConnection->getTableName('customer_entity_int'),
+									array(
+										'attribute_id' => $attribute_id,
+										'entity_id' => $magento_uid,
+										'value' => $timestamp,
+									))) {
+									$deleted_users[] = $gigya_uid;
+								} else {
+									$failed_users[] = $gigya_uid;
+								}
+							} else {
+								$this->logger->info('Gigya deletion cron: User ' . $magento_uid . ' deleted at: ' . implode(', ',
+										$deleted_rows[0]));
+							}
 						} catch (\Exception $e) {
-							$this->logger->error('Error soft-deleting user: ' . $e->getMessage());
+							$this->logger->error('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
 						}
 					} elseif ($deletion_type == 'hard_delete') {
 						$this->registry->register('isSecureArea', true);
@@ -211,12 +262,12 @@ class UserDeletion
 						$customer->delete();
 					}
 				} else {
-					$this->logger->info('User NOT found with Gigya UID: ' . $gigya_uid);
+					$this->logger->info('Gigya deletion cron: User not found with Gigya UID: ' . $gigya_uid);
 				}
 			}
 		}
 
-		return array(); ////
+		return $deleted_users;
 	}
 
 	/**
@@ -227,8 +278,6 @@ class UserDeletion
 	public function execute(Schedule $schedule)
 	{
 		$start_time = time();
-
-		$this->logger->info('Gigya deletion pseudo cron started at ' . date("Y-m-d H:i:s")); ////
 
 		$enable_job = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_is_enabled', 'website');
 
@@ -242,16 +291,11 @@ class UserDeletion
 		if ($enable_job) {
 			$last_run = $this->scopeConfig->getValue('gigya_delete/deletion_general/last_run', 'website');
 
-			$aws_credentials['region'] = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details/deletion_aws_region',
-				'website');
-			$aws_credentials['bucket'] = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details/deletion_aws_bucket',
-				'website');
-			$aws_credentials['access_key'] = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details/deletion_aws_access_key',
-				'website');
-			$aws_credentials['secret_key'] = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details/deletion_aws_secret_key',
-				'website');
-			$aws_credentials['directory'] = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details/deletion_aws_directory',
-				'website');
+			$aws_credentials = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details');
+			foreach ($aws_credentials as $key => $credential) {
+				$aws_credentials[str_replace('deletion_aws_', '', $key)] = $credential;
+				unset($aws_credentials[$key]);
+			}
 
 			$this->logger->info('Gigya deletion cron started at ' . date("Y-m-d H:i:s"));
 
@@ -265,43 +309,48 @@ class UserDeletion
 
 				if (is_array($files)) {
 					/* Get only the files that have not been processed */
-//					if (count($files) > 0) {
-//						$query = $wpdb->prepare("SELECT * FROM {$gigya_user_deletion_table} WHERE filename IN (" . implode(', ',
-//								array_fill(0, count($files), '%s')) . ")", $files);
-//						$files = array_diff($files, array_column($wpdb->get_results($query, ARRAY_A), 'filename'));
-//						if (($file_count = count($files)) === 0) {
-//							$job_failed = false;
-//						}
-//					} else {
-//						$job_failed = false;
-//					}
-//
+					$select_deletion_rows = $this->connection
+						->select()
+						->from($this->resourceConnection->getTableName('gigya_user_deletion'))
+						->reset(\Zend_Db_Select::COLUMNS)
+						->columns('filename');
+					$processed_files = array_column($this->connection->fetchAll($select_deletion_rows, [],
+						\Zend_Db::FETCH_ASSOC), 'filename');
+
 					foreach ($files as $file) {
-						$csv = $this->getS3FileContents($file, $aws_credentials);
-						$user_array = $this->getGigyaUserIDs($csv);
-						$deleted_users = $this->deleteUsers('gigya', $user_array, $failed_users);
+						if (!in_array($file, $processed_files)) {
+							$csv = $this->getS3FileContents($file, $aws_credentials);
+							$user_array = array_filter($this->getGigyaUserIDs($csv));
+							$deleted_users = $this->deleteUsers('gigya', $user_array, $failed_users);
 
-						if ($csv === false or !empty($user_array) and (!is_array($deleted_users) or empty($deleted_users))) {
-							$failed_count++;
-						} else /* Job succeeded or succeeded with errors */ {
-							$job_failed = false;
+							if ($csv === false or empty($deleted_users)) {
+								$failed_count++;
+							} else /* Job succeeded or succeeded with errors */ {
+								$job_failed = false;
 
-							/* Mark file as processed */
-//							$wpdb->insert($gigya_user_deletion_table, array(
-//								'filename' => $file,
-//								'time_processed' => time(),
-//							));
+								/* Mark file as processed */
+								$this->connection->insert($this->resourceConnection->getTableName('gigya_user_deletion'),
+									array(
+										'filename' => $file,
+										'time_processed' => time(),
+									));
+							}
 						}
-
-//						$this->logger->info('File contents for file '.$file.': '.$csv); ////
+						else
+						{
+							$this->logger->info('Gigya deletion cron: file '.$file.' skipped because it has already been processed.'); ////
+						}
 					}
 				} else {
 					$job_failed = false;
 				}
 			}
 
-////		$this->logger->info(implode(', ', array($enable_job, $email_success, $email_failure)));
-////		$this->logger->info(implode(', ', array($aws_region, $aws_bucket, $aws_access_key, $aws_secret_key, $aws_directory)));
+			if ($job_failed) {
+				$this->logger->warning('Gigya user deletion job from ' . $start_time . ' failed (no users were deleted). It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.');
+			} else {
+				$this->logger->info('Gigya user deletion job from ' . $start_time . ' was completed successfully.');
+			}
 
 			$this->configWriter->save('gigya_delete/deletion_general/last_run', time(), 'website');
 		}

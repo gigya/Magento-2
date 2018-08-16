@@ -225,7 +225,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * @param $origin string self::ORIGIN_GIGYA or self::ORIGIN_CMS or null (in that case no check is made on the entry origin)
      * @param $uid string Default is null. If not null will get the unique entry scheduled for this Gigya uid.
      * @param $getGigyaData bool Default is false. If not false will include the Gigya data stored on this entry.
-     * @throws RetryGigyaException
+	 *
      * @return array [
      *                 'customer_entity_id' : int,
      *                 'customer_entity_email' : string,
@@ -233,6 +233,8 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *                 'retry_count' : int
      *                 (if $getGigyaData == true) 'data' : json string
      *               ]
+	 *
+     * @throws RetryGigyaException
      */
     public function getRetryEntries($origin, $uid = null, $getGigyaData = false)
     {

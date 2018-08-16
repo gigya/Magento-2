@@ -4,6 +4,7 @@ namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
+use Gigya\GigyaIM\Logger as GigyaLogger;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -31,7 +32,10 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
     /** @var RetryGigyaSyncHelper */
     protected $retryGigyaSyncHelper;
 
-    /**
+    /** @var GigyaLogger */
+    protected $logger;
+
+	/**
      * @inheritdoc
      *
      * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
@@ -62,7 +66,8 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        RetryGigyaSyncHelper $retryGigyaSyncHelper
+        RetryGigyaSyncHelper $retryGigyaSyncHelper,
+		GigyaLogger $logger
     ) {
         parent::__construct(
             $context,
@@ -89,10 +94,12 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             $resultLayoutFactory,
             $resultPageFactory,
             $resultForwardFactory,
-            $resultJsonFactory
+            $resultJsonFactory,
+			$logger
         );
 
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
+        $this->logger = $logger;
     }
 
     /**
@@ -126,7 +133,6 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             $result = parent::execute();
 
             if ($this->customerId) {
-
                 $retryG2CMSCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(RetryGigyaSyncHelper::ORIGIN_GIGYA, $this->customerId);
                 $retryCMS2GCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(RetryGigyaSyncHelper::ORIGIN_CMS, $this->customerId);
 

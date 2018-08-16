@@ -50,9 +50,14 @@ class RetryGigyaAccountService extends GigyaAccountService {
     {
         $savedGigyaData = $this->retryGigyaSyncHelper->getRetryEntries(null, $uid, true);
 
-        $result = GigyaUserFactory::createGigyaUserFromArray(unserialize($savedGigyaData[0]['data']));
-        $result->setCustomerEntityId($savedGigyaData[0]['customer_entity_id']);
+        if (!empty($savedGigyaData))
+		{
+			$result = GigyaUserFactory::createGigyaUserFromArray(unserialize($savedGigyaData[0]['data']));
+			$result->setCustomerEntityId($savedGigyaData[0]['customer_entity_id']);
 
-        return $result;
+			return $result;
+		}
+
+		return null;
     }
 }
