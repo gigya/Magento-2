@@ -147,6 +147,9 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     {
     }
 
+	/**
+	 * @throws \Exception
+	 */
     public function retrieveFieldMappings()
     {
         $conf = $this->getMappingFromCache();

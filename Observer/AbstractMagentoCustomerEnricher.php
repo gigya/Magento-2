@@ -34,7 +34,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 
     const EVENT_MAP_GIGYA_TO_MAGENTO_FAILURE = 'gigya_failed_map_to_magento';
 
-    /** @var  CustomerRepositoryInterface\ */
+    /** @var  CustomerRepositoryInterface */
     protected $customerRepository;
 
     /** @var  GigyaAccountRepositoryInterface */

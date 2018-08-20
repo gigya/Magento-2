@@ -6,6 +6,8 @@ use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * RetryGigyaUpdate
@@ -43,11 +45,15 @@ class RetryGigyaUpdate
         $this->customerRepository = $customerRepository;
     }
 
-    /**
-     * For all scheduled retry entries will perform a Gigya & Magento update on the corresponding accounts & Customer entities.
-     *
-     * @param \Magento\Cron\Model\Schedule $schedule
-     */
+	/**
+	 * For all scheduled retry entries will perform a Gigya & Magento update on the corresponding accounts & Customer entities.
+	 *
+	 * @param \Magento\Cron\Model\Schedule $schedule
+	 *
+	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+	 * @throws NoSuchEntityException
+	 * @throws LocalizedException
+	 */
     public function execute(\Magento\Cron\Model\Schedule $schedule)
     {
         $allRetriesRow = $this->retryGigyaSyncHelper->getRetryEntries(null);

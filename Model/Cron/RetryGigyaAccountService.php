@@ -40,13 +40,15 @@ class RetryGigyaAccountService extends GigyaAccountService {
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
     }
 
-    /**
-     * @inheritdoc
-     *
-     * The Gigya account is retrieved from the scheduled retry entry linked to this uid, if any.
-     *
-     * Will add the 'customer_entity_id' on the resulting GigyaUser.
-     */
+	/**
+	 * @inheritdoc
+	 *
+	 * The Gigya account is retrieved from the scheduled retry entry linked to this uid, if any.
+	 *
+	 * Will add the 'customer_entity_id' on the resulting GigyaUser.
+	 *
+	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+	 */
     function get($uid)
     {
         $savedGigyaData = $this->retryGigyaSyncHelper->getRetryEntries(null, $uid, true);

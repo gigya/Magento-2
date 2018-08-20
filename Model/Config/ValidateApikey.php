@@ -55,12 +55,14 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
     }
 
-    /**
-     * Check for email duplicates before saving customers sharing options
-     *
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
+	/**
+	 * Check for email duplicates before saving customers sharing options
+	 *
+	 * @return $this
+	 *
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 */
     public function beforeSave()
     {
         // get submitted settings
