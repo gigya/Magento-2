@@ -24,19 +24,20 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
     /** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
     protected $gigyaMageHelper;
 
-    /**
-     * Constructor
-     *
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $config
-     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Customer\Model\ResourceModel\Customer $customerResource
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param array $data
-     */
+	/**
+	 * Constructor
+	 *
+	 * @param \Magento\Framework\Model\Context                        $context
+	 * @param \Magento\Framework\Registry                             $registry
+	 * @param \Magento\Framework\App\Config\ScopeConfigInterface      $config
+	 * @param \Magento\Framework\App\Cache\TypeListInterface          $cacheTypeList
+	 * @param \Magento\Store\Model\StoreManagerInterface              $storeManager
+	 * @param \Magento\Customer\Model\ResourceModel\Customer          $customerResource
+	 * @param \Gigya\GigyaIM\Helper\GigyaMageHelper                   $gigyaMageHelper
+	 * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
+	 * @param \Magento\Framework\Data\Collection\AbstractDb           $resourceCollection
+	 * @param array                                                   $data
+	 */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
