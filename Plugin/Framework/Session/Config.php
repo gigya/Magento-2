@@ -43,7 +43,8 @@ class Config
     /**
      * @param \Magento\Framework\Session\Config $subject
      * @param $cookieLifetime
-     * @param null $default
+     * @param $default
+	 *
      * @return array
      */
     public function beforeSetCookieLifetime(\Magento\Framework\Session\Config $subject, $cookieLifetime, $default = null)

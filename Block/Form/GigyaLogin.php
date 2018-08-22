@@ -7,6 +7,7 @@ namespace Gigya\GigyaIM\Block\Form;
 
 use \Magento\Customer\Block\Form\Login;
 use \Gigya\GigyaIM\Model\Config;
+use Magento\Framework\Exception\LocalizedException;
 use \Magento\Framework\View\Element\Template\Context;
 use \Magento\Customer\Model\Session;
 use \Magento\Customer\Model\Url;
@@ -23,25 +24,25 @@ class GigyaLogin extends Login
      */
     protected $configModel;
 
-    /**
-     * Login constructor.
-     *
-     * @param Context $context
-     * @param Session $customerSession
-     * @param Url     $customerUrl
-     * @param Config  $configModel
-     * @param array   $data
-     */
+	/**
+	 * Login constructor.
+	 *
+	 * @param Context $context
+	 * @param Session $customerSession
+	 * @param Url     $customerUrl
+	 * @param Config  $configModel
+	 * @param array   $data
+	 */
     public function __construct(
         Context $context,
         Session $customerSession,
         Url $customerUrl,
         Config $configModel,
         array $data = []
-    ) {
-        $this->configModel = $configModel;
-        parent::__construct($context, $customerSession, $customerUrl, $data);
-    }
+	) {
+		$this->configModel = $configModel;
+		parent::__construct($context, $customerSession, $customerUrl, $data);
+	}
 
     /**
      * @return string
@@ -58,4 +59,17 @@ class GigyaLogin extends Login
     {
         return $this->configModel->getLoginMobileScreensetId();
     }
+
+	/**
+	 * @return string
+	 *
+	 * @throws LocalizedException
+	 */
+    public function _toHtml() {
+		if ($this->_scopeConfig->getValue('gigya_section/general/enable_gigya', 'website'))
+		{
+			$this->getLayout()->unsetElement('customer.login.container');
+		}
+		return parent::_toHtml();
+	}
 }
