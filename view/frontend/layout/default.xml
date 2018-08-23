@@ -8,7 +8,7 @@
     <body>
         <referenceContainer name="after.body.start">
             <container name="gigya.GigyaIM.gigya_script">
-                <block class="Gigya\GigyaIM\Block\GigyaScript" name="GigyaScript" template="Gigya_GigyaIM::gigya_script.phtml">
+                <block class="Gigya\GigyaIM\Block\GigyaScript" name="GigyaScript" template="Gigya_GigyaIM::gigya_script.phtml" ifconfig="gigya_section/general/enable_gigya">
                     <block class="Gigya\GigyaIM\Block\Form\GigyaLogin" name="GigyaModalLogin" template="Gigya_GigyaIM::gigya_login.phtml">
                         <arguments>
                             <argument name="display" xsi:type="string">popup</argument>

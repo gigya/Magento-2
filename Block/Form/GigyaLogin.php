@@ -69,6 +69,8 @@ class GigyaLogin extends Login
 		if ($this->_scopeConfig->getValue('gigya_section/general/enable_gigya', 'website'))
 		{
 			$this->getLayout()->unsetElement('customer.login.container');
+			$this->getLayout()->unsetElement('customer_form_register');
+			$this->getLayout()->unsetElement('customer_edit');
 		}
 		return parent::_toHtml();
 	}
