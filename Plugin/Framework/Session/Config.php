@@ -64,7 +64,7 @@ class Config
                 if (is_object($loginData) && isset($loginData->expiresIn)) {
                     $cookieLifetime = intval($loginData->expiresIn);
 
-                    // Adjusting the diffence of time between request and actual processing
+                    // Adjusting the difference of time between request and actual processing
                     $requestTime = $this->getRequest()->getServer('REQUEST_TIME');
 
                     if (!empty($requestTime)) {

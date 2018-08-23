@@ -48,6 +48,11 @@ class Config
         $this->scopeConfig = $scopeConfig;
     }
 
+    public function isGigyaEnabled()
+	{
+		return $this->scopeConfig->getValue(self::XML_PATH_GENERAL . '/enable_gigya', 'website');
+	}
+
     /**
      * @return int
      */
