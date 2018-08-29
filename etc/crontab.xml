@@ -6,8 +6,7 @@
             <schedule>*/5 * * * *</schedule>
         </job>
         <job name="gigya_user_deletion" instance="Gigya\GigyaIM\Model\Cron\UserDeletion" method="execute">
-            <schedule>* * * * *</schedule>
-            <!--<config_path>crontab/default/jobs/gigya_user_deletion_job/schedule/cron_delete</config_path>-->
+            <config_path>gigya_delete/deletion_general/deletion_job_frequency</config_path>
         </job>
     </group>
 </config>

@@ -17,6 +17,7 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Registry;
+use Magento\Store\Model\StoreManagerInterface;
 
 class UserDeletion
 {
@@ -50,6 +51,9 @@ class UserDeletion
 	/** @var Attribute */
 	protected $eavAttribute;
 
+	/** @var StoreManagerInterface */
+	protected $storeManager;
+
 	/** @var GigyaUserDeletionHelper */
 	private $helper;
 
@@ -66,6 +70,7 @@ class UserDeletion
 	 * @param ResourceConnection $resourceConnection
 	 * @param ConnectionFactory $connectionFactory
 	 * @param Attribute $attribute
+	 * @param StoreManagerInterface $storeManager
 	 */
 	public function __construct(
 		GigyaLogger $logger,
@@ -77,7 +82,8 @@ class UserDeletion
 		Registry $registry,
 		ResourceConnection $resourceConnection,
 		ConnectionFactory $connectionFactory,
-		Attribute $attribute
+		Attribute $attribute,
+		StoreManagerInterface $storeManager
 	) {
 		$this->logger = $logger;
 		$this->scopeConfig = $context->getScopeConfig();
@@ -90,6 +96,7 @@ class UserDeletion
 		$this->connection = $this->connectionFactory->getNewConnection();
 		$this->resourceConnection = $resourceConnection;
 		$this->eavAttribute = $attribute;
+		$this->storeManager = $storeManager;
 	}
 
 	protected function getS3FileList($credentials)
@@ -219,25 +226,15 @@ class UserDeletion
 					$magento_user = $magento_users[0];
 					$magento_uid = $magento_user->getId();
 
-//					$this->logger->info(get_class($magento_user));
-//					$this->logger->info('Attribute: '.$magento_user->getCustomAttribute('gigya_uid')->getValue()); ////
-
 					if ($deletion_type == 'soft_delete') {
 						try {
 							/* Check if the user has already been deleted */
 							$attribute_id = $this->eavAttribute->getIdByCode('customer', 'gigya_deleted_timestamp');
-							$select_deleted_rows = $this->connection->select()
-								->from($this->resourceConnection->getTableName('customer_entity_int'))
-								->reset(\Zend_Db_Select::COLUMNS)
-								->columns('value')
-								->where('attribute_id = ' . $attribute_id . ' AND entity_id = ' . $magento_uid);
-							$deleted_rows = $this->connection->fetchAll($select_deleted_rows, [],
-								\Zend_Db::FETCH_ASSOC);
 
-							if (empty($deleted_rows)) {
+							$gigya_deleted_timestamp = $magento_user->getCustomAttribute('gigya_deleted_timestamp');
+
+							if (empty($gigya_deleted_timestamp)) {
 								$timestamp = time();
-								//							$magento_user->setCustomAttribute('gigya_deleted_timestamp', $timestamp);
-								//							$this->customerRepository->save($magento_user);
 
 								if ($this->connection->insert($this->resourceConnection->getTableName('customer_entity_int'),
 									array(
@@ -250,16 +247,14 @@ class UserDeletion
 									$failed_users[] = $gigya_uid;
 								}
 							} else {
-								$this->logger->info('Gigya deletion cron: User ' . $magento_uid . ' deleted at: ' . implode(', ',
-										$deleted_rows[0]));
+								$this->logger->info('Gigya deletion cron: User ' . $magento_uid . ' deleted at: ' . $gigya_deleted_timestamp->getValue());
 							}
 						} catch (\Exception $e) {
 							$this->logger->error('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
 						}
 					} elseif ($deletion_type == 'hard_delete') {
 						$this->registry->register('isSecureArea', true);
-						$customer = $this->customerFactory->create()->load($magento_uid);
-						$customer->delete();
+						$this->customerRepository->delete($magento_user);
 					}
 				} else {
 					$this->logger->info('Gigya deletion cron: User not found with Gigya UID: ' . $gigya_uid);
@@ -287,6 +282,8 @@ class UserDeletion
 			'website');
 		$email_failure = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_failure',
 			'website');
+		if (empty($email_failure))
+			$email_failure = $email_success;
 
 		if ($enable_job) {
 			$last_run = $this->scopeConfig->getValue('gigya_delete/deletion_general/last_run', 'website');
@@ -338,7 +335,7 @@ class UserDeletion
 						}
 						else
 						{
-							$this->logger->info('Gigya deletion cron: file '.$file.' skipped because it has already been processed.'); ////
+							$this->logger->info('Gigya deletion cron: file '.$file.' skipped because it has already been processed.');
 						}
 					}
 				} else {
@@ -346,10 +343,41 @@ class UserDeletion
 				}
 			}
 
+			/* Generic email sender init */
+			$email_sender = new \Zend_Mail();
+
 			if ($job_failed) {
+				/* Params for email */
+				$job_status = 'failed';
+				$email_to = $email_failure;
+				$email_body = 'Job failed'; ////
+
 				$this->logger->warning('Gigya user deletion job from ' . $start_time . ' failed (no users were deleted). It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.');
 			} else {
+				/* Params for email */
+				$job_status = 'succeeded';
+				$email_to = $email_success;
+				$email_body = 'Job succeeded or completed with errors'; ////
+
 				$this->logger->info('Gigya user deletion job from ' . $start_time . ' was completed successfully.');
+			}
+
+			try
+			{
+				$email_subject = 'Gigya user deletion '.$job_status.' on website '.$this->storeManager->getStore()->getBaseUrl();
+				$email_from = $email_to;
+
+				$email_sender->setSubject($email_subject);
+				$email_sender->setBodyText($email_body);
+				$email_sender->setFrom($email_from, 'Gigya user deletion cron');
+				$email_sender->addTo($email_to);
+				$email_sender->send();
+
+				$this->logger->warning('Gigya deletion cron: mail sent to: '.$email_to);
+			}
+			catch (\Zend_Mail_Exception $e)
+			{
+				$this->logger->warning('Gigya deletion cron: unable to send email: '.$e->getMessage());
 			}
 
 			$this->configWriter->save('gigya_delete/deletion_general/last_run', time(), 'website');
