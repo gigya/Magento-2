@@ -18,6 +18,7 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Registry;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Event\Manager;
 
 class UserDeletion
 {
@@ -54,6 +55,9 @@ class UserDeletion
 	/** @var StoreManagerInterface */
 	protected $storeManager;
 
+	/** @var Manager */
+	private $eventManager;
+
 	/** @var GigyaUserDeletionHelper */
 	private $helper;
 
@@ -71,6 +75,7 @@ class UserDeletion
 	 * @param ConnectionFactory $connectionFactory
 	 * @param Attribute $attribute
 	 * @param StoreManagerInterface $storeManager
+	 * @param Manager $eventManager
 	 */
 	public function __construct(
 		GigyaLogger $logger,
@@ -83,7 +88,8 @@ class UserDeletion
 		ResourceConnection $resourceConnection,
 		ConnectionFactory $connectionFactory,
 		Attribute $attribute,
-		StoreManagerInterface $storeManager
+		StoreManagerInterface $storeManager,
+		Manager $eventManager
 	) {
 		$this->logger = $logger;
 		$this->scopeConfig = $context->getScopeConfig();
@@ -97,6 +103,7 @@ class UserDeletion
 		$this->resourceConnection = $resourceConnection;
 		$this->eavAttribute = $attribute;
 		$this->storeManager = $storeManager;
+		$this->eventManager = $eventManager;
 	}
 
 	protected function getS3FileList($credentials)
@@ -236,13 +243,16 @@ class UserDeletion
 							if (empty($gigya_deleted_timestamp)) {
 								$timestamp = time();
 
-								if ($this->connection->insert($this->resourceConnection->getTableName('customer_entity_int'),
-									array(
-										'attribute_id' => $attribute_id,
-										'entity_id' => $magento_uid,
-										'value' => $timestamp,
-									))) {
+								$deletion_data =array(
+									'attribute_id' => $attribute_id,
+									'entity_id' => $magento_uid,
+									'value' => $timestamp,
+								);
+
+								if ($this->connection->insert($this->resourceConnection->getTableName('customer_entity_int'), $deletion_data)) {
 									$deleted_users[] = $gigya_uid;
+
+									$this->eventManager->dispatch('gigya_user_deletion_soft_delete_after', array('deletionData' => $deletion_data));
 								} else {
 									$failed_users[] = $gigya_uid;
 								}
