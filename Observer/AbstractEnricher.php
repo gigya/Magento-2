@@ -33,7 +33,7 @@ class AbstractEnricher
     /**
      * Get the key used to store the customer in the registry ($customerRegistry)
      *
-     * @param $customer
+     * @param Customer $customer
      * @return string Concatenation of websiteId|gigyaUid
      */
     protected function getCustomerRegistryKey($customer)
