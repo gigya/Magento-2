@@ -12,15 +12,14 @@
         <referenceContainer name="content">
             <!-- customer.form.login.extra -->
             <!-- Add Gigya Login block: -->
-            <block class="Gigya\GigyaIM\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaIM::gigya_login.phtml">
-                <arguments>
-                    <argument name="display" xsi:type="string">embed</argument>
-                </arguments>
-            </block>
-            <!-- remove Magento login form: -->
-            <referenceContainer name="customer.login.container" remove="true" />
+			<block class="Gigya\GigyaIM\Block\Form\GigyaLogin" name="gigya_customer_form_login" template="Gigya_GigyaIM::gigya_login.phtml" ifconfig="gigya_section/general/enable_gigya">
+				<arguments>
+					<argument name="display" xsi:type="string">embed</argument>
+				</arguments>
+			</block>
+
             <referenceBlock name="GigyaScript">
-                <action method="setAllowGigyaLogout">
+                <action method="setAllowGigyaLogout" ifconfig="gigya_section/general/enable_gigya">
                     <argument name="allowGigyaLogout" xsi:type="boolean">true</argument>
                 </action>
             </referenceBlock>
