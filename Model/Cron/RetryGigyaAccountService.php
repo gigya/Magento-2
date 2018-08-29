@@ -2,14 +2,11 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
-
-use Gigya\CmsStarterKit\sdk\GSApiException;
 use Gigya\CmsStarterKit\user\GigyaProfile;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
-use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
@@ -34,10 +31,10 @@ class RetryGigyaAccountService extends GigyaAccountService {
         GigyaLogger $logger,
         RetryGigyaSyncHelper $retryGigyaSyncHelper
     ) {
-
         parent::__construct($gigyaMageHelper, $eventManager, $logger);
 
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
+        $this->logger = $logger;
     }
 
 	/**
@@ -53,9 +50,14 @@ class RetryGigyaAccountService extends GigyaAccountService {
     {
         $savedGigyaData = $this->retryGigyaSyncHelper->getRetryEntries(null, $uid, true);
 
-        $result = GigyaUserFactory::createGigyaUserFromArray(unserialize($savedGigyaData[0]['data']));
-        $result->setCustomerEntityId($savedGigyaData[0]['customer_entity_id']);
+        if (!empty($savedGigyaData))
+		{
+			$result = GigyaUserFactory::createGigyaUserFromArray(unserialize($savedGigyaData[0]['data']));
+			$result->setCustomerEntityId($savedGigyaData[0]['customer_entity_id']);
 
-        return $result;
+			return $result;
+		}
+
+		return null;
     }
 }

@@ -16,7 +16,6 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
  * Fetch the retry entries scheduled to perform the Gigya profile and Magento Customer update retries.
  *
  * @author      vlemaire <info@x2i.fr>
- *
  */
 class RetryGigyaUpdate
 {
@@ -58,8 +57,8 @@ class RetryGigyaUpdate
 	 * @param \Magento\Cron\Model\Schedule $schedule
 	 *
 	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
-	 * @throws NoSuchEntityException
-	 * @throws LocalizedException
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     public function execute(\Magento\Cron\Model\Schedule $schedule)
     {

@@ -152,7 +152,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     }
 
     /**
-     * Performs the enrichment of the customer with the Gigya data.
+     * Performs the enrichment of the customer with the Gigya data
      *
      * @param $magentoCustomer Customer
      * @param $gigyaAccountData GigyaUser
@@ -164,6 +164,10 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      */
     protected function enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
     {
+		if (is_null($gigyaAccountData)) {
+			return $magentoCustomer;
+		}
+
         $this->pushRegisteredCustomer($magentoCustomer);
 
         $this->gigyaSyncHelper->updateMagentoCustomerRequiredFieldsWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
@@ -200,7 +204,6 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 	 * @throws \Magento\Framework\Exception\State\InputMismatchException
 	 */
     public function saveMagentoCustomer($magentoCustomer) {
-
         $this->customerRepository->save($magentoCustomer->getDataModel());
     }
 

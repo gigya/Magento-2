@@ -17,34 +17,32 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\CustomerExtractor;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\Exception\AuthenticationException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\InputException;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
 class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 {
-    /** @var AccountManagementInterface */
-    protected $customerAccountManagement;
+	/** @var AccountManagementInterface */
+	protected $customerAccountManagement;
 
-    /** @var CustomerRepositoryInterface  */
-    protected $customerRepository;
+	/** @var CustomerRepositoryInterface */
+	protected $customerRepository;
 
-    /** @var Validator */
-    protected $formKeyValidator;
+	/** @var Validator */
+	protected $formKeyValidator;
 
-    /** @var CustomerExtractor */
-    protected $customerExtractor;
+	/** @var CustomerExtractor */
+	protected $customerExtractor;
 
-    /**
-     * @var Session
-     */
-    protected $session;
+	/** @var Session */
+	protected $session;
 
-    /** @var GigyaMageHelper  */
-    protected $gigyaMageHelper;
+	/** @var GigyaMageHelper */
+	protected $gigyaMageHelper;
 
-    /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
+	/** @var  GigyaSyncHelper */
+	protected $gigyaSyncHelper;
 
     /** @var GigyaConfig */
 	protected $config;
@@ -90,77 +88,79 @@ class GigyaEditPost extends \Magento\Customer\Controller\AbstractAccount
 	 */
     public function execute()
     {
-		/** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
-		$resultRedirect = $this->resultRedirectFactory->create();
-		if (!$this->formKeyValidator->validate($this->getRequest())) {
-			return $resultRedirect->setPath('*/*/edit');
-		}
 
-		if ($this->config->isGigyaEnabled())
-		{
-			if ($this->getRequest()->isPost()) {
-				$customerId = $this->session->getCustomerId();
-				$currentCustomer = $this->customerRepository->getById($customerId);
+        /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
+        $resultRedirect = $this->resultRedirectFactory->create();
+        if (!$this->formKeyValidator->validate($this->getRequest())) {
+          return $resultRedirect->setPath('*/*/edit');
+        }
 
-				// Prepare new customer data
-				$customer = $this->customerExtractor->extract('customer_account_edit', $this->_request);
-				$customer->setId($customerId);
-				if ($customer->getAddresses() == null) {
-					$customer->setAddresses($currentCustomer->getAddresses());
-				}
+        if ($this->config->isGigyaEnabled())
+        {
+          if ($this->getRequest()->isPost()) {
+            $customerId = $this->session->getCustomerId();
+            $currentCustomer = $this->customerRepository->getById($customerId);
 
-				// Change customer password
-				if ($this->getRequest()->getParam('change_password')) {
-					$this->changeCustomerPassword($currentCustomer->getEmail());
-				}
+            // Prepare new customer data
+            $customer = $this->customerExtractor->extract('customer_account_edit', $this->_request);
+            $customer->setId($customerId);
+            if ($customer->getAddresses() == null) {
+              $customer->setAddresses($currentCustomer->getAddresses());
+            }
 
-				try {
+            // Change customer password
+            if ($this->getRequest()->getParam('change_password')) {
+              $this->changeCustomerPassword($currentCustomer->getEmail());
+            }
 
-					$gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
+            try {
 
-					if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
-						throw new InputException("Could not validate the given Gigya data");
-					}
+              $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
-					$eligibleCustomer = $this->gigyaSyncHelper->setMagentoLoggingContext($gigyaAccount);
+              if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
+                throw new InputException("Could not validate the given Gigya data");
+              }
 
-					if ($eligibleCustomer == null || $eligibleCustomer->getId() != $customerId) {
-						throw new InputException("Could not retrieve a valid Magento customer with the given Gigya data");
-					}
+              $eligibleCustomer = $this->gigyaSyncHelper->setMagentoLoggingContext($gigyaAccount);
 
-					$this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);
+              if ($eligibleCustomer == null || $eligibleCustomer->getId() != $customerId) {
+                throw new InputException("Could not retrieve a valid Magento customer with the given Gigya data");
+              }
 
-					$this->customerRepository->save($eligibleCustomer);
+              $this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);
 
-				} catch (AuthenticationException $e) {
-					$this->messageManager->addErrorMessage($e->getMessage());
-				} catch (InputException $e) {
-					$message = __('Invalid input') . $e->getMessage();
-					$this->messageManager->addErrorMessage($message);
-				} catch (\Exception $e) {
-					$message = __('We can\'t save the customer. ') . $e->getMessage();
-					$this->messageManager->addErrorMessage($message);
-				}
+              $this->customerRepository->save($eligibleCustomer);
 
-				if ($this->messageManager->getMessages()->getCount() > 0) {
-					$this->session->setCustomerFormData($this->getRequest()->getPostValue());
-					return $resultRedirect->setPath('*/*/edit');
-				}
+            } catch (AuthenticationException $e) {
+              $this->messageManager->addErrorMessage($e->getMessage());
+            } catch (InputException $e) {
+              $message = __('Invalid input') . $e->getMessage();
+              $this->messageManager->addErrorMessage($message);
+            } catch (\Exception $e) {
+              $message = __('We can\'t save the customer. ') . $e->getMessage();
+              $this->messageManager->addErrorMessage($message);
+            }
 
-				$this->messageManager->addSuccessMessage(__('You saved the account information.'));
-				return $resultRedirect->setPath('customer/account');
-			}
-		}
+            if ($this->messageManager->getMessages()->getCount() > 0) {
+              $this->session->setCustomerFormData($this->getRequest()->getPostValue());
+              return $resultRedirect->setPath('*/*/edit');
+            }
+
+            $this->messageManager->addSuccessMessage(__('You saved the account information.'));
+            return $resultRedirect->setPath('customer/account');
+          }
+        }
 
         return $resultRedirect->setPath('*/*/edit');
     }
 
-    /**
-     * Change customer password
-     *
-     * @param string $email
-     * @return $this
-     */
+	/**
+	 * Change customer password
+	 *
+	 * @param string $email
+	 *
+	 * @return $this
+	 */
     protected function changeCustomerPassword($email)
     {
         $currPass = $this->getRequest()->getPost('current_password');

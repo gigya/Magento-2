@@ -79,6 +79,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'entity_id',
                 AdapterInterface::FK_ACTION_CASCADE
             );
+
             $installer->getConnection()->createTable($table);
             // END : Create table gigya_sync_retry
         } // END : if version < 5.0.1
@@ -133,6 +134,28 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
             );
             // END : Rename column 'gigya_sync_retry.direction' to 'origin'
         } // END : if version < 5.0.6
+
+		/* Gigya user deletion */
+		if (version_compare($context->getVersion(), '5.1.0') < 0) {
+			$table = $installer->getConnection()->newTable(
+				$installer->getTable('gigya_user_deletion')
+			)->addColumn(
+				'filename',
+				Table::TYPE_TEXT,
+				255,
+				[ 'nullable' => false, 'primary' => true ],
+				'File name processed'
+			)->addColumn(
+				'time_processed',
+				Table::TYPE_INTEGER,
+				null,
+				[ 'nullable' => false ],
+				'Timestamp of the cron run when this file was successfully processed'
+			);
+
+			$installer->getConnection()->createTable($table);
+			// END : Create table gigya_user_deletion
+		} // END : if version < 5.1.0
 
         $installer->endSetup();
     }

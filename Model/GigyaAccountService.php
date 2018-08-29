@@ -213,13 +213,15 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return $accountData;
     }
 
-    /**
-     * @inheritdoc
-     *
-     * @param bool $dispatchEvent If true (default value) will dispatch
-     *                            self::EVENT_UPDATE_GIGYA_SUCCESS
-     *                            or self::EVENT_UPDATE_GIGYA_FAILURE
-     */
+	/**
+	 * @inheritdoc
+	 *
+	 * @param bool $dispatchEvent If true (default value) will dispatch
+	 *                            self::EVENT_UPDATE_GIGYA_SUCCESS
+	 *                            or self::EVENT_UPDATE_GIGYA_FAILURE
+	 *
+	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 */
     public function update($gigyaAccount, $dispatchEvent = true)
     {
         $result = null;
@@ -288,9 +290,16 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return $result;
     }
 
-    /**
-     * @inheritdoc
-     */
+	/**
+	 * @inheritdoc
+	 *
+	 * @param string $uid
+	 *
+	 * @return GigyaUser|mixed
+	 *
+	 * @throws GSApiException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 */
     function get($uid)
     {
         unset(self::$loadedGigyaUsers[$uid]);
@@ -304,10 +313,12 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return $result;
     }
 
-    /**
-     * @inheritdoc
-     *
-     */
+	/**
+	 * @param string $uid
+	 *
+	 * @return GigyaUser|mixed|null
+	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 */
     function rollback($uid)
     {
         $result = null;

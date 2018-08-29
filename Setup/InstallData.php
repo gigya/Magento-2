@@ -17,7 +17,6 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
  */
 class InstallData implements InstallDataInterface
 {
-
     /**
      * @var CustomerSetupFactory
      */
@@ -40,13 +39,11 @@ class InstallData implements InstallDataInterface
         $this->attributeSetFactory = $attributeSetFactory;
     }
 
-
     /**
      * {@inheritdoc}
      */
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
-
         /** @var CustomerSetup $customerSetup */
         $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
 
@@ -69,6 +66,18 @@ class InstallData implements InstallDataInterface
             'system' => 0,
         ]);
 
+		$customerSetup->addAttribute(Customer::ENTITY, 'gigya_deleted_timestamp', [
+			'type' => 'int',
+			'label' => 'Gigya deleted timestamp',
+			'input' => 'text',
+			'required' => false,
+			'visible' => false,
+			'user_defined' => true,
+			'sort_order' => 1000,
+			'position' => 1000,
+			'system' => 0,
+		]);
+
         $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'gigya_uid')
             ->addData([
                 'attribute_set_id' => $attributeSetId,
@@ -78,6 +87,13 @@ class InstallData implements InstallDataInterface
 
         $attribute->save();
 
+		$attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'gigya_deleted_timestamp')
+			->addData([
+				'attribute_set_id' => $attributeSetId,
+				'attribute_group_id' => $attributeGroupId,
+				'used_in_forms' => ['adminhtml_customer'],
+			]);
 
+		$attribute->save();
     }
 }
