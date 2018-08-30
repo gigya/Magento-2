@@ -280,10 +280,11 @@ class UserDeletion
 	 *
 	 * @throws \Magento\Framework\Exception\LocalizedException
 	 */
-	public function execute(Schedule $schedule)
+	public function execute()
 	{
 		$start_time = time();
 
+		$enable_gigya = $this->scopeConfig->getValue('gigya_section/general/enable_gigya');
 		$enable_job = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_is_enabled', 'website');
 
 		$job_frequency = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_job_frequency',
@@ -295,7 +296,7 @@ class UserDeletion
 		if (empty($email_failure))
 			$email_failure = $email_success;
 
-		if ($enable_job) {
+		if ($enable_gigya and $enable_job) {
 			$last_run = $this->scopeConfig->getValue('gigya_delete/deletion_general/last_run', 'website');
 
 			$aws_credentials = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details');
