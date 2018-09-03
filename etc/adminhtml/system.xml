@@ -136,6 +136,7 @@
                 <field id="deletion_job_frequency" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Job Frequency (s)</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\DeletionFrequency</source_model>
+                    <comment><![CDATA[Less frequent times will be on the start of that time frame, e.g. once a day will be at 00:00 of the same day, etc.]]></comment>
                 </field>
                 <field id="deletion_email_success" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Success</label>
