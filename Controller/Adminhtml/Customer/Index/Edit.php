@@ -2,9 +2,8 @@
 
 namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
-use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
-use Gigya\GigyaIM\Logger as GigyaLogger;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -33,7 +32,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
     protected $retryGigyaSyncHelper;
 
     /** @var GigyaLogger */
-    protected $logger;
+	protected $logger;
 
 	/**
      * @inheritdoc
@@ -94,8 +93,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             $resultLayoutFactory,
             $resultPageFactory,
             $resultForwardFactory,
-            $resultJsonFactory,
-			$logger
+            $resultJsonFactory
         );
 
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
@@ -122,10 +120,6 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
 	 * . when it's saved we have to tell if a retry is scheduled due to an error on saving (could be a Gigya service call failure as well as a Magento update failure)
 	 *
 	 * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect|\Magento\Framework\Controller\Result\Redirect
-	 *
-	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
-	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     public function execute()
     {
@@ -162,7 +156,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             }
 
             return $result;
-        } catch (GigyaFieldMappingException $e) {
+        } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath('customer/*/index');

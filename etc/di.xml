@@ -40,7 +40,7 @@
     <type name="Gigya\GigyaIM\Logger\Logger">
         <arguments>
             <argument name="name" xsi:type="string">logger</argument>
-            <argument name="handlers"  xsi:type="array">
+            <argument name="handlers" xsi:type="array">
                 <item name="system" xsi:type="object">Gigya\GigyaIM\Logger\Handler</item>
             </argument>
         </arguments>

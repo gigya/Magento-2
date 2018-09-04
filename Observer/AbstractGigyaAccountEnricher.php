@@ -14,6 +14,7 @@ use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
 /**
  * AbstractGigyaAccountEnricher
@@ -49,21 +50,26 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      */
     protected $gigyaFromMagento;
 
-    /**
-     * AbstractGigyaAccountEnricher constructor.
-     *
-     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-     * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param ManagerInterface $eventDispatcher
-     * @param GigyaLogger $logger
-     * @param GigyaFromMagento $gigyaFromMagento
-     */
+    /** @var GigyaConfig */
+	protected $config;
+
+	/**
+	 * AbstractGigyaAccountEnricher constructor.
+	 *
+	 * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
+	 * @param GigyaSyncHelper $gigyaSyncHelper
+	 * @param ManagerInterface $eventDispatcher
+	 * @param GigyaLogger $logger
+	 * @param GigyaFromMagento $gigyaFromMagento
+	 * @param GigyaConfig $config
+	 */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
         ManagerInterface $eventDispatcher,
         GigyaLogger $logger,
-        GigyaFromMagento $gigyaFromMagento
+        GigyaFromMagento $gigyaFromMagento,
+		GigyaConfig $config
     )
     {
         $this->gigyaAccountRepository = $gigyaAccountRepository;
@@ -71,6 +77,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
         $this->gigyaFromMagento = $gigyaFromMagento;
+        $this->config = $config;
     }
 
     /**

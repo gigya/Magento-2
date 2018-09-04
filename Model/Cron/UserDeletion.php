@@ -315,8 +315,6 @@ class UserDeletion
 		$start_time = time();
 
 		$enable_job = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_is_enabled');
-
-		$job_frequency = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_job_frequency');
 		$this->getEmails();
 
 		if ($enable_job) {
