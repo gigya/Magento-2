@@ -33,6 +33,8 @@ class RetryMagentoCustomerFieldsUpdater extends MagentoCustomerFieldsUpdater
 
     /**
      * @inheritdoc
+	 *
+	 * @param fieldMapping\Conf $mappingConf
      *
      * Builds $this->retryConfMapping based on the $mappingConf param, but with inversion of the mapping directions : cms2g becomes g2cms and vice-versa.
      * In turns this is this object that we set on parent::setMappingCache, instead of $mappingConf.

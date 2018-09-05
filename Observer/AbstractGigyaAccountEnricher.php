@@ -57,11 +57,11 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
 	 * AbstractGigyaAccountEnricher constructor.
 	 *
 	 * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-	 * @param GigyaSyncHelper $gigyaSyncHelper
-	 * @param ManagerInterface $eventDispatcher
-	 * @param GigyaLogger $logger
-	 * @param GigyaFromMagento $gigyaFromMagento
-	 * @param GigyaConfig $config
+	 * @param GigyaSyncHelper                 $gigyaSyncHelper
+	 * @param ManagerInterface                $eventDispatcher
+	 * @param GigyaLogger                     $logger
+	 * @param GigyaFromMagento                $gigyaFromMagento
+	 * @param GigyaConfig                     $config
 	 */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
@@ -184,14 +184,17 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
      */
     public function execute(Observer $observer)
     {
-        /** @var Customer $magentoCustomer */
-        $magentoCustomer = $observer->getData('customer');
-        /** @var GigyaUser $gigyaAccountData */
-        $gigyaAccountData = null;
+    	if ($this->config->isGigyaEnabled())
+		{
+			/** @var Customer $magentoCustomer */
+			$magentoCustomer = $observer->getData('customer');
+			/** @var GigyaUser $gigyaAccountData */
+			$gigyaAccountData = null;
 
-        if ($this->shallEnrichGigyaWithMagentoCustomerData($magentoCustomer)) {
-            $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
-            $this->gigyaAccountRepository->update($gigyaAccountData);
-        }
+			if ($this->shallEnrichGigyaWithMagentoCustomerData($magentoCustomer)) {
+				$gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
+				$this->gigyaAccountRepository->update($gigyaAccountData);
+			}
+		}
     }
 }

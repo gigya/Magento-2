@@ -309,7 +309,7 @@ class UserDeletion
 	 *
 	 * @throws \Magento\Framework\Exception\LocalizedException
 	 */
-	public function execute(Schedule $schedule)
+	public function execute()
 	{
 		$start_time = time();
 

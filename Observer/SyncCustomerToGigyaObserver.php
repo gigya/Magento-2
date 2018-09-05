@@ -7,6 +7,7 @@ use Gigya\GigyaIM\Model\GigyaAccountService;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
 /**
  * SyncCustomerToGigyaObserver
@@ -28,18 +29,24 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /** @var RetryGigyaSyncHelper  */
     protected $retryGigyaSyncHelper;
 
-    /**
-     * SyncCustomerToGigyaObserver constructor.
-     *
-     * @param GigyaLogger $logger
-     * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
-     */
+    /** @var GigyaConfig */
+    protected $config;
+
+	/**
+	 * SyncCustomerToGigyaObserver constructor.
+	 *
+	 * @param GigyaLogger          $logger
+	 * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
+	 * @param GigyaConfig          $config
+	 */
     public function __construct(
         GigyaLogger $logger,
-        RetryGigyaSyncHelper $retryGigyaSyncHelper
+        RetryGigyaSyncHelper $retryGigyaSyncHelper,
+		GigyaConfig $config
     )
     {
         $this->logger = $logger;
+        $this->config = $config;
 
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
     }
@@ -54,20 +61,22 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
 	 */
     public function execute(Observer $observer)
     {
-        switch ($observer->getEvent()->getName()) {
+    	if ($this->config->isGigyaEnabled())
+		{
+			switch ($observer->getEvent()->getName()) {
+				case GigyaAccountService::EVENT_UPDATE_GIGYA_FAILURE :
+					$this->performGigyaUpdateFailure($observer);
+					break;
 
-            case GigyaAccountService::EVENT_UPDATE_GIGYA_FAILURE :
-                $this->performGigyaUpdateFailure($observer);
-                break;
+				case GigyaAccountService::EVENT_UPDATE_GIGYA_SUCCESS :
+					$this->performGigyaUpdateSuccess($observer);
+					break;
 
-            case GigyaAccountService::EVENT_UPDATE_GIGYA_SUCCESS :
-                $this->performGigyaUpdateSuccess($observer);
-                break;
-
-            case AbstractGigyaAccountEnricher::EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE :
-                $this->performFieldMappingFailure($observer);
-                break;
-        }
+				case AbstractGigyaAccountEnricher::EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE :
+					$this->performFieldMappingFailure($observer);
+					break;
+			}
+		}
     }
 
 	/**

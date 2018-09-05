@@ -37,6 +37,8 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
     /** @var GigyaLogger */
     protected $logger;
 
+    protected $magentoCustomer;
+
     /** @var  GigyaUser */
     private $gigyaUser;
 

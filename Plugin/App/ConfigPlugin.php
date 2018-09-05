@@ -15,9 +15,9 @@ class ConfigPlugin
     /**
      * @param ScopeConfigInterface $subject
      * @param \Closure $proceed
-     * @param null $path
+     * @param string $path
      * @param string $scope
-     * @param null $scopeCode
+     * @param $scopeCode
      * @return int|mixed
      */
     public function aroundGetValue(

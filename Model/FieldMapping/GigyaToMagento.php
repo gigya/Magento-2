@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
@@ -28,13 +25,14 @@ class GigyaToMagento extends AbstractFieldMapping
     /** @var ScopeConfigInterface  */
     protected $scopeConfig;
 
-    /**
-     * GigyaToMagentoFieldMapping constructor.
-     *
-     * @param ScopeConfigInterface $scopeConfig
-     * @param GigyaLogger $logger
-     * @param MagentoCustomerFieldsUpdater $customerFieldsUpdater
-     */
+	/**
+	 * GigyaToMagentoFieldMapping constructor.
+	 *
+	 * @param ScopeConfigInterface         $scopeConfig
+	 * @param GigyaLogger                  $logger
+	 * @param MagentoCustomerFieldsUpdater $customerFieldsUpdater
+	 * @param ModuleDirReader              $moduleDirReader
+	 */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         GigyaLogger $logger,

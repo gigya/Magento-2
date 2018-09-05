@@ -11,6 +11,10 @@
             <resource>Gigya_GigyaIM::config</resource>
             <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General</label>
+                <field id="enable_gigya" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
                 <field id="api_key" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>API key</label>
                     <validate>validate-no-empty</validate>
@@ -134,7 +138,7 @@
                     <source_model>Gigya\GigyaIM\Model\Config\Source\DeletionType</source_model>
                 </field>
                 <field id="deletion_job_frequency" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>Job Frequency (s)</label>
+                    <label>Job Frequency</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\DeletionFrequency</source_model>
                     <comment><![CDATA[Less frequent times will be on the start of that time frame, e.g. once a day will be at 00:00 of the same day, etc.]]></comment>
                 </field>
