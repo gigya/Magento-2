@@ -161,9 +161,10 @@
                     <validate>required-entry validate-no-empty</validate>
                     <backend_model>Gigya\GigyaIM\Model\Config\ValidateAWSDetails</backend_model>
                 </field>
-                <field id="deletion_aws_secret_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <field id="deletion_aws_secret_key" translate="label" type="password" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>AWS Secret Key</label>
                     <validate>required-entry validate-no-empty</validate>
+					<backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
                 <field id="deletion_aws_directory" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>AWS Object Key Prefix</label>

@@ -73,4 +73,12 @@
             <argument name="lifetimePath" xsi:type="string">gigya_session/session/expiration</argument>
         </arguments>
     </type>
+
+	<type name="Magento\Config\Model\Config\TypePool">
+		<arguments>
+			<argument name="sensitive" xsi:type="array">
+				<item name="gigya_delete/deletion_aws_details/deletion_aws_secret_key" xsi:type="string">1</item>
+			</argument>
+		</arguments>
+	</type>
 </config>

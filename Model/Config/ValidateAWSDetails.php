@@ -2,11 +2,13 @@
 
 namespace Gigya\GigyaIM\Model\Config;
 
-require_once 'vendor/aws/aws-sdk-php/src/functions.php';
+//require_once 'vendor/aws/aws-sdk-php/src/functions.php';
 
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Encryption\EncryptorInterface;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 {
@@ -19,6 +21,12 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 	/** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
 	protected $gigyaMageHelper;
 
+	/** @var EncryptorInterface */
+	protected $encryptor;
+
+	/** @var GigyaLogger */
+	protected $logger;
+
 	/**
 	 * Constructor
 	 *
@@ -29,6 +37,8 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 	 * @param \Magento\Store\Model\StoreManagerInterface $storeManager
 	 * @param \Magento\Customer\Model\ResourceModel\Customer $customerResource
 	 * @param \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper
+	 * @param EncryptorInterface $encryptor
+	 * @param GigyaLogger $logger
 	 * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
 	 * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
 	 * @param array $data
@@ -41,6 +51,8 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 		\Magento\Store\Model\StoreManagerInterface $storeManager,
 		\Magento\Customer\Model\ResourceModel\Customer $customerResource,
 		\Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,
+		EncryptorInterface $encryptor,
+		GigyaLogger $logger,
 		\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
 		\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
 		array $data = []
@@ -48,6 +60,9 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 		$this->_storeManager = $storeManager;
 		$this->_customerResource = $customerResource;
 		$this->gigyaMageHelper = $gigyaMageHelper;
+		$this->encryptor = $encryptor;
+		$this->logger = $logger;
+
 		parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
 	}
 
@@ -94,9 +109,10 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 			}
 			catch (S3Exception $e)
 			{
+				$this->logger->error('Could not connect to AWS with entered details. Error message: '.$e->getMessage());
 				throw new LocalizedException(
 					__(
-						"Could not save settings. AWS authentication failed with error message: {$e->getMessage()} ."
+						"Could not save settings. AWS authentication failed with error code: {$e->getAwsErrorCode()}. For more details, see the Gigya log."
 					)
 				);
 			}

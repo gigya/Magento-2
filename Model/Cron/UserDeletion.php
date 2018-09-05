@@ -191,7 +191,6 @@ class UserDeletion
 					'credentials' => array(
 						'key' => $credentials['access_key'],
 						'secret' => $credentials['secret_key'],
-//						'secret' => $this->user_deletion_helper::decrypt($this->settings['aws_secret_key'], SECURE_AUTH_KEY),
 					),
 				)
 			);
@@ -371,6 +370,8 @@ class UserDeletion
 						$this->logger->info('Gigya deletion cron: file ' . $file . ' skipped because it has already been processed.');
 					}
 				}
+			} elseif ($files === false) { /* On error from AWS S3 */
+				$job_failed = true;
 			} else {
 				$job_failed = false;
 			}
