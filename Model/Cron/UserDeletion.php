@@ -61,6 +61,12 @@ class UserDeletion
 	/** @var GigyaUserDeletionHelper */
 	private $helper;
 
+	/** @var array */
+	private $email_success;
+
+	/** @var array */
+	private $email_failure;
+
 	/**
 	 * UserDeletion constructor.
 	 *
@@ -104,6 +110,27 @@ class UserDeletion
 		$this->eavAttribute = $attribute;
 		$this->storeManager = $storeManager;
 		$this->eventManager = $eventManager;
+	}
+
+	private function getEmails()
+	{
+		$email_success = str_replace(' ', '', $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_success'));
+		$email_failure = str_replace(' ', '', $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_failure'));
+		if (empty($email_failure)) {
+			$email_failure = $email_success;
+		}
+
+		if (strpos($email_success, ',') !== false) {
+			$this->email_success = explode(',', $email_success);
+		} else {
+			$this->email_success = explode(';', $email_success);
+		}
+
+		if (strpos($email_failure, ',') !== false) {
+			$this->email_failure = explode(',', $email_failure);
+		} else {
+			$this->email_failure = explode(';', $email_failure);
+		}
 	}
 
 	protected function getS3FileList($credentials)
@@ -164,7 +191,6 @@ class UserDeletion
 					'credentials' => array(
 						'key' => $credentials['access_key'],
 						'secret' => $credentials['secret_key'],
-//						'secret' => $this->user_deletion_helper::decrypt($this->settings['aws_secret_key'], SECURE_AUTH_KEY),
 					),
 				)
 			);
@@ -225,10 +251,13 @@ class UserDeletion
 		$deletion_type = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_type');
 		$deleted_users = array();
 
+		$this->eventManager->dispatch('gigya_user_deletion_soft_delete_before');
+
 		foreach ($uid_array as $gigya_uid) {
 			/* Get Magento entity ID for each Gigya UID */
 			if ($uid_type == 'gigya') {
 				$magento_users = $this->helper->getCustomersByAttributeValue('gigya_uid', $gigya_uid);
+
 				if (!empty($magento_users)) {
 					$magento_user = $magento_users[0];
 					$magento_uid = $magento_user->getId();
@@ -243,7 +272,7 @@ class UserDeletion
 							if (empty($gigya_deleted_timestamp)) {
 								$timestamp = time();
 
-								$deletion_data =array(
+								$deletion_data = array(
 									'attribute_id' => $attribute_id,
 									'entity_id' => $magento_uid,
 									'value' => $timestamp,
@@ -284,20 +313,11 @@ class UserDeletion
 	{
 		$start_time = time();
 
-		$enable_gigya = $this->scopeConfig->getValue('gigya_section/general/enable_gigya');
-		$enable_job = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_is_enabled', 'website');
+		$enable_job = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_is_enabled');
+		$this->getEmails();
 
-		$job_frequency = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_job_frequency',
-			'website');
-		$email_success = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_success',
-			'website');
-		$email_failure = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_failure',
-			'website');
-		if (empty($email_failure))
-			$email_failure = $email_success;
-
-		if ($enable_gigya and $enable_job) {
-			$last_run = $this->scopeConfig->getValue('gigya_delete/deletion_general/last_run', 'website');
+		if ($enable_job) {
+			$last_run = $this->scopeConfig->getValue('gigya_delete/deletion_general/last_run');
 
 			$aws_credentials = $this->scopeConfig->getValue('gigya_delete/deletion_aws_details');
 			foreach ($aws_credentials as $key => $credential) {
@@ -310,48 +330,50 @@ class UserDeletion
 			$job_failed = true;
 			$failed_count = 0;
 
-			if (($start_time - $last_run) > $job_frequency) {
-				$this->logger->info('Gigya deletion cron last run: ' . $last_run);
+			$this->logger->info('Gigya deletion cron last run: ' . $last_run);
 
-				$files = $this->getFileList('S3', $aws_credentials);
+			$files = $this->getFileList('S3', $aws_credentials);
 
-				if (is_array($files)) {
-					/* Get only the files that have not been processed */
-					$select_deletion_rows = $this->connection
-						->select()
-						->from($this->resourceConnection->getTableName('gigya_user_deletion'))
-						->reset(\Zend_Db_Select::COLUMNS)
-						->columns('filename');
-					$processed_files = array_column($this->connection->fetchAll($select_deletion_rows, [],
-						\Zend_Db::FETCH_ASSOC), 'filename');
+			$deleted_users = array();
+			$total_deleted_users = 0;
 
-					foreach ($files as $file) {
-						if (!in_array($file, $processed_files)) {
-							$csv = $this->getS3FileContents($file, $aws_credentials);
-							$user_array = array_filter($this->getGigyaUserIDs($csv));
-							$deleted_users = $this->deleteUsers('gigya', $user_array, $failed_users);
+			if (is_array($files)) {
+				/* Get only the files that have not been processed */
+				$select_deletion_rows = $this->connection
+					->select()
+					->from($this->resourceConnection->getTableName('gigya_user_deletion'))
+					->reset(\Zend_Db_Select::COLUMNS)
+					->columns('filename');
+				$processed_files = array_column($this->connection->fetchAll($select_deletion_rows, [],
+					\Zend_Db::FETCH_ASSOC), 'filename');
 
-							if ($csv === false or empty($deleted_users)) {
-								$failed_count++;
-							} else /* Job succeeded or succeeded with errors */ {
-								$job_failed = false;
+				foreach ($files as $file) {
+					if (!in_array($file, $processed_files)) {
+						$csv = $this->getS3FileContents($file, $aws_credentials);
+						$user_array = array_filter($this->getGigyaUserIDs($csv));
+						$deleted_users = $this->deleteUsers('gigya', $user_array, $failed_users);
+						$total_deleted_users += count($deleted_users);
 
-								/* Mark file as processed */
-								$this->connection->insert($this->resourceConnection->getTableName('gigya_user_deletion'),
-									array(
-										'filename' => $file,
-										'time_processed' => time(),
-									));
-							}
+						if ($csv === false or empty($deleted_users)) {
+							$failed_count++;
+						} else /* Job succeeded or succeeded with errors */ {
+							$job_failed = false;
+
+							/* Mark file as processed */
+							$this->connection->insert($this->resourceConnection->getTableName('gigya_user_deletion'),
+								array(
+									'filename' => $file,
+									'time_processed' => time(),
+								));
 						}
-						else
-						{
-							$this->logger->info('Gigya deletion cron: file '.$file.' skipped because it has already been processed.');
-						}
+					} else {
+						$this->logger->info('Gigya deletion cron: file ' . $file . ' skipped because it has already been processed.');
 					}
-				} else {
-					$job_failed = false;
 				}
+			} elseif ($files === false) { /* On error from AWS S3 */
+				$job_failed = true;
+			} else {
+				$job_failed = false;
 			}
 
 			/* Generic email sender init */
@@ -360,23 +382,22 @@ class UserDeletion
 			if ($job_failed) {
 				/* Params for email */
 				$job_status = 'failed';
-				$email_to = $email_failure;
-				$email_body = 'Job failed'; ////
+				$email_to = $this->email_failure;
+				$email_body = 'Job failed. No users were deleted. It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.';
 
 				$this->logger->warning('Gigya user deletion job from ' . $start_time . ' failed (no users were deleted). It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.');
 			} else {
 				/* Params for email */
-				$job_status = 'succeeded';
-				$email_to = $email_success;
-				$email_body = 'Job succeeded or completed with errors'; ////
+				$job_status = 'completed';
+				$email_to = $this->email_success;
+				$email_body = 'Job succeeded or completed with errors. ' . count($deleted_users) . ' deleted, ' . $failed_count . ' failed.';
 
 				$this->logger->info('Gigya user deletion job from ' . $start_time . ' was completed successfully.');
 			}
 
-			try
-			{
-				$email_subject = 'Gigya user deletion '.$job_status.' on website '.$this->storeManager->getStore()->getBaseUrl();
-				$email_from = $email_to;
+			try {
+				$email_subject = 'Gigya user deletion ' . $job_status . ' on website ' . $this->storeManager->getStore()->getBaseUrl();
+				$email_from = $email_to[0];
 
 				$email_sender->setSubject($email_subject);
 				$email_sender->setBodyText($email_body);
@@ -384,14 +405,12 @@ class UserDeletion
 				$email_sender->addTo($email_to);
 				$email_sender->send();
 
-				$this->logger->warning('Gigya deletion cron: mail sent to: '.$email_to);
-			}
-			catch (\Zend_Mail_Exception $e)
-			{
-				$this->logger->warning('Gigya deletion cron: unable to send email: '.$e->getMessage());
+				$this->logger->info('Gigya deletion cron: mail sent to: ' . implode(', ', $email_to) . ' with status ' . $job_status);
+			} catch (\Zend_Mail_Exception $e) {
+				$this->logger->warning('Gigya deletion cron: unable to send email: ' . $e->getMessage());
 			}
 
-			$this->configWriter->save('gigya_delete/deletion_general/last_run', time(), 'website');
+			$this->configWriter->save('gigya_delete/deletion_general/last_run', time());
 		}
 	}
 }

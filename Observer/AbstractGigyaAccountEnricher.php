@@ -51,7 +51,7 @@ class AbstractGigyaAccountEnricher extends AbstractEnricher implements ObserverI
     protected $gigyaFromMagento;
 
     /** @var GigyaConfig */
-    protected $config;
+	protected $config;
 
 	/**
 	 * AbstractGigyaAccountEnricher constructor.
