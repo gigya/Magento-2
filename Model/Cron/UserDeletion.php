@@ -383,7 +383,7 @@ class UserDeletion
 				/* Params for email */
 				$job_status = 'failed';
 				$email_to = $this->email_failure;
-				$email_body = 'Job failed. No users were deleted. It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.';
+				$email_body = 'Job failed. No users were deleted. It is possible that no new users were processed, or that some users could not be deleted. Please consult the Gigya log for more info.';
 
 				$this->logger->warning('Gigya user deletion job from ' . $start_time . ' failed (no users were deleted). It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.');
 			} else {
