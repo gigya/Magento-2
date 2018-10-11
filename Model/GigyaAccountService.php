@@ -94,18 +94,24 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         $this->logger = $logger;
     }
 
-    public static function __init()
-    {
-        if (is_null(self::$gigyaProfileAttributes)) {
+	public static function __init() {
+		if (is_null(self::$gigyaProfileAttributes))
+		{
+			self::$gigyaProfileAttributes = array();
 
-            $gigyaProfileMethods = get_class_methods(GigyaProfile::class);
-            foreach ($gigyaProfileMethods as $gigyaProfileMethod) {
-                if (strpos($gigyaProfileMethod, 'get') === 0) {
-                    self::$gigyaProfileAttributes[] = lcfirst(substr($gigyaProfileMethod, 3));
-                }
-            }
-        }
-    }
+			$gigyaProfileMethods = get_class_methods(GigyaProfile::class);
+			if (!empty($gigyaProfileMethod))
+			{
+				foreach ($gigyaProfileMethods as $gigyaProfileMethod)
+				{
+					if (strpos($gigyaProfileMethod, 'get') === 0)
+					{
+						self::$gigyaProfileAttributes[] = lcfirst(substr($gigyaProfileMethod, 3));
+					}
+				}
+			}
+		}
+	}
 
     /**
      * Facility to build the profile data correctly formatted for the service call.
