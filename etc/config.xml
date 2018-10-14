@@ -1,17 +1,20 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <gigya_session>
+		<gigya_section>
+			<general>
+				<enable_gigya>1</enable_gigya>
+			</general>
+			<synchro>
+				<gigya_update_max_retry>5</gigya_update_max_retry>
+			</synchro>
+		</gigya_section>
+		<gigya_session>
             <session>
                 <mode>0</mode>
                 <expiration>1800</expiration>
             </session>
         </gigya_session>
-        <gigya_section>
-            <synchro>
-                <gigya_update_max_retry>5</gigya_update_max_retry>
-            </synchro>
-        </gigya_section>
         <gigya_screensets>
             <login_registration>
                 <desktop_screenset_id>Default-RegistrationLogin</desktop_screenset_id>
@@ -20,5 +23,13 @@
                 <desktop_screenset_id>Default-ProfileUpdate</desktop_screenset_id>
             </profile_update>
         </gigya_screensets>
+        <gigya_delete>
+            <deletion_general>
+                <deletion_job_frequency>* 0 * * *</deletion_job_frequency>
+            </deletion_general>
+            <deletion_aws_details>
+                <deletion_aws_secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+            </deletion_aws_details>
+        </gigya_delete>
     </default>
 </config>

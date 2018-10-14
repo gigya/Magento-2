@@ -1,8 +1,9 @@
 <?php
 /**
  * Validate that admin API settings are correct.
- * on Gigya admin page save, take the submitted API, DC, Aapp key, and apps secret and create Gigya REST request
+ * on Gigya admin page save, take the submitted API, DC, App key, and app secret and create Gigya REST request
  */
+
 namespace Gigya\GigyaIM\Model\Config;
 
 /**
@@ -10,9 +11,8 @@ namespace Gigya\GigyaIM\Model\Config;
  *
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class ValidateApikey extends \Magento\Framework\App\Config\Value
+class ValidateApiKey extends \Magento\Framework\App\Config\Value
 {
-
     /**
      * @var \Magento\Customer\Model\ResourceModel\Customer
      */
@@ -24,19 +24,20 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
     /** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
     protected $gigyaMageHelper;
 
-    /**
-     * Constructor
-     *
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $config
-     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Customer\Model\ResourceModel\Customer $customerResource
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param array $data
-     */
+	/**
+	 * Constructor
+	 *
+	 * @param \Magento\Framework\Model\Context $context
+	 * @param \Magento\Framework\Registry $registry
+	 * @param \Magento\Framework\App\Config\ScopeConfigInterface $config
+	 * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
+	 * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+	 * @param \Magento\Customer\Model\ResourceModel\Customer $customerResource
+	 * @param \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper
+	 * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
+	 * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+	 * @param array $data
+	 */
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -55,22 +56,24 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
     }
 
-    /**
-     * Check for email duplicates before saving customers sharing options
-     *
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
+	/**
+	 * Check for email duplicates before saving customers sharing options
+	 *
+	 * @return $this
+	 *
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 */
     public function beforeSave()
     {
-        // get submitted settings
+        /* Get submitted settings */
         $api_key = $this->_data['fieldset_data']['api_key'];
         $domain = $this->_data['fieldset_data']['domain'];
         $app_key = $this->_data['fieldset_data']['app_key'];
         $key_file_location = $this->_data['fieldset_data']['key_file_location'];
         // *** cancel key save type option in admin
 
-        // create object manager and reset the settings to newly submitted
+        /* Create object manager and reset the settings to newly submitted */
         $this->gigyaMageHelper->setApiKey($api_key);
         $this->gigyaMageHelper->setApiDomain($domain);
         $this->gigyaMageHelper->setAppKey($app_key);
@@ -78,7 +81,7 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
         $this->gigyaMageHelper->setAppSecret();
         $gigyaApiHelper = $this->gigyaMageHelper->getGigyaApiHelper();
 
-        //make the call to gigya REST API
+        /* Make the call to Gigya REST API */
         $param = array("filter" => 'full');
         try {
             $gigyaApiHelper->sendApiCall("accounts.getSchema", $param);
@@ -87,7 +90,6 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
                 "Error while trying to save gigya settings. " . $e->getErrorCode() .
                 " " .$e->getMessage() . " " . $e->getCallId()
             );
-            //@codingStandardsIgnoreStart
             throw new \Magento\Framework\Exception\LocalizedException(
                 __(
                     "Could not save settings. Gigya API test failed with error message: {$e->getMessage()} ."
@@ -97,5 +99,4 @@ class ValidateApikey extends \Magento\Framework\App\Config\Value
 
         return $this;
     }
-
 }

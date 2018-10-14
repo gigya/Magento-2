@@ -43,6 +43,13 @@ class SessionManager
      */
     protected $allowCookieLifetime = true;
 
+	/**
+	 * @param \Magento\Framework\Session\SessionManager $subject
+	 * @param \Closure                                  $proceed
+	 *
+	 * @return mixed
+	 * @throws \Magento\Framework\Exception\SessionException
+	 */
     public function aroundStart(\Magento\Framework\Session\SessionManager $subject, \Closure $proceed)
     {
         try {

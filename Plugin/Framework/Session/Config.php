@@ -43,7 +43,8 @@ class Config
     /**
      * @param \Magento\Framework\Session\Config $subject
      * @param $cookieLifetime
-     * @param null $default
+     * @param $default
+	 *
      * @return array
      */
     public function beforeSetCookieLifetime(\Magento\Framework\Session\Config $subject, $cookieLifetime, $default = null)
@@ -63,7 +64,7 @@ class Config
                 if (is_object($loginData) && isset($loginData->expiresIn)) {
                     $cookieLifetime = intval($loginData->expiresIn);
 
-                    // Adjusting the diffence of time between request and actual processing
+                    // Adjusting the difference of time between request and actual processing
                     $requestTime = $this->getRequest()->getServer('REQUEST_TIME');
 
                     if (!empty($requestTime)) {

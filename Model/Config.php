@@ -48,12 +48,17 @@ class Config
         $this->scopeConfig = $scopeConfig;
     }
 
+    public function isGigyaEnabled()
+	{
+		return $this->scopeConfig->getValue(self::XML_PATH_GENERAL . '/enable_gigya', 'website');
+	}
+
     /**
      * @return int
      */
     public function getSessionMode()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_SESSION_MODE);
+        return $this->scopeConfig->getValue(self::XML_PATH_SESSION_MODE, 'website');
     }
 
     /**
@@ -61,7 +66,7 @@ class Config
      */
     public function getSessionExpiration()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_SESSION_EXPIRATION);
+        return $this->scopeConfig->getValue(self::XML_PATH_SESSION_EXPIRATION, 'website');
     }
 
     /**
@@ -69,7 +74,7 @@ class Config
      */
     public function getMappingFilePath()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_MAPPING_FILE_PATH);
+        return $this->scopeConfig->getValue(self::XML_PATH_MAPPING_FILE_PATH, 'website');
     }
 
     /**
@@ -77,7 +82,7 @@ class Config
      */
     public function getGigyaGeneralConfig()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_GENERAL);
+        return $this->scopeConfig->getValue(self::XML_PATH_GENERAL, 'website');
     }
 
     /**
@@ -85,7 +90,7 @@ class Config
      */
     public function getMagentoCookiePath()
     {
-        return $this->scopeConfig->getValue(\Magento\Framework\Session\Config::XML_PATH_COOKIE_PATH);
+        return $this->scopeConfig->getValue(\Magento\Framework\Session\Config::XML_PATH_COOKIE_PATH, 'website');
     }
 
     /**
@@ -93,7 +98,7 @@ class Config
      */
     public function getLoginDesktopScreensetId()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_DESKTOP_SCREENSET_ID);
+        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_DESKTOP_SCREENSET_ID, 'website');
     }
 
     /**
@@ -101,7 +106,7 @@ class Config
      */
     public function getLoginMobileScreensetId()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_MOBILE_SCREENSET_ID);
+        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_MOBILE_SCREENSET_ID, 'website');
     }
 
     /**
@@ -109,7 +114,7 @@ class Config
      */
     public function getProfileDesktopScreensetId()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_DESKTOP_SCREENSET_ID);
+        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_DESKTOP_SCREENSET_ID, 'website');
     }
 
     /**
@@ -117,6 +122,6 @@ class Config
      */
     public function getProfileMobileScreensetId()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID);
+        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID, 'website');
     }
 }

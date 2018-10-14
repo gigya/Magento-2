@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
-use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
@@ -31,7 +31,10 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
     /** @var RetryGigyaSyncHelper */
     protected $retryGigyaSyncHelper;
 
-    /**
+    /** @var GigyaLogger */
+	protected $logger;
+
+	/**
      * @inheritdoc
      *
      * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
@@ -62,7 +65,8 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        RetryGigyaSyncHelper $retryGigyaSyncHelper
+        RetryGigyaSyncHelper $retryGigyaSyncHelper,
+		GigyaLogger $logger
     ) {
         parent::__construct(
             $context,
@@ -93,6 +97,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
         );
 
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
+        $this->logger = $logger;
     }
 
     /**
@@ -115,10 +120,6 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
 	 * . when it's saved we have to tell if a retry is scheduled due to an error on saving (could be a Gigya service call failure as well as a Magento update failure)
 	 *
 	 * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect|\Magento\Framework\Controller\Result\Redirect
-	 *
-	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
-	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     public function execute()
     {
@@ -126,7 +127,6 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             $result = parent::execute();
 
             if ($this->customerId) {
-
                 $retryG2CMSCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(RetryGigyaSyncHelper::ORIGIN_GIGYA, $this->customerId);
                 $retryCMS2GCount = $this->retryGigyaSyncHelper->getCurrentRetryCount(RetryGigyaSyncHelper::ORIGIN_CMS, $this->customerId);
 
@@ -156,7 +156,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             }
 
             return $result;
-        } catch (GigyaFieldMappingException $e) {
+        } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath('customer/*/index');

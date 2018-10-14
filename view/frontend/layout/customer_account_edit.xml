@@ -8,9 +8,8 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceBlock name="customer_edit" remove="true" />
         <referenceContainer name="content">
-            <block class="Gigya\GigyaIM\Block\Account\Dashboard\GigyaInfo" name="gigya_customer_account_dashboard_info" as="gigya_info" template="Gigya_GigyaIM::account/dashboard/gigya_info.phtml" cacheable="false"/>
+            <block class="Gigya\GigyaIM\Block\Account\Dashboard\GigyaInfo" name="gigya_customer_account_dashboard_info" as="gigya_info" template="Gigya_GigyaIM::account/dashboard/gigya_info.phtml" cacheable="false"  ifconfig="gigya_section/general/enable_gigya" />
         </referenceContainer>
     </body>
 </page>

@@ -121,13 +121,16 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *
      * In the context of the Gigya data update retry we retrieve the Magento customer directly from its id that shall have been set on $gigyaAccount->getCustomerEntityId()
      * And the logging email is by definition the email set on this very Customer entity.
-     *
      */
     public function getMagentoCustomerAndLoggingEmail($gigyaAccount)
     {
+    	if (empty($gigyaAccount))
+    		return null;
+
         $magentoCustomer = null;
         $customerEntityId = $gigyaAccount->getCustomerEntityId();
         $excludeSyncG2Cms = true;
+
         if (!$this->isCustomerIdExcludedFromSync($customerEntityId, GigyaSyncHelper::DIR_G2CMS)
         ) {
             // We prevent synchronizing the M2 customer data from the Gigya account : that should be done only on explicit customer save,
@@ -222,7 +225,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * @param $origin string self::ORIGIN_GIGYA or self::ORIGIN_CMS or null (in that case no check is made on the entry origin)
      * @param $uid string Default is null. If not null will get the unique entry scheduled for this Gigya uid.
      * @param $getGigyaData bool Default is false. If not false will include the Gigya data stored on this entry.
-     * @throws RetryGigyaException
+	 *
      * @return array [
      *                 'customer_entity_id' : int,
      *                 'customer_entity_email' : string,
@@ -230,6 +233,8 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *                 'retry_count' : int
      *                 (if $getGigyaData == true) 'data' : json string
      *               ]
+	 *
+     * @throws RetryGigyaException
      */
     public function getRetryEntries($origin, $uid = null, $getGigyaData = false)
     {

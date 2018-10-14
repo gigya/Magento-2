@@ -39,6 +39,8 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     /** @var fieldMapping\Conf|bool  */
     protected $confMapping = false;
 
+    protected $_logger;
+
     /**
      * MagentoCustomerFieldsUpdater constructor.
      *
@@ -147,6 +149,9 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     {
     }
 
+	/**
+	 * @throws \Exception
+	 */
     public function retrieveFieldMappings()
     {
         $conf = $this->getMappingFromCache();

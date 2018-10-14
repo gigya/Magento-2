@@ -3,7 +3,10 @@
     <group id="default">
         <job name="gigya_retry_cms2g" instance="Gigya\GigyaIM\Model\Cron\RetryGigyaUpdate" method="execute">
             <!-- Retry failed Gigya update each 15 minutes. Retries are scheduled on failure when trying to update a customer detail page from backend -->
-            <schedule>* * * * *</schedule>
+            <schedule>*/5 * * * *</schedule>
+        </job>
+        <job name="gigya_user_deletion" instance="Gigya\GigyaIM\Model\Cron\UserDeletion" method="execute">
+            <config_path>gigya_delete/deletion_general/deletion_job_frequency</config_path>
         </job>
     </group>
 </config>
