@@ -2,7 +2,7 @@
   "name": "gigya/magento2-im",
   "description": "Gigya Identity Management for Magento 2",
   "type": "magento2-module",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
@@ -27,20 +27,15 @@
   ],
   "repositories": [
     {
-      "type": "vcs",
-      "url": "https://github.com/gigya/php_cms_kit.git"
-    },
-    {
       "type": "composer",
       "url": "https://repo.magento.com/"
     }
   ],
   "require": {
-    "php": "~7.0.0|~7.1.0",
+    "php": "~7.0.0|~7.1.0|~7.2.0",
     "magento/module-customer": "*",
     "magento/module-checkout": "*",
-    "aws/aws-sdk-php": "~3.0",
-    "gigya/cms-starter-kit": "1.2.*"
+    "aws/aws-sdk-php": "~3.0"
   },
   "require-dev": {
     "phpunit/phpunit": "~5.0",
