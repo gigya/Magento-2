@@ -1,0 +1,40 @@
+[
+  {
+    "cmsName": "gender",
+    "cmsType": "string",
+    "gigyaName": "profile.gender",
+    "gigyaType": "string",
+    "direction": "both"
+  },
+  {
+    "cmsName": "custom1",
+    "cmsType": "string",
+    "gigyaName": "data.test",
+    "gigyaType": "string",
+    "direction": "g2cms"
+  },
+  {
+    "cmsName": "custom2",
+    "cmsType": "string",
+    "gigyaName": "data.test1",
+    "gigyaType": "string",
+    "direction": "cms2g"
+  },
+  {
+    "cmsName": "custom3",
+    "cmsType": "string",
+    "gigyaName": "data.test.deep.deep.deep",
+    "gigyaType": "string",
+    "direction": "cms2g"
+  },
+  {
+    "cmsName": "someField",
+    "cmsType": "string",
+    "gigyaName": "ds.table1.test",
+    "gigyaType": "string",
+    "direction": "g2cms",
+    "custom": {
+      "oid": "segments"
+    }
+  }
+]

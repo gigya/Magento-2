@@ -4,9 +4,9 @@
  */
 namespace Gigya\GigyaIM\Helper;
 
-use Gigya\CmsStarterKit\sdk\GSException;
-use Gigya\CmsStarterKit\sdk\SigUtils;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException;
+use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\SigUtils;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Model\Settings;
 use Magento\Customer\Api\Data\CustomerInterface;
@@ -16,7 +16,7 @@ use Gigya\GigyaIM\Model\SettingsFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Gigya\GigyaIM\Logger\Logger;
-use Gigya\CmsStarterKit\GigyaApiHelper;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
@@ -288,10 +288,10 @@ class GigyaMageHelper extends AbstractHelper
 	 * @param $UIDSignature
 	 * @param $signatureTimestamp
 	 *
-	 * @return bool|\Gigya\CmsStarterKit\user\GigyaUser
+	 * @return bool|\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
 	 *
 	 * @throws GSException
-	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
 	 */
     public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
     {
@@ -462,7 +462,7 @@ class GigyaMageHelper extends AbstractHelper
 	 * @return void
 	 *
 	 * @throws GSException
-	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
 	 */
     public function updateGigyaAccount($uid, $data = array())
     {
@@ -477,7 +477,7 @@ class GigyaMageHelper extends AbstractHelper
 	 * @return false|GigyaUser
 	 *
 	 * @throws GSException If the Gigya service returned an error.
-	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
 	 */
     public function getGigyaAccountDataFromLoginData($loginData)
     {
@@ -515,7 +515,7 @@ class GigyaMageHelper extends AbstractHelper
 	 * @return GigyaUser
 	 *
 	 * @throws GSException
-	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
 	 */
     public function getGigyaAccountDataFromUid($uid)
     {
