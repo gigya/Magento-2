@@ -77,7 +77,15 @@ class ValidateApiKey extends \Magento\Framework\App\Config\Value
         $this->gigyaMageHelper->setApiKey($api_key);
         $this->gigyaMageHelper->setApiDomain($domain);
         $this->gigyaMageHelper->setAppKey($app_key);
-        $this->gigyaMageHelper->setKeyFileLocation($key_file_location);
+        if (!$this->gigyaMageHelper->setKeyFileLocation($key_file_location))
+		{
+			$this->gigyaMageHelper->gigyaLog("Error while trying to save gigya settings. Invalid or incorrect key file path provided. Path given: " . $key_file_location);
+			throw new \Magento\Framework\Exception\LocalizedException(
+				__(
+					"Could not save settings. Invalid or incorrect key file path provided."
+				)
+			);
+		}
         $this->gigyaMageHelper->setAppSecret();
         $gigyaApiHelper = $this->gigyaMageHelper->getGigyaApiHelper();
 
