@@ -3,7 +3,7 @@
     <default>
 		<gigya_section>
 			<general>
-				<enable_gigya>1</enable_gigya>
+				<enable_gigya>0</enable_gigya>
 			</general>
 			<synchro>
 				<gigya_update_max_retry>5</gigya_update_max_retry>
