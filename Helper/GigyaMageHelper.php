@@ -161,11 +161,18 @@ class GigyaMageHelper extends AbstractHelper
 
     /**
      * @param mixed $keyFileLocation
+	 *
+	 * @return boolean
      */
     public function setKeyFileLocation($keyFileLocation)
     {
         $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
             . DIRECTORY_SEPARATOR . $keyFileLocation;
+
+        if (!file_exists($this->keyFileLocation))
+        	return false;
+
+        return true;
     }
 
     /**
@@ -202,13 +209,18 @@ class GigyaMageHelper extends AbstractHelper
     private function setGigyaSettings()
     {
         $settings = $this->configModel->getGigyaGeneralConfig();
-        $this->apiKey = $settings['api_key'];
+
+        /* Initializes an empty settings array if the settings have not been set */
+        $available_settings = array('api_key', 'domain', 'app_key', 'debug_mode', 'key_file_location', 'enable_gigya');
+        $settings_init = array_fill_keys($available_settings, '');
+        $settings = array_merge($settings_init, $settings);
+
+    	$this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
         $this->debug = $settings['debug_mode'];
         $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
             . DIRECTORY_SEPARATOR . $settings['key_file_location'];
-        $this->debug = $settings['debug_mode'];
     }
 
 	/**
@@ -597,7 +609,6 @@ class GigyaMageHelper extends AbstractHelper
 
 		return $ret;
 	}
-
 
     protected function signBaseString($key, $unsignedExpString) {
         $unsignedExpString = utf8_encode($unsignedExpString);
