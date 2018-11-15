@@ -65,6 +65,13 @@ class Extend
         $this->logger = $logger;
     }
 
+	/**
+	 * @param bool $checkCookieValidity
+	 *
+	 * @throws \Magento\Framework\Exception\InputException
+	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
+	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+	 */
 	public function extendSession($checkCookieValidity = true)
 	{
 		$currentTime = $_SERVER['REQUEST_TIME'];
