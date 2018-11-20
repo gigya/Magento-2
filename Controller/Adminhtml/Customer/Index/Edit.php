@@ -4,7 +4,7 @@ namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
-use Gigya\GigyaIM\Logger as GigyaLogger;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -94,8 +94,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             $resultLayoutFactory,
             $resultPageFactory,
             $resultForwardFactory,
-            $resultJsonFactory,
-			$logger
+            $resultJsonFactory
         );
 
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
