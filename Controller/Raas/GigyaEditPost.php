@@ -18,6 +18,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\CustomerExtractor;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
@@ -47,16 +48,17 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
     /** @var GigyaConfig */
     protected $config;
 
-    /**
-     * @param Context $context
-     * @param Session $customerSession
-     * @param AccountManagementInterface $customerAccountManagement
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param Validator $formKeyValidator
-     * @param CustomerExtractor $customerExtractor
-     * @param GigyaConfig $config
-     */
+	/**
+	 * @param Context                     $context
+	 * @param Session                     $customerSession
+	 * @param AccountManagementInterface  $customerAccountManagement
+	 * @param CustomerRepositoryInterface $customerRepository
+	 * @param GigyaSyncHelper             $gigyaSyncHelper
+	 * @param Validator                   $formKeyValidator
+	 * @param CustomerExtractor           $customerExtractor
+	 * @param GigyaConfig                 $config
+	 * @param GigyaMageHelper             $gigyaMageHelper
+	 */
     public function __construct(
         Context $context,
         Session $customerSession,
