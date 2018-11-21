@@ -8,6 +8,7 @@ use Gigya\GigyaIM\Model\FieldMapping\GigyaFromMagento;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
 /**
  * BackendGigyaAccountEnricher
@@ -27,11 +28,12 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
 	 * BackendGigyaAccountEnricher constructor.
 	 *
 	 * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-	 * @param GigyaSyncHelper $gigyaSyncHelper
-	 * @param EventManager $eventDispatcher
-	 * @param GigyaLogger $logger
-	 * @param MessageManager $messageManager
-	 * @param GigyaFromMagento $gigyaFromMagento
+	 * @param GigyaSyncHelper                 $gigyaSyncHelper
+	 * @param EventManager                    $eventDispatcher
+	 * @param GigyaLogger                     $logger
+	 * @param MessageManager                  $messageManager
+	 * @param GigyaFromMagento                $gigyaFromMagento
+	 * @param GigyaConfig                     $config
 	 */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
@@ -39,9 +41,10 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
         EventManager $eventDispatcher,
         GigyaLogger $logger,
         MessageManager $messageManager,
-        GigyaFromMagento $gigyaFromMagento
+        GigyaFromMagento $gigyaFromMagento,
+		GigyaConfig $config
     ) {
-        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger, $gigyaFromMagento);
+        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger, $gigyaFromMagento, $config);
 
         $this->messageManager = $messageManager;
     }
