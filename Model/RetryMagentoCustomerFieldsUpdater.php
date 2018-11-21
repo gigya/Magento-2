@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Model;
 
-use Gigya\CmsStarterKit\fieldMapping;
+use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
 /**
  * RetryMagentoCustomerFieldsUpdater

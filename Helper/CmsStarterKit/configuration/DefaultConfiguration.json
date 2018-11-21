@@ -1,0 +1,10 @@
+{
+  "apiKey": "",
+  "appKey": "",
+  "appSecret": "",
+  "dataCenter": "",
+  "globalParameters": {},
+  "enableRaas": true,
+  "redirectURL": "",
+  "mappingFields": {}
+}

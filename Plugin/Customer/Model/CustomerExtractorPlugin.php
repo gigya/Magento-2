@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Plugin\Customer\Model;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;

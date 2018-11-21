@@ -2,10 +2,10 @@
 
 namespace Gigya\GigyaIM\Model;
 
-use Gigya\CmsStarterKit\sdk\GSApiException;
-use Gigya\CmsStarterKit\user\GigyaProfile;
-use Gigya\CmsStarterKit\user\GigyaUser;
-use Gigya\CmsStarterKit\user\GigyaSubscriptionContainer;
+use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaSubscriptionContainer;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use \Magento\Framework\Event\ManagerInterface as EventManager;
@@ -226,7 +226,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 	 *                            self::EVENT_UPDATE_GIGYA_SUCCESS
 	 *                            or self::EVENT_UPDATE_GIGYA_FAILURE
 	 *
-	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
 	 */
     public function update($gigyaAccount, $dispatchEvent = true)
     {
@@ -304,7 +304,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 	 * @return GigyaUser|mixed
 	 *
 	 * @throws GSApiException
-	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
 	 */
     function get($uid)
     {
@@ -323,7 +323,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 	 * @param string $uid
 	 *
 	 * @return GigyaUser|mixed|null
-	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
 	 */
     function rollback($uid)
     {

@@ -2,9 +2,9 @@
 
 namespace Gigya\GigyaIM\Model;
 
-use Gigya\CmsStarterKit\fieldMapping;
-use Gigya\CmsStarterKit\user\GigyaSubscription;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaSubscription;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
