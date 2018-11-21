@@ -2,9 +2,9 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\CmsStarterKit\sdk\GSApiException;
-use Gigya\CmsStarterKit\user\GigyaProfile;
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;

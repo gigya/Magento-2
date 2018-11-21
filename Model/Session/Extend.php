@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\Session;
 
-use Gigya\CmsStarterKit\sdk\SigUtils;
+use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\SigUtils;
 use Gigya\GigyaIM\Model\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ScopeInterface;
@@ -74,11 +74,8 @@ class Extend
 	 */
 	public function extendSession($checkCookieValidity = true)
 	{
-		$currentTime = $_SERVER['REQUEST_TIME'];
 		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED) {
 			if ((!$this->gigyaMageHelper->isSessionExpirationCookieExpired()) || (!$checkCookieValidity)) {
-				$apiKey = $this->gigyaMageHelper->getApiKey();
-
 				$expiration = $this->configModel->getSessionExpiration();
 
 				foreach (['PHPSESSID', 'store', 'private_content_version'] as $cookieName) {

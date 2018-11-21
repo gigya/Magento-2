@@ -2,9 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
-use Gigya\CmsStarterKit\user\GigyaProfile;
-use Gigya\CmsStarterKit\user\GigyaUser;
-use Gigya\CmsStarterKit\user\GigyaUserFactory;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
