@@ -4,19 +4,19 @@
  */
 namespace Gigya\GigyaIM\Helper;
 
+use Gigya\CmsStarterKit\GigyaApiHelper;
 use Gigya\CmsStarterKit\sdk\GSException;
 use Gigya\CmsStarterKit\sdk\SigUtils;
 use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Logger\Logger;
 use Gigya\GigyaIM\Model\Settings;
-use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Customer\Model\Session;
 use Gigya\GigyaIM\Model\Config;
 use Gigya\GigyaIM\Model\SettingsFactory;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\Session;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Gigya\GigyaIM\Logger\Logger;
-use Gigya\CmsStarterKit\GigyaApiHelper;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
@@ -96,7 +96,7 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * decrypt application secret and set appSecret value
+     * Decrypt application secret and set appSecret value
      */
     public function setAppSecret()
     {
@@ -184,7 +184,7 @@ class GigyaMageHelper extends AbstractHelper
      */
     public function getMaxRetryCountForGigyaUpdate()
     {
-        return (int)$this->scopeConfig->getValue('gigya_section/synchro/gigya_update_max_retry');
+        return (int)$this->scopeConfig->getValue('gigya_advanced/synchro/gigya_update_max_retry');
     }
 
     /**
@@ -211,14 +211,13 @@ class GigyaMageHelper extends AbstractHelper
         $settings = $this->configModel->getGigyaGeneralConfig();
 
         /* Initializes an empty settings array if the settings have not been set */
-        $available_settings = array('api_key', 'domain', 'app_key', 'debug_mode', 'key_file_location', 'enable_gigya');
+        $available_settings = array('api_key', 'domain', 'app_key', 'key_file_location', 'enable_gigya');
         $settings_init = array_fill_keys($available_settings, '');
         $settings = array_merge($settings_init, $settings);
 
     	$this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->debug = $settings['debug_mode'];
         $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
             . DIRECTORY_SEPARATOR . $settings['key_file_location'];
     }
