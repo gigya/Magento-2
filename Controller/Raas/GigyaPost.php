@@ -3,6 +3,7 @@
 namespace Gigya\GigyaIM\Controller\Raas;
 
 // Parent class constructor uses
+use Magento\Customer\Controller\Account\LoginPost;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session;
@@ -32,9 +33,6 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\DataObject;
 use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
 use Magento\Framework\Stdlib\Cookie\FailureToSendException;
-use Magento\Customer\Api\Data\RegionInterfaceFactory;
-use Magento\Customer\Api\Data\AddressInterfaceFactory;
-use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\EmailNotConfirmedException;
@@ -42,7 +40,7 @@ use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\Forward;
 
-class GigyaPost extends \Magento\Customer\Controller\Account\LoginPost
+class GigyaPost extends LoginPost
 {
     /**
      * @var AccountManagementInterface
@@ -215,8 +213,6 @@ class GigyaPost extends \Magento\Customer\Controller\Account\LoginPost
         $this->cookiesToDelete = [];
         $this->messageStorage = [];
 
-        // Already sent to parent constructor, but AbstractLogin uses different parameter name
-        $this->customerAccountManagement = $this->customerAccountManagement;
         $this->urlModel = $urlFactory->create();
         $this->storeManager = $storeManager;
 
@@ -227,13 +223,21 @@ class GigyaPost extends \Magento\Customer\Controller\Account\LoginPost
         $this->urlModel = $urlModel;
     }
 
-    /**
-     * Gigya logic:
-     * 1. Validate gigya user
-     * 2. Get Gigya account info
-     * 3. Check if account exists in Magento
-     * 4. Login /create in magento
-     */
+	/**
+	 * Gigya logic:
+	 * 1. Validate gigya user
+	 * 2. Get Gigya account info
+	 * 3. Check if account exists in Magento
+	 * 4. Login /create in magento
+	 *
+	 * @return Forward|\Magento\Framework\Controller\Result\Json|Redirect
+	 *
+	 * @throws CookieSizeLimitReachedException
+	 * @throws FailureToSendException
+	 * @throws InputException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
+	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 */
     public function execute()
     {
         if ($this->config->isGigyaEnabled() == false) {
