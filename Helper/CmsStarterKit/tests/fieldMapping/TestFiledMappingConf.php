@@ -8,7 +8,9 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
-class TestFiledMappingConf extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class TestFiledMappingConf extends TestCase
 {
 	/**
 	 * @var Conf

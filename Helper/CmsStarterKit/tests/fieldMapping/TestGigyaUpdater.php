@@ -9,8 +9,9 @@
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
+use PHPUnit\Framework\TestCase;
 
-class TestGigyaUpdater extends \PHPUnit_Framework_TestCase
+class TestGigyaUpdater extends TestCase
 {
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject $helper

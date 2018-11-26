@@ -4,8 +4,9 @@ namespace Gigya\GigyaIM\Helper\CmsStarterKit\ds;
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
 use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSResponse;
+use PHPUnit\Framework\TestCase;
 
-class TestDsQueryObject extends \PHPUnit_Framework_TestCase
+class TestDsQueryObject extends TestCase
 {
 
     /**

@@ -2,8 +2,9 @@
 include_once '../GigyaApiHelper.php';
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
+use PHPUnit\Framework\TestCase;
 
-class TestEncryption extends \PHPUnit_Framework_TestCase
+class TestEncryption extends TestCase
 {
 	private $key;
 
