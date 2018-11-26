@@ -10,12 +10,6 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSObject;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUserFactory;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Created by PhpStorm.
- * User: Yaniv Aran-Shamir
- * Date: 4/6/16
- * Time: 4:38 PM
- */
 class GigyaUserTest extends TestCase
 {
 	public function testCreateGigyaUserFromJson() {
