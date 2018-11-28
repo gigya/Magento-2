@@ -40,6 +40,9 @@ use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\Forward;
 
+/* CMS Starter Kit */
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
+
 class GigyaPost extends LoginPost
 {
     /**
@@ -235,8 +238,9 @@ class GigyaPost extends LoginPost
 	 * @throws CookieSizeLimitReachedException
 	 * @throws FailureToSendException
 	 * @throws InputException
-	 * @throws \Gigya\CmsStarterKit\sdk\GSApiException
-	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     public function execute()
     {
@@ -262,10 +266,10 @@ class GigyaPost extends LoginPost
     }
 
     /**
-     * @param \Gigya\CmsStarterKit\user\GigyaUser $valid_gigya_user
+     * @param \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user
      * @return DataObject
      */
-    protected function doLogin(\Gigya\CmsStarterKit\user\GigyaUser $valid_gigya_user)
+    protected function doLogin(GigyaUser $valid_gigya_user)
     {
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
@@ -315,11 +319,13 @@ class GigyaPost extends LoginPost
         }
     }
 
-    /**
-     * Retrieve success message
-     *
-     * @return string
-     */
+	/**
+	 * Retrieve success message
+	 *
+	 * @return string
+	 *
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
+	 */
     protected function getSuccessMessage()
     {
         if ($this->addressHelper->isVatValidationEnabled()) {
@@ -596,13 +602,14 @@ class GigyaPost extends LoginPost
         return $this;
     }
 
-    /**
-     * @return $this
-     *
-     * @throws CookieSizeLimitReachedException
-     * @throws FailureToSendException
-     * @throws InputException
-     */
+	/**
+	 * @return $this
+	 *
+	 * @throws CookieSizeLimitReachedException
+	 * @throws FailureToSendException
+	 * @throws InputException
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
+	 */
     protected function applyCookies()
     {
         $metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
