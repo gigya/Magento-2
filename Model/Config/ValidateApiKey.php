@@ -66,6 +66,10 @@ class ValidateApiKey extends \Magento\Framework\App\Config\Value
 	 */
     public function beforeSave()
     {
+        if (isset($this->_data['fieldset_data']) == false) {
+            return $this;
+        }
+
         /* Get submitted settings */
         $api_key = $this->_data['fieldset_data']['api_key'];
         $domain = $this->_data['fieldset_data']['domain'];

@@ -52,7 +52,7 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
             });
         };
 
-		var retryCounter = $.cookie("<?php echo \Gigya\GigyaIM\Controller\Raas\AbstractLogin::RETRY_COOKIE_NAME ?>");
+		var retryCounter = $.cookie("gig_login_retry");
 		if (retryCounter && parseInt(retryCounter) >= 3) {
 			enable_login = false;
 			loadGigyaScript(false);
