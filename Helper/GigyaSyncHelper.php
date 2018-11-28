@@ -103,18 +103,21 @@ class GigyaSyncHelper extends AbstractHelper
         $this->shareConfig = $shareConfig;
     }
 
-    /**
-     * Given a GigyaUser built with the data returned by the Gigya's RaaS service we identify the Magento customer and the eligible email for logging.
-     *
-     * @param GigyaUser $gigyaAccount The data furnished by the Gigya RaaS service.
-     * @return array [
-     *                  'customer' => CustomerInterface If not null it's the existing Magento customer account that shall be used for Magento logging. Otherwise it means that a Magento customer account should be created with the 'logging_email'.
-     *                  'logging_email' => string The email to set on the Magento customer account.
-     *               ]
-     *
-     * @throws GSException If no Magento customer account could be used nor created with this Gigya UID and provided LoginIDs emails : user can not be logged in.
-     *                     Reason can be for instance : all emails attached with this Gigya account are already set on Magento accounts on this website but for other Gigya UIDs.
-     */
+	/**
+	 * Given a GigyaUser built with the data returned by the Gigya's RaaS service we identify the Magento customer and the eligible email for logging.
+	 *
+	 * @param GigyaUser $gigyaAccount The data furnished by the Gigya RaaS service.
+	 *
+	 * @return array [
+	 *                  'customer' => CustomerInterface If not null it's the existing Magento customer account that shall be used for Magento logging. Otherwise it means that a Magento customer account should be created with the 'logging_email'.
+	 *                  'logging_email' => string The email to set on the Magento customer account.
+	 *               ]
+	 *
+	 * @throws GSException If no Magento customer account could be used nor created with this Gigya UID and provided LoginIDs emails : user can not be logged in.
+	 *                     Reason can be for instance : all emails attached with this Gigya account are already set on Magento accounts on this website but for other Gigya UIDs.
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
+	 */
     public function getMagentoCustomerAndLoggingEmail($gigyaAccount)
     {
         /** @var CustomerInterface $magentoLoggingCustomer */

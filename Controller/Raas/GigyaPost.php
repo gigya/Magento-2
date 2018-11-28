@@ -448,7 +448,7 @@ class GigyaPost extends LoginPost
             // @codingStandardsIgnoreEnd
             $this->addError($message);
         } catch (InputException $e) {
-            $this->incrementLoginRetryCounter();;
+            $this->incrementLoginRetryCounter();
             $this->addError($this->escaper->escapeHtml($e->getMessage()));
             foreach ($e->getErrors() as $error) {
                 $this->addError($this->escaper->escapeHtml($error->getMessage()));
