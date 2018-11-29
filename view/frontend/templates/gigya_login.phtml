@@ -13,20 +13,16 @@
  **/
 
 /** @var \Gigya\GigyaIM\Block\Form\GigyaLogin $block */
-?>
 
-<?php
-// check display type from xml. set container div class and login div id to match
-$display = $block->getData('display'); // popup /embed
-$id = 'gigya-login-popup';
-if ($display === 'embed') {
-    $id = 'gigya-login-embed';
-}
+$id = $block->getData('display') == 'embed' ? 'gigya-login-embed' : 'gigya-login-popup';
+
 ?>
 <div class="block block-customer-login">
     <div class="block-content" aria-labelledby="block-customer-login-heading">
-        <!-- Gigya login screen placeholder - id can be dynamic: -->
-        <div id="<?php echo $id; ?>" class="gigya-login gigya-loader-location"></div>
+        <?php if ($id == 'gigya-login-embed'): ?>
+            <!-- Gigya login screen placeholder - id can be dynamic: -->
+            <div id="<?php echo $id; ?>" class="gigya-login gigya-loader-location"></div>
+        <?php endif; ?>
         <?php echo $block->getBlockHtml('formkey'); ?>
         <script>
             // add Raas login screens function to Gigya init.

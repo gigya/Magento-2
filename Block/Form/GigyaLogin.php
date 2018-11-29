@@ -66,12 +66,12 @@ class GigyaLogin extends Login
 	 * @throws LocalizedException
 	 */
     public function _toHtml() {
-		if ($this->_scopeConfig->getValue('gigya_section/general/enable_gigya', 'website'))
-		{
+        if ($this->configModel->isGigyaEnabled()) {
 			$this->getLayout()->unsetElement('customer.login.container');
 			$this->getLayout()->unsetElement('customer_form_register');
 			$this->getLayout()->unsetElement('customer_edit');
 		}
+
 		return parent::_toHtml();
 	}
 }

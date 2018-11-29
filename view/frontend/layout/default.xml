@@ -17,8 +17,5 @@
                 </block>
             </container>
         </referenceContainer>
-        <referenceContainer name="content">
-            <referenceBlock name="authentication-popup" remove="true" />
-        </referenceContainer>
     </body>
 </page>
