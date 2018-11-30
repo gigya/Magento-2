@@ -18,9 +18,15 @@ define([
          * @param {HTMLElement} element
          */
         createPopUp: function (element) {
+            if (typeof gigya_enabled != "undefined" && gigya_enabled == true) {
+                var modalClass = 'gigya-popup-authentication';
+            } else {
+                var modalClass = 'popup-authentication';
+            }
+
             var options = {
                 'type': 'popup',
-                'modalClass': 'gigya-popup-authentication',
+                'modalClass': modalClass,
                 'focus': '[name=username]',
                 'responsive': true,
                 'innerScroll': true,
