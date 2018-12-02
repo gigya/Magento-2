@@ -14,27 +14,28 @@
 
 /** @var \Gigya\GigyaIM\Block\Form\GigyaLogin $block */
 
-$id = $block->getData('display') == 'embed' ? 'gigya-login-embed' : 'gigya-login-popup';
+$display = $block->getData('display');
+$placeholderElementId = $display == 'embed' ? 'gigya-login-embed' : 'gigya-login-popup';
 
 ?>
 <div class="block-customer-login">
     <div class="block-content" aria-labelledby="block-customer-login-heading">
-        <?php if ($id == 'gigya-login-embed'): ?>
+        <?php if ($display == 'embed'): ?>
             <!-- Gigya login screen placeholder - id can be dynamic: -->
-            <div id="<?php echo $id; ?>" class="gigya-login gigya-loader-location"></div>
+            <div id="<?php echo $placeholderElementId; ?>" class="gigya-login gigya-loader-location"></div>
         <?php endif; ?>
         <?php echo $block->getBlockHtml('formkey'); ?>
         <script>
             // add Raas login screens function to Gigya init.
             window.gigyaInit = window.gigyaInit || [];
-            var screenSetParams = {
+            var <?php echo $display; ?>LoginScreenSetParams = {
                 screenSet : "<?php echo $block->getLoginDesktopScreensetId() ?>",
-                containerID : "<?php echo $id; ?>",
+                containerID : "<?php echo $placeholderElementId; ?>",
                 startScreen : "gigya-login-screen",
                 mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>" // optional - for using separate mobile screen set.
             };
-            var raasLoginScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
-            window.gigyaInit.push(raasLoginScreen);
+            var <?php echo $display; ?>RaasLoginScreen = {"function": "accounts.showScreenSet", "parameters": <?php echo $display; ?>LoginScreenSetParams};
+            window.gigyaInit.push(<?php echo $display; ?>RaasLoginScreen);
         </script>
     </div>
 </div>

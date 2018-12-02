@@ -83,6 +83,11 @@ class GigyaScript extends Template
         return parent::_prepareLayout();
     }
 
+    public function isGigyaEnabled()
+    {
+        return $this->configModel->isGigyaEnabled();
+    }
+
     /**
      * Set the frontend user session lifetime according to the configured session mode.
      *

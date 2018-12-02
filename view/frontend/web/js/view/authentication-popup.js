@@ -1,10 +1,16 @@
 define([], function () {
     'use strict';
 
-    return function (Popup) {
-        return Popup.extend({
-            defaults: {
-                template: 'Gigya_GigyaIM/authentication-popup'
+    return function (Component) {
+        return Component.extend({
+            initConfig: function () {
+                this._super();
+
+                if (typeof gigya_enabled != "undefined" && gigya_enabled == true) {
+                    this.template = 'Gigya_GigyaIM/authentication-popup';
+                }
+
+                return this;
             }
         });
     }
