@@ -2,7 +2,6 @@
 
 namespace Gigya\GigyaIM\Plugin\Customer\Model;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Exception\GigyaMagentoCustomerSaveException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;

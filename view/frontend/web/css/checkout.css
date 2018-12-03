@@ -1,0 +1,10 @@
+.authentication-wrapper.gigya {
+    max-width: none;
+    float: none;
+}
+
+@media all and (min-width: 768px), print {
+    .authentication-wrapper.gigya {
+        width: auto;
+    }
+}

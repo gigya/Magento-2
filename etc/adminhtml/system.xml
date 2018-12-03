@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
-    <!--https://www.atwix.com/magento-2/system-configuration/-->
     <system>
         <tab id="gigyaim_tab" translate="label" sortOrder="2000">
             <label>Gigya Identity Management</label>
@@ -47,22 +46,6 @@
                         <field id="language">auto</field>
                     </depends>
                     <comment><![CDATA[If language mode is set to auto, set fallback language, in case local language is not supported by Gigya.]]></comment>
-                </field>
-                <field id="debug_mode" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Debug mode</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Log path - var/log/gigya.log]]></comment>
-                    <comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
-                    <comment><![CDATA[*Never use debug mode in production environment!]]></comment>
-                </field>
-            </group>
-            <group id="synchro" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Synchronizing Magento from / to Gigya</label>
-                <field id="gigya_update_max_retry" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label><![CDATA[Retry attempts]]></label>
-                    <comment><![CDATA[Retries happen when a customer update to Gigya has failed, when it's been edited and saved in back office. A cron is dedicated to retry regularly the update.]]></comment>
-                    <comment><![CDATA[Once this limit is reached for a given customer id there won't be any retry further and a critical si logged.]]></comment>
-                    <validate>required-entry integer validate-greater-than-zero</validate>
                 </field>
             </group>
         </section>
@@ -175,5 +158,29 @@
                 </field>
             </group>
         </section>
+		<section id="gigya_advanced" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Advanced</label>
+			<tab>gigyaim_tab</tab>
+			<resource>Gigya_GigyaIM::config</resource>
+			<group id="synchro" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Synchronizing Magento from / to Gigya</label>
+				<field id="gigya_update_max_retry" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+					<label><![CDATA[Retry attempts]]></label>
+					<comment><![CDATA[Retries happen when a customer update to Gigya has failed, when it's been edited and saved in back office. A cron is dedicated to retry regularly the update.]]></comment>
+					<comment><![CDATA[Once this limit is reached for a given customer id there won't be any retry further and a critical si logged.]]></comment>
+					<validate>required-entry integer validate-greater-than-zero</validate>
+				</field>
+			</group>
+			<group id="debug_mode" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+				<label>Debug Mode</label>
+				<field id="debug_mode" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Debug mode</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment><![CDATA[Log path - var/log/gigya.log]]></comment>
+					<comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
+					<comment><![CDATA[*Never use debug mode in production environment!]]></comment>
+				</field>
+			</group>
+		</section>
     </system>
 </config>

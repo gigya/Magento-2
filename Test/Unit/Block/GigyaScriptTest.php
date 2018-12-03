@@ -6,8 +6,9 @@
 namespace Gigya\GigyaIM\Test\Unit\Block;
 
 use Gigya\GigyaIM\Block;
+use PHPUnit\Framework\TestCase;
 
-class GigyaScriptTest extends \PHPUnit_Framework_TestCase
+class GigyaScriptTest extends TestCase
 {
 
     /**

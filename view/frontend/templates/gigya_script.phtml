@@ -18,6 +18,7 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
 	var login_url = "<?php echo $block->getLoginUrl(); ?>";
 	var magento_user_logged_in = false;
 	var enable_login = true;
+	var gigya_enabled = <?php echo $block->isGigyaEnabled() ? 'true' : 'false'; ?>;
 
 	var m;
 </script>
@@ -52,7 +53,7 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
             });
         };
 
-		var retryCounter = $.cookie("<?php echo \Gigya\GigyaIM\Controller\Raas\AbstractLogin::RETRY_COOKIE_NAME ?>");
+		var retryCounter = $.cookie("gig_login_retry");
 		if (retryCounter && parseInt(retryCounter) >= 3) {
 			enable_login = false;
 			loadGigyaScript(false);
@@ -63,7 +64,12 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
 				type: "GET",
 				url: login_state_url,
 				showLoader: false
-			}).done(function (data) {
+			}).done(
+				/**
+				 * @param data
+				 * @property data.logged_in
+				 */
+				function (data) {
 				if (typeof data.logged_in !== 'undefined') {
 					magento_user_logged_in = (data.logged_in == '1');
 					gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
@@ -73,4 +79,4 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
         }
     });
 </script>
-<?php echo $block->getChildHtml('GigyaModalLogin') ?>
+<?php echo $block->getChildHtml('GigyaModalLogin'); ?>

@@ -1,0 +1,43 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<div class="authentication-wrapper gigya" data-block="authentication"
+     data-bind="visible: isActive(), afterRender: loadGigyaForm()">
+    <button
+        type="button"
+        class="action action-auth-toggle"
+        data-trigger="authentication">
+        <span data-bind="i18n: 'Sign In', click: login"></span>
+    </button>
+    <div class="block-authentication"
+         style="display: none"
+         data-bind="mageInit: {
+            'Magento_Ui/js/modal/modal':{
+                'type': 'custom',
+                'modalClass': 'authentication-dropdown',
+                'trigger': '[data-trigger=authentication]',
+                'wrapperClass': 'authentication-wrapper',
+                'parentModalClass': '_has-modal-custom _has-auth-shown',
+                'responsive': true,
+                'responsiveClass': 'custom-slide',
+                'overlayClass': 'dropdown-overlay modal-custom-overlay',
+                'buttons': []
+            }}">
+        <!-- ko foreach: getRegion('before') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!-- /ko -->
+        <div class="block block-customer-login"
+             data-bind="attr: {'data-label': $t('or')}">
+            </div>
+            <!-- ko foreach: getRegion('messages') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+            <div class="block-content" aria-labelledby="block-customer-login-heading">
+                <div id="gigya-login-popup" width="80%" class="gigya-login gigya-loader-location"></div>
+            </div>
+        </div>
+    </div>
+</div>

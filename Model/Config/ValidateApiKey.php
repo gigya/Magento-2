@@ -62,10 +62,14 @@ class ValidateApiKey extends \Magento\Framework\App\Config\Value
 	 * @return $this
 	 *
 	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Gigya\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
 	 */
     public function beforeSave()
     {
+        if (isset($this->_data['fieldset_data']) == false) {
+            return $this;
+        }
+
         /* Get submitted settings */
         $api_key = $this->_data['fieldset_data']['api_key'];
         $domain = $this->_data['fieldset_data']['domain'];
@@ -93,7 +97,7 @@ class ValidateApiKey extends \Magento\Framework\App\Config\Value
         $param = array("filter" => 'full');
         try {
             $gigyaApiHelper->sendApiCall("accounts.getSchema", $param);
-        } catch (\Gigya\CmsStarterKit\sdk\GSApiException $e) {
+        } catch (\Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException $e) {
             $this->gigyaMageHelper->gigyaLog(
                 "Error while trying to save gigya settings. " . $e->getErrorCode() .
                 " " .$e->getMessage() . " " . $e->getCallId()

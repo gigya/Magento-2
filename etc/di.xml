@@ -4,7 +4,7 @@
     <preference for="Magento\Customer\Controller\Account\LoginPost"
                 type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />
     <preference for="Magento\Customer\Controller\Account\CreatePost"
-                type="Gigya\GigyaIM\Controller\Raas\GigyaPost" />
+                type="Gigya\GigyaIM\Controller\Raas\Account\CreatePost" />
     <preference for="Magento\Customer\Controller\Account\EditPost"
                 type="Gigya\GigyaIM\Controller\Raas\GigyaEditPost" />
     <preference for="Magento\Customer\Controller\Adminhtml\Index\Edit"

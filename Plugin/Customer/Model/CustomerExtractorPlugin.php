@@ -2,11 +2,12 @@
 
 namespace Gigya\GigyaIM\Plugin\Customer\Model;
 
-use Gigya\CmsStarterKit\user\GigyaUser;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\RequestInterface;
+use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
 /**
  * CustomerExtractorPlugin
@@ -28,12 +29,19 @@ class CustomerExtractorPlugin
     /** @var  GigyaSyncHelper */
     protected $gigyaSyncHelper;
 
+    /**
+     * @var GigyaConfig
+     */
+    protected $config;
+
     public function __construct(
         Session $session,
-        GigyaSyncHelper $gigyaSyncHelper
+        GigyaSyncHelper $gigyaSyncHelper,
+        GigyaConfig $config
     ) {
         $this->session = $session;
         $this->gigyaSyncHelper = $gigyaSyncHelper;
+        $this->config = $config;
     }
 
     /**
@@ -85,6 +93,10 @@ class CustomerExtractorPlugin
     ) {
         /** @var CustomerInterface $result */
         $result = $proceed($formCode, $request, $attributeValues);
+
+        if ($this->config->isGigyaEnabled() == false) {
+            return $result;
+        }
 
         if ($this->shallUpdateMagentoCustomerDataWithSessionGigyaAccount($formCode)) {
             /** @var GigyaUser $gigyaAccountData */
