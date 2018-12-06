@@ -89,6 +89,14 @@
                     <comment><![CDATA[Complete this field only if the screen-set is different from the desktop one.]]></comment>
                 </field>
             </group>
+			<group id="customer_screensets" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Custom Screen-Sets</label>
+				<field id="custom_screenset_1" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Custom Screen-Sets</label>
+					<frontend_model>Gigya\GigyaIM\Block\Adminhtml\Form\AdditionalScreenSet</frontend_model>
+					<backend_model>Gigya\GigyaIM\Model\Config\Backend\AdditionalScreenSet</backend_model>
+				</field>
+			</group>
         </section>
         <section id="gigya_session" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Session Management</label>
