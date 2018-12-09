@@ -14,15 +14,11 @@ use Magento\Framework\Serialize\SerializerInterface;
 class AdditionalScreenSet extends ConfigValue
 {
 	/**
-	 * Json Serializer
-	 *
 	 * @var SerializerInterface
 	 */
 	protected $serializer;
 
 	/**
-	 * ShippingMethods constructor
-	 *
 	 * @param SerializerInterface   $serializer
 	 * @param Context               $context
 	 * @param Registry              $registry
@@ -47,8 +43,6 @@ class AdditionalScreenSet extends ConfigValue
 	}
 
 	/**
-	 * Prepare data before save
-	 *
 	 * @return void
 	 */
 	public function beforeSave() {
@@ -61,8 +55,6 @@ class AdditionalScreenSet extends ConfigValue
 	}
 
 	/**
-	 * Process data after load
-	 *
 	 * @return void
 	 */
 	protected function _afterLoad() {

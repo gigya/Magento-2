@@ -1,14 +1,20 @@
 <?xml version="1.0" ?>
 <widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
-	<widget class="Toptal\CustomWidget\Block\Widget\Samplewidget" id="toptal_customwidget_samplewidget">
-		<label>Test Widget</label>
-		<description></description>
+	<widget class="Gigya\GigyaIM\Block\Widget\CustomScreenSet" id="gigya_custom_screenset">
+		<label>Gigya Screen-Set</label>
+		<description>Gigya Custom Screen-Set</description>
 		<parameters>
-			<parameter name="widgettitle" sort_order="10" visible="true" xsi:type="text">
-				<label>Title</label>
+			<parameter name="element_id" sort_order="10" visible="true" xsi:type="text">
+				<label>Display Element ID</label>
 			</parameter>
-			<parameter name="widgetcontent" sort_order="20" visible="true" xsi:type="text">
-				<label>Content</label>
+			<parameter name="display" sort_order="20" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\ScreenSetDisplayType">
+				<label>Display Type</label>
+			</parameter>
+			<parameter name="desktop" sort_order="30" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\DesktopScreenSetList">
+				<label>Desktop ScreenSet</label>
+			</parameter>
+			<parameter name="mobile" sort_order="40" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\MobileScreenSetList">
+				<label>Mobile ScreenSet</label>
 			</parameter>
 		</parameters>
 	</widget>

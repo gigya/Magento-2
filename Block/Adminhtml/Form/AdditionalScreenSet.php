@@ -10,8 +10,8 @@ class AdditionalScreenSet extends AbstractFieldArray
 	 * {@inheritdoc}
 	 */
 	protected function _prepareToRender() {
-		$this->addColumn('widget', ['label' => __('Widget')]);
-		$this->addColumn('screenset', ['label' => __('Screen-Set'), 'class' => 'required-entry']);
+		$this->addColumn('desktop_screen', ['label' => __('Desktop Screen-Set ID'), 'class' => 'required-entry']);
+		$this->addColumn('mobile_screen', ['label' => __('Mobile Screen-Set ID')]);
 		$this->_addAfter       = false;
 		$this->_addButtonLabel = __('Add Screen-Set');
 	}

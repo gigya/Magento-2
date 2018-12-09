@@ -35,6 +35,7 @@ class Config
     const XML_PATH_LOGIN_MOBILE_SCREENSET_ID = 'gigya_screensets/login_registration/mobile_screenset_id';
     const XML_PATH_PROFILE_DESKTOP_SCREENSET_ID = 'gigya_screensets/profile_update/desktop_screenset_id';
     const XML_PATH_PROFILE_MOBILE_SCREENSET_ID = 'gigya_screensets/profile_update/mobile_screenset_id';
+    const XML_PATH_PROFILE_CUSTOM_SCREENSETS = 'gigya_screensets/custom_screensets/custom_screenset_dynamic';
 
     /**
      * @var ScopeConfigInterface
@@ -124,4 +125,11 @@ class Config
     {
         return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID, 'website');
     }
+
+	/**
+	 * @return string
+	 */
+    public function getCustomScreensets() {
+    	return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_CUSTOM_SCREENSETS, 'website');
+	}
 }

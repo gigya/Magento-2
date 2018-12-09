@@ -81,7 +81,7 @@
             <group id="profile_update" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Profile Update Screen-Set</label>
                 <field id="desktop_screenset_id" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>Desktop screen-set ID</label>
+                    <label>Desktop Screen-Set ID</label>
                     <validate>validate-no-empty</validate>
                 </field>
                 <field id="mobile_screenset_id" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
@@ -89,9 +89,9 @@
                     <comment><![CDATA[Complete this field only if the screen-set is different from the desktop one.]]></comment>
                 </field>
             </group>
-			<group id="customer_screensets" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+			<group id="custom_screensets" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
 				<label>Custom Screen-Sets</label>
-				<field id="custom_screenset_1" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+				<field id="custom_screenset_dynamic" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
 					<label>Custom Screen-Sets</label>
 					<frontend_model>Gigya\GigyaIM\Block\Adminhtml\Form\AdditionalScreenSet</frontend_model>
 					<backend_model>Gigya\GigyaIM\Model\Config\Backend\AdditionalScreenSet</backend_model>

@@ -4,9 +4,8 @@ namespace Gigya\GigyaIM\Model\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 
-class SessionMode  implements ArrayInterface
+class SessionMode implements ArrayInterface
 {
-
     /**
      * Return array of options as value-label pairs
      *
