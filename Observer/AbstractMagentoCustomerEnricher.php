@@ -21,8 +21,6 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  *
  * Will enrich a Magento customer entity's fields with the Gigya account data.
  *
- * @author      vlemaire <info@x2i.fr>
- *
  * When it's triggered it will :
  * . check that the Magento data have to be enriched
  * . enrich the Magento required fields with the Gigya attributes (first name, last name, email)
@@ -129,17 +127,20 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         return true;
     }
 
-    /**
-     * Given a Magento customer, retrieves the corresponding Gigya account data from the Gigya service.
-     *
-     * @param $magentoCustomer
-     * @return array [
-     *                  'gigya_user' => GigyaUser : the data from the Gigya service
-     *                  'gigya_logging_email' => string : the email for logging as set on this Gigya account
-     *               ]
+	/**
+	 * Given a Magento customer, retrieves the corresponding Gigya account data from the Gigya service.
+	 *
+	 * @param $magentoCustomer
+	 *
+	 * @return array [
+	 *                  'gigya_user' => GigyaUser : the data from the Gigya service
+	 *                  'gigya_logging_email' => string : the email for logging as set on this Gigya account
+	 *               ]
 	 *
 	 * @throws GSException
-     */
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
+	 */
     protected function getGigyaDataForEnrichment($magentoCustomer)
     {
         $gigyaAccountData = $this->gigyaAccountRepository->get($magentoCustomer->getGigyaUid());

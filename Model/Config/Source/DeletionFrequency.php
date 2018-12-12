@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
-class DeletionFrequency implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+
+class DeletionFrequency implements ArrayInterface
 {
 	/**
 	 * @return array
