@@ -8,9 +8,9 @@
 				<label>Display Element ID</label>
 				<description>Part of the container ID for the screen-set in the DOM. The full ID will be "gigya-screenset-[Display Element ID]-[Display Type]"</description>
 			</parameter>
-			<parameter name="display" sort_order="20" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\ScreenSetDisplayType">
-				<label>Display Type</label>
-			</parameter>
+			<!--<parameter name="display" sort_order="20" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\ScreenSetDisplayType">-->
+				<!--<label>Display Type</label>-->
+			<!--</parameter>-->
 			<parameter name="desktop" sort_order="30" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\DesktopScreenSetList">
 				<label>Desktop ScreenSet</label>
 			</parameter>

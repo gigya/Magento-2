@@ -1,6 +1,8 @@
 <?php
 $element_id = $block->getData('element_id'); // popup /embed
 $display = $block->getData('display'); // popup /embed
+if (empty($display))
+	$display = 'embed';
 $id = ($display == 'embed') ? 'gigya-screenset-'.$element_id.'-embed' : 'gigya-screenset-'.$element_id.'-popup';
 ?>
 <div class="block block-screenset-<?php echo $element_id; ?>">
