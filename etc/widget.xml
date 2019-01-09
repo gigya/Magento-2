@@ -11,11 +11,22 @@
 			<parameter name="display" sort_order="20" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\ScreenSetDisplayType">
 				<label>Display Type</label>
 			</parameter>
-			<parameter name="desktop" sort_order="30" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\DesktopScreenSetList">
-				<label>Desktop ScreenSet</label>
+			<parameter name="link_text" sort_order="30" visible="true" xsi:type="text">
+				<label>Link text</label>
+				<depends>
+					<parameter name="display" value="popup" />
+				</depends>
 			</parameter>
-			<parameter name="mobile" sort_order="40" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\MobileScreenSetList">
-				<label>Mobile ScreenSet</label>
+			<parameter name="link_class" sort_order="31" visible="true" xsi:type="text">
+				<label>Link class</label>
+				<description>The popup will be triggered by a link that has this CSS class</description>
+				<depends>
+					<parameter name="display" value="popup" />
+				</depends>
+			</parameter>
+			<parameter name="desktop" sort_order="40" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\DesktopScreenSetList">
+				<label>Desktop ScreenSet</label>
+				<description>This will also load the relevant mobile screen set and other corresponding configuration parameters</description>
 			</parameter>
 		</parameters>
 	</widget>
