@@ -20,7 +20,7 @@ class AdditionalScreenSet extends AbstractFieldArray
 	 * {@inheritdoc}
 	 */
 	protected function _prepareToRender() {
-		$this->addColumn('desktop_screen', ['label' => __('Desktop Screen-Set ID'), 'class' => 'required-entry', 'renderer' => false]);
+		$this->addColumn('desktop_screen', ['label' => __('Screen-Set ID'), 'class' => 'required-entry', 'renderer' => false]);
 		$this->addColumn('mobile_screen', ['label' => __('Mobile Screen-Set ID'), 'renderer' => false]);
 		$this->addColumn('is_syncable', ['label' => __('Sync data?'), 'renderer' => $this->_checkboxRenderer]);
 

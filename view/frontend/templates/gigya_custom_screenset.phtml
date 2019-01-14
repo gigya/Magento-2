@@ -12,7 +12,6 @@ if ($screenset_data !== false):
 	var screenSetParams = {
 		screenSet : "<?php echo $screenset_data['desktop_screen']; ?>",
 		containerID : "<?php echo $id; ?>",
-		startScreen : "gigya-login-screen",
 		mobileScreenSet : "<?php echo $screenset_data['mobile_screen']; ?>" // optional - for using separate mobile screen set.
 	};
 	<?php if (!empty($screenset_data['is_syncable'])): ?>

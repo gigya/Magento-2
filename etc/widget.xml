@@ -25,7 +25,7 @@
 				</depends>
 			</parameter>
 			<parameter name="desktop" sort_order="40" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\DesktopScreenSetList">
-				<label>Desktop ScreenSet</label>
+				<label>Screen-Set</label>
 				<description>This will also load the relevant mobile screen set and other corresponding configuration parameters</description>
 			</parameter>
 		</parameters>
