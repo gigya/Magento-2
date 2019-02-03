@@ -102,6 +102,8 @@ define([
 	/**
 	 * Login event handler. set parameters for login submission and call Ajax submission
 	 * @param eventObj
+	 *
+	 * @property eventObj.expires_in
 	 */
 	gigyaMage2.Functions.gigyaLoginEventHandler = function (eventObj) {
 		var action = login_post_url;
@@ -123,6 +125,12 @@ define([
 		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
 	};
 
+	/**
+	 * @param eventObj
+	 *
+	 * @property eventObj.profile.firstName
+	 * @property eventObj.profile.lastName
+	 */
 	gigyaMage2.Functions.gigyaAjaxUpdateProfile = function (eventObj) {
 		var action = edit_post_url;
 		var data = {

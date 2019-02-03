@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
-class DeletionType implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+
+class DeletionType implements ArrayInterface
 {
 	const HARD_DELETE = "hard_delete";
 	const SOFT_DELETE = "soft_delete";

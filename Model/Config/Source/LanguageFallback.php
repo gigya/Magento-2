@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
-class LanguageFallback implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+
+class LanguageFallback implements ArrayInterface
 {
     /**
      * @return array

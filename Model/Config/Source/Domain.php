@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
-class Domain implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+
+class Domain implements ArrayInterface
 {
     const DC_US = "us1.gigya.com";
     const DC_EU = "eu1.gigya.com";

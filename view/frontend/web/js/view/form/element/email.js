@@ -6,7 +6,7 @@ define([], function () {
             initConfig: function () {
                 this._super();
 
-                if (typeof gigya_enabled != "undefined" && gigya_enabled == true) {
+                if (typeof gigya_enabled !== "undefined" && gigya_enabled) {
                     this.template = 'Gigya_GigyaIM/form/element/email';
                 }
 
@@ -14,7 +14,7 @@ define([], function () {
             },
 
             login: function (loginForm) {
-                if (typeof gigya_enabled != "undefined" && gigya_enabled == true) {
+                if (typeof gigya_enabled !== "undefined" && gigya_enabled) {
                     this.switchToScreen('gigya-login-screen');
                     jQuery('.block-authentication').modal('openModal');
                 } else {
@@ -37,7 +37,7 @@ define([], function () {
                     }
                 });
 
-                if (typeof gigya != "undefined") {
+                if (typeof gigya !== "undefined") {
                     requirejs('gigya_script').Functions.performGigyaActions();
                 }
             }
