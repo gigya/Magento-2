@@ -1,24 +1,87 @@
 <?php
-$element_id = $block->getData('element_id'); // popup /embed
+$element_id = $block->getData('element_id');
 $display = $block->getData('display'); // popup /embed
-if (empty($display))
-	$display = 'embed';
-$id = ($display == 'embed') ? 'gigya-screenset-'.$element_id.'-embed' : 'gigya-screenset-'.$element_id.'-popup';
+$desktop_screenset = $block->getData('desktop');
+$screenset_data = $block->getScreenSetConfig($desktop_screenset);
+$id = 'gigya-screenset-'.$element_id.'-'.$display;
+
+if ($screenset_data !== false):
+?>
+<script>
+	window.gigyaInit = window.gigyaInit || [];
+	var screenSetParams = {
+		screenSet : "<?php echo $screenset_data['desktop_screen']; ?>",
+		containerID : "<?php echo $id; ?>",
+		mobileScreenSet : "<?php echo $screenset_data['mobile_screen']; ?>" // optional - for using separate mobile screen set.
+	};
+	<?php if (!empty($screenset_data['is_syncable'])): ?>
+	screenSetParams['onAfterSubmit'] = function(eventObj) {
+		m.Functions.gigyaAjaxUpdateProfile(eventObj);
+	};
+	<?php endif; ?>
+	var screenSet_<?php echo $element_id; ?> = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
+	window.gigyaInit.push(screenSet_<?php echo $element_id; ?>);
+</script>
+<?php
+	if ($display == 'embed'):
 ?>
 <div class="block block-screenset-<?php echo $element_id; ?>">
 	<div class="block-content" aria-labelledby="block-<?php echo $element_id; ?>-heading">
 		<!-- Gigya login screen placeholder - id can be dynamic: -->
 		<div id="<?php echo $id; ?>" class="gigya-screenset gigya-loader-location"></div>
-		<script>
-			window.gigyaInit = window.gigyaInit || [];
-			var screenSetParams = {
-				screenSet : "<?php echo $block->getData('desktop'); ?>",
-				containerID : "<?php echo $id; ?>",
-				startScreen : "gigya-login-screen",
-				mobileScreenSet : "<?php echo $block->getData('mobile'); ?>" // optional - for using separate mobile screen set.
-			};
-			var screenSet_<?php echo $element_id; ?> = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
-			window.gigyaInit.push(screenSet_<?php echo $element_id; ?>);
-		</script>
 	</div>
 </div>
+<?php
+	elseif ($display == 'popup'):
+?>
+	<div class="block block-screenset-<?php echo $element_id; ?>">
+		<a id="screenset-link-<?php echo $element_id; ?>"
+		   href="#"
+		   class="<?php echo $block->getData('link_class'); ?>"
+		   title="<?php echo $block->getData('link_text'); ?>">
+			<?php echo $block->getData('link_text'); ?>
+		</a>
+	</div>
+	<div id="<?php echo $id; ?>" style="display:none;"></div>
+	<script>
+		require(
+			[
+				'jquery',
+				'Magento_Ui/js/modal/modal'
+			],
+			function(
+				$,
+				modal
+			) {
+				var options = {
+					type: 'popup',
+					responsive: true,
+					innerScroll: true,
+					title: '<?php echo $block->getData('link_text'); ?>',
+					buttons: [{
+						text: $.mage.__('Close'),
+						class: '',
+						click: function () {
+							this.closeModal();
+						}
+					}],
+					opened: function(e) {
+						$(".modal-footer").hide();
+					}
+				};
+
+				var popup = modal(options, $('#<?php echo $id; ?>'));
+				$('#screenset-link-<?php echo $element_id; ?>').on('click', function () {
+					$('#<?php echo $id; ?>').modal('openModal');
+				});
+			}
+		);
+	</script>
+<?php
+	endif;
+else:
+?>
+	<div class="block block-screenset-<?php echo $element_id; ?>">Error loading custom screen set.</div>
+<?php
+endif;
+?>

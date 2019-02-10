@@ -13,7 +13,7 @@
                 screenSet : "<?php echo $block->getProfileDesktopScreensetId() ?>",
                 containerID : "gigya-edit-profile",
                 mobileScreenSet : "<?php echo $block->getProfileMobileScreensetId() ?>", // optional - for using separate mobile screen set.
-                onAfterSubmit: function(eventObj) {
+                onAfterSubmit : function(eventObj) {
                     // m var not ready on screenSetParams declaration
                     m.Functions.gigyaAjaxUpdateProfile(eventObj);
                 }
