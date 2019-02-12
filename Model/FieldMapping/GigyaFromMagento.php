@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
+use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
 use Magento\Customer\Model\Data\Customer;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
@@ -44,6 +45,31 @@ class GigyaFromMagento extends AbstractFieldMapping
         $this->customerFieldsUpdater = $customerFieldsUpdater;
     }
 
+	/**
+	 * @param $isGigyaException
+	 * @param \Exception|GSApiException $exception
+	 *
+	 * @throws GigyaFieldMappingException
+	 */
+    public function handleExceptions($isGigyaException, $exception) {
+    	$isGigyaException = ($isGigyaException and $exception instanceof GSApiException);
+    	$message = sprintf("Error %s. Message: %s. %sFile: %s",
+						   $exception->getCode(),
+						   ($isGigyaException) ? $exception->getLongMessage() : $exception->getMessage(),
+						   ($isGigyaException) ? "Gigya call ID: {$exception->getCallId()}. " : '',
+						   $exception->getFile()
+		);
+
+		$this->logger->error(
+			$message,
+			[
+				'class' => __CLASS__,
+				'function' => __FUNCTION__
+			]
+		);
+		throw new GigyaFieldMappingException($message);
+	}
+
     /**
      * @param Customer $customer
      * @param GigyaUser $gigyaUser
@@ -58,18 +84,13 @@ class GigyaFromMagento extends AbstractFieldMapping
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             $this->customerFieldsUpdater->setPath($config_file_path);
 
-            try {
+            try
+			{
 				$this->customerFieldsUpdater->updateGigya();
+			} catch (GSApiException $e) {
+				$this->handleExceptions(true, $e);
             } catch (\Exception $e) {
-				$message = "Error " . $e->getCode() . ". Message: " . $e->getMessage() . ". File: " . $e->getFile();
-                $this->logger->error(
-                    $message,
-                    [
-                        'class' => __CLASS__,
-                        'function' => __FUNCTION__
-                    ]
-                );
-                throw new GigyaFieldMappingException($message);
+				$this->handleExceptions(false, $e);
             }
         } else {
             $message = "Mapping fields file path is not defined. Define file path at: Stores > Config > Gigya > Field Mapping";

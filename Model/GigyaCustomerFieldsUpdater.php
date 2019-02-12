@@ -22,9 +22,6 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  *
  * The event will hang a data 'customer' of type Magento\Customer\Model\Customer
  * Third party code can catch this event to perform any necessary operation on the Magento's customer data before the mapping is done.
- *
- * @author      vlemaire <info@x2i.fr>
- *
  */
 class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 {
@@ -67,7 +64,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
     {
         $apiHelper = $gigyaMageHelper->getGigyaApiHelper();
 
-        parent::__construct(null, null, null, $apiHelper);
+		parent::__construct(null, null, null, $apiHelper);
 
         $this->gigyaCacheType = $gigyaCacheType;
         $this->eventManager = $eventManager;
@@ -97,6 +94,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
             $cmsArray[$cmsName] = $value;
         }
 
+        $this->setGigyaUid($this->gigyaUser->getUID());
         $this->setCmsArray($cmsArray);
     }
 
@@ -105,7 +103,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      */
     public function updateGigya()
     {
-        parent::updateGigya();
+		parent::updateGigya(); /* In order to allow saving a Magento 2 customer even when there is an error from Gigya, surround this with a try/catch */
 
         /** @var array $updatedGigyaData */
         $updatedGigyaData = $this->getGigyaArray();
@@ -123,7 +121,6 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                 $this->gigyaUser->setData($updatedGigyaData['data']);
             } elseif ($key === 'subscriptions') {
                 /* Specific code for subscriptions */
-
                 /** @var array $subscriptionData */
                 foreach ($array as $subscriptionId => $subscriptionData) {
                 	if (array_key_exists('email', $subscriptionData) and is_array($subscriptionData['email'])) {

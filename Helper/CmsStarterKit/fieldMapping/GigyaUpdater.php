@@ -67,7 +67,7 @@ abstract class GigyaUpdater
 		$this->retrieveFieldMappings();
 		$this->callCmsHook();
 		$this->gigyaArray = $this->createGigyaArray();
-		$this->callSetAccountInfo();
+		$this->apiHelper->updateGigyaAccount($this->gigyaUid, $this->gigyaArray);
 	}
 
 	/**
@@ -103,6 +103,13 @@ abstract class GigyaUpdater
 	 */
 	public function setCmsArray($cmsArray) {
 		$this->cmsArray = $cmsArray;
+	}
+
+	/**
+	 * @param string $uid
+	 */
+	public function setGigyaUid($uid) {
+		$this->gigyaUid = $uid;
 	}
 
 	/**
@@ -209,6 +216,7 @@ abstract class GigyaUpdater
 				return (string) $val;
 				break;
 			case "long";
+			case "integer":
 			case "int":
 				return (int) $val;
 				break;
