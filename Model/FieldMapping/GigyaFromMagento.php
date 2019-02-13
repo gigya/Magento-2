@@ -105,7 +105,7 @@ class GigyaFromMagento extends AbstractFieldMapping
     }
 
     /**
-     * Get magento custom attribute user overide by observer DefaultGigyaSyncFieldMapping
+     * Get magento custom attribute user override by observer DefaultGigyaSyncFieldMapping
      * @return \Magento\Framework\Api\AttributeInterface[]|null
      */
     public function getMagentoUserObserver(){

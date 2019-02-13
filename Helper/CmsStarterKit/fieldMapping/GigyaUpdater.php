@@ -194,15 +194,6 @@ abstract class GigyaUpdater
 	}
 
 	/**
-	 * @throws \Exception
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
-	 */
-	protected function callSetAccountInfo() {
-		$this->apiHelper->updateGigyaAccount($this->gigyaUid, $this->gigyaArray);
-	}
-
-	/**
 	 * @param mixed    $val
 	 * @param ConfItem $conf
 	 *
