@@ -21,8 +21,9 @@ use Magento\Framework\UrlInterface;
 // Custom class uses
 use Magento\Framework\UrlFactory;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
-use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Store\Model\StoreManagerInterface;
@@ -135,37 +136,43 @@ class GigyaPost extends LoginPost
      */
     protected $storeManager;
 
-    /**
-     * GigyaPost constructor.
-     *
-     * - Parent class parameters
-     * @param Context $context
-     * @param Session $customerSession
-     * @param AccountManagementInterface $customerAccountManagement
-     * @param CustomerUrl $customerUrl
-     * @param Validator $formKeyValidator
-     * @param AccountRedirect $accountRedirect
-     *
-     * - Magento CreatePost parameters
-     * These ones needs to be on this constructor because Gigya plugin join both actions: login and create
-     * @param $addressHelper Address
-     * @param SubscriberFactory $subscriberFactory
-     * @param Escaper $escaper
-     * @param CustomerExtractor $customerExtractor
-     * @param UrlInterface $urlModel
-     *
-     * - Custom parameters
-     * @param UrlFactory $urlFactory
-     * @param GigyaMageHelper $gigyaMageHelper
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param GigyaSyncHelper $gigyaSyncHelper
-     * @param CookieManagerInterface $cookieManager
-     * @param CookieMetadataFactory $cookieMetadataFactory
-     * @param StoreManagerInterface $storeManager
-     * @param Extend $extendModel
-     * @param JsonFactory $resultJsonFactory
-     * @param GigyaConfig $config
-     */
+	/**
+	 * @var GigyaLogger
+	 */
+	protected $logger;
+
+	/**
+	 * GigyaPost constructor.
+	 *
+	 * - Parent class parameters
+	 * @param Context $context
+	 * @param Session $customerSession
+	 * @param AccountManagementInterface $customerAccountManagement
+	 * @param CustomerUrl $customerUrl
+	 * @param Validator $formKeyValidator
+	 * @param AccountRedirect $accountRedirect
+	 *
+	 * - Magento CreatePost parameters
+	 * These ones needs to be on this constructor because Gigya plugin join both actions: login and create
+	 * @param $addressHelper Address
+	 * @param SubscriberFactory $subscriberFactory
+	 * @param Escaper $escaper
+	 * @param CustomerExtractor $customerExtractor
+	 * @param UrlInterface $urlModel
+	 *
+	 * - Custom parameters
+	 * @param UrlFactory $urlFactory
+	 * @param GigyaMageHelper $gigyaMageHelper
+	 * @param CustomerRepositoryInterface $customerRepository
+	 * @param GigyaSyncHelper $gigyaSyncHelper
+	 * @param CookieManagerInterface $cookieManager
+	 * @param CookieMetadataFactory $cookieMetadataFactory
+	 * @param StoreManagerInterface $storeManager
+	 * @param Extend $extendModel
+	 * @param JsonFactory $resultJsonFactory
+	 * @param GigyaConfig $config
+	 * @param GigyaLogger $logger
+	 */
     public function __construct(
         // Parent class parameters
         Context $context,
@@ -192,7 +199,8 @@ class GigyaPost extends LoginPost
         StoreManagerInterface $storeManager,
         Extend $extendModel,
         JsonFactory $resultJsonFactory,
-        GigyaConfig $config
+        GigyaConfig $config,
+		GigyaLogger $logger
     ) {
         parent::__construct(
             $context,
@@ -211,6 +219,7 @@ class GigyaPost extends LoginPost
         $this->extendModel = $extendModel;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->config = $config;
+        $this->logger = $logger;
 
         $this->cookies = [];
         $this->cookiesToDelete = [];
@@ -238,8 +247,6 @@ class GigyaPost extends LoginPost
 	 * @throws CookieSizeLimitReachedException
 	 * @throws FailureToSendException
 	 * @throws InputException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
 	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     public function execute()
@@ -248,7 +255,14 @@ class GigyaPost extends LoginPost
             return parent::execute();
         }
 
-        $validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
+		$validGigyaUser = false;
+        try {
+        	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
+		} catch (\Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException $e) {
+			$this->logger->error('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error: ' . $e->getLongMessage() . '. Gigya call ID: ' . $e->getCallId());
+		} catch (\Exception $e) {
+        	$this->logger->error('There was an error validating the user. Error: '.$e->getMessage());
+		}
         $responseObject = $this->doLogin($validGigyaUser);
 
         if (strpos(strtolower($this->getRequest()->getHeader('Accept')), 'json') !== false) {

@@ -29,9 +29,6 @@ use Magento\Customer\Model\Config\Share;
  *
  * All functions are run within a unique transaction, that should be at the end commited or roll backed with self::commit() or self::rollBack()
  * When calling a commit or rollBack, a new transaction is opened for further operations.
- *
- * @author      vlemaire <info@x2i.fr>
- *
  */
 class RetryGigyaSyncHelper extends GigyaSyncHelper
 {
