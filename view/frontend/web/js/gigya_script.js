@@ -1,7 +1,7 @@
 define([
     'jquery',
     'Magento_Ui/js/modal/modal',
-    'tinymce',
+    'tinymce4',
     'Magento_Customer/js/customer-data'
 ], function($, modal, tinymce, customerData){
     "use strict";
@@ -83,7 +83,9 @@ define([
 					type: "POST",
 					url: login_url,
 					data: {
-						form_key: form_key, guid: guid, login_data: JSON.stringify(response),
+						form_key: form_key,
+						guid: guid,
+						login_data: JSON.stringify(response),
 						key: gigyaMage2.Functions.loginEncode(domain + guid + "1234")
 					}
 				}).always(function (data) {
