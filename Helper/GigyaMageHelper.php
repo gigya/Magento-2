@@ -74,6 +74,7 @@ class GigyaMageHelper extends AbstractHelper
         parent::__construct($context);
 
         $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general', 'website');
+        $this->debug = $context->getScopeConfig()->getValue('gigya_advanced/debug_mode/debug_mode', 'website');
         $this->dbSettings = $settings->load(1);
         $this->_logger = $logger;
         $this->configModel = $configModel;
@@ -457,10 +458,13 @@ class GigyaMageHelper extends AbstractHelper
 
 	/**
 	 * @param string $message
+	 * @param string $type
 	 */
-    public function gigyaLog($message) {
+    public function gigyaLog($message, $type = 'info') {
         if ($this->debug) {
-            $this->_logger->info($message);
+        	if (in_array($type, ['info', 'warning', 'error'])) {
+        		call_user_func_array([$this->_logger, $type], [$message]);
+			}
         }
     }
 
