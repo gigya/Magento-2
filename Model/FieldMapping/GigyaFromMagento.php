@@ -52,7 +52,7 @@ class GigyaFromMagento extends AbstractFieldMapping
 	 * @throws GigyaFieldMappingException
 	 */
     public function handleExceptions($isGigyaException, $exception) {
-    	$isGigyaException = ($isGigyaException and $exception instanceof GSApiException);
+    	$isGigyaException = ($isGigyaException and ($exception instanceof GSApiException));
     	$message = sprintf("Error %s. Message: %s. %sFile: %s",
 						   $exception->getCode(),
 						   ($isGigyaException) ? $exception->getLongMessage() : $exception->getMessage(),
