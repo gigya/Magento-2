@@ -218,9 +218,9 @@ class GigyaApiHelper
 	 */
 	public function getSiteSchema() {
 		$params = GSFactory::createGSObjectFromArray(array("apiKey" => $this->apiKey));
-		$this->sendApiCall("accounts.getSchema", $params);
-		//        $res    = $this->sendApiCall("accounts.getSchema", $params);
-		//TODO: implement
+		$res = $this->sendApiCall("accounts.getSchema", $params);
+
+		return $res;
 	}
 
 	/**

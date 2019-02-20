@@ -58,7 +58,7 @@ class DefaultCMSSyncFieldMapping implements ObserverInterface
 					$customer->setGender('3');
 			}
 
-			// 'Translate' the date of birth code from Gigya to Magento value
+			/* 'Translate' the date of birth code from Gigya to Magento value */
 			$birthDay = $gigyaProfile->getBirthDay();
 			$birthMonth = $gigyaProfile->getBirthMonth();
 			$birthYear = $gigyaProfile->getBirthYear();

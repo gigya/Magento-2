@@ -39,8 +39,6 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     /** @var fieldMapping\Conf|bool  */
     protected $confMapping = false;
 
-    protected $_logger;
-
     /**
      * MagentoCustomerFieldsUpdater constructor.
      *
@@ -76,10 +74,6 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         ];
 
         $manager->dispatch('gigya_pre_field_mapping', $params);
-    }
-
-    public function setGigyaLogger($logger) {
-        $this->_logger = $logger;
     }
 
     /**
