@@ -59,7 +59,7 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
 
     	if (!empty($fieldMappingFilePath) and !file_exists($fieldMappingFilePath))
 		{
-			$message = __('The field mapping file not found. Please check the file path and try saving again.');
+			$message = __('The field mapping file was not found. Please check the file path and try saving again.');
 			$this->gigyaMageHelper->gigyaLog($message, 'error');
 			throw new LocalizedException($message);
 		}
