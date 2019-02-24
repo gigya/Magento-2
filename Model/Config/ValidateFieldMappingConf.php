@@ -49,30 +49,31 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
 	 *
 	 * @throws \Magento\Framework\Exception\LocalizedException
 	 */
-    public function beforeSave()
-    {
-		if (isset($this->_data['fieldset_data']) == false) {
+	public function beforeSave() {
+		if (isset($this->_data['fieldset_data']) == false)
+		{
 			return $this;
 		}
 
 		$fieldMappingFilePath = $this->_data['fieldset_data']['mapping_file_path'];
 
-    	if (!empty($fieldMappingFilePath) and !file_exists($fieldMappingFilePath))
+		if (!empty($fieldMappingFilePath) and !file_exists($fieldMappingFilePath))
 		{
-			$message = __('The field mapping file was not found. Please check the file path and try saving again.');
+			$message = __('The field mapping file was not found. Please check the file path and try again.');
 			$this->gigyaMageHelper->gigyaLog($message, 'error');
 			throw new LocalizedException($message);
 		}
 		elseif (file_exists($fieldMappingFilePath))
 		{
 			$mappingJson = file_get_contents($fieldMappingFilePath);
-			if (!json_decode($mappingJson)) {
+			if (!json_decode($mappingJson))
+			{
 				$message = __('The field mapping file is empty or has invalid JSON. Please verify the correctness of the file\'s contents.');
-				$this->gigyaMageHelper->gigyaLog($message, 'warning');
+				$this->gigyaMageHelper->gigyaLog($message, 'error');
 				throw new LocalizedException($message);
 			}
 		}
 
-        return $this;
-    }
+		return $this;
+	}
 }
