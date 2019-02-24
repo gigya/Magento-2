@@ -60,6 +60,7 @@
                     <comment>
                         <![CDATA[The full folder path and file name of your field mapping file.<br/> For example: /var/www/magento2/assets/fieldmapping.json]]>
                     </comment>
+                    <backend_model>Gigya\GigyaIM\Model\Config\ValidateFieldMappingConf</backend_model>
                 </field>
             </group>
         </section>
