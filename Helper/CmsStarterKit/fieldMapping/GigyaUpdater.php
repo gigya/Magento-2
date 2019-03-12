@@ -199,7 +199,6 @@ abstract class GigyaUpdater
 	 *
 	 * @return mixed $val;
 	 */
-
 	private function castVal($val, $conf) {
 		switch ($conf->getGigyaType())
 		{
@@ -221,7 +220,7 @@ abstract class GigyaUpdater
 				return filter_var($val, FILTER_VALIDATE_BOOLEAN);
 				break;
 			case 'date':
-				if (!preg_match('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|(\+|-)\d{2}(:?\d{2})?)/', $val))
+				if ($val and !preg_match('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|(\+|-)\d{2}(:?\d{2})?)/', $val))
 				{
 					$datetime = new \DateTime($val);
 					// Return date in format ISO 8601 (https://en.wikipedia.org/wiki/ISO_8601)

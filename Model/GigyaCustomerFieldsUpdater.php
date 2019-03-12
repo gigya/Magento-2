@@ -183,7 +183,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      */
     public function getValueFromMagentoCustomer($cmsName)
     {
-        $subPaths = explode('.', $cmsName);
+		$subPaths = explode('.', $cmsName);
         if (empty($subPaths)) {
             $this->logger->warning(sprintf("cmsName should not be empty."));
             return null;
@@ -201,7 +201,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                         throw new \Exception('Custom attribute '.$subPath.' is not set');
                     }
 
-                    /* value is of type AttributeValue */
+                    /* Value is of type AttributeValue */
                     $value = $value->getValue();
                 }
                 elseif ($subPath === 'isSubscribed')
@@ -211,7 +211,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 				}
                 else {
                     $methodName = 'get' . ucfirst($this->mixify($subPath, '_'));
-                    $value = call_user_func(array($magentoUser, $methodName));
+                    $value = call_user_func(array($magentoUser, $methodName)) ?: '';
                 }
             }
         } catch(\Exception $e) {
