@@ -203,6 +203,8 @@ abstract class GigyaUpdater
 		switch ($conf->getGigyaType())
 		{
 			case "string":
+			case "text":
+			case "varchar":
 				return (string) $val;
 				break;
 			case "long";
