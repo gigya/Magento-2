@@ -83,7 +83,9 @@ define([
 					type: "POST",
 					url: login_url,
 					data: {
-						form_key: form_key, guid: guid, login_data: JSON.stringify(response),
+						form_key: form_key,
+						guid: guid,
+						login_data: JSON.stringify(response),
 						key: gigyaMage2.Functions.loginEncode(domain + guid + "1234")
 					}
 				}).always(function (data) {

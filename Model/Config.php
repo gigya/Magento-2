@@ -30,6 +30,8 @@ class Config
 
     const XML_PATH_GENERAL = 'gigya_section/general';
 
+    const XML_PATH_DEBUG_MODE = 'gigya_advanced/debug_mode/debug_mode';
+
     // Screen-sets configuration
     const XML_PATH_LOGIN_DESKTOP_SCREENSET_ID = 'gigya_screensets/login_registration/desktop_screenset_id';
     const XML_PATH_LOGIN_MOBILE_SCREENSET_ID = 'gigya_screensets/login_registration/mobile_screenset_id';
@@ -49,9 +51,20 @@ class Config
         $this->scopeConfig = $scopeConfig;
     }
 
+	/**
+	 * @return int
+	 */
     public function isGigyaEnabled()
 	{
 		return $this->scopeConfig->getValue(self::XML_PATH_GENERAL . '/enable_gigya', 'website');
+	}
+
+	/**
+	 * @return int
+	 */
+	public function isDebugModeEnabled()
+	{
+		return $this->scopeConfig->getValue(self::XML_PATH_DEBUG_MODE, 'website');
 	}
 
     /**
