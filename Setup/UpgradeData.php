@@ -5,6 +5,7 @@ namespace Gigya\GigyaIM\Setup;
 use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\ResourceModel\Attribute as CustomerAttributeResourceModel;
 use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Exception\LocalizedException;
@@ -31,16 +32,24 @@ class UpgradeData implements UpgradeDataInterface
      */
     private $attributeSetFactory;
 
-    /**
-     * @param CustomerSetupFactory $customerSetupFactory
-     * @param AttributeSetFactory $attributeSetFactory
-     */
+	/**
+	 * @var CustomerAttributeResourceModel
+	 */
+	private $customerAttributeResourceModel;
+
+	/**
+	 * @param CustomerSetupFactory $customerSetupFactory
+	 * @param AttributeSetFactory $attributeSetFactory
+	 * @param CustomerAttributeResourceModel $customerAttributeResourceModel
+	 */
     public function __construct(
         CustomerSetupFactory $customerSetupFactory,
-        AttributeSetFactory $attributeSetFactory
+        AttributeSetFactory $attributeSetFactory,
+		CustomerAttributeResourceModel $customerAttributeResourceModel
     ) {
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
+        $this->customerAttributeResourceModel = $customerAttributeResourceModel;
     }
 
     /**
@@ -87,7 +96,7 @@ class UpgradeData implements UpgradeDataInterface
                     'used_in_forms' => ['adminhtml_customer'],
                 ]);
 
-            $attribute->save();
+			$this->customerAttributeResourceModel->save($attribute);
         }
 
         if (version_compare($context->getVersion(), '5.0.5') < 0) {
@@ -117,7 +126,7 @@ class UpgradeData implements UpgradeDataInterface
                     'used_in_forms' => [],
                 ]);
 
-            $attribute->save();
+			$this->customerAttributeResourceModel->save($attribute);
         }
 
         if (version_compare($context->getVersion(), '5.0.7') < 0) {
@@ -153,7 +162,9 @@ class UpgradeData implements UpgradeDataInterface
                     'used_in_forms' => ['adminhtml_customer'],
                 ]);
 
-            $attribute->save();
+			$this->customerAttributeResourceModel->save($attribute);
         }
+
+        $setup->endSetup();
     }
 }
