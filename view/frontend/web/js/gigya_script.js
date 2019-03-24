@@ -1,9 +1,8 @@
 define([
     'jquery',
     'Magento_Ui/js/modal/modal',
-    'tinymce',
     'Magento_Customer/js/customer-data'
-], function($, modal, tinymce, customerData){
+], function($, modal, customerData){
     "use strict";
     var gigyaMage2 = {
         Params : {},
@@ -77,13 +76,16 @@ define([
 		if (enable_login) {
 			var guid = response.UID;
 			if (guid) {
-				var form_key = tinymce.util.Cookie.get('form_key');
+				var form_key = gigya.utils.cookie.get('form_key');
+
 				var domain = window.location.hostname;
 				$.ajax({
 					type: "POST",
 					url: login_url,
 					data: {
-						form_key: form_key, guid: guid, login_data: JSON.stringify(response),
+						form_key: form_key,
+						guid: guid,
+						login_data: JSON.stringify(response),
 						key: gigyaMage2.Functions.loginEncode(domain + guid + "1234")
 					}
 				}).always(function (data) {

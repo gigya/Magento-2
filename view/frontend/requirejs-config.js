@@ -7,7 +7,7 @@ var config = {
     },
     shim: {
         'gigya_script':{
-            'deps':['jquery', 'tinymce']
+            'deps':['jquery']
         }
     },
     'config': {
