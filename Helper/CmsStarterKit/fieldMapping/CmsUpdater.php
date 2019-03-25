@@ -113,15 +113,16 @@ abstract class CmsUpdater
 				$value = (float) $value;
 				break;
 			case "int":
+			case "integer":
 				$value = (int) $value;
 				break;
 			case "text":
-				$value = (string) $value;
-				break;
+			case "string":
 			case "varchar":
 				$value = (string) $value;
 				break;
 			case "bool":
+			case "boolean":
 				$value = boolval($value); /* PHP 5.5+ */
 				break;
 		}
