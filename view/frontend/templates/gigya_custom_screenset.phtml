@@ -1,9 +1,13 @@
 <?php
-$element_id = $block->getData('element_id');
-$display = $block->getData('display'); // popup /embed
+$element_id = str_replace(' ', '_', $block->getData('element_id'));
+if (strlen($element_id) > 64):
+	$element_id = substr($element_id, 0, 64);
+endif;
+$js_element_id     = 'screenSet_' . preg_replace('[^0-9a-zA-Z_]', '_', $element_id);
+$display           = $block->getData('display'); // popup /embed
 $desktop_screenset = $block->getData('desktop');
-$screenset_data = $block->getScreenSetConfig($desktop_screenset);
-$id = 'gigya-screenset-'.$element_id.'-'.$display;
+$screenset_data    = $block->getScreenSetConfig($desktop_screenset);
+$id                = 'gigya-screenset-' . $element_id . '-' . $display;
 
 if ($screenset_data !== false):
 ?>
