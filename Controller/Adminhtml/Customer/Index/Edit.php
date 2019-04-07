@@ -135,19 +135,19 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
                         /** @var CustomerInterface $customer */
                         $customer = $this->_customerRepository->getById($this->customerId);
                         if ($customer->getCustomAttribute('gigya_account_enriched')->getValue() === true) {
-                            $this->messageManager->addSuccessMessage(__('Data are up-to-date with Gigya account.'));
+                            $this->messageManager->addSuccessMessage(__('Data is up-to-date with Gigya account.'));
                         } else {
                             $this->messageManager->addWarningMessage(__('Data synchronizing from Gigya is impossible. The data could be outdated, please come back later.'));
                         }
                     }
                 } else if ($retryG2CMSCount == 0) {
-                    $this->messageManager->addWarningMessage(__('Data are not synchronized to Gigya account, retrying in progress.'));
+                    $this->messageManager->addWarningMessage(__('Data is not synchronized to Gigya account, retrying in progress.'));
                 } else if ($retryG2CMSCount > 0) {
                     $this->messageManager->addWarningMessage(__('Retry data synchronizing to Gigya failed. Please wait for next retry or try to update the data again.'));
                 }
 
                 if ($retryCMS2GCount == 0) {
-                    $this->messageManager->addWarningMessage(__('Data are not synchronized to Gigya account, retrying in progress.'));
+                    $this->messageManager->addWarningMessage(__('Data is not synchronized to Gigya account, retrying in progress.'));
                 } else if ($retryCMS2GCount > 0) {
                     $this->messageManager->addWarningMessage(__('Retry data synchronizing to Gigya failed. Please wait for next retry or try to update the data again.'));
                 }
