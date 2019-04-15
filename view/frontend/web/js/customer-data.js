@@ -5,11 +5,8 @@ define(function () {
         Component.reloadOriginal = Component.reload;
         Component.reload = function (sectionNames, updateSectionId) {
             if (typeof gigya_enabled !== "undefined" && gigya_enabled && gigya_login_in_progress == true) {
-                console.log('ATTENTION: login fix triggered');
                 return;
             }
-
-            console.log('login fix bypassed');
 
             return this.reloadOriginal(sectionNames, updateSectionId);
         }
