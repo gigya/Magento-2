@@ -6,7 +6,7 @@ define([], function () {
             initConfig: function () {
                 this._super();
 
-                if (typeof gigya_enabled != "undefined" && gigya_enabled == true) {
+                if (typeof gigya_enabled !== "undefined" && gigya_enabled) {
                     this.template = 'Gigya_GigyaIM/authentication';
                 }
 
@@ -14,7 +14,7 @@ define([], function () {
             },
 
             loadGigyaForm: function() {
-                if (typeof gigya != "undefined") {
+                if (typeof gigya !== "undefined") {
                     console.log('loadGigyaForm .. load');
                     window.gigyaInit.push(popupRaasLoginScreen);
                     requirejs('gigya_script').Functions.performGigyaActions();
@@ -22,7 +22,7 @@ define([], function () {
             },
 
             login: function() {
-                if (typeof gigya_enabled != "undefined" && gigya_enabled == true) {
+                if (typeof gigya_enabled !== "undefined" && gigya_enabled) {
                     this.switchToScreen('gigya-login-screen');
                 }
             },
@@ -37,7 +37,7 @@ define([], function () {
                     }
                 });
 
-                if (typeof gigya != "undefined") {
+                if (typeof gigya !== "undefined") {
                     requirejs('gigya_script').Functions.performGigyaActions();
                 }
             }
