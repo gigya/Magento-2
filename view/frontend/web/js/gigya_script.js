@@ -174,10 +174,10 @@ define([
 		gigyaMage2.Functions.logoutMagento();
 	};
 
-	gigyaMage2.Functions.waitForElementToDisplay = function(selector, callable, params, time) {
-		if ($(selector).length < 1) {
+	gigyaMage2.Functions.waitForElementToDisplay = function(selector, callable, params, time, ttl) {
+		if ($(selector).length < 1 && ttl > 0) {
 			setTimeout(function () {
-				gigyaMage2.Functions.waitForElementToDisplay(selector, callable, params, time);
+				gigyaMage2.Functions.waitForElementToDisplay(selector, callable, params, time, ttl - time);
 			}, time);
 		} else {
 			callable(params);
@@ -208,7 +208,7 @@ define([
 						/* showScreenSet should always wait for the container DOM element. It usually loads on time, but not always. */
 						if (func === 'accounts.showScreenSet' && typeof element.parameters.containerID !== 'undefined') {
 							var containerIdSelector = '#' + element.parameters.containerID;
-							gigyaMage2.Functions.waitForElementToDisplay(containerIdSelector, f, element.parameters, 200);
+							gigyaMage2.Functions.waitForElementToDisplay(containerIdSelector, f, element.parameters, 200, 5000);
 						}
 						else {
 							f(element.parameters);
