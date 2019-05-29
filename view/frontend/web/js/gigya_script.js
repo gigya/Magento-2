@@ -1,53 +1,53 @@
 define([
-    'jquery',
-    'Magento_Ui/js/modal/modal',
-    'Magento_Customer/js/customer-data'
-], function($, modal, customerData){
-    "use strict";
-    var gigyaMage2 = {
-        Params : {},
-        Functions : {}
-    };
+	'jquery',
+	'Magento_Ui/js/modal/modal',
+	'Magento_Customer/js/customer-data'
+], function ($, modal, customerData) {
+	"use strict";
+	var gigyaMage2 = {
+		Params: {},
+		Functions: {}
+	};
 
-    /**
-     * Load Gigya script
-     * Sync gigya-magento sessions
-     * Event handlers (login, update)
-     */
-    gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
-    gigyaMage2.Params.form_key = null;
-    var formKeyObj = $('input[name="form_key"]');
-    if ( formKeyObj.val().length ){
-        gigyaMage2.Params.form_key = formKeyObj.val();
-    }
+	/**
+	 * Load Gigya script
+	 * Sync gigya-magento sessions
+	 * Event handlers (login, update)
+	 */
+	gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
+	gigyaMage2.Params.form_key = null;
+	var formKeyObj = $('input[name="form_key"]');
+	if (formKeyObj.val().length) {
+		gigyaMage2.Params.form_key = formKeyObj.val();
+	}
 
-    gigyaMage2.Functions.loadGigyaScript = function(api_key, language, domain) {
-        if (!domain) {
-            domain = 'gigya.com';
-        }
+	gigyaMage2.Functions.loadGigyaScript = function (api_key, language, domain) {
+		if (!domain) {
+			domain = 'gigya.com';
+		}
 
-        var gig = document.createElement('script');
-        gig.type = 'text/javascript';
-        gig.async = false;
-        gig.src = 'https://cdns.' + domain +
-            '/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
-        var gig_loaded = function () {
-				gigya.accounts.addEventHandlers(
-                    {
-                        onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
-                        onLogout: gigyaMage2.Functions.gigyaLogoutEventHandler
-                    }
-                );
-            };
-        gig.onreadystatechange = function () {
-            if (this.readyState === 'complete') gig_loaded();
-        };
-        gig.onload = gig_loaded;
+		var gig = document.createElement('script');
+		gig.type = 'text/javascript';
+		gig.async = false;
+		gig.src = 'https://cdns.' + domain +
+			'/js/gigya.js?apiKey=' + api_key + '&lang=' + language;
+		var gig_loaded = function () {
+			gigya.accounts.addEventHandlers(
+				{
+					onLogin: gigyaMage2.Functions.gigyaLoginEventHandler,
+					onLogout: gigyaMage2.Functions.gigyaLogoutEventHandler
+				}
+			);
+		};
+		gig.onreadystatechange = function () {
+			if (this.readyState === 'complete') gig_loaded();
+		};
+		gig.onload = gig_loaded;
 
-        document.getElementsByTagName('head')[0].appendChild(gig);
+		document.getElementsByTagName('head')[0].appendChild(gig);
 
-        window.gigyaCMS = {authenticated: false};
-    };
+		window.gigyaCMS = {authenticated: false};
+	};
 
 	/**
 	 * sync Magento-Gigya sessions logic
@@ -115,9 +115,9 @@ define([
 			UID: eventObj.UID
 		};
 
-        if (typeof eventObj.expires_in !== 'undefined') {
-            loginData.expiresIn = eventObj.expires_in;
-        }
+		if (typeof eventObj.expires_in !== 'undefined') {
+			loginData.expiresIn = eventObj.expires_in;
+		}
 
 		var data = {
 			form_key: gigyaMage2.Params.form_key,
@@ -152,7 +152,7 @@ define([
 			showLoader: true,
 			context: loader_context,
 			data: data,
-            dataType: 'json'
+			dataType: 'json'
 		}).done(function (dataObj) {
 			if ((typeof dataObj.location !== 'undefined') && (typeof sendSetSSOToken !== 'undefined') && (sendSetSSOToken)) {
 				gigya.accounts.setSSOToken({redirectURL: dataObj.location});
@@ -166,50 +166,68 @@ define([
 		});
 	};
 
-    gigyaMage2.Functions.loginEncode = function(data)
-    {
-        return window.btoa(decodeURIComponent(encodeURIComponent( data )));
-    };
+	gigyaMage2.Functions.loginEncode = function (data) {
+		return window.btoa(decodeURIComponent(encodeURIComponent(data)));
+	};
 
-    gigyaMage2.Functions.gigyaLogoutEventHandler = function() {
-        gigyaMage2.Functions.logoutMagento();
-    };
+	gigyaMage2.Functions.gigyaLogoutEventHandler = function () {
+		gigyaMage2.Functions.logoutMagento();
+	};
 
-    gigyaMage2.Functions.performGigyaActions = function() {
-        if (window.gigyaInit) {
+	gigyaMage2.Functions.waitForElementToDisplay = function(selector, callable, params, time, ttl) {
+		if ($(selector).length < 1 && ttl > 0) {
+			setTimeout(function () {
+				gigyaMage2.Functions.waitForElementToDisplay(selector, callable, params, time, ttl - time);
+			}, time);
+		} else {
+			callable(params);
+			return;
+		}
+	};
 
-            // If this is the edit profile page, then add the update profile callback function.
+	gigyaMage2.Functions.performGigyaActions = function () {
+		if (window.gigyaInit) {
+
+			/* If this is the edit profile page, then add the update profile callback function */
 			if (window.gigyaInit[0]) {
 				if (window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
 					window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
 				}
 			}
 
-            var length = window.gigyaInit.length,
-                element = null;
-            if (length > 0) {
-                for (var i = 0; i < length; i++) {
-                    element = window.gigyaInit[i];
-                    var func = element.function;
-                    var parts = func.split("\.");
-                    var f = gigya[parts[0]][parts[1]];
-                    if (typeof f === "function") {
-                        f(element.parameters);
-                    }
-                }
-            }
-            window.gigyaInit = [];
-        }
-    };
+			var length = window.gigyaInit.length,
+				element = null;
+			if (length > 0) {
+				for (var i = 0; i < length; i++) {
+					element = window.gigyaInit[i];
+					var func = element.function;
+					var parts = func.split("\.");
+					var f = gigya[parts[0]][parts[1]];
 
-    /**
-     * Things to do when gigya script finishes loading
-     * init registered Gigya functions (e.g. showScreenSet from layout files)
-     * register event listeners
-     * @param serviceName
-     */
-    window.onGigyaServiceReady =  function (serviceName) {
-        gigyaMage2.Functions.performGigyaActions();
-    };
-    return gigyaMage2;
+					if (typeof f === "function") {
+						/* showScreenSet should always wait for the container DOM element. It usually loads on time, but not always. */
+						if (func === 'accounts.showScreenSet' && typeof element.parameters.containerID !== 'undefined') {
+							var containerIdSelector = '#' + element.parameters.containerID;
+							gigyaMage2.Functions.waitForElementToDisplay(containerIdSelector, f, element.parameters, 200, 5000);
+						}
+						else {
+							f(element.parameters);
+						}
+					}
+				}
+			}
+			window.gigyaInit = [];
+		}
+	};
+
+	/**
+	 * Things to do when gigya script finishes loading
+	 * init registered Gigya functions (e.g. showScreenSet from layout files)
+	 * register event listeners
+	 * @param serviceName
+	 */
+	window.onGigyaServiceReady = function (serviceName) {
+		gigyaMage2.Functions.performGigyaActions();
+	};
+	return gigyaMage2;
 });
