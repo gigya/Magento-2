@@ -305,8 +305,6 @@ class UserDeletion
 	}
 
 	/**
-	 * @param Schedule $schedule
-	 *
 	 * @throws \Magento\Framework\Exception\LocalizedException
 	 */
 	public function execute()
