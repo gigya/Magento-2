@@ -15,6 +15,9 @@ var config = {
             'Magento_Customer/js/view/authentication-popup': {
                 'Gigya_GigyaIM/js/view/authentication-popup': true
             },
+            'Magento_Customer/js/customer-data': {
+                'Gigya_GigyaIM/js/customer-data': true
+            },
             'Magento_Checkout/js/view/authentication': {
                 'Gigya_GigyaIM/js/view/authentication': true
             },

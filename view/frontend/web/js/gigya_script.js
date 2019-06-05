@@ -124,6 +124,9 @@ define([
 			"login[]": "",
 			login_data: JSON.stringify(loginData)
 		};
+
+		gigya_login_in_progress = true;
+
 		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
 	};
 

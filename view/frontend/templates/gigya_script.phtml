@@ -19,6 +19,7 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
 	var magento_user_logged_in = false;
 	var enable_login = true;
 	var gigya_enabled = <?php echo $block->isGigyaEnabled() ? 'true' : 'false'; ?>;
+	var gigya_login_in_progress = false;
 
 	var m;
 </script>
