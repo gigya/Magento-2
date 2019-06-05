@@ -1,8 +1,8 @@
 var config = {
     map: {
         '*': {
-            gigya_script : 'Gigya_GigyaIM/js/gigya_script',
-            'Magento_Customer/js/model/authentication-popup' : 'Gigya_GigyaIM/js/model/authentication-popup'
+            'Magento_Customer/js/model/authentication-popup' : 'Gigya_GigyaIM/js/model/authentication-popup',
+            gigya_script : 'Gigya_GigyaIM/js/gigya_script'
         }
     },
     shim: {
@@ -14,6 +14,9 @@ var config = {
         'mixins': {
             'Magento_Customer/js/view/authentication-popup': {
                 'Gigya_GigyaIM/js/view/authentication-popup': true
+            },
+            'Magento_Customer/js/customer-data': {
+                'Gigya_GigyaIM/js/customer-data': true
             },
             'Magento_Checkout/js/view/authentication': {
                 'Gigya_GigyaIM/js/view/authentication': true
