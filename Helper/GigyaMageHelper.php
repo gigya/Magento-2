@@ -613,7 +613,8 @@ class GigyaMageHelper extends AbstractHelper
 		return $ret;
 	}
 
-    protected function signBaseString($key, $unsignedExpString) {
+    protected function signBaseString($key, $unsignedExpString)
+	{
         $unsignedExpString = utf8_encode($unsignedExpString);
         $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);
         $signature = base64_encode($rawHmac);
@@ -626,29 +627,31 @@ class GigyaMageHelper extends AbstractHelper
 	 *
 	 * @return $this
 	 */
-    public function transferAttributes(
-       CustomerInterface $from, CustomerInterface $to)
-    {
-        $ext = $from->getExtensionAttributes();
-        if(!is_null($ext))
-        {
-            $to->setExtensionAttributes($ext);
-        }
-        foreach(get_class_methods(CustomerInterface::class) as $method)
-        {
-            $match = [];
-            if(preg_match('/^get(.*)/', $method, $match)
-                && $method != 'getId' && $method != 'getExtensionAttributes'
-                && $method != 'getCustomAttribute' && $method != 'getData')
-            {
-                $getter = $method;
-                $setter = 'set'.$match[1];
-                if(method_exists($to, $setter))
-                {
-                    $to->$setter($from->$getter());
-                }
-            }
-        }
-        return $this;
-    }
+    public function transferAttributes(CustomerInterface $from, CustomerInterface $to)
+	{
+		$ext = $from->getExtensionAttributes();
+
+		if (!is_null($ext)) {
+			$to->setExtensionAttributes($ext);
+		}
+
+		foreach (get_class_methods(CustomerInterface::class) as $method) {
+			$match = [];
+
+			if (preg_match('/^get(.*)/', $method, $match)
+				&& $method != 'getId'
+				&& $method != 'getExtensionAttributes'
+				&& $method != 'getCustomAttribute'
+				&& $method != 'getData'
+			) {
+				$getter = $method;
+				$setter = 'set' . $match[1];
+				if (method_exists($to, $setter)) {
+					$to->$setter($from->$getter());
+				}
+			}
+		}
+
+		return $this;
+	}
 }

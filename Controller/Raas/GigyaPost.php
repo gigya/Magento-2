@@ -338,8 +338,6 @@ class GigyaPost extends LoginPost
 	 * Retrieve success message
 	 *
 	 * @return string
-	 *
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     protected function getSuccessMessage()
     {

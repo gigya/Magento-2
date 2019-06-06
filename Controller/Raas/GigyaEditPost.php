@@ -93,7 +93,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
     }
 
     /**
-     * Change customer password action
+     * Edit profile and change customer password action
      *
      * @return \Magento\Framework\Controller\Result\Redirect
      *

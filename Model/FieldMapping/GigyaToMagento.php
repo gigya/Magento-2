@@ -3,6 +3,7 @@
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
+use Magento\Customer\Api\Data\CustomerInterface;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Model\MagentoCustomerFieldsUpdater;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -49,8 +50,9 @@ class GigyaToMagento extends AbstractFieldMapping
      *
      * The mapping rules are retrieved from the json field mapping file pointed to by backend configuration key 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path'
      *
-     * @param Customer $customer
+     * @param Customer|CustomerInterface $customer
      * @param $gigyaUser
+     *
      * @throws GigyaFieldMappingException
      */
     public function run($customer, $gigyaUser)
