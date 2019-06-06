@@ -66,18 +66,20 @@ class GigyaSyncHelper extends AbstractHelper
      */
     protected $shareConfig;
 
-    /**
-     * GigyaSyncHelper constructor.
-     *
-     * @param HelperContext $helperContext
-     * @param MessageManager $messageManager
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param FilterBuilder $filterBuilder
-     * @param FilterGroupBuilder $filterGroupBuilder
-     * @param StoreManagerInterface $storeManager
-     * @param Session $customerSession
-     */
+	/**
+	 * GigyaSyncHelper constructor.
+	 *
+	 * @param HelperContext               $helperContext
+	 * @param MessageManager              $messageManager
+	 * @param CustomerRepositoryInterface $customerRepository
+	 * @param SearchCriteriaBuilder       $searchCriteriaBuilder
+	 * @param FilterBuilder               $filterBuilder
+	 * @param FilterGroupBuilder          $filterGroupBuilder
+	 * @param StoreManagerInterface       $storeManager
+	 * @param Session                     $customerSession
+	 * @param AppState                    $state
+	 * @param Share                       $shareConfig
+	 */
     public function __construct(
         HelperContext $helperContext,
         MessageManager $messageManager,
@@ -116,7 +118,6 @@ class GigyaSyncHelper extends AbstractHelper
 	 * @throws GSException If no Magento customer account could be used nor created with this Gigya UID and provided LoginIDs emails : user can not be logged in.
 	 *                     Reason can be for instance : all emails attached with this Gigya account are already set on Magento accounts on this website but for other Gigya UIDs.
 	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     public function getMagentoCustomerAndLoggingEmail($gigyaAccount)
     {
@@ -128,8 +129,10 @@ class GigyaSyncHelper extends AbstractHelper
         $gigyaUid = $gigyaAccount->getUID();
         $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'];
         $gigyaProfileEmail = $gigyaAccount->getProfile()->getEmail();
+
         // Will be fed with the emails that are already used by a Magento customer account, but to a different or null Gigya UID
         $notUsableEmails = [];
+
         // Search criteria and filter to use for checking the existence of a Magento customer account with a given email
         $filterGroups = [];
         $searchCustomerByEmailCriteriaFilter = $this->filterBuilder->setField('email')->setConditionType('eq')->create();
@@ -184,6 +187,7 @@ class GigyaSyncHelper extends AbstractHelper
             // 2. no customer account exists on Magento with this Gigya UID and one of the Gigya loginIDs emails : check if we can create it with one of the Gigya loginIDs emails
             // 2.1 Gigya profile email is the preferred one
             $updateMagentoCustomerWithGigyaProfileEmail = false;
+
             // Gigya profile email is in the Gigya loginIDs emails ?
             if (in_array($gigyaProfileEmail, $gigyaLoginIdsEmails)) {
                 // and Gigya profile email is not already attached to an existing Magento account ?
@@ -296,6 +300,7 @@ class GigyaSyncHelper extends AbstractHelper
         // We initialize it to null. If it's still null at the end of the algorithm that means that the user can not logged in
         // because all Gigya loginIDs emails are already set to existing Magento customer accounts with a different or null Gigya UID
         $this->session->setGigyaAccountLoggingEmail(null);
+
         // This will be set with the incoming $gigyaAccount parameter if the customer can be logged in on Magento.
         $this->session->setGigyaAccountData(null);
 

@@ -139,7 +139,6 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 	 *
 	 * @throws GSException
 	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     protected function getGigyaDataForEnrichment($magentoCustomer)
     {

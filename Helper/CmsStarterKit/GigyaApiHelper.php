@@ -140,6 +140,33 @@ class GigyaApiHelper
 	}
 
 	/**
+	 * Queries Gigya with the accounts.search call
+	 *
+	 * @param string $query The literal query to send to accounts.search
+	 *
+	 * @return GigyaUser[]
+	 *
+	 * @throws GSApiException
+	 * @throws sdk\GSException
+	 */
+	public function searchGigyaUsers($query)
+	{
+		$gigyaUsers = array();
+		$gigyaData = $this->sendApiCall('accounts.search', array('query' => $query))->getData()->serialize();
+
+		foreach ($gigyaData['results'] as $userData) {
+			$profileArray = $userData['profile'];
+			$gigyaUser = GigyaUserFactory::createGigyaUserFromArray($userData);
+			$gigyaProfile = GigyaUserFactory::createGigyaProfileFromArray($profileArray);
+			$gigyaUser->setProfile($gigyaProfile);
+
+			$gigyaUsers[] = $gigyaUser;
+		}
+
+		return $gigyaUsers;
+	}
+
+	/**
 	 * Send all the Gigya data for the user specified by the UID
 	 *
 	 * Data format example :

@@ -620,6 +620,12 @@ class GigyaMageHelper extends AbstractHelper
         return $signature;
     }
 
+	/**
+	 * @param CustomerInterface $from
+	 * @param CustomerInterface $to
+	 *
+	 * @return $this
+	 */
     public function transferAttributes(
        CustomerInterface $from, CustomerInterface $to)
     {

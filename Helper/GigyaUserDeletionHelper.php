@@ -74,4 +74,21 @@ class GigyaUserDeletionHelper extends AbstractHelper
 
 		return $customers;
 	}
+
+	/**
+	 * @param $attributeCode
+	 * @param $value
+	 *
+	 * @return \Magento\Customer\Api\Data\CustomerInterface
+	 *
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 */
+	public function getFirstCustomerByAttributeValue($attributeCode, $value) {
+		$customers = $this->getCustomersByAttributeValue($attributeCode, $value);
+		if (count($customers) > 0) {
+			return $customers[0];
+		}
+
+		return null;
+	}
 }

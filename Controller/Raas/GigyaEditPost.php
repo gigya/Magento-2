@@ -123,7 +123,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
             }
 
             try {
-
                 $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
                 if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
@@ -139,7 +138,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
                 $this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);
 
                 $this->customerRepository->save($eligibleCustomer);
-
             } catch (AuthenticationException $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             } catch (InputException $e) {
