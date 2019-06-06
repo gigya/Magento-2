@@ -21,6 +21,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
 {
@@ -48,6 +49,9 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
     /** @var GigyaConfig */
     protected $config;
 
+    /** @var GigyaLogger */
+    protected $logger;
+
 	/**
 	 * @param Context                     $context
 	 * @param Session                     $customerSession
@@ -58,6 +62,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
 	 * @param CustomerExtractor           $customerExtractor
 	 * @param GigyaConfig                 $config
 	 * @param GigyaMageHelper             $gigyaMageHelper
+	 * @param GigyaLogger                 $logger
 	 */
     public function __construct(
         Context $context,
@@ -68,7 +73,8 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
         Validator $formKeyValidator,
         CustomerExtractor $customerExtractor,
         GigyaConfig $config,
-        GigyaMageHelper $gigyaMageHelper
+        GigyaMageHelper $gigyaMageHelper,
+		GigyaLogger $logger
     )
     {
         parent::__construct(
@@ -83,6 +89,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
