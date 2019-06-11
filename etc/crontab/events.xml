@@ -5,10 +5,10 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="customer_load_after">
-        <!-- Enrich the Magento customer entity with the corresponding Gigya's account data, and save the entity -->
-        <observer name="gigyaBackendMagentoCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendMagentoCustomerEnricher" />
-    </event>
+    <!--<event name="customer_load_after">-->
+        <!--&lt;!&ndash; Enrich the Magento customer entity with the corresponding Gigya's account data, and save the entity &ndash;&gt;-->
+        <!--<observer name="gigyaBackendMagentoCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendMagentoCustomerEnricher" />-->
+    <!--</event>-->
     <event name="customer_save_before">
         <!-- Enrich the Gigya account data with the corresponding Magento customer entity, and update the account on Gigya service -->
         <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendGigyaAccountEnricher" />

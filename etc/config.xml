@@ -6,13 +6,13 @@
 				<enable_gigya>0</enable_gigya>
 			</general>
 		</gigya_section>
-		<gigya_session>
-            <session>
-                <mode>0</mode>
-                <expiration>1800</expiration>
-            </session>
-        </gigya_session>
-        <gigya_screensets>
+        <gigya_section_fieldmapping>
+            <offline_sync>
+                <offline_sync_is_enabled>0</offline_sync_is_enabled>
+                <offline_sync_frequency>0 * * * *</offline_sync_frequency>
+            </offline_sync>
+        </gigya_section_fieldmapping>
+		<gigya_screensets>
             <login_registration>
                 <desktop_screenset_id>Default-RegistrationLogin</desktop_screenset_id>
             </login_registration>
@@ -20,6 +20,12 @@
                 <desktop_screenset_id>Default-ProfileUpdate</desktop_screenset_id>
             </profile_update>
         </gigya_screensets>
+        <gigya_session>
+            <session>
+                <mode>0</mode>
+                <expiration>1800</expiration>
+            </session>
+        </gigya_session>
         <gigya_delete>
             <deletion_general>
                 <deletion_job_frequency>* 0 * * *</deletion_job_frequency>
