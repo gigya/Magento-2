@@ -53,7 +53,8 @@ class GigyaOfflineSync
 	/** @var GigyaToMagento */
 	protected $gigyaToMagento;
 
-	const MAX_USERS = 1000;
+	const MAX_USERS = 1000; /* Maximum users to get from accounts.search */
+	const UPDATE_DELAY = 60000; /* 60 seconds */
 	const CRON_NAME = 'Gigya offline sync';
 
 	/**
@@ -97,65 +98,66 @@ class GigyaOfflineSync
 
 	public function execute()
 	{
-		$enable_sync = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/offline_sync_is_enabled', 'website');
-		$is_debug_mode = boolval($this->gigyaMageHelper->getDebug());
-		$max_users = 1000;
+		$enableSync = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/offline_sync_is_enabled', 'website');
+		$isDebugMode = boolval($this->gigyaMageHelper->getDebug());
 
 		$this->logger->info(self::CRON_NAME . ' started. Time: ' . date("Y-m-d H:i:s"));
 
-		if ($enable_sync) {
+		if ($enableSync) {
 			$this->gigyaApiHelper = $this->gigyaMageHelper->getGigyaApiHelper();
 
-			$gigya_query = 'SELECT * FROM accounts';
-			if ($last_run = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/last_run')) {
-				$gigya_query .= ' WHERE lastUpdatedTimestamp > ' . $last_run;
+			$gigyaQuery = 'SELECT * FROM accounts';
+			if ($lastRun = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/last_run')) {
+				$gigyaQuery .= ' WHERE lastUpdatedTimestamp > ' . $lastRun;
 			}
-			$gigya_query .= ' ORDER BY lastUpdatedTimestamp ASC LIMIT ' . $max_users;
+			$gigyaQuery .= ' ORDER BY lastUpdatedTimestamp ASC LIMIT ' . self::MAX_USERS;
 
 			try {
-				$processed_users = 0;
-				if (!($last_customer_update = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/last_customer_update'))) {
-					$last_customer_update = 0;
+				$processedUsers = 0;
+				$usersNotFound = 0;
+
+				if (!($lastCustomerUpdate = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/last_customer_update'))) {
+					$lastCustomerUpdate = 0;
 				}
 
 				/** @var GSResponse $gigya_data */
-				$gigya_users = $this->gigyaApiHelper->searchGigyaUsers($gigya_query);
+				$gigyaUsers = $this->gigyaApiHelper->searchGigyaUsers($gigyaQuery);
 
-				foreach ($gigya_users as $gigya_user) {
+				foreach ($gigyaUsers as $gigyaUser) {
 					/* Abort if user does not have UID */
-					$gigya_uid = $gigya_user->getUID();
-					if (empty($gigya_uid)) {
-						throw new \Exception('User with the following data does not have a UID. Unable to process. ' . json_encode($gigya_user));
+					$gigyaUID = $gigyaUser->getUID();
+					if (empty($gigyaUID)) {
+						throw new \Exception('User with the following data does not have a UID. Unable to process. ' . json_encode($gigyaUser));
 					}
 
 					/* Abort if user does not have a valid lastUpdatedTimestamp */
-					if (empty($gigya_user->getLastUpdatedTimestamp())) {
-						throw new \Exception('User ' . $gigya_uid . ' does not have a valid last updated timestamp');
+					if (empty($gigyaUser->getLastUpdatedTimestamp())) {
+						throw new \Exception('User ' . $gigyaUID . ' does not have a valid last updated timestamp');
 					}
 
 					/* Run sync (field mapping) */
-					$magento_customer = $this->userDeletionHelper->getFirstCustomerByAttributeValue(
-						'gigya_uid', $gigya_user->getUID()
-					); /* Retrieve Magento 2 customer by Gigya UID */
-					if (!empty($magento_customer)) {
+					$magentoCustomer = $this->userDeletionHelper->getFirstCustomerByAttributeValue('gigya_uid', $gigyaUser->getUID()); /* Retrieve Magento 2 customer by Gigya UID */
+					if (!empty($magentoCustomer)) {
 						try {
-							$this->gigyaToMagento->run($magento_customer, $gigya_user); /* Enriches Magento customer with Gigya data */
-							$this->customerRepository->save($magento_customer);
+							$this->gigyaToMagento->run($magentoCustomer, $gigyaUser); /* Enriches Magento customer with Gigya data */
+							$this->customerRepository->save($magentoCustomer);
 
-							/* Saves the successful save timestamp */
-							$last_customer_update = $gigya_user->getLastUpdatedTimestamp();
-							if ($last_customer_update) {
-								$this->configWriter->save('gigya_section_fieldmapping/offline_sync/last_customer_update', $last_customer_update);
+							/* Save the successful save timestamp */
+							$lastCustomerUpdate = $gigyaUser->getLastUpdatedTimestamp();
+							if ($lastCustomerUpdate) {
+								$lastCustomerUpdate -= self::UPDATE_DELAY; /* Create a window of UPDATE_DELAY in which users will be re-synced on the next run (if applicable). This is to compensate for possible replication delays in accounts.search */
+								$this->configWriter->save('gigya_section_fieldmapping/offline_sync/last_customer_update', $lastCustomerUpdate);
 							}
 
-							$processed_users++;
+							$processedUsers++;
 						} catch (\Exception $e) {
-							$this->logger->error(self::CRON_NAME . ': Error syncing user. Gigya UID: ' . $gigya_uid);
-							throw new FieldMappingException('Error syncing user. Gigya UID: ' . $gigya_uid);
+							$this->logger->error(self::CRON_NAME . ': Error syncing user. Gigya UID: ' . $gigyaUID);
+							throw new FieldMappingException('Error syncing user. Gigya UID: ' . $gigyaUID);
 						}
 					} else {
-						if ($is_debug_mode) {
-							$this->logger->warning(self::CRON_NAME . ': User not found. Gigya UID: ' . $gigya_uid);
+						$usersNotFound++;
+						if ($isDebugMode) {
+							$this->logger->warning(self::CRON_NAME . ': User not found. Gigya UID: ' . $gigyaUID);
 						}
 					}
 
@@ -163,7 +165,7 @@ class GigyaOfflineSync
 					$this->configWriter->save('gigya_section_fieldmapping/offline_sync/last_run', round(microtime(true) * 1000));
 				}
 
-				$this->logger->info(self::CRON_NAME . ' completed. Users processed: ' . $processed_users);
+				$this->logger->info(self::CRON_NAME . ' completed. Users processed: ' . $processedUsers . (($usersNotFound) ? '. Users not found: ' . $usersNotFound : ''));
 			} catch (\Exception $e) {
 				$this->logger->error('Error on cron ' . self::CRON_NAME . ': ' . $e->getMessage() . '.');
 			}
