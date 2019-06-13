@@ -86,9 +86,10 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
 
             /* If no value found, log and skip field */
             if (is_null($value)) {
-                $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in gigya user object. Check your field mapping configuration");
+                $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in Gigya user object for Magento user {$account->getId()}. Check your field mapping configuration");
                 continue;
             }
+
             foreach ($confs as $conf) {
     	        $mageKey = $conf->getCmsName();     // e.g: mageKey = prefix
                 $value   = $this->castValue($value, $conf);

@@ -12,7 +12,6 @@ class OfflineSyncFrequency implements ArrayInterface
 	public function toOptionArray()
 	{
 		return [
-			['value' => '* * * * *', 'label' => __('Every minute')],
 			['value' => '*/5 * * * *', 'label' => __('Every 5 minutes')],
 			['value' => '*/30 * * * *', 'label' => __('Every 30 minutes')],
 			['value' => '0 * * * *', 'label' => __('Every hour')],

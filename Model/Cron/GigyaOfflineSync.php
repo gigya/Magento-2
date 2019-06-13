@@ -12,9 +12,7 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Model\FieldMapping\GigyaFromMagento;
 use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
 use Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater;
-use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\CustomerFactory;
-use Magento\Customer\Model\Data\Customer;
 use Magento\Customer\Model\ResourceModel\CustomerRepository;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -52,17 +50,11 @@ class GigyaOfflineSync
 	/** @var GigyaMageHelper */
 	protected $gigyaSyncHelper;
 
-	/** @var Customer */
-//	protected $customer;
-
-	/** @var CustomerFactory */
-	protected $customerFactory;
-
 	/** @var GigyaToMagento */
 	protected $gigyaToMagento;
 
-	/** @var CustomerRepositoryInterface */
-//	protected $customerRepositoryInterface;
+	const MAX_USERS = 1000;
+	const CRON_NAME = 'Gigya offline sync';
 
 	/**
 	 * GigyaOfflineSync constructor.
@@ -89,9 +81,6 @@ class GigyaOfflineSync
 		GigyaFromMagento $gigyaFromMagento,
 		GigyaUserDeletionHelper $gigyaUserDeletionHelper,
 		CustomerRepository $customerRepository,
-//		CustomerRepositoryInterface $customerRepositoryInterface,
-//		Customer $customer,
-		CustomerFactory $customerFactory,
 		GigyaToMagento $gigyaToMagento
 	) {
 		$this->logger = $logger;
@@ -103,9 +92,6 @@ class GigyaOfflineSync
 		$this->gigyaFromMagento = $gigyaFromMagento;
 		$this->userDeletionHelper = $gigyaUserDeletionHelper;
 		$this->customerRepository = $customerRepository;
-//		$this->customerRepositoryInterface = $customerRepositoryInterface;
-//		$this->customer = $customer;
-		$this->customerFactory = $customerFactory;
 		$this->gigyaToMagento = $gigyaToMagento;
 	}
 
@@ -113,17 +99,18 @@ class GigyaOfflineSync
 	{
 		$enable_sync = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/offline_sync_is_enabled', 'website');
 		$is_debug_mode = boolval($this->gigyaMageHelper->getDebug());
+		$max_users = 1000;
 
-		$this->logger->info('Gigya offline sync started. Time: ' . date("Y-m-d H:i:s"));
+		$this->logger->info(self::CRON_NAME . ' started. Time: ' . date("Y-m-d H:i:s"));
 
 		if ($enable_sync) {
 			$this->gigyaApiHelper = $this->gigyaMageHelper->getGigyaApiHelper();
 
 			$gigya_query = 'SELECT * FROM accounts';
 			if ($last_run = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/last_run')) {
-//				$gigya_query .= ' WHERE lastUpdatedTimestamp > ' . $last_run; ////
+				$gigya_query .= ' WHERE lastUpdatedTimestamp > ' . $last_run;
 			}
-			$gigya_query .= ' ORDER BY lastUpdatedTimestamp ASC';
+			$gigya_query .= ' ORDER BY lastUpdatedTimestamp ASC LIMIT ' . $max_users;
 
 			try {
 				$processed_users = 0;
@@ -147,7 +134,9 @@ class GigyaOfflineSync
 					}
 
 					/* Run sync (field mapping) */
-					$magento_customer = $this->userDeletionHelper->getFirstCustomerByAttributeValue('gigya_uid', $gigya_user->getUID()); /* Retrieve Magento 2 customer by Gigya UID */
+					$magento_customer = $this->userDeletionHelper->getFirstCustomerByAttributeValue(
+						'gigya_uid', $gigya_user->getUID()
+					); /* Retrieve Magento 2 customer by Gigya UID */
 					if (!empty($magento_customer)) {
 						try {
 							$this->gigyaToMagento->run($magento_customer, $gigya_user); /* Enriches Magento customer with Gigya data */
@@ -158,21 +147,25 @@ class GigyaOfflineSync
 							if ($last_customer_update) {
 								$this->configWriter->save('gigya_section_fieldmapping/offline_sync/last_customer_update', $last_customer_update);
 							}
+
+							$processed_users++;
 						} catch (\Exception $e) {
-							$this->logger->error('Error syncing user. Gigya UID: ' . $gigya_uid);
+							$this->logger->error(self::CRON_NAME . ': Error syncing user. Gigya UID: ' . $gigya_uid);
 							throw new FieldMappingException('Error syncing user. Gigya UID: ' . $gigya_uid);
 						}
 					} else {
-						$this->logger->warning('User not found. Gigya UID: ' . $gigya_uid);
+						if ($is_debug_mode) {
+							$this->logger->warning(self::CRON_NAME . ': User not found. Gigya UID: ' . $gigya_uid);
+						}
 					}
 
 					/* Saves the successful run timestamp */
 					$this->configWriter->save('gigya_section_fieldmapping/offline_sync/last_run', round(microtime(true) * 1000));
 				}
 
-				$this->logger->info('Offline sync completed. Users processed: ' . $processed_users);
+				$this->logger->info(self::CRON_NAME . ' completed. Users processed: ' . $processed_users);
 			} catch (\Exception $e) {
-				$this->logger->error('Error on Gigya offline sync: ' . $e->getMessage() . '.');
+				$this->logger->error('Error on cron ' . self::CRON_NAME . ': ' . $e->getMessage() . '.');
 			}
 		}
 	}
