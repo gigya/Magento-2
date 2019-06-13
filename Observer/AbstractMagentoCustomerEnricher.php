@@ -241,10 +241,8 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
                     $excludeSyncCms2G = false;
                 }
 
-                $this->logger->info('syncing customer ' . $magentoCustomer->getEmail()); ////
                 try {
-					$this->logger->info('saving customer ' . $magentoCustomer->getEmail()); ////
-                    $this->saveMagentoCustomer($magentoCustomer); ////
+                    $this->saveMagentoCustomer($magentoCustomer);
                 } finally {
                     // If the synchro to Gigya was not already disabled we re-enable it
                     if (!$excludeSyncCms2G) {
