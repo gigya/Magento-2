@@ -4,7 +4,7 @@ namespace Gigya\GigyaIM\Model\Cron;
 
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
-use Gigya\GigyaIM\Helper\GigyaUserDeletionHelper;
+use Gigya\GigyaIM\Helper\GigyaCronHelper;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Model\ResourceModel\ConnectionFactory;
 use Magento\Cron\Model\Schedule;
@@ -58,7 +58,7 @@ class UserDeletion
 	/** @var Manager */
 	private $eventManager;
 
-	/** @var GigyaUserDeletionHelper */
+	/** @var GigyaCronHelper */
 	private $helper;
 
 	/** @var array */
@@ -70,18 +70,18 @@ class UserDeletion
 	/**
 	 * UserDeletion constructor.
 	 *
-	 * @param GigyaLogger $logger
-	 * @param Context $context
-	 * @param CustomerRepository $customerRepository
-	 * @param CustomerFactory $customerFactory
-	 * @param WriterInterface $configWriter
-	 * @param GigyaUserDeletionHelper $gigyaUserDeletionHelper
-	 * @param Registry $registry
-	 * @param ResourceConnection $resourceConnection
-	 * @param ConnectionFactory $connectionFactory
-	 * @param Attribute $attribute
+	 * @param GigyaLogger           $logger
+	 * @param Context               $context
+	 * @param CustomerRepository    $customerRepository
+	 * @param CustomerFactory       $customerFactory
+	 * @param WriterInterface       $configWriter
+	 * @param GigyaCronHelper       $gigyaUserDeletionHelper
+	 * @param Registry              $registry
+	 * @param ResourceConnection    $resourceConnection
+	 * @param ConnectionFactory     $connectionFactory
+	 * @param Attribute             $attribute
 	 * @param StoreManagerInterface $storeManager
-	 * @param Manager $eventManager
+	 * @param Manager               $eventManager
 	 */
 	public function __construct(
 		GigyaLogger $logger,
@@ -89,7 +89,7 @@ class UserDeletion
 		CustomerRepository $customerRepository,
 		CustomerFactory $customerFactory,
 		WriterInterface $configWriter,
-		GigyaUserDeletionHelper $gigyaUserDeletionHelper,
+		GigyaCronHelper $gigyaUserDeletionHelper,
 		Registry $registry,
 		ResourceConnection $resourceConnection,
 		ConnectionFactory $connectionFactory,

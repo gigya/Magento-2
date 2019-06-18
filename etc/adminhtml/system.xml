@@ -74,6 +74,14 @@
 					<source_model>Gigya\GigyaIM\Model\Config\Source\OfflineSyncFrequency</source_model>
 					<comment><![CDATA[Less frequent times will be on the start of that time frame, e.g. once a day will be at 00:00 of the same day, etc.]]></comment>
 				</field>
+                <field id="sync_email_success" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Email on Success</label>
+                    <validate>validate-emails</validate>
+                </field>
+                <field id="sync_email_failure" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Email on Failure</label>
+                    <validate>validate-emails</validate>
+                </field>
 			</group>
         </section>
         <section id="gigya_screensets" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -148,10 +156,11 @@
                 </field>
                 <field id="deletion_email_success" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Success</label>
-                    <validate>required-entry validate-no-empty validate-email</validate>
+                    <validate>required-entry validate-no-empty validate-emails</validate>
                 </field>
                 <field id="deletion_email_failure" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Failure</label>
+                    <validate>validate-emails</validate>
                 </field>
             </group>
             <group id="deletion_aws_details" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
