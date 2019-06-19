@@ -50,12 +50,13 @@ class GigyaToMagento extends AbstractFieldMapping
      *
      * The mapping rules are retrieved from the json field mapping file pointed to by backend configuration key 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path'
      *
-     * @param Customer|CustomerInterface $customer
-     * @param $gigyaUser
+	 * @param Customer|CustomerInterface $customer
+	 * @param array                      $gigyaUser
+	 * @param boolean                    $skipCache
      *
      * @throws GigyaFieldMappingException
      */
-    public function run($customer, $gigyaUser)
+    public function run($customer, $gigyaUser, $skipCache = false)
     {
         $config_file_path = $this->getFieldMappingFilePath();
         if ($config_file_path != null) {
@@ -63,7 +64,7 @@ class GigyaToMagento extends AbstractFieldMapping
             $this->customerFieldsUpdater->setGigyaUser($gigyaUser);
             $this->customerFieldsUpdater->setMagentoUser($customer);
             try {
-                $this->customerFieldsUpdater->updateCmsAccount($customer);
+                $this->customerFieldsUpdater->updateCmsAccount($customer, null, $skipCache);
             } catch (\Exception $e) {
                 $message = "error " . $e->getCode() . ". message: " . $e->getMessage() . ". File: " .$e->getFile();
                 $this->logger->error(
@@ -76,7 +77,7 @@ class GigyaToMagento extends AbstractFieldMapping
                 throw new GigyaFieldMappingException($message);
             }
         } else {
-            $message = "mapping fields file path is not defined. Define file path at: Stores:Config:Gigya:Field Mapping";
+            $message = "Mapping fields file path is not defined. Define file path at: Stores > Config > Gigya > Field Mapping";
             $this->logger->warn(
                 $message,
                 [

@@ -172,7 +172,7 @@ class GigyaOfflineSync
 					$magentoCustomer = $this->gigyaCronHelper->getFirstCustomerByAttributeValue('gigya_uid', $gigyaUser->getUID()); /* Retrieve Magento 2 customer by Gigya UID */
 					if (!empty($magentoCustomer)) {
 						try {
-							$this->gigyaToMagento->run($magentoCustomer, $gigyaUser); /* Enriches Magento customer with Gigya data */
+							$this->gigyaToMagento->run($magentoCustomer, $gigyaUser, true); /* Enriches Magento customer with Gigya data */
 							$this->customerRepository->save($magentoCustomer);
 
 							/* Save the successful save timestamp */

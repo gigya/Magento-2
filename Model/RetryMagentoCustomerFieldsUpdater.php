@@ -67,8 +67,12 @@ class RetryMagentoCustomerFieldsUpdater extends MagentoCustomerFieldsUpdater
      *
      * The $gigyaMapping param is ignored : we call parent::setGigyaMapping with our own retrieved from $this->retryConfMapping->getGigyaKeyed()
      */
-    public function setGigyaMapping($gigyaMapping)
-    {
-        parent::setGigyaMapping($this->retryConfMapping->getGigyaKeyed());
-    }
+	public function setGigyaMapping($gigyaMapping)
+	{
+		if (!empty($this->retryConfMapping)) {
+			$gigyaMapping = $this->retryConfMapping->getGigyaKeyed();
+		}
+
+		parent::setGigyaMapping($gigyaMapping);
+	}
 }
