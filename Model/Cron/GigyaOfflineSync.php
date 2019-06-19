@@ -199,7 +199,8 @@ class GigyaOfflineSync
 				/* Successful run completion actions */
 				$this->configWriter->save('gigya_section_fieldmapping/offline_sync/last_run', round(microtime(true) * 1000));
 				$this->logger->info(self::CRON_NAME . ' completed. Users processed: ' . $processedUsers . (($usersNotFound) ? '. Users not found: ' . $usersNotFound : ''));
-				$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'succeeded', $emailsOnSuccess, $processedUsers, $usersNotFound);
+				$status = ($usersNotFound > 0) ? 'completed with errors' : 'succeeded';
+				$this->gigyaCronHelper->sendEmail(self::CRON_NAME, $status, $emailsOnSuccess, $processedUsers, $usersNotFound);
 			} catch (\Exception $e) {
 				$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'failed', $emailsOnFailure, $processedUsers, $usersNotFound);
 				$this->logger->error('Error on cron ' . self::CRON_NAME . ': ' . $e->getMessage() . '.');
