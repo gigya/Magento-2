@@ -171,8 +171,8 @@ class GigyaCronHelper extends AbstractHelper
 		$email_body = $custom_email_body;
 		if (empty($custom_email_body)) {
 			$email_body = '';
-			if ($job_status == 'succeeded') {
-				$email_body = 'Job succeeded or completed with errors on '.gmdate("F n, Y H:i:s").' (UTC).';
+			if ($job_status == 'succeeded' or $job_status == 'completed with errors') {
+				$email_body = 'Job ' . $job_status . ' on ' . gmdate("F n, Y H:i:s") . ' (UTC).';
 				if ($processed_items !== null) {
 					$email_body .= ' ' . $processed_items . ' ' . (($processed_items > 1) ? 'items' : 'item') . ' successfully processed, ' . $failed_users . ' failed.';
 				}
