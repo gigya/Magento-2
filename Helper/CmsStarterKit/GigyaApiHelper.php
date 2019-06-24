@@ -117,6 +117,7 @@ class GigyaApiHelper
 			$include = 'identities-active,identities-all,identities-global,loginIDs,emails,profile,data,password,isLockedOut,'
 					   . 'lastLoginLocation,regSource,irank,rba,subscriptions,userInfo,preferences';
 		}
+
 		if (null === $extraProfileFields)
 		{
 			$extraProfileFields = 'languages,address,phones,education,educationLevel,honors,publications,patents,certifications,'
@@ -142,17 +143,30 @@ class GigyaApiHelper
 	/**
 	 * Queries Gigya with the accounts.search call
 	 *
-	 * @param string $query The literal query to send to accounts.search
+	 * @param string|array $query The literal query to send to accounts.search, or a set of params to send instead (useful for cursors)
+	 * @param bool         $useCursor
 	 *
 	 * @return GigyaUser[]
 	 *
 	 * @throws GSApiException
 	 * @throws sdk\GSException
 	 */
-	public function searchGigyaUsers($query)
-	{
+	public function searchGigyaUsers($query, $useCursor = false) {
 		$gigyaUsers = array();
-		$gigyaData = $this->sendApiCall('accounts.search', array('query' => $query))->getData()->serialize();
+
+		if (is_array($query)) /* Query is actually a set of params. Useful for setting cursor ID instead of query */
+		{
+			$params = $query;
+		}
+		else
+		{
+			$params = array(
+				'openCursor' => $useCursor,
+				'query' => $query,
+			);
+		}
+
+		$gigyaData = $this->sendApiCall('accounts.search', $params)->getData()->serialize();
 
 		foreach ($gigyaData['results'] as $userData) {
 			$profileArray = $userData['profile'];
@@ -161,6 +175,11 @@ class GigyaApiHelper
 			$gigyaUser->setProfile($gigyaProfile);
 
 			$gigyaUsers[] = $gigyaUser;
+		}
+
+		if (!empty($gigyaData['nextCursorId'])) {
+			$cursorId = $gigyaData['nextCursorId'];
+			return array_merge($gigyaUsers, $this->searchGigyaUsers(['cursorId' => $cursorId]));
 		}
 
 		return $gigyaUsers;

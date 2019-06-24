@@ -109,7 +109,7 @@ class GigyaOfflineSync
 
 			try {
 				/** @var GSResponse $gigya_data */
-				$gigyaUsers = $this->gigyaApiHelper->searchGigyaUsers($gigyaQuery);
+				$gigyaUsers = $this->gigyaApiHelper->searchGigyaUsers($gigyaQuery, true);
 
 				return $gigyaUsers;
 			} catch (\Exception $e) {
@@ -120,6 +120,11 @@ class GigyaOfflineSync
 		}
 
 		return false;
+	}
+
+	private function handleError($errorMessage, $emailsOnFailure, $processedUsers, $usersNotFound) {
+		$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'failed', $emailsOnFailure, $processedUsers, $usersNotFound);
+		$this->logger->error('Error on cron ' . self::CRON_NAME . ': ' .$errorMessage . '.');
 	}
 
 	public function execute()
@@ -138,8 +143,8 @@ class GigyaOfflineSync
 			}
 
 			$gigyaQuery = 'SELECT * FROM accounts';
-			if ($lastRun = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/last_run')) {
-				$gigyaQuery .= ' WHERE lastUpdatedTimestamp > ' . $lastRun;
+			if ($lastCustomerUpdate) {
+				$gigyaQuery .= ' WHERE lastUpdatedTimestamp > ' . $lastCustomerUpdate;
 			}
 			$gigyaQuery .= ' ORDER BY lastUpdatedTimestamp ASC LIMIT ' . self::MAX_USERS;
 
@@ -147,10 +152,10 @@ class GigyaOfflineSync
 				$processedUsers = 0;
 				$usersNotFound = 0;
 
+				/* Get user data from Gigya */
 				$gigyaUsers = $this->searchGigyaUsers($gigyaQuery, $gigyaException, 3);
 				if ($gigyaUsers === false) {
-					$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'failed', $emailsOnFailure, $processedUsers, $usersNotFound);
-					$this->logger->error('Error on cron ' . self::CRON_NAME . ': ' . $gigyaException['message'] . '.');
+					$this->handleError($gigyaException['message'], $emailsOnFailure, $processedUsers, $usersNotFound);
 					throw new \Exception($gigyaException['message'], $gigyaException['code']);
 				}
 
@@ -158,14 +163,16 @@ class GigyaOfflineSync
 					/* Abort if user does not have UID */
 					$gigyaUID = $gigyaUser->getUID();
 					if (empty($gigyaUID)) {
-						$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'failed', $emailsOnFailure, $processedUsers, $usersNotFound);
-						throw new \Exception('User with the following data does not have a UID. Unable to process. ' . json_encode($gigyaUser));
+						$message = 'User with the following data does not have a UID. Unable to process. ' . json_encode($gigyaUser);
+						$this->handleError($message, $emailsOnFailure, $processedUsers, $usersNotFound);
+						throw new \Exception($message);
 					}
 
 					/* Abort if user does not have a valid lastUpdatedTimestamp */
 					if (empty($gigyaUser->getLastUpdatedTimestamp())) {
-						$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'failed', $emailsOnFailure, $processedUsers, $usersNotFound);
-						throw new \Exception('User ' . $gigyaUID . ' does not have a valid last updated timestamp');
+						$message = 'User ' . $gigyaUID . ' does not have a valid last updated timestamp';
+						$this->handleError($message, $emailsOnFailure, $processedUsers, $usersNotFound);
+						throw new \Exception($message);
 					}
 
 					/* Run sync (field mapping) */
@@ -184,9 +191,9 @@ class GigyaOfflineSync
 
 							$processedUsers++;
 						} catch (\Exception $e) {
-							$this->logger->error(self::CRON_NAME . ': Error syncing user. Gigya UID: ' . $gigyaUID);
-							$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'failed', $emailsOnFailure, $processedUsers, $usersNotFound);
-							throw new FieldMappingException('Error syncing user. Gigya UID: ' . $gigyaUID);
+							$message = 'Error syncing user. Gigya UID: ' . $gigyaUID;
+							$this->handleError($message, $emailsOnFailure, $processedUsers, $usersNotFound);
+							throw new FieldMappingException($message);
 						}
 					} else {
 						$usersNotFound++;
@@ -202,7 +209,7 @@ class GigyaOfflineSync
 				$status = ($usersNotFound > 0) ? 'completed with errors' : 'succeeded';
 				$this->gigyaCronHelper->sendEmail(self::CRON_NAME, $status, $emailsOnSuccess, $processedUsers, $usersNotFound);
 			} catch (\Exception $e) {
-				$this->gigyaCronHelper->sendEmail(self::CRON_NAME, 'failed', $emailsOnFailure, $processedUsers, $usersNotFound);
+				$this->handleError($e->getMessage(), $emailsOnFailure, $processedUsers, $usersNotFound);
 				$this->logger->error('Error on cron ' . self::CRON_NAME . ': ' . $e->getMessage() . '.');
 			}
 		}
