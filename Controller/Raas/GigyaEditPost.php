@@ -21,6 +21,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
 {
@@ -48,6 +49,9 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
     /** @var GigyaConfig */
     protected $config;
 
+    /** @var GigyaLogger */
+    protected $logger;
+
 	/**
 	 * @param Context                     $context
 	 * @param Session                     $customerSession
@@ -58,6 +62,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
 	 * @param CustomerExtractor           $customerExtractor
 	 * @param GigyaConfig                 $config
 	 * @param GigyaMageHelper             $gigyaMageHelper
+	 * @param GigyaLogger                 $logger
 	 */
     public function __construct(
         Context $context,
@@ -68,7 +73,8 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
         Validator $formKeyValidator,
         CustomerExtractor $customerExtractor,
         GigyaConfig $config,
-        GigyaMageHelper $gigyaMageHelper
+        GigyaMageHelper $gigyaMageHelper,
+		GigyaLogger $logger
     )
     {
         parent::__construct(
@@ -83,10 +89,11 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
-     * Change customer password action
+     * Edit profile and change customer password action
      *
      * @return \Magento\Framework\Controller\Result\Redirect
      *
@@ -123,7 +130,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
             }
 
             try {
-
                 $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
                 if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
@@ -139,7 +145,6 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
                 $this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);
 
                 $this->customerRepository->save($eligibleCustomer);
-
             } catch (AuthenticationException $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             } catch (InputException $e) {

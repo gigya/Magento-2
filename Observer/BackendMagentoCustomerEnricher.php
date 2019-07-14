@@ -15,7 +15,7 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  *
  * @inheritdoc
  *
- * Backend enrichement of Magento customer with Gigya data happens on customer page detail loading.
+ * Backend enrichment of Magento customer with Gigya data happens on customer page detail loading.
  *
  * This subclass is here just to mute any GigyaMagentoCustomerSaveException that could be thrown during the enrichment, at the moment of the enriched customer is saved.
  * The exception is muted because the goal is before all to display the latest Gigya data, even if it's not persisted in Magento database.
@@ -63,15 +63,15 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /**
      * @inheritdoc
      *
-     * If GigyaMagentoCustomerSaveException is caught it's muted. Any other exception is not muted.
-     */
-    public function saveMagentoCustomer($magentoCustomer) {
-
-        try {
-            parent::saveMagentoCustomer($magentoCustomer);
-        } catch(\Exception $e) {
-            $magentoCustomer->setGigyaAccountEnriched(false);
-            $this->customerRegistry->push($magentoCustomer);
-        }
-    }
+	 * If GigyaMagentoCustomerSaveException is caught it's muted. Any other exception is not muted.
+	 */
+	public function saveMagentoCustomer($magentoCustomer)
+	{
+		try {
+			parent::saveMagentoCustomer($magentoCustomer);
+		} catch (\Exception $e) {
+			$magentoCustomer->setGigyaAccountEnriched(false);
+			$this->customerRegistry->push($magentoCustomer);
+		}
+	}
 }

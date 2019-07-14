@@ -80,15 +80,17 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
      * @param \Magento\Customer\Model\Data\Customer $account
      */
     public function setAccountValues(&$account) {
-        foreach ($this->getGigyaMapping() as $gigyaName => $confs) {
+    	$gigyaMapping = $this->getGigyaMapping();
+        foreach ($gigyaMapping as $gigyaName => $confs) {
             /** @var \Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\ConfItem $conf */
             $value = parent::getValueFromGigyaAccount($gigyaName); // e.g: loginProvider = facebook
 
             /* If no value found, log and skip field */
             if (is_null($value)) {
-                $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in gigya user object. Check your field mapping configuration");
+                $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in Gigya user object for Magento user {$account->getId()}. Check your field mapping configuration");
                 continue;
             }
+
             foreach ($confs as $conf) {
     	        $mageKey = $conf->getCmsName();     // e.g: mageKey = prefix
                 $value   = $this->castValue($value, $conf);
@@ -144,21 +146,31 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     }
 
 	/**
+	 * @param boolean     $skipCache
+	 *
 	 * @throws \Exception
 	 */
-    public function retrieveFieldMappings()
+    public function retrieveFieldMappings($skipCache = false)
     {
-        $conf = $this->getMappingFromCache();
-        if (false === $conf) {
+    	$conf = false;
+    	if (!$skipCache) {
+        	$conf = $this->getMappingFromCache();
+		}
+
+        if ($conf === false) {
             $mappingJson = file_get_contents($this->getPath());
-            if (false === $mappingJson) {
+            if ($mappingJson === false) {
                 $err     = error_get_last();
-                $message = "Could not retrieve field mapping configuration file. message was:" . $err['message'];
+                $message = "MagentoCustomerFieldsUpdater: Could not retrieve field mapping configuration file. The message was: " . $err['message'];
                 throw new \Exception("$message");
             }
             $conf = new fieldMapping\Conf($mappingJson);
-            $this->setMappingCache($conf);
+
+            if (!$skipCache) {
+            	$this->setMappingCache($conf);
+			}
         }
+
         $this->setGigyaMapping($conf->getGigyaKeyed());
     }
 

@@ -14,34 +14,25 @@ class Conf
 		$this->mappingConf = json_decode($json, true);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getCmsKeyed() {
-		if (empty($this->cmsKeyed))
-		{
-			$this->buildKeyedArrays($this->mappingConf);
-		}
-
-		return $this->cmsKeyed;
-	}
-
 	protected function buildKeyedArrays($array) {
 		$cmsKeyedArray   = [];
 		$gigyaKeyedArray = [];
+
+		$allowedDirections = ['cms2g', 'g2cms', 'both'];
 
 		foreach ($array as $confItem)
 		{
 			$cmsKey    = $confItem['cmsName'];
 			$gigyaKey  = $confItem['gigyaName'];
-			$direction = isset($confItem['direction']) ? $confItem['direction'] : "g2cms";
+			$direction = (isset($confItem['direction']) and in_array($confItem['direction'], $allowedDirections)) ? $confItem['direction'] : 'g2cms';
 			$conf      = new ConfItem($confItem);
+
 			switch ($direction)
 			{
-				case "cms2g":
+				case 'cms2g':
 					$cmsKeyedArray[$cmsKey][] = $conf;
 					break;
-				case "both":
+				case 'both':
 					$gigyaKeyedArray[$gigyaKey][] = $conf;
 					$cmsKeyedArray[$cmsKey][]     = $conf;
 					break;
@@ -53,6 +44,18 @@ class Conf
 
 		$this->gigyaKeyed = $gigyaKeyedArray;
 		$this->cmsKeyed   = $cmsKeyedArray;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCmsKeyed() {
+		if (empty($this->cmsKeyed))
+		{
+			$this->buildKeyedArrays($this->mappingConf);
+		}
+
+		return $this->cmsKeyed;
 	}
 
 	/**

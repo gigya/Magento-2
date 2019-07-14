@@ -39,6 +39,8 @@ class ConfItem
 
 	/**
 	 * ConfItem constructor.
+	 *
+	 * @param array $array
 	 */
 	public function __construct($array) {
 		foreach ($array as $key => $value)
