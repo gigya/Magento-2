@@ -31,15 +31,16 @@ abstract class CmsUpdater
 	}
 
 	/**
-	 * @param mixed $cmsAccount
-	 * @param       $cmsAccountSaver
+	 * @param mixed       $cmsAccount
+	 * @param             $cmsAccountSaver
+	 * @param boolean	  $skipCache		Determines whether to skip the caching and cache retrieval for field mapping
 	 *
 	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\CmsUpdaterException
 	 */
-	public function updateCmsAccount(&$cmsAccount, $cmsAccountSaver = null) {
+	public function updateCmsAccount(&$cmsAccount, $cmsAccountSaver = null, $skipCache = false) {
 		if (!isset($this->gigyaMapping))
 		{
-			$this->retrieveFieldMappings();
+			$this->retrieveFieldMappings($skipCache);
 		}
 
 		if (method_exists($this, 'callCmsHook'))
@@ -62,9 +63,11 @@ abstract class CmsUpdater
 	abstract protected function saveCmsAccount(&$cmsAccount, $cmsAccountSaver);
 
 	/**
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\CmsUpdaterException
+	 * @param boolean     $skipCache
+	 *
+	 * @throws CmsUpdaterException
 	 */
-	public function retrieveFieldMappings() {
+	public function retrieveFieldMappings($skipCache = false) {
 		if (file_exists($this->path))
 		{
 			$mappingJson = file_get_contents($this->path);
@@ -73,10 +76,11 @@ abstract class CmsUpdater
 		{
 			throw new CmsUpdaterException("Field Mapping file could not be found at " . $this->path);
 		}
-		if (false === $mappingJson)
+
+		if ($mappingJson === false)
 		{
 			$err     = error_get_last();
-			$message = "Could not retrieve field mapping configuration file. message was:" . $err['message'];
+			$message = "CMSUpdater: Could not retrieve field mapping configuration file. The message was: " . $err['message'];
 			throw new CmsUpdaterException("$message");
 		}
 		$conf               = new Conf($mappingJson);

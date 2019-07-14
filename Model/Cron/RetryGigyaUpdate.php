@@ -4,9 +4,10 @@ namespace Gigya\GigyaIM\Model\Cron;
 
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
-use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use \Magento\Framework\Event\ManagerInterface as EventManager;
 
 /**
  * RetryGigyaUpdate
@@ -26,6 +27,9 @@ class RetryGigyaUpdate
     /** @var GigyaConfig */
 	protected $config;
 
+	/** @var EventManager */
+	protected $eventManager;
+
 	/**
 	 * RetryGigyaUpdate constructor.
 	 *
@@ -33,18 +37,21 @@ class RetryGigyaUpdate
 	 * @param RetryGigyaSyncHelper        $retryGigyaSyncHelper
 	 * @param CustomerRepositoryInterface $customerRepository
 	 * @param GigyaConfig                 $config
+	 * @param EventManager                $eventManager
 	 */
     public function __construct(
         GigyaLogger $logger,
         RetryGigyaSyncHelper $retryGigyaSyncHelper,
         CustomerRepositoryInterface $customerRepository,
-		GigyaConfig $config
+		GigyaConfig $config,
+		EventManager $eventManager
     )
     {
         $this->logger = $logger;
         $this->config = $config;
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
         $this->customerRepository = $customerRepository;
+        $this->eventManager = $eventManager;
     }
 
 	/**
@@ -70,7 +77,9 @@ class RetryGigyaUpdate
 				/** @var CustomerInterface $customer */
 				$customer = $this->customerRepository->getById($customerEntityId);
 				try {
+					$this->eventManager->dispatch('gigya_fieldmapping_retry_before_save', array('customer' => $customer));
 					$this->customerRepository->save($customer);
+					$this->eventManager->dispatch('gigya_fieldmapping_retry_after_save', array('customer' => $customer));
 				} catch (\Exception $e) {
 					$message = $e->getMessage();
 					$message = $message != null ? (strlen($message) > 255 ? substr($message, 0, 255).' ...': $message) : null;

@@ -9,7 +9,7 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\SigUtils;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
-use Gigya\GigyaIM\Logger\Logger;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Model\Settings;
 use Gigya\GigyaIM\Model\Config;
 use Gigya\GigyaIM\Model\SettingsFactory;
@@ -44,7 +44,7 @@ class GigyaMageHelper extends AbstractHelper
     protected $configModel;
     protected $cookieManager;
 
-    public $_logger;
+    public $logger;
 
     /** @var  Session */
     protected $session;
@@ -63,7 +63,7 @@ class GigyaMageHelper extends AbstractHelper
         SettingsFactory $settingsFactory, // virtual class
         Settings $settings,
         Context $context,
-        Logger $logger,
+        GigyaLogger $logger,
         ModuleListInterface $moduleList,
         Config $configModel,
         Session $session,
@@ -76,7 +76,7 @@ class GigyaMageHelper extends AbstractHelper
         $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general', 'website');
         $this->debug = $context->getScopeConfig()->getValue('gigya_advanced/debug_mode/debug_mode', 'website');
         $this->dbSettings = $settings->load(1);
-        $this->_logger = $logger;
+        $this->logger = $logger;
         $this->configModel = $configModel;
 	    $this->scopeConfig = $context->getScopeConfig();
         $this->_fileSystem = $fileSystem;
@@ -463,7 +463,7 @@ class GigyaMageHelper extends AbstractHelper
     public function gigyaLog($message, $type = 'info') {
         if ($this->debug) {
         	if (in_array($type, ['info', 'warning', 'error'])) {
-        		call_user_func_array([$this->_logger, $type], [$message]);
+        		call_user_func_array([$this->logger, $type], [$message]);
 			}
         }
     }
@@ -500,14 +500,14 @@ class GigyaMageHelper extends AbstractHelper
         if (!empty($gigya_validation_o->errorCode)) {
            switch($gigya_validation_o->errorCode)  {
                case GigyaAccountServiceInterface::ERR_CODE_LOGIN_ID_ALREADY_EXISTS:
-                   $this->_logger->error("Error while retrieving Gigya account data", [
+                   $this->logger->error("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                    ]);
                    throw new GSException("Email already exists.");
 
                default:
-                   $this->_logger->error("Error while retrieving Gigya account data", [
+                   $this->logger->error("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                    ]);
@@ -613,36 +613,45 @@ class GigyaMageHelper extends AbstractHelper
 		return $ret;
 	}
 
-    protected function signBaseString($key, $unsignedExpString) {
+    protected function signBaseString($key, $unsignedExpString)
+	{
         $unsignedExpString = utf8_encode($unsignedExpString);
         $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);
         $signature = base64_encode($rawHmac);
         return $signature;
     }
 
-    public function transferAttributes(
-       CustomerInterface $from, CustomerInterface $to)
-    {
-        $ext = $from->getExtensionAttributes();
-        if(!is_null($ext))
-        {
-            $to->setExtensionAttributes($ext);
-        }
-        foreach(get_class_methods(CustomerInterface::class) as $method)
-        {
-            $match = [];
-            if(preg_match('/^get(.*)/', $method, $match)
-                && $method != 'getId' && $method != 'getExtensionAttributes'
-                && $method != 'getCustomAttribute' && $method != 'getData')
-            {
-                $getter = $method;
-                $setter = 'set'.$match[1];
-                if(method_exists($to, $setter))
-                {
-                    $to->$setter($from->$getter());
-                }
-            }
-        }
-        return $this;
-    }
+	/**
+	 * @param CustomerInterface $from
+	 * @param CustomerInterface $to
+	 *
+	 * @return $this
+	 */
+    public function transferAttributes(CustomerInterface $from, CustomerInterface $to)
+	{
+		$ext = $from->getExtensionAttributes();
+
+		if (!is_null($ext)) {
+			$to->setExtensionAttributes($ext);
+		}
+
+		foreach (get_class_methods(CustomerInterface::class) as $method) {
+			$match = [];
+
+			if (preg_match('/^get(.*)/', $method, $match)
+				&& $method != 'getId'
+				&& $method != 'getExtensionAttributes'
+				&& $method != 'getCustomAttribute'
+				&& $method != 'getData'
+			) {
+				$getter = $method;
+				$setter = 'set' . $match[1];
+				if (method_exists($to, $setter)) {
+					$to->$setter($from->$getter());
+				}
+			}
+		}
+
+		return $this;
+	}
 }

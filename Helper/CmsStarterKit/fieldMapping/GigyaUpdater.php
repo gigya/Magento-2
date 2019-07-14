@@ -162,12 +162,14 @@ abstract class GigyaUpdater
 			if (false === $mappingJson)
 			{
 				$err     = error_get_last();
-				$message = "Could not retrieve field mapping configuration file. message was:" . $err['message'];
+				$message = "GigyaUpdater: Could not retrieve field mapping configuration file. The message was: " . $err['message'];
 				throw new \Exception($message);
 			}
+
 			$conf = new Conf($mappingJson);
 			$this->setMappingCache($conf);
 		}
+
 		$this->cmsMappings = $conf->getCmsKeyed();
 	}
 

@@ -93,9 +93,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
             && !$magentoCustomer->isObjectNew()
             && !$this->retrieveRegisteredCustomer($magentoCustomer)
             && !(empty($magentoCustomer->getGigyaUid()))
-            && !$this->gigyaSyncHelper->isCustomerIdExcludedFromSync(
-                $magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS
-            );
+            && !$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS);
 
         return $result;
     }
@@ -139,7 +137,6 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 	 *
 	 * @throws GSException
 	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     protected function getGigyaDataForEnrichment($magentoCustomer)
     {
@@ -223,7 +220,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 	 */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Customer\Model\Backend\Customer $magentoCustomer */
+		/** @var \Magento\Customer\Model\Backend\Customer $magentoCustomer */
         $magentoCustomer = $observer->getData('customer');
         if (empty($magentoCustomer->getGigyaAccountEnriched())) {
             $magentoCustomer->setGigyaAccountEnriched(false);
@@ -231,23 +228,19 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 
         $gigyaData = null;
         if ($this->shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)) {
-
             try {
                 $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
-                $magentoCustomer = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer,
-                    $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
+                $magentoCustomer = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
                 $magentoCustomer->setGigyaAccountEnriched(true);
                 $customerEntityId = $magentoCustomer->getId();
                 $excludeSyncCms2G = true;
-                if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId,
-                    GigyaSyncHelper::DIR_CMS2G)
-                ) {
+                if (!$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($customerEntityId, GigyaSyncHelper::DIR_CMS2G)) {
                     // We prevent synchronizing the M2 customer data to the Gigya account : that should be done only on explicit customer save,
                     // here the very first action is to load the M2 customer
-                    $this->gigyaSyncHelper->excludeCustomerIdFromSync($magentoCustomer->getId(),
-                        GigyaSyncHelper::DIR_CMS2G);
+                    $this->gigyaSyncHelper->excludeCustomerIdFromSync($magentoCustomer->getId(), GigyaSyncHelper::DIR_CMS2G);
                     $excludeSyncCms2G = false;
                 }
+
                 try {
                     $this->saveMagentoCustomer($magentoCustomer);
                 } finally {
