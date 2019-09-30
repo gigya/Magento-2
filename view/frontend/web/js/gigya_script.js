@@ -125,7 +125,7 @@ define([
 			login_data: JSON.stringify(loginData)
 		};
 
-		gigya_login_in_progress = true;
+		gigya_processing_customer_request = true;
 
 		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
 	};
@@ -145,6 +145,9 @@ define([
 			lastname: eventObj.profile.lastName,
 			gigya_user: JSON.stringify(eventObj.response)
 		};
+
+		gigya_processing_customer_request = true;
+
 		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
 	};
 
