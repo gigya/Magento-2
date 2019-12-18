@@ -26,6 +26,9 @@ class Config
     const XML_PATH_SESSION_MODE = 'gigya_session/session/mode';
     const XML_PATH_SESSION_EXPIRATION = 'gigya_session/session/expiration';
 
+    const XML_PATH_REMEMBER_MODE = 'gigya_session/remember/mode';
+    const XML_PATH_REMEMBER_EXPIRATION = 'gigya_session/remember/expiration';
+
     const XML_PATH_MAPPING_FILE_PATH = 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path';
 
     const XML_PATH_GENERAL = 'gigya_section/general';
@@ -81,6 +84,22 @@ class Config
     public function getSessionExpiration()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_SESSION_EXPIRATION, 'website');
+    }
+
+    /**
+     * @return int
+     */
+    public function getRememberMode()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_REMEMBER_MODE, 'website');
+    }
+
+    /**
+     * @return int
+     */
+    public function getRememberExpiration()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_REMEMBER_EXPIRATION, 'website');
     }
 
     /**
