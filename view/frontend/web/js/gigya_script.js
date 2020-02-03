@@ -108,12 +108,18 @@ define([
 	 * @property eventObj.expires_in
 	 */
 	gigyaMage2.Functions.gigyaLoginEventHandler = function (eventObj) {
+		var remember = gigyaMage2.Functions.getRememberMeStatus(eventObj);
 		var action = login_post_url;
 		var loginData = {
 			UIDSignature: eventObj.UIDSignature,
 			signatureTimestamp: eventObj.signatureTimestamp,
 			UID: eventObj.UID
 		};
+
+		/* Propagate Remember Me status to the SSO group */
+		gigya.setGroupContext({
+			"remember": remember
+		});
 
 		if (typeof eventObj.expires_in !== 'undefined') {
 			loginData.expiresIn = eventObj.expires_in;
@@ -122,13 +128,34 @@ define([
 		var data = {
 			form_key: gigyaMage2.Params.form_key,
 			"login[]": "",
-			login_data: JSON.stringify(loginData)
+			login_data: JSON.stringify(loginData),
+			remember: remember
 		};
 
 		gigya_login_in_progress = true;
 
 		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
 	};
+
+	gigyaMage2.Functions.getRememberMeStatus = function (eventObj) {
+		var remember = false;
+
+		// Pull remember me status from the group context
+		if (typeof eventObj.groupContext !== 'undefined') {
+			var groupRemember = JSON.parse(eventObj.groupContext).remember;
+
+			if (typeof groupRemember !== 'undefined') {
+				remember = groupRemember;
+			}
+		}
+
+		// "Remember Me" clicked on the current site always overrides the group context remember
+		if (typeof eventObj.remember !== 'undefined') {
+			remember = eventObj.remember;
+		}
+
+		return remember;
+	}
 
 	/**
 	 * @param eventObj

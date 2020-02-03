@@ -95,17 +95,15 @@ class GigyaScript extends Template
      *
      * @return int : Magento Customer session/remember expiration
      */
-    public function getUserSessionLifetime($type = 'session')
+    public function getUserSessionLifetime($type = null)
     {
         $result = null;
 
-        $mode = $type == 'remember' ? $this->configModel->getRememberMode() : $this->configModel->getSessionMode();
+        $mode = $this->configModel->getSessionMode($type);
 
         switch ($mode) {
             case GigyaConfig::SESSION_MODE_FIXED:
-                $result = $type == 'remember' ?
-                    $this->configModel->getRememberExpiration() :
-                    $this->configModel->getSessionExpiration();
+                $result = $this->configModel->getSessionExpiration($type);
                 break;
 
             case GigyaConfig::SESSION_MODE_EXTENDED:
