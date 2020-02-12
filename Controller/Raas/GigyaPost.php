@@ -40,6 +40,8 @@ use Magento\Framework\Exception\EmailNotConfirmedException;
 use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\Forward;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
+use Magento\Framework\Stdlib\Cookie\PublicCookieMetadataFactory;
 
 /* CMS Starter Kit */
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
@@ -141,6 +143,16 @@ class GigyaPost extends LoginPost
 	 */
 	protected $logger;
 
+    /**
+     * @var JsonSerializer
+     */
+	protected $jsonSerializer;
+
+    /**
+     * @var PublicCookieMetadataFactory
+     */
+	protected $publicCookieMetadataFactory;
+
 	/**
 	 * GigyaPost constructor.
 	 *
@@ -172,6 +184,8 @@ class GigyaPost extends LoginPost
 	 * @param JsonFactory $resultJsonFactory
 	 * @param GigyaConfig $config
 	 * @param GigyaLogger $logger
+     * @param JsonSerializer $jsonSerializer
+     * @param PublicCookieMetadataFactory $publicCookieMetadataFactory
 	 */
     public function __construct(
         // Parent class parameters
@@ -200,7 +214,9 @@ class GigyaPost extends LoginPost
         Extend $extendModel,
         JsonFactory $resultJsonFactory,
         GigyaConfig $config,
-		GigyaLogger $logger
+		GigyaLogger $logger,
+        JsonSerializer $jsonSerializer,
+        PublicCookieMetadataFactory $publicCookieMetadataFactory
     ) {
         parent::__construct(
             $context,
@@ -233,6 +249,8 @@ class GigyaPost extends LoginPost
         $this->escaper = $escaper;
         $this->customerExtractor = $customerExtractor;
         $this->urlModel = $urlModel;
+        $this->jsonSerializer = $jsonSerializer;
+        $this->publicCookieMetadataFactory = $publicCookieMetadataFactory;
     }
 
 	/**
@@ -255,15 +273,27 @@ class GigyaPost extends LoginPost
             return parent::execute();
         }
 
+        $loginData = $this->getRequest()->getParam('login_data');
+        $remember = $this->getRequest()->getParam('remember');
+        $remember = $remember == 'true' ? 1 : 0;
+
+        /** @var \Magento\Framework\Stdlib\Cookie\PublicCookieMetadata $rememberCookieMetadata */
+        $rememberCookieMetadata = $this->publicCookieMetadataFactory->create();
+        $rememberCookieMetadata->setPath('/');
+        $this->cookieManager->setPublicCookie('remember', $remember, $rememberCookieMetadata);
+        $this->config->setRemember($remember);
+
 		$validGigyaUser = false;
+
         try {
-        	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('login_data'));
+        	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
 		} catch (\Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException $e) {
         	$message = ($this->config->isDebugModeEnabled()) ? $e->getLongMessage() : $e->getMessage();
 			$this->logger->error('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $message);
 		} catch (\Exception $e) {
         	$this->logger->error('There was an error validating the user. Error: '.$e->getMessage());
 		}
+
         $responseObject = $this->doLogin($validGigyaUser);
 
         if (strpos(strtolower($this->getRequest()->getHeader('Accept')), 'json') !== false) {
