@@ -10,15 +10,17 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
 class Config extends MagentoSessionConfig
 {
     /**
+     * Config constructor.
      * @param \Magento\Framework\ValidatorFactory $validatorFactory
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\Stdlib\StringUtils $stringHelper
      * @param \Magento\Framework\App\RequestInterface $request
      * @param Filesystem $filesystem
      * @param DeploymentConfig $deploymentConfig
+     * @param GigyaConfig $gigyaConfig
      * @param string $scopeType
      * @param string $lifetimePath
-     * @param GigyaConfig $gigyaConfig
+     *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __construct(
