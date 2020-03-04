@@ -40,7 +40,7 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
             window.__gigyaConf = {
                 // Gigya user session time should be equal to Magento session time
                 sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>,
-                rememberMeSessionExpiration: <?php echo $block->getUserSessionLifetime('remember'); ?>
+                rememberSessionExpiration: <?php echo $block->getUserSessionLifetime('remember'); ?>
             };
 
             gigyaMage2.Functions.loadGigyaScript(
