@@ -89,20 +89,21 @@ class GigyaScript extends Template
     }
 
     /**
-     * Set the frontend user session lifetime according to the configured session mode.
+     * Set the frontend user session/remember lifetime according to the configured session/remember mode.
      *
      * @see \Gigya\GigyaIM\Model\Config for session management modes.
      *
-     * @return int : Magento Customer session expiration
+     * @return int : Magento Customer session/remember expiration
      */
-    public function getUserSessionLifetime()
+    public function getUserSessionLifetime($type = null)
     {
         $result = null;
 
-        switch($this->configModel->getSessionMode()) {
+        $mode = $this->configModel->getSessionMode($type);
 
+        switch ($mode) {
             case GigyaConfig::SESSION_MODE_FIXED:
-                $result = $this->configModel->getSessionExpiration();
+                $result = $this->configModel->getSessionExpiration($type);
                 break;
 
             case GigyaConfig::SESSION_MODE_EXTENDED:

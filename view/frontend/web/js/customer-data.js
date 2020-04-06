@@ -4,7 +4,7 @@ define(function () {
     return function (Component) {
         Component.reloadOriginal = Component.reload;
         Component.reload = function (sectionNames, updateSectionId) {
-            if (typeof gigya_enabled !== "undefined" && gigya_enabled && gigya_login_in_progress == true) {
+            if (typeof gigya_enabled !== "undefined" && gigya_enabled && gigya_processing_customer_request == true) {
                 return;
             }
 

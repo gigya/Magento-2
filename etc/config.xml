@@ -25,6 +25,10 @@
                 <mode>0</mode>
                 <expiration>1800</expiration>
             </session>
+            <remember>
+                <mode>0</mode>
+                <expiration>1800</expiration>
+            </remember>
         </gigya_session>
         <gigya_delete>
             <deletion_general>

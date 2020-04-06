@@ -19,7 +19,7 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
 	var magento_user_logged_in = false;
 	var enable_login = true;
 	var gigya_enabled = <?php echo $block->isGigyaEnabled() ? 'true' : 'false'; ?>;
-	var gigya_login_in_progress = false;
+	var gigya_processing_customer_request = false;
 
 	var m;
 </script>
@@ -39,7 +39,8 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
             // Set Gigya global configuration object
             window.__gigyaConf = {
                 // Gigya user session time should be equal to Magento session time
-                sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
+                sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>,
+                rememberSessionExpiration: <?php echo $block->getUserSessionLifetime('remember'); ?>
             };
 
             gigyaMage2.Functions.loadGigyaScript(

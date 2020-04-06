@@ -151,30 +151,30 @@ class GigyaApiHelper
 	 * @throws GSApiException
 	 * @throws sdk\GSException
 	 */
-	public function searchGigyaUsers($query, $useCursor = false) {
+	public function searchGigyaUsers($query, $useCursor = false)
+	{
 		$gigyaUsers = array();
 
-		if (is_array($query)) /* Query is actually a set of params. Useful for setting cursor ID instead of query */
-		{
+		if (is_array($query)) /* Query is actually a set of params. Useful for setting cursor ID instead of query */ {
 			$params = $query;
-		}
-		else
-		{
-			$params = array(
-				'openCursor' => $useCursor,
-				'query' => $query,
-			);
+		} else {
+			$params = array('query' => $query);
+			if ($useCursor) { /* openCursor in Gigya only supports true but not false */
+				$params['openCursor'] = true;
+			}
 		}
 
 		$gigyaData = $this->sendApiCall('accounts.search', $params)->getData()->serialize();
 
 		foreach ($gigyaData['results'] as $userData) {
-			$profileArray = $userData['profile'];
-			$gigyaUser = GigyaUserFactory::createGigyaUserFromArray($userData);
-			$gigyaProfile = GigyaUserFactory::createGigyaProfileFromArray($profileArray);
-			$gigyaUser->setProfile($gigyaProfile);
+			if (isset($userData['profile'])) {
+				$profileArray = $userData['profile'];
+				$gigyaUser = GigyaUserFactory::createGigyaUserFromArray($userData);
+				$gigyaProfile = GigyaUserFactory::createGigyaProfileFromArray($profileArray);
+				$gigyaUser->setProfile($gigyaProfile);
 
-			$gigyaUsers[] = $gigyaUser;
+				$gigyaUsers[] = $gigyaUser;
+			}
 		}
 
 		if (!empty($gigyaData['nextCursorId'])) {

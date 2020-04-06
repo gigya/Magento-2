@@ -108,7 +108,7 @@ class Extend
 		}
 	}
 
-	public function setupSessionCookie()
+	public function setupSessionCookie($type = 'session')
 	{
 		$apiKey = $this->gigyaMageHelper->getApiKey();
 
