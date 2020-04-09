@@ -13,12 +13,12 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Model\Settings;
 use Gigya\GigyaIM\Model\Config;
 use Gigya\GigyaIM\Model\SettingsFactory;
+use Gigya\GigyaIM\Encryption\Encryptor;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Filesystem;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 
@@ -49,43 +49,53 @@ class GigyaMageHelper extends AbstractHelper
     /** @var  Session */
     protected $session;
 
-    /** @var Filesystem  */
-    protected $_fileSystem;
-
     protected $sigUtils;
+
+    /**
+     * @var Encryptor
+     */
+    protected $encryptor;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const CHARS_PASSWORD_DIGITS = '23456789';
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
+    /**
+     * GigyaMageHelper constructor.
+     * @param Context $context
+     * @param GigyaLogger $logger
+     * @param ModuleListInterface $moduleList
+     * @param Config $configModel
+     * @param Session $session
+     * @param CookieManagerInterface $cookieManager
+     * @param SigUtils $sigUtils
+     * @param Encryptor $encryptor
+     */
     public function __construct(
-        SettingsFactory $settingsFactory, // virtual class
-        Settings $settings,
         Context $context,
         GigyaLogger $logger,
         ModuleListInterface $moduleList,
         Config $configModel,
         Session $session,
-        Filesystem $fileSystem,
         CookieManagerInterface $cookieManager,
-        SigUtils $sigUtils
+        SigUtils $sigUtils,
+        Encryptor $encryptor
     ) {
         parent::__construct($context);
 
         $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general', 'website');
         $this->debug = $context->getScopeConfig()->getValue('gigya_advanced/debug_mode/debug_mode', 'website');
-        $this->dbSettings = $settings->load(1);
         $this->logger = $logger;
         $this->configModel = $configModel;
 	    $this->scopeConfig = $context->getScopeConfig();
-        $this->_fileSystem = $fileSystem;
-        $this->setGigyaSettings();
-        $this->setAppSecret();
         $this->_moduleList = $moduleList;
         $this->session = $session;
         $this->cookieManager = $cookieManager;
         $this->sigUtils = $sigUtils;
+        $this->encryptor = $encryptor;
+
+        $this->setGigyaSettings();
     }
 
     /**
@@ -94,14 +104,6 @@ class GigyaMageHelper extends AbstractHelper
     public function getAppSecret()
     {
         return $this->appSecret;
-    }
-
-    /**
-     * Decrypt application secret and set appSecret value
-     */
-    public function setAppSecret()
-    {
-        $this->appSecret = $this->decAppSecret();
     }
 
     /**
@@ -153,30 +155,6 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * @return mixed
-     */
-    public function getKeyFileLocation()
-    {
-        return $this->keyFileLocation;
-    }
-
-    /**
-     * @param mixed $keyFileLocation
-	 *
-	 * @return boolean
-     */
-    public function setKeyFileLocation($keyFileLocation)
-    {
-        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
-            . DIRECTORY_SEPARATOR . $keyFileLocation;
-
-        if (!file_exists($this->keyFileLocation))
-        	return false;
-
-        return true;
-    }
-
-    /**
      * Return the max number of attempt of automatic Gigya update retry.
      *
      * Configuration in BO.
@@ -207,20 +185,23 @@ class GigyaMageHelper extends AbstractHelper
     /**
      * Gigya settings are set in Stores->configuration->Gigya Identity management
      */
-    private function setGigyaSettings()
+    public function setGigyaSettings($scopeType = ScopeInterface::SCOPE_WEBSITE, $scopeCode = null)
     {
-        $settings = $this->configModel->getGigyaGeneralConfig();
+        $settings = $this->configModel->getGigyaGeneralConfig($scopeType, $scopeCode);
 
         /* Initializes an empty settings array if the settings have not been set */
-        $available_settings = array('api_key', 'domain', 'app_key', 'key_file_location', 'enable_gigya');
+        $available_settings = array('api_key', 'app_secret', 'domain', 'app_key', 'key_file_location', 'enable_gigya');
         $settings_init = array_fill_keys($available_settings, '');
         $settings = array_merge($settings_init, $settings);
+
+
+
+        $this->encryptor->initEncryptor($scopeType, $scopeCode);
 
     	$this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->keyFileLocation = $this->_fileSystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath()
-            . DIRECTORY_SEPARATOR . $settings['key_file_location'];
+        $this->appSecret = $this->encryptor->decrypt($settings['app_secret']);
     }
 
 	/**
@@ -229,52 +210,14 @@ class GigyaMageHelper extends AbstractHelper
     public function getGigyaApiHelper()
     {
         if ($this->gigyaApiHelper == null) {
-            $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
+            try {
+                $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
+            } catch (\Exception $e) {
+                return false;
+            }
         }
 
         return $this->gigyaApiHelper;
-    }
-
-    public function userObjFromArr($userArray)
-    {
-        $obj = $this->getGigyaApiHelper()->userObjFromArray($userArray);
-        return $obj;
-    }
-
-    /**
-     * @return string decrypted app secret
-     */
-    private function decAppSecret()
-    {
-        /* Get encrypted app secret from DB */
-        $encrypted_secret = $this->dbSettings['app_secret'];
-        if (strlen($encrypted_secret) < 5 ) {
-            $this->gigyaLog(__FUNCTION__ . " No valid secret key found in DB.");
-        }
-
-        $key = $this->getEncKey();
-        $dec = GigyaApiHelper::decrypt($encrypted_secret, $key);
-        return $dec;
-    }
-
-    /**
-     * @return string encryption key from file
-     */
-    private function getEncKey()
-    {
-        $key = null;
-        if ($this->keyFileLocation != '') {
-            if (file_exists($this->keyFileLocation)) {
-                $key = file_get_contents($this->keyFileLocation);
-            } else {
-                $this->gigyaLog(__FUNCTION__
-                    . ": Could not find key file as defined in Gigya system config : " . $this->keyFileLocation);
-            }
-        } else {
-            $this->gigyaLog(__FUNCTION__
-                . ": KEY_PATH is not set in Gigya system config.");
-        }
-        return trim($key);
     }
 
     /**

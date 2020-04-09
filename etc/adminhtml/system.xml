@@ -25,15 +25,10 @@
                 <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Application key</label>
                     <validate>validate-no-empty</validate>
-                    <backend_model>Gigya\GigyaIM\Model\Config\ValidateApiKey</backend_model>
                 </field>
-                <field id="key_file_location" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Path to your key file</label>
-                    <depends>
-                        <field id="key_save_type">file</field>
-                    </depends>
-                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.]]></comment>
-                    <validate>validate-no-empty</validate>
+                <field id="app_secret" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Application secret</label>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\AppSecret</backend_model>
                 </field>
                 <field id="language" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Language mode for Gigya UI</label>
@@ -192,6 +187,16 @@
 			<label>Advanced</label>
 			<tab>gigyaim_tab</tab>
 			<resource>Gigya_GigyaIM::config</resource>
+            <group id="debug_mode" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Debug Mode</label>
+                <field id="debug_mode" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Debug mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Log path - var/log/gigya.log]]></comment>
+                    <comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
+                    <comment><![CDATA[*Never use debug mode in production environment!]]></comment>
+                </field>
+            </group>
 			<group id="synchro" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
 				<label>Synchronizing Magento from / to Gigya</label>
 				<field id="gigya_update_max_retry" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
@@ -201,16 +206,18 @@
 					<validate>required-entry integer validate-greater-than-zero</validate>
 				</field>
 			</group>
-			<group id="debug_mode" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-				<label>Debug Mode</label>
-				<field id="debug_mode" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-					<label>Debug mode</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<comment><![CDATA[Log path - var/log/gigya.log]]></comment>
-					<comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
-					<comment><![CDATA[*Never use debug mode in production environment!]]></comment>
-				</field>
-			</group>
+            <group id="auth" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Authentication</label>
+                <field id="key_file_location" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Path to your key file</label>
+                    <depends>
+                        <field id="key_save_type">file</field>
+                    </depends>
+                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.<br /><br /><b>Important:</b> after key file change it is necessary to re-enter application secret on general tab]]></comment>
+                    <config_path>gigya_section/general/key_file_location</config_path>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation</backend_model>
+                </field>
+            </group>
 		</section>
     </system>
 </config>

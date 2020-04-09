@@ -94,9 +94,9 @@ class Config
     /**
      * @return array
      */
-    public function getGigyaGeneralConfig()
+    public function getGigyaGeneralConfig($scopeType = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeCode = null)
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_GENERAL, 'website');
+        return $this->scopeConfig->getValue(self::XML_PATH_GENERAL, $scopeType, $scopeCode);
     }
 
     /**

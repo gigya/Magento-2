@@ -12,6 +12,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Zend_Db_ExprFactory;
 
 /**
  * UpgradeData
@@ -30,26 +31,34 @@ class UpgradeData implements UpgradeDataInterface
     /**
      * @var AttributeSetFactory
      */
-    private $attributeSetFactory;
+    protected $attributeSetFactory;
 
 	/**
 	 * @var CustomerAttributeResourceModel
 	 */
-	private $customerAttributeResourceModel;
+	protected $customerAttributeResourceModel;
+
+    /**
+     * @var Zend_Db_ExprFactory
+     */
+	protected $zendDbExprFactory;
 
 	/**
 	 * @param CustomerSetupFactory $customerSetupFactory
 	 * @param AttributeSetFactory $attributeSetFactory
 	 * @param CustomerAttributeResourceModel $customerAttributeResourceModel
+     * @param Zend_Db_ExprFactory $zendDbExprFactory
 	 */
     public function __construct(
         CustomerSetupFactory $customerSetupFactory,
         AttributeSetFactory $attributeSetFactory,
-		CustomerAttributeResourceModel $customerAttributeResourceModel
+		CustomerAttributeResourceModel $customerAttributeResourceModel,
+        Zend_Db_ExprFactory $zendDbExprFactory
     ) {
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
         $this->customerAttributeResourceModel = $customerAttributeResourceModel;
+        $this->zendDbExprFactory = $zendDbExprFactory;
     }
 
     /**
@@ -163,6 +172,22 @@ class UpgradeData implements UpgradeDataInterface
                 ]);
 
 			$this->customerAttributeResourceModel->save($attribute);
+        }
+
+        if (version_compare($context->getVersion(), '5.5.0') < 0) {
+            $connection = $setup->getConnection();
+            $gigyaSettingsTable = $connection->getTableName('gigya_settings');
+            $coreConfigDataTable = $connection->getTableName('core_config_data');
+            $pathExpr = $this->zendDbExprFactory->create(['expression' => "'gigya_section/general/app_secret'"]);
+
+            $select = $connection->select()
+                ->from($gigyaSettingsTable, array($pathExpr, 'app_secret'))
+                ->where('id = ?', 1);
+
+            $insertSql = $connection->insertFromSelect($select, $coreConfigDataTable, ['path', 'value']);
+            $connection->query($insertSql);
+
+            $connection->dropTable($gigyaSettingsTable);
         }
 
         $setup->endSetup();
