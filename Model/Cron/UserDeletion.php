@@ -231,10 +231,14 @@ class UserDeletion
 	 */
 	protected function getGigyaUserIDs($csv_string)
 	{
-		$csv_array = (!empty($csv_string)) ? array_map('trim', explode("\n", $csv_string)) : array();
+		if (empty($csv_string)) {
+			return [];
+		}
+
+		$csv_array = array_map('str_getcsv', explode("\n", $csv_string));
 		array_shift($csv_array);
 
-		return $csv_array;
+		return array_filter(array_column($csv_array, 0));
 	}
 
 	/**
@@ -286,7 +290,7 @@ class UserDeletion
 									$failed_users[] = $gigya_uid;
 								}
 							} else {
-								$this->logger->info('Gigya deletion cron: User ' . $magento_uid . ' deleted at: ' . $gigya_deleted_timestamp->getValue());
+								$this->logger->info('Gigya deletion cron: Magento user ' . $magento_uid . ' already soft-deleted at: ' . $gigya_deleted_timestamp->getValue());
 							}
 						} catch (\Exception $e) {
 							$this->logger->error('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
@@ -348,7 +352,7 @@ class UserDeletion
 				foreach ($files as $file) {
 					if (!in_array($file, $processed_files)) {
 						$csv = $this->getS3FileContents($file, $aws_credentials);
-						$user_array = array_filter($this->getGigyaUserIDs($csv));
+						$user_array = $this->getGigyaUserIDs($csv);
 						$deleted_users = $this->deleteUsers('gigya', $user_array, $failed_users);
 						$total_deleted_users += count($deleted_users);
 
