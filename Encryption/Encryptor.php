@@ -3,7 +3,6 @@
 namespace Gigya\GigyaIM\Encryption;
 
 use Magento\Framework\App\DeploymentConfig;
-use Magento\Framework\Encryption\KeyValidator;
 use Magento\Framework\Math\Random;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
@@ -39,16 +38,14 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
      * @param GigyaEncryptorHelper $gigyaEncryptorHelper
      * @param Random $random
      * @param DeploymentConfig $deploymentConfig
-     * @param KeyValidator|null $keyValidator
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         GigyaEncryptorHelper $gigyaEncryptorHelper,
         Random $random,
-        DeploymentConfig $deploymentConfig,
-        KeyValidator $keyValidator = null
+        DeploymentConfig $deploymentConfig
     ) {
-        parent::__construct($random, $deploymentConfig, $keyValidator);
+        parent::__construct($random, $deploymentConfig);
 
         $this->scopeConfig = $scopeConfig;
         $this->gigyaEncryptorHelper = $gigyaEncryptorHelper;
