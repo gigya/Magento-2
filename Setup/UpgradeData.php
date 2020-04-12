@@ -174,7 +174,7 @@ class UpgradeData implements UpgradeDataInterface
 			$this->customerAttributeResourceModel->save($attribute);
         }
 
-        if (version_compare($context->getVersion(), '5.5.0') < 0) {
+        if (version_compare($context->getVersion(), '5.6.0') < 0) {
             $connection = $setup->getConnection();
             $gigyaSettingsTable = $connection->getTableName('gigya_settings');
             $coreConfigDataTable = $connection->getTableName('core_config_data');

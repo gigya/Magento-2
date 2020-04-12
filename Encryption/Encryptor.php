@@ -116,7 +116,7 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
             try {
                 return GigyaApiHelper::decrypt($data, $this->gigyaEncryptKey);
             } catch (\Exception $e) {
-                echo $e->getMessage(); die;
+                return false;
             }
         } else {
             return parent::decrypt($data);
