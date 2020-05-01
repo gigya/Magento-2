@@ -53,13 +53,18 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
         $this->initEncryptor();
     }
 
-    public function initEncryptor($scopeType = ScopeInterface::SCOPE_WEBSITE, $scopeCode = null)
-    {
-        $keyFileLocation = $this->scopeConfig->getValue(
-            'gigya_section/general/key_file_location',
-            $scopeType,
-            $scopeCode
-        );
+    public function initEncryptor(
+        $scopeType = ScopeInterface::SCOPE_WEBSITE,
+        $scopeCode = null,
+        $keyFileLocation = null
+    ) {
+        if ($keyFileLocation == null) {
+            $keyFileLocation = $this->scopeConfig->getValue(
+                'gigya_section/general/key_file_location',
+                $scopeType,
+                $scopeCode
+            );
+        }
 
         $gigyaEncryptKey = $this->gigyaEncryptorHelper->getKeyFromFile($keyFileLocation);
 

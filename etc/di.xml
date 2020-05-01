@@ -67,6 +67,10 @@
         <plugin name="gigyaIM_Framework_Session_SessionManager" type="\Gigya\GigyaIM\Plugin\Framework\Session\SessionManager" />
     </type>
 
+    <type name="Magento\Config\Model\Config">
+        <plugin name="gigyaIM_Config_Model_Config" type="\Gigya\GigyaIM\Plugin\Config\Model\Config" />
+    </type>
+
     <type name="Magento\Framework\Session\Config">
         <plugin name="gigyaIM_Framework_Session_Config" type="\Gigya\GigyaIM\Plugin\Framework\Session\Config" />
         <arguments>

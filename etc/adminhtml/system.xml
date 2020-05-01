@@ -22,6 +22,20 @@
                     <label>Data center</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\Domain</source_model>
                 </field>
+                <field id="encryption_key_type" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Encryption key type</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\EncryptionKeyType</source_model>
+                    <comment><![CDATA[Choose the desired type of encryption key to use: Magento standard or a different key stored on a file at [MAGENTO_ROOT]/var folder<br /><br /><b>Important:</b> after change this field it is necessary to re-enter application secret]]></comment>
+                </field>
+                <field id="key_file_location" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Path to your key file</label>
+                    <depends>
+                        <field id="encryption_key_type">key_file</field>
+                    </depends>
+                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.<br /><br /><b>Important:</b> after change this field it is necessary to re-enter application secret]]></comment>
+                    <config_path>gigya_section/general/key_file_location</config_path>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation</backend_model>
+                </field>
                 <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Application key</label>
                     <validate>validate-no-empty</validate>
@@ -206,18 +220,6 @@
 					<validate>required-entry integer validate-greater-than-zero</validate>
 				</field>
 			</group>
-            <group id="auth" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Authentication</label>
-                <field id="key_file_location" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Path to your key file</label>
-                    <depends>
-                        <field id="key_save_type">file</field>
-                    </depends>
-                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.<br /><br /><b>Important:</b> after key file change it is necessary to re-enter application secret on general tab]]></comment>
-                    <config_path>gigya_section/general/key_file_location</config_path>
-                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation</backend_model>
-                </field>
-            </group>
 		</section>
     </system>
 </config>

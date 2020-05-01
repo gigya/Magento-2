@@ -25,7 +25,4 @@
         <!-- Delete the persisted Gigya data, if any, that were stored for a further retry -->
         <observer name="gigyaGigyaFromMagentoFieldMappingObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
     </event>
-    <event name="controller_action_predispatch_adminhtml_system_config_edit">
-        <observer name="onGigyaConfigEdit" instance="Gigya\GigyaIM\Observer\SystemConfigEdit" />
-    </event>
 </config>

@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Setup;
 
+use Magento\Config\Model\ResourceModel\Config as ResourceModelConfig;
 use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Customer\Model\Customer;
@@ -43,22 +44,30 @@ class UpgradeData implements UpgradeDataInterface
      */
 	protected $zendDbExprFactory;
 
+    /**
+     * @var ResourceModelConfig
+     */
+	protected $resourceModelConfig;
+
 	/**
 	 * @param CustomerSetupFactory $customerSetupFactory
 	 * @param AttributeSetFactory $attributeSetFactory
 	 * @param CustomerAttributeResourceModel $customerAttributeResourceModel
      * @param Zend_Db_ExprFactory $zendDbExprFactory
+     * @param ResourceModelConfig $resourceModelConfig
 	 */
     public function __construct(
         CustomerSetupFactory $customerSetupFactory,
         AttributeSetFactory $attributeSetFactory,
 		CustomerAttributeResourceModel $customerAttributeResourceModel,
-        Zend_Db_ExprFactory $zendDbExprFactory
+        Zend_Db_ExprFactory $zendDbExprFactory,
+        ResourceModelConfig $resourceModelConfig
     ) {
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
         $this->customerAttributeResourceModel = $customerAttributeResourceModel;
         $this->zendDbExprFactory = $zendDbExprFactory;
+        $this->resourceModelConfig = $resourceModelConfig;
     }
 
     /**
@@ -176,18 +185,30 @@ class UpgradeData implements UpgradeDataInterface
 
         if (version_compare($context->getVersion(), '5.6.0') < 0) {
             $connection = $setup->getConnection();
-            $gigyaSettingsTable = $connection->getTableName('gigya_settings');
-            $coreConfigDataTable = $connection->getTableName('core_config_data');
-            $pathExpr = $this->zendDbExprFactory->create(['expression' => "'gigya_section/general/app_secret'"]);
 
-            $select = $connection->select()
-                ->from($gigyaSettingsTable, array($pathExpr, 'app_secret'))
-                ->where('id = ?', 1);
+            if ($connection->isTableExists('gigya_settings')) {
+                $gigyaSettingsTable = $connection->getTableName('gigya_settings');
+                $coreConfigDataTable = $connection->getTableName('core_config_data');
+                $pathExpr = $this->zendDbExprFactory->create(['expression' => "'gigya_section/general/app_secret'"]);
 
-            $insertSql = $connection->insertFromSelect($select, $coreConfigDataTable, ['path', 'value']);
-            $connection->query($insertSql);
+                $select = $connection->select()
+                    ->from($gigyaSettingsTable, array($pathExpr, 'app_secret'))
+                    ->where('id = ?', 1);
 
-            $connection->dropTable($gigyaSettingsTable);
+                $result = $connection->query($select);
+
+                if ($result->rowCount() == 0) {
+                    $insertSql = $connection->insertFromSelect($select, $coreConfigDataTable, ['path', 'value']);
+                    $connection->query($insertSql);
+
+                    $this->resourceModelConfig->saveConfig(
+                        'gigya_section/general/app_secret',
+                        'key_file'
+                    );
+                }
+
+                $connection->dropTable($gigyaSettingsTable);
+            }
         }
 
         $setup->endSetup();

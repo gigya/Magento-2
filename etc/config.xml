@@ -4,6 +4,7 @@
 		<gigya_section>
 			<general>
 				<enable_gigya>0</enable_gigya>
+				<encryption_key_type>magento</encryption_key_type>
 			</general>
 		</gigya_section>
         <gigya_section_fieldmapping>
