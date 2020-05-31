@@ -292,8 +292,15 @@ class UserDeletion
 							$this->logger->error('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
 						}
 					} elseif ($deletion_type == 'hard_delete') {
-						$this->registry->register('isSecureArea', true);
-						$this->customerRepository->delete($magento_user);
+						try {
+							$this->registry->register('isSecureArea', true);
+							$this->customerRepository->delete($magento_user);
+							$deleted_users[] = $gigya_uid;
+						} catch (\RuntimeException $e) {
+							$this->logger->error('Gigya deletion cron: Error elevating permissions for user deletion: ' . $e->getMessage());
+						} catch (\Exception $e) {
+							$this->logger->error('Gigya deletion cron: Error fully deleting user: ' . $e->getMessage());
+						}
 					}
 				} else {
 					$this->logger->info('Gigya deletion cron: User not found with Gigya UID: ' . $gigya_uid);
