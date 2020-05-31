@@ -145,11 +145,11 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     public static function getGigyaApiSubscriptionsData(GigyaUser $gigyaAccount)
     {
-        $subscriptions = $gigyaAccount->getSubscriptions();
+			$subscriptions = $gigyaAccount->getSubscriptions() ?? [];
 
-        $result = [];
+			$result = [];
 
-        if (count($subscriptions)) {
+			if (count($subscriptions)) {
             /** @var GigyaSubscriptionContainer $subscriptionContainer */
             foreach ($subscriptions as $subscriptionId => $subscriptionContainer) {
                 $subscriptionData = $subscriptionContainer->getSubscriptionAsArray();
