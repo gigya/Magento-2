@@ -153,12 +153,12 @@ class GigyaCronHelper extends AbstractHelper
 	 * @param string       $job_status
 	 * @param string|array $email_to
 	 * @param int|null     $processed_items
-	 * @param int          $failed_users
+	 * @param int          $failed_items
 	 * @param string       $custom_email_body
 	 *
 	 * @return boolean
 	 */
-	public function sendEmail($job_type, $job_status, $email_to, $processed_items = null, $failed_users = 0, $custom_email_body = '')
+	public function sendEmail($job_type, $job_status, $email_to, $processed_items = null, $failed_items = 0, $custom_email_body = '')
 	{
 		if (empty($email_to)) {
 			return false;
@@ -174,7 +174,7 @@ class GigyaCronHelper extends AbstractHelper
 			if ($job_status == 'succeeded' or $job_status == 'completed with errors') {
 				$email_body = 'Job ' . $job_status . ' on ' . gmdate("F n, Y H:i:s") . ' (UTC).';
 				if ($processed_items !== null) {
-					$email_body .= ' ' . $processed_items . ' ' . (($processed_items > 1) ? 'items' : 'item') . ' successfully processed, ' . $failed_users . ' failed.';
+					$email_body .= ' ' . $processed_items . ' ' . (($processed_items > 1) ? 'items' : 'item') . ' successfully processed, ' . $failed_items . ' failed.';
 				}
 			} elseif ($job_status == 'failed') {
 				$email_body = 'Job failed. No items were processed. Please consult the Gigya log ([Magento 2 dir]/var/gigya.log) for more info.';
