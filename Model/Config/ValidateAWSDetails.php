@@ -76,7 +76,9 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
 	public function beforeSave()
 	{
 		/* Get submitted settings */
-		$is_enabled = intval($this->_data['groups']['deletion_general']['fields']['deletion_is_enabled']['value']);
+		$is_enabled = (isset($this->_data['groups']['deletion_general']['fields']['deletion_is_enabled']['value']))
+			? intval($this->_data['groups']['deletion_general']['fields']['deletion_is_enabled']['value'])
+			: false;
 
 		if ($is_enabled)
 		{
