@@ -16,6 +16,7 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Event\Manager;
@@ -231,10 +232,14 @@ class UserDeletion
 	 */
 	protected function getGigyaUserIDs($csv_string)
 	{
-		$csv_array = (!empty($csv_string)) ? array_map('trim', explode("\n", $csv_string)) : array();
+		if (empty($csv_string)) {
+			return [];
+		}
+
+		$csv_array = array_map('str_getcsv', explode("\n", $csv_string));
 		array_shift($csv_array);
 
-		return $csv_array;
+		return array_filter(array_column($csv_array, 0));
 	}
 
 	/**
@@ -244,7 +249,7 @@ class UserDeletion
 	 *
 	 * @return array
 	 *
-	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws LocalizedException
 	 */
 	protected function deleteUsers($uid_type, $uid_array, &$failed_users)
 	{
@@ -252,6 +257,15 @@ class UserDeletion
 		$deleted_users = array();
 
 		$this->eventManager->dispatch('gigya_user_deletion_soft_delete_before');
+
+		/* Setting elevated permissions for full user deletion */
+		if ($deletion_type == 'hard_delete') {
+			try {
+				$this->registry->register('isSecureArea', true);
+			} catch (\RuntimeException $e) {
+				$this->logger->error('Gigya deletion cron: Error elevating permissions for user deletion: ' . $e->getMessage());
+			}
+		}
 
 		foreach ($uid_array as $gigya_uid) {
 			/* Get Magento entity ID for each Gigya UID */
@@ -286,14 +300,18 @@ class UserDeletion
 									$failed_users[] = $gigya_uid;
 								}
 							} else {
-								$this->logger->info('Gigya deletion cron: User ' . $magento_uid . ' deleted at: ' . $gigya_deleted_timestamp->getValue());
+								$this->logger->info('Gigya deletion cron: Magento user ' . $magento_uid . ' already soft-deleted at: ' . $gigya_deleted_timestamp->getValue());
 							}
 						} catch (\Exception $e) {
 							$this->logger->error('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
 						}
 					} elseif ($deletion_type == 'hard_delete') {
-						$this->registry->register('isSecureArea', true);
-						$this->customerRepository->delete($magento_user);
+						try {
+							$this->customerRepository->delete($magento_user);
+							$deleted_users[] = $gigya_uid;
+						} catch (\Exception $e) {
+							$this->logger->error('Gigya deletion cron: Error fully deleting user: ' . $e->getMessage());
+						}
 					}
 				} else {
 					$this->logger->info('Gigya deletion cron: User not found with Gigya UID: ' . $gigya_uid);
@@ -305,7 +323,7 @@ class UserDeletion
 	}
 
 	/**
-	 * @throws \Magento\Framework\Exception\LocalizedException
+	 * @throws LocalizedException
 	 */
 	public function execute()
 	{
@@ -348,7 +366,7 @@ class UserDeletion
 				foreach ($files as $file) {
 					if (!in_array($file, $processed_files)) {
 						$csv = $this->getS3FileContents($file, $aws_credentials);
-						$user_array = array_filter($this->getGigyaUserIDs($csv));
+						$user_array = $this->getGigyaUserIDs($csv);
 						$deleted_users = $this->deleteUsers('gigya', $user_array, $failed_users);
 						$total_deleted_users += count($deleted_users);
 
@@ -385,12 +403,17 @@ class UserDeletion
 
 				$this->logger->warning('Gigya user deletion job from ' . $start_time . ' failed (no users were deleted). It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.');
 			} else {
+				$deleted_user_count = count($deleted_users);
+
 				/* Params for email */
 				$job_status = 'completed';
 				$email_to = $this->email_success;
-				$email_body = 'Job succeeded or completed with errors. ' . count($deleted_users) . ' deleted, ' . $failed_count . ' failed.';
+				$email_body = 'Job succeeded or completed with errors. ' . $deleted_user_count . ' deleted, ' . $failed_count . ' failed.';
 
-				$this->logger->info('Gigya user deletion job from ' . $start_time . ' was completed successfully.');
+				$this->logger->info(
+					'Gigya user deletion job from ' . $start_time . ' succeeded or completed with errors. '
+					. $deleted_user_count . ($deleted_user_count === 1) ? ' user was' : ' users were' . ' deleted.'
+				);
 			}
 
 			try {
