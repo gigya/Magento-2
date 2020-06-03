@@ -3,6 +3,7 @@
 namespace Gigya\GigyaIM\Model;
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
+use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaSubscriptionContainer;
@@ -145,11 +146,11 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     public static function getGigyaApiSubscriptionsData(GigyaUser $gigyaAccount)
     {
-        $subscriptions = $gigyaAccount->getSubscriptions();
+		$subscriptions = $gigyaAccount->getSubscriptions() ?? [];
 
-        $result = [];
+		$result = [];
 
-        if (count($subscriptions)) {
+		if (count($subscriptions)) {
             /** @var GigyaSubscriptionContainer $subscriptionContainer */
             foreach ($subscriptions as $subscriptionId => $subscriptionContainer) {
                 $subscriptionData = $subscriptionContainer->getSubscriptionAsArray();
@@ -226,7 +227,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 	 *                            self::EVENT_UPDATE_GIGYA_SUCCESS
 	 *                            or self::EVENT_UPDATE_GIGYA_FAILURE
 	 *
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @throws GSException
 	 */
     public function update($gigyaAccount, $dispatchEvent = true)
     {
@@ -304,7 +305,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 	 * @return GigyaUser|mixed
 	 *
 	 * @throws GSApiException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @throws GSException
 	 */
     function get($uid)
     {
@@ -323,7 +324,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 	 * @param string $uid
 	 *
 	 * @return GigyaUser|mixed|null
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @throws GSException
 	 */
     function rollback($uid)
     {

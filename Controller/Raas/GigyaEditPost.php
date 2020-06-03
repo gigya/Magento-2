@@ -22,6 +22,7 @@ use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Controller\Result\JsonFactory as ResultJsonFactory;
 
 class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
 {
@@ -52,6 +53,11 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
     /** @var GigyaLogger */
     protected $logger;
 
+    /**
+     * @var ResultJsonFactory
+     */
+    protected $resultJsonFactory;
+
 	/**
 	 * @param Context                     $context
 	 * @param Session                     $customerSession
@@ -63,6 +69,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
 	 * @param GigyaConfig                 $config
 	 * @param GigyaMageHelper             $gigyaMageHelper
 	 * @param GigyaLogger                 $logger
+	 * @param ResultJsonFactory           $resultJsonFactory
 	 */
     public function __construct(
         Context $context,
@@ -74,7 +81,8 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
         CustomerExtractor $customerExtractor,
         GigyaConfig $config,
         GigyaMageHelper $gigyaMageHelper,
-		GigyaLogger $logger
+		GigyaLogger $logger,
+        ResultJsonFactory $resultJsonFactory
     )
     {
         parent::__construct(
@@ -90,6 +98,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
         $this->gigyaSyncHelper = $gigyaSyncHelper;
         $this->config = $config;
         $this->logger = $logger;
+        $this->resultJsonFactory = $resultJsonFactory;
     }
 
     /**
@@ -106,11 +115,12 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
             return parent::execute();
         }
 
-        /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
-        $resultRedirect = $this->resultRedirectFactory->create();
+        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
+        $resultJson = $this->resultJsonFactory->create();
 
         if (!$this->formKeyValidator->validate($this->getRequest())) {
-            return $resultRedirect->setPath('*/*/edit');
+            $resultJson->setData(['location' => $this->_url->getUrl('*/*/edit')]);
+            return $resultJson;
         }
 
         if ($this->getRequest()->isPost()) {
@@ -157,13 +167,18 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
 
             if ($this->messageManager->getMessages()->getCount() > 0) {
                 $this->session->setCustomerFormData($this->getRequest()->getPostValue());
-                return $resultRedirect->setPath('*/*/edit');
+
+                $resultJson->setData(['location' => $this->_url->getUrl('*/*/edit')]);
+                return $resultJson;
             }
 
             $this->messageManager->addSuccessMessage(__('You saved the account information.'));
-            return $resultRedirect->setPath('customer/account');
+
+            $resultJson->setData(['location' => $this->_url->getUrl('customer/account')]);
+            return $resultJson;
         }
 
-        return $resultRedirect->setPath('*/*/edit');
+        $resultJson->setData(['location' => $this->_url->getUrl('*/*/edit')]);
+        return $resultJson;
     }
 }
