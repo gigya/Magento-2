@@ -2,9 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class Language implements ArrayInterface
+class Language implements OptionSourceInterface
 {
     /**
      * @return array

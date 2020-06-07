@@ -2,9 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class ScreenSetDisplayType implements ArrayInterface
+class ScreenSetDisplayType implements OptionSourceInterface
 {
 	public function toOptionArray()
 	{
