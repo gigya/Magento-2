@@ -3,7 +3,7 @@
 namespace Gigya\GigyaIM\Model\Cron;
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\FieldMappingException;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSResponse;
+use Gigya\PHP\GSResponse;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;

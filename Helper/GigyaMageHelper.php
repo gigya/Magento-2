@@ -5,8 +5,9 @@
 namespace Gigya\GigyaIM\Helper;
 
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\SigUtils;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
+use Gigya\PHP\GSException;
+use Gigya\PHP\SigUtils;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -188,6 +189,7 @@ class GigyaMageHelper extends AbstractHelper
      * @param string $scopeType
      * @param null $scopeCode
      * @param null $settings
+	 *
      * @throws \Exception
      */
     public function setGigyaSettings(
@@ -428,13 +430,12 @@ class GigyaMageHelper extends AbstractHelper
 	/**
 	 * Method updateGigyaAccount
 	 *
-	 * @param string $uid UID
-	 * @param array $data data
+	 * @param string $uid  UID
+	 * @param array  $data data
 	 *
 	 * @return void
 	 *
-	 * @throws GSException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
+	 * @throws GSApiException
 	 */
     public function updateGigyaAccount($uid, $data = array())
     {
@@ -449,7 +450,7 @@ class GigyaMageHelper extends AbstractHelper
 	 * @return false|GigyaUser
 	 *
 	 * @throws GSException If the Gigya service returned an error.
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
+	 * @throws GSApiException
 	 */
     public function getGigyaAccountDataFromLoginData($loginData)
     {
@@ -486,8 +487,7 @@ class GigyaMageHelper extends AbstractHelper
 	 *
 	 * @return GigyaUser
 	 *
-	 * @throws GSException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
+	 * @throws GSApiException
 	 */
     public function getGigyaAccountDataFromUid($uid)
     {

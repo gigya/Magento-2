@@ -1,6 +1,9 @@
 <?php
 
-namespace Gigya\GigyaIM\Helper\CmsStarterKit\sdk;
+namespace Gigya\GigyaIM\Helper\CmsStarterKit;
+
+use Gigya\PHP\GSException;
+use Gigya\PHP\GSObject;
 
 class GSFactory
 {

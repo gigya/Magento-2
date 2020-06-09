@@ -287,7 +287,7 @@ class GigyaPost extends LoginPost
 
         try {
         	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
-		} catch (\Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException $e) {
+		} catch (\Gigya\PHP\GSApiException $e) {
         	$message = ($this->config->isDebugModeEnabled()) ? $e->getLongMessage() : $e->getMessage();
 			$this->logger->error('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $message);
 		} catch (\Exception $e) {

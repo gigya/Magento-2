@@ -2,10 +2,10 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSFactory;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSObject;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\SigUtils;
+use Gigya\PHP\GSException;
+use Gigya\PHP\GSObject;
+use Gigya\PHP\GSResponse;
+use Gigya\PHP\SigUtils;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUserFactory;
 
@@ -49,11 +49,11 @@ class GigyaApiHelper
 	 * @param string         $method
 	 * @param array|GSObject $params
 	 *
-	 * @return sdk\GSResponse
+	 * @return GSResponse
 	 *
-	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
+	 * @throws GSException
+	 * @throws \Exception
 	 */
 	public function sendApiCall($method, $params) {
 		$req = GSFactory::createGSRequestAppKey($this->apiKey, $this->key, $this->secret, $method,
@@ -76,7 +76,6 @@ class GigyaApiHelper
 	 *
 	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
 	public function validateUid($uid, $uidSignature, $signatureTimestamp, $include = null, $extraProfileFields = null, $org_params = array()) {
 		$params                       = $org_params;
@@ -109,7 +108,6 @@ class GigyaApiHelper
 	 *
 	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
 	public function fetchGigyaAccount($uid, $include = null, $extraProfileFields = null, $params = array()) {
 		if (null === $include)
@@ -149,7 +147,7 @@ class GigyaApiHelper
 	 * @return GigyaUser[]
 	 *
 	 * @throws GSApiException
-	 * @throws sdk\GSException
+	 * @throws GSException
 	 */
 	public function searchGigyaUsers($query, $useCursor = false)
 	{
@@ -226,7 +224,6 @@ class GigyaApiHelper
 	 * @throws \Exception
 	 * @throws \InvalidArgumentException
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
 	public function updateGigyaAccount($uid, $data) {
 		if (empty($uid))
@@ -260,7 +257,6 @@ class GigyaApiHelper
 	/**
 	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
 	public function getSiteSchema() {
 		$params = GSFactory::createGSObjectFromArray(array("apiKey" => $this->apiKey));
@@ -275,7 +271,7 @@ class GigyaApiHelper
 	 * @return bool
 	 *
 	 * @throws \Exception
-	 * @throws sdk\GSException
+	 * @throws GSException
 	 */
 	public function isRaasEnabled($apiKey = null) {
 		if (null === $apiKey)

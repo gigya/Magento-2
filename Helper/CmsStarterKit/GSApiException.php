@@ -1,6 +1,6 @@
 <?php
 
-namespace Gigya\GigyaIM\Helper\CmsStarterKit\sdk;
+namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
 class GSApiException extends \Exception
 {
@@ -30,18 +30,16 @@ class GSApiException extends \Exception
 	}
 
 	/**
-	 * @return null
+	 * @return string
 	 */
 	public function getLongMessage() {
 		return $this->longMessage;
 	}
 
 	/**
-	 * @return null
+	 * @return string
 	 */
 	public function getCallId() {
 		return $this->callId;
 	}
-
-
 }

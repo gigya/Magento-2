@@ -34,6 +34,13 @@ class GigyaEncryptorHelper extends \Magento\Framework\App\Helper\AbstractHelper
         $this->file = $file;
     }
 
+	/**
+	 * @param $keyFileLocation
+	 *
+	 * @return string|false
+	 *
+	 * @throws \Magento\Framework\Exception\FileSystemException
+	 */
     public function getKeyFromFile($keyFileLocation)
     {
         if (empty($keyFileLocation) == false) {

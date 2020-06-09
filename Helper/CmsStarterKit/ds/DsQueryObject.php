@@ -383,9 +383,8 @@ class DsQueryObject
 	}
 
 	/**
-	 * @return \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSObject
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @return \Gigya\PHP\GSObject
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
 	 */
 	public function dsGet() {
 		$paramsArray = ["oid" => $this->oid, "type" => $this->table];
@@ -427,10 +426,9 @@ class DsQueryObject
 	}
 
 	/**
-	 * @return \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSObject
+	 * @return \Gigya\PHP\GSObject
 	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
 	 */
 	public function dsSearch() {
 		if (empty($this->query))
@@ -503,8 +501,7 @@ class DsQueryObject
 	}
 
 	/**
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
 	 */
 	public function dsDelete() {
 		$paramsArray = ["oid" => $this->oid, "type" => $this->table];

@@ -1,6 +1,10 @@
 <?php
 
-namespace Gigya\GigyaIM\Helper\CmsStarterKit\sdk;
+namespace Gigya\GigyaIM\Helper\CmsStarterKit;
+
+use Gigya\PHP\GSObject;
+use Gigya\PHP\GSRequest;
+use Gigya\PHP\GSResponse;
 
 class GigyaApiRequest extends GSRequest
 {

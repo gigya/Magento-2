@@ -4,6 +4,7 @@ namespace Gigya\GigyaIM\Model\Config\Backend;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Helper\GigyaEncryptorHelper;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 
 class KeyFileLocation extends \Magento\Framework\App\Config\Value
@@ -38,13 +39,21 @@ class KeyFileLocation extends \Magento\Framework\App\Config\Value
         $this->gigyaEncryptorHelper = $gigyaEncryptorHelper;
     }
 
-
+	/**
+	 * @return \Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation
+	 *
+	 * @throws \Magento\Framework\Exception\LocalizedException
+	 */
     public function beforeSave()
     {
         $keyFileLocation = $this->getValue();
 
         if (empty($keyFileLocation) === false) {
-            $gigyaEncryptKey = $this->gigyaEncryptorHelper->getKeyFromFile($this->getValue());
+        	try {
+            	$gigyaEncryptKey = $this->gigyaEncryptorHelper->getKeyFromFile($this->getValue());
+			} catch (FileSystemException $e) {
+				throw new LocalizedException(__("Invalid or empty key file provided"));
+			}
 
             if ($gigyaEncryptKey === false) {
                 throw new LocalizedException(__("Invalid or empty key file provided"));
