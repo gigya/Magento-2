@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
+use Gigya\PHP\GSException;
 use Gigya\PHP\GSObject;
 use Gigya\PHP\GSRequest;
 use Gigya\PHP\GSResponse;
@@ -13,7 +14,7 @@ class GigyaApiRequest extends GSRequest
 	 *
 	 * @return GSResponse
 	 *
-	 * @throws \Exception
+	 * @throws GSException
 	 * @throws GSApiException
 	 */
 	public function send($timeout = null) {
@@ -23,7 +24,11 @@ class GigyaApiRequest extends GSRequest
 			return $res;
 		}
 
-		throw new GSApiException($res->getErrorMessage(), $res->getErrorCode(), $res->getResponseText(), $res->getString("callId", "N/A"));
+		if (!empty($res->getData())) {
+			throw new GSApiException($res->getErrorMessage(), $res->getErrorCode(), $res->getResponseText(), $res->getString("callId", "N/A"));
+		} else {
+			throw new GSException($res->getErrorMessage(), $res->getErrorCode());
+		}
 	}
 
 	/**
@@ -42,6 +47,5 @@ class GigyaApiRequest extends GSRequest
 	public function __construct($apiKey, $secret, $apiMethod, $params, $dataCenter, $useHTTPS = true, $userKey = null) {
 		parent::__construct($apiKey, $secret, $apiMethod, $params, $useHTTPS, $userKey);
 		$this->setAPIDomain($dataCenter);
-		$this->setCAFile(realpath(dirname(__FILE__) . "/cacert.pem"));
 	}
 }

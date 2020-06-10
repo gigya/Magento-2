@@ -31,7 +31,9 @@ class GigyaMageHelper extends AbstractHelper
 
     private $apiKey;
     private $apiDomain;
+	private $authMode;
     private $appKey;
+	private $privateKey;
     private $keyFileLocation;
     private $debug;
 
@@ -62,17 +64,20 @@ class GigyaMageHelper extends AbstractHelper
     const CHARS_PASSWORD_DIGITS = '23456789';
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
-    /**
-     * GigyaMageHelper constructor.
-     * @param Context $context
-     * @param GigyaLogger $logger
-     * @param ModuleListInterface $moduleList
-     * @param Config $configModel
-     * @param Session $session
-     * @param CookieManagerInterface $cookieManager
-     * @param SigUtils $sigUtils
-     * @param Encryptor $encryptor
-     */
+	/**
+	 * GigyaMageHelper constructor.
+	 *
+	 * @param Context                $context
+	 * @param GigyaLogger            $logger
+	 * @param ModuleListInterface    $moduleList
+	 * @param Config                 $configModel
+	 * @param Session                $session
+	 * @param CookieManagerInterface $cookieManager
+	 * @param SigUtils               $sigUtils
+	 * @param Encryptor              $encryptor
+	 *
+	 * @throws \Exception
+	 */
     public function __construct(
         Context $context,
         GigyaLogger $logger,
@@ -216,18 +221,25 @@ class GigyaMageHelper extends AbstractHelper
     	$this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->appSecret = isset($settings['app_secret_decrypted']) && $settings['app_secret_decrypted'] === true ?
-            $settings['app_secret'] : $this->encryptor->decrypt($settings['app_secret']);
+        $this->authMode = $settings['authentication_mode'];
+		if ($settings['authentication_mode'] == 'user_rsa') {
+			$this->privateKey = (isset($settings['rsa_private_key_decrypted']) && $settings['rsa_private_key_decrypted'] === true) ?
+				$settings['rsa_private_key'] : $this->encryptor->decrypt($settings['rsa_private_key']);
+		} else {
+			$this->appSecret = (isset($settings['app_secret_decrypted']) && $settings['app_secret_decrypted'] === true) ?
+				$settings['app_secret'] : $this->encryptor->decrypt($settings['app_secret']);
+		}
     }
 
 	/**
-	 * @return GigyaApiHelper
+	 * @return GigyaApiHelper|false
 	 */
     public function getGigyaApiHelper()
     {
         if ($this->gigyaApiHelper == null) {
             try {
-                $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $this->appSecret, $this->apiDomain);
+				$authKey = ($this->authMode == 'user_rsa') ? $this->privateKey : $this->appSecret;
+                $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->authMode);
             } catch (\Exception $e) {
                 return false;
             }
@@ -246,11 +258,13 @@ class GigyaMageHelper extends AbstractHelper
         $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
         $magento_version = $productMetadata->getVersion();
 
-        // get Gigya version
+        /* get Gigya and PHP version */
         $gigya_version = $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
+        $php_version = phpversion();
 
         $org_params = array();
-        $org_params["environment"] = "cms_version:Magento_{$magento_version},gigya_version:Gigya_module_{$gigya_version}";
+        $org_params["environment"] = "cms_version:Magento_{$magento_version},gigya_version:Gigya_module_{$gigya_version},php_version:{$php_version}";
+
         return $org_params;
     }
 
@@ -261,16 +275,23 @@ class GigyaMageHelper extends AbstractHelper
 	 *
 	 * @return bool|\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
 	 *
-	 * @throws GSException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
+	 * @throws GSApiException
+	 * @throws \Exception
 	 */
     public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
     {
         $org_params = $this->createEnvironmentParam();
         $extra_profile_fields_list = $this->setExtraProfileFields();
-        $valid = $this->getGigyaApiHelper()->validateUid(
-            $UID, $UIDSignature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
-        );
+
+        $gigya_api_helper = $this->getGigyaApiHelper();
+        if ($this->authMode == 'user_secret') {
+			$valid = $gigya_api_helper->validateUid(
+				$UID, $UIDSignature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
+			);
+		} else {
+//        	$valid = $gigya_api_helper->validateJwtAuth( $idToken ); /////
+		}
+
         if (!$valid) {
             $this->gigyaLog(__FUNCTION__ .
                 ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
@@ -473,13 +494,11 @@ class GigyaMageHelper extends AbstractHelper
            }
         }
 
-        $valid_gigya_user = $this->validateAndFetchRaasUser(
+        return $this->validateAndFetchRaasUser(
             $gigya_validation_o->UID,
             $gigya_validation_o->UIDSignature,
             $gigya_validation_o->signatureTimestamp
         );
-
-        return $valid_gigya_user;
     }
 
 	/**

@@ -129,6 +129,7 @@ class Config
 	public function extractSettings(\Magento\Config\Model\Config $subject, $scopeType, $scopeCode)
     {
         $currentSettings = $this->gigyaConfig->getGigyaGeneralConfig($scopeType, $scopeCode);
+        $settings = [];
         $groups = $subject->getData('groups');
 
         foreach ($groups['general']['fields'] as $key => $value) {
@@ -139,11 +140,20 @@ class Config
             }
         }
 
-        if ($settings['app_secret'] == '******') {
-            unset($settings['app_secret']);
-        } else {
-            $settings['app_secret_decrypted'] = true;
-        }
+		if ($settings['authentication_mode'] == 'user_rsa') {
+			//			if (isset($settings['rsa_private_key']) and !$settings['rsa_private_key']) {
+			//				unset($settings['rsa_private_key']);
+			//			} else {
+			//				$settings['rsa_private_key_decrypted'] = true;
+			//			}
+			$settings['rsa_private_key_decrypted'] = true; ////
+		} else {
+			if ($settings['app_secret'] == '******') {
+				unset($settings['app_secret']);
+			} else {
+				$settings['app_secret_decrypted'] = true;
+			}
+		}
 
         return $settings;
     }

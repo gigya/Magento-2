@@ -25,16 +25,21 @@
                 <field id="encryption_key_type" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Encryption key type</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\EncryptionKeyType</source_model>
-                    <comment><![CDATA[Choose the desired type of encryption key to use: Magento standard or a different key stored on a file at [MAGENTO_ROOT]/var folder<br /><br /><b>Important:</b> after change this field it is necessary to re-enter application secret]]></comment>
+                    <comment><![CDATA[Choose the desired type of encryption key to use: Magento standard or a different key stored on a file at [MAGENTO_ROOT]/var folder<br /><br /><b>Important:</b> After changing this field, it is necessary to re-enter the application secret]]></comment>
                 </field>
                 <field id="key_file_location" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Path to your key file</label>
                     <depends>
                         <field id="encryption_key_type">key_file</field>
                     </depends>
-                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.<br /><br /><b>Important:</b> after change this field it is necessary to re-enter application secret]]></comment>
+                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.<br /><br /><b>Important:</b> After changing this field, it is necessary to re-enter the application secret]]></comment>
                     <config_path>gigya_section/general/key_file_location</config_path>
                     <backend_model>Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation</backend_model>
+                </field>
+                <field id="authentication_mode" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Authentication mode</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\AuthenticationMode</source_model>
+                    <comment><![CDATA[Choose how to API calls to Gigya are authentication]]></comment>
                 </field>
                 <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Application key</label>
@@ -42,6 +47,16 @@
                 </field>
                 <field id="app_secret" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Application secret</label>
+                    <depends>
+                        <field id="authentication_mode">user_secret</field>
+                    </depends>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\AppSecret</backend_model>
+                </field>
+                <field id="rsa_private_key" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>RSA private key</label>
+                    <depends>
+                        <field id="authentication_mode">user_rsa</field>
+                    </depends>
                     <backend_model>Gigya\GigyaIM\Model\Config\Backend\AppSecret</backend_model>
                 </field>
                 <field id="language" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
