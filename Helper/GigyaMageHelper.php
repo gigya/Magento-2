@@ -221,8 +221,8 @@ class GigyaMageHelper extends AbstractHelper
     	$this->apiKey = $settings['api_key'];
         $this->apiDomain = $settings['domain'];
         $this->appKey = $settings['app_key'];
-        $this->authMode = $settings['authentication_mode'];
-		if ($settings['authentication_mode'] == 'user_rsa') {
+        $this->authMode = ($settings['authentication_mode']) ?? 'user_secret';
+		if ($this->authMode == 'user_rsa') {
 			$this->privateKey = (isset($settings['rsa_private_key_decrypted']) && $settings['rsa_private_key_decrypted'] === true) ?
 				$settings['rsa_private_key'] : $this->encryptor->decrypt($settings['rsa_private_key']);
 		} else {
@@ -269,16 +269,16 @@ class GigyaMageHelper extends AbstractHelper
     }
 
 	/**
-	 * @param $UID
-	 * @param $UIDSignature
-	 * @param $signatureTimestamp
+	 * @param string $uid
+	 * @param string $signature	UIDSignature or ID Token
+	 * @param string $signatureTimestamp
 	 *
 	 * @return bool|\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
 	 *
 	 * @throws GSApiException
 	 * @throws \Exception
 	 */
-    public function validateAndFetchRaasUser($UID, $UIDSignature, $signatureTimestamp)
+    public function validateAndFetchRaasUser($uid, $signature, $signatureTimestamp)
     {
         $org_params = $this->createEnvironmentParam();
         $extra_profile_fields_list = $this->setExtraProfileFields();
@@ -286,16 +286,17 @@ class GigyaMageHelper extends AbstractHelper
         $gigya_api_helper = $this->getGigyaApiHelper();
         if ($this->authMode == 'user_secret') {
 			$valid = $gigya_api_helper->validateUid(
-				$UID, $UIDSignature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
+				$uid, $signature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
 			);
 		} else {
-//        	$valid = $gigya_api_helper->validateJwtAuth( $idToken ); /////
+			$valid = $gigya_api_helper->validateJwtAuth($uid, $signature, null, $extra_profile_fields_list, $org_params);
 		}
 
         if (!$valid) {
             $this->gigyaLog(__FUNCTION__ .
                 ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
         }
+
         return $valid;
     }
 
@@ -484,7 +485,6 @@ class GigyaMageHelper extends AbstractHelper
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                    ]);
                    throw new GSException("Email already exists.");
-
                default:
                    $this->logger->error("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
@@ -496,7 +496,7 @@ class GigyaMageHelper extends AbstractHelper
 
         return $this->validateAndFetchRaasUser(
             $gigya_validation_o->UID,
-            $gigya_validation_o->UIDSignature,
+			($this->authMode == 'user_secret') ? $gigya_validation_o->UIDSignature : $gigya_validation_o->idToken,
             $gigya_validation_o->signatureTimestamp
         );
     }

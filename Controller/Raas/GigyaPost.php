@@ -3,6 +3,7 @@
 namespace Gigya\GigyaIM\Controller\Raas;
 
 // Parent class constructor uses
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Magento\Customer\Controller\Account\LoginPost;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\App\Action\Context;
@@ -287,7 +288,7 @@ class GigyaPost extends LoginPost
 
         try {
         	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
-		} catch (\Gigya\PHP\GSApiException $e) {
+		} catch (GSApiException $e) {
         	$message = ($this->config->isDebugModeEnabled()) ? $e->getLongMessage() : $e->getMessage();
 			$this->logger->error('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $message);
 		} catch (\Exception $e) {
@@ -312,13 +313,14 @@ class GigyaPost extends LoginPost
 
     /**
      * @param \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user
+	 *
      * @return DataObject
      */
     protected function doLogin(GigyaUser $valid_gigya_user)
     {
-        /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
-        $resultRedirect = $this->resultRedirectFactory->create();
-        // if gigya user not validated return error
+		$resultRedirect = $this->resultRedirectFactory->create();
+
+        /* If gigya user not validated return error */
         if (!$valid_gigya_user) {
             $this->addError(__('The user is not validated. Please try again or contact support.'));
             return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
@@ -348,7 +350,7 @@ class GigyaPost extends LoginPost
                     $loginSuccess = true;
                 }
 
-                // dispatch gigya login event
+                /* Dispatch gigya login event (post-login hook) */
                 $this->_eventManager->dispatch('gigya_post_user_login', [
                     "gigya_user" => $valid_gigya_user,
                     "customer" => $customer,
@@ -368,6 +370,8 @@ class GigyaPost extends LoginPost
 	 * Retrieve success message
 	 *
 	 * @return string
+	 *
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
 	 */
     protected function getSuccessMessage()
     {

@@ -22,7 +22,7 @@
         screenSet : "<?php echo $block->getLoginDesktopScreensetId() ?>",
         containerID : "gigya-register",
         startScreen : "gigya-register-screen",
-        mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>" // optional - for using separate mobile screen set.
+        mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>", // optional - for using separate mobile screen set.
 		include : 'id_token'
     };
     var raasRegisterScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};

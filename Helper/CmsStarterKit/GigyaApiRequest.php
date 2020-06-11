@@ -39,7 +39,7 @@ class GigyaApiRequest extends GSRequest
 	 * @param string   $apiMethod
 	 * @param GSObject $params
 	 * @param string   $dataCenter
-	 * @param bool     $useHTTPS
+	 * @param boolean  $useHTTPS
 	 * @param null     $userKey
 	 *
 	 * @throws \Exception

@@ -77,31 +77,32 @@ class GigyaApiHelper
 	/**
 	 * Validate and get Gigya user
 	 *
-	 * @param       $uid
-	 * @param       $uidSignature
-	 * @param       $signatureTimestamp
-	 * @param null  $include
-	 * @param null  $extraProfileFields
-	 * @param array $org_params
+	 * @param string $uid
+	 * @param string $uidSignature
+	 * @param        $signatureTimestamp
+	 * @param        $include
+	 * @param        $extraProfileFields
+	 * @param array  $orgParams
 	 *
-	 * @return bool|user\GigyaUser
+	 * @return GigyaUser|false
 	 *
 	 * @throws \Exception
 	 * @throws GSApiException
 	 */
-	public function validateUid($uid, $uidSignature, $signatureTimestamp, $include = null, $extraProfileFields = null, $org_params = array()) {
-		$params                       = $org_params;
+	public function validateUid($uid, $uidSignature, $signatureTimestamp, $include = null, $extraProfileFields = null, $orgParams = array()) {
+		$params                       = $orgParams;
 		$params['UID']                = $uid;
 		$params['UIDSignature']       = $uidSignature;
 		$params['signatureTimestamp'] = $signatureTimestamp;
 		$res                          = $this->sendApiCall("socialize.exchangeUIDSignature", $params);
 		$sig                          = $res->getData()->getString("UIDSignature", null);
 		$sigTimestamp                 = $res->getData()->getString("signatureTimestamp", null);
+
 		if (null !== $sig && null !== $sigTimestamp)
 		{
 			if (SigUtils::validateUserSignature($uid, $sigTimestamp, $this->authKey, $sig))
 			{
-				return $this->fetchGigyaAccount($uid, $include, $extraProfileFields, $org_params);
+				return $this->fetchGigyaAccount($uid, $include, $extraProfileFields, $orgParams);
 			}
 		}
 
@@ -109,14 +110,30 @@ class GigyaApiHelper
 	}
 
 	/**
-	 * @param $idToken
+	 * @param string $uid
+	 * @param string $idToken
 	 *
-	 * @return bool|stdClass
+	 * @param string $include
+	 * @param        $extraProfileFields
+	 * @param        $orgParams
 	 *
-	 * @throws \Exception
+	 * @return GigyaUser|false
+	 *
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
 	 */
-	public function validateJwtAuth( $idToken ) {
-		return JWTUtils::validateSignature( $idToken, $this->apiKey, $this->dataCenter );
+	public function validateJwtAuth($uid, $idToken, $include = null, $extraProfileFields = null, $orgParams = null)
+	{
+		try {
+			$jwt = JWTUtils::validateSignature($idToken, $this->apiKey, $this->dataCenter);
+		} catch (\Exception $e) {
+			return false;
+		}
+
+		if ($jwt) {
+			return $this->fetchGigyaAccount($uid, $include, $extraProfileFields, $orgParams);
+		} else {
+			return false;
+		}
 	}
 
 	/**
