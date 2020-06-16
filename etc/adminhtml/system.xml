@@ -57,6 +57,7 @@
                     <depends>
                         <field id="authentication_mode">user_rsa</field>
                     </depends>
+                    <frontend_model>Gigya\GigyaIM\Block\Adminhtml\Form\EmptyTextarea</frontend_model>
                     <backend_model>Gigya\GigyaIM\Model\Config\Backend\AppSecret</backend_model>
                 </field>
                 <field id="language" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">

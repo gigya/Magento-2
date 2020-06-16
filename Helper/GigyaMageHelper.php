@@ -4,6 +4,7 @@
  */
 namespace Gigya\GigyaIM\Helper;
 
+use Firebase\JWT\JWT;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Gigya\PHP\GSException;
@@ -33,10 +34,10 @@ class GigyaMageHelper extends AbstractHelper
     private $apiDomain;
 	private $authMode;
     private $appKey;
-	private $privateKey;
     private $keyFileLocation;
     private $debug;
 
+	private $privateKey;
     private $appSecret;
 
     /** @var GigyaApiHelper  */
@@ -107,10 +108,17 @@ class GigyaMageHelper extends AbstractHelper
     /**
      * @return string
      */
-    public function getAppSecret()
+    protected function getAppSecret()
     {
         return $this->appSecret;
     }
+
+	/**
+	 * @return string
+	 */
+    protected function getPrivateKey() {
+    	return $this->privateKey ?? '';
+	}
 
     /**
      * @return mixed
@@ -129,7 +137,7 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getApiDomain()
     {
@@ -145,12 +153,19 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getAppKey()
     {
         return $this->appKey;
     }
+
+	/**
+	 * @return string
+	 */
+    public function getAuthMode() {
+    	return $this->authMode ?? 'user_secret';
+	}
 
     /**
      * @param mixed $appKey
@@ -565,14 +580,18 @@ class GigyaMageHelper extends AbstractHelper
 		}
 
 		$APIKey = $this->getApiKey();
-		$tokenCookieName = "glt_" . $APIKey;   //  the name of the token-cookie Gigya stores
+		$tokenCookieName = "glt_" . $APIKey; /* The name of the token-cookie Gigya stores (Gigya Login Token, or GLT) */
 		$tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
-		$loginToken = explode("|", $tokenCookieValue)[0]; // get the login token from the token-cookie.
+		$loginToken = explode("|", $tokenCookieValue)[0]; /* Get the login token from the token-cookie. */
 		$applicationKey = $this->getAppKey();
-		$secret = $this->getAppSecret();
 
-		return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
-
+		if ($this->getAuthMode() == 'user_rsa') {
+			$privateKey = $this->getPrivateKey();
+			return $this->calculateDynamicSessionJwt($loginToken, $secondsToExpiration, $applicationKey, $privateKey);
+		} else {
+			$secret = $this->getAppSecret();
+			return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
+		}
 	}
 
 	protected function getDynamicSessionSignatureUserSigned($glt_cookie, $timeoutInSeconds, $userKey, $secret)
@@ -584,9 +603,21 @@ class GigyaMageHelper extends AbstractHelper
 		$unsignedExpString = $glt_cookie . "_" . $expirationTimeUnix . "_" . $userKey;
 		$signedExpString = SigUtils::calcSignature($unsignedExpString, $secret); // sign the base string using the secret key
 
-		$ret = $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString;   // define the cookie value
+		return $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString; // define the cookie value
+	}
 
-		return $ret;
+	protected function calculateDynamicSessionJwt(string $loginToken, int $secondsToExpiration, string $applicationKey, string $privateKey)
+	{
+		$expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $secondsToExpiration;
+		$expirationTimeUnix = (string)floor($expirationTimeUnixMS);
+
+		$jwtPayload = $payload = [
+			'sub' => $loginToken,
+			'iat' => time(),
+			'exp' => intval( $expirationTimeUnix )
+		];
+
+		return JWT::encode( $payload, $privateKey, 'RS256', $applicationKey );
 	}
 
     protected function signBaseString($key, $unsignedExpString)
