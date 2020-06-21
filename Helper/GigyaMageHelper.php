@@ -611,7 +611,7 @@ class GigyaMageHelper extends AbstractHelper
 		$expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $secondsToExpiration;
 		$expirationTimeUnix   = (string)floor($expirationTimeUnixMS);
 
-		$jwtPayload = $payload = [
+		$payload = [
 			'sub' => $loginToken,
 			'iat' => time(),
 			'exp' => intval($expirationTimeUnix),
