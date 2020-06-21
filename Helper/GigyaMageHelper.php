@@ -587,7 +587,7 @@ class GigyaMageHelper extends AbstractHelper
 
 		if ($this->getAuthMode() == 'user_rsa') {
 			$privateKey = $this->getPrivateKey();
-			return $this->calculateDynamicSessionJwt($loginToken, $secondsToExpiration, $applicationKey, $privateKey);
+			return $this->calculateDynamicSessionSignatureJwtSigned($loginToken, $secondsToExpiration, $applicationKey, $privateKey);
 		} else {
 			$secret = $this->getAppSecret();
 			return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
@@ -606,18 +606,18 @@ class GigyaMageHelper extends AbstractHelper
 		return $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString; // define the cookie value
 	}
 
-	protected function calculateDynamicSessionJwt(string $loginToken, int $secondsToExpiration, string $applicationKey, string $privateKey)
+	protected function calculateDynamicSessionSignatureJwtSigned(string $loginToken, int $secondsToExpiration, string $applicationKey, string $privateKey)
 	{
 		$expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $secondsToExpiration;
-		$expirationTimeUnix = (string)floor($expirationTimeUnixMS);
+		$expirationTimeUnix   = (string)floor($expirationTimeUnixMS);
 
 		$jwtPayload = $payload = [
 			'sub' => $loginToken,
 			'iat' => time(),
-			'exp' => intval( $expirationTimeUnix )
+			'exp' => intval($expirationTimeUnix),
 		];
 
-		return JWT::encode( $payload, $privateKey, 'RS256', $applicationKey );
+		return JWT::encode($payload, $privateKey, 'RS256', $applicationKey);
 	}
 
     protected function signBaseString($key, $unsignedExpString)
