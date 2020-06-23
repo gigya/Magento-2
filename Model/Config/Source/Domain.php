@@ -11,12 +11,12 @@ class Domain implements OptionSourceInterface
     const DC_AU = "au1.gigya.com";
     const DC_RU = "ru1.gigya.com";
     const DC_CN = "cn1.gigya-api.cn";
+
     /**
      * @return array
      */
     public function toOptionArray()
     {
-
         return [
             ['value' => self::DC_US, 'label' => __('US')],
             ['value' => self::DC_EU, 'label' => __('EU')],
