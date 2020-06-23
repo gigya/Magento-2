@@ -43,7 +43,6 @@ class GigyaMageHelper extends AbstractHelper
     /** @var GigyaApiHelper  */
     protected $gigyaApiHelper;
     protected $configSettings;
-    protected $dbSettings;
     protected $_moduleList;
     protected $configModel;
     protected $cookieManager;
@@ -108,7 +107,7 @@ class GigyaMageHelper extends AbstractHelper
     /**
      * @return string
      */
-    protected function getAppSecret()
+	public function getAppSecret()
     {
         return $this->appSecret;
     }
@@ -116,7 +115,7 @@ class GigyaMageHelper extends AbstractHelper
 	/**
 	 * @return string
 	 */
-    protected function getPrivateKey() {
+	public function getPrivateKey() {
     	return $this->privateKey ?? '';
 	}
 
@@ -136,10 +135,26 @@ class GigyaMageHelper extends AbstractHelper
         $this->apiKey = $apiKey;
     }
 
+	/**
+	 * @param string $privateKey
+	 */
+	public function setPrivateKey($privateKey)
+	{
+		$this->privateKey = $privateKey;
+	}
+
+	/**
+	 * @param mixed $appSecret
+	 */
+	public function setAppSecret($appSecret)
+	{
+		$this->appSecret = $appSecret;
+	}
+
     /**
      * @return string
      */
-    public function getApiDomain()
+	public function getApiDomain()
     {
         return $this->apiDomain;
     }
@@ -203,48 +218,48 @@ class GigyaMageHelper extends AbstractHelper
         $this->debug = $debug;
     }
 
-    /**
-     * Gigya settings are set in Stores->configuration->Gigya Identity management
-     *
-     * @param string $scopeType
-     * @param null $scopeCode
-     * @param null $settings
+	/**
+	 * Gigya settings are set in Stores->configuration->Gigya Identity management
 	 *
-     * @throws \Exception
-     */
-    public function setGigyaSettings(
-        $scopeType = ScopeInterface::SCOPE_WEBSITE,
-        $scopeCode = null,
-        $settings = null
-    ) {
-        $savedSettings = $this->configModel->getGigyaGeneralConfig($scopeType, $scopeCode);
+	 * @param string $scopeType
+	 * @param        $scopeCode
+	 * @param        $settings
+	 *
+	 * @throws \Exception
+	 */
+	public function setGigyaSettings(
+		$scopeType = ScopeInterface::SCOPE_WEBSITE,
+		$scopeCode = null,
+		$settings = null
+	) {
+		$savedSettings = $this->configModel->getGigyaGeneralConfig($scopeType, $scopeCode);
 
-        if (is_array($settings) == false) {
-            $settings = $savedSettings;
-        } else {
-            $settings = array_merge($savedSettings, $settings);
-        }
-
-        /* Initializes an empty settings array if the settings have not been set */
-        $available_settings = array('api_key', 'app_secret', 'domain', 'app_key', 'key_file_location', 'enable_gigya');
-        $settings_init = array_fill_keys($available_settings, '');
-        $settings = array_merge($settings_init, $settings);
-        $keyFileLocation = empty($settings['key_file_location']) ? null : $settings['key_file_location'];
-
-        $this->encryptor->initEncryptor($scopeType, $scopeCode, $keyFileLocation);
-
-    	$this->apiKey = $settings['api_key'];
-        $this->apiDomain = $settings['domain'];
-        $this->appKey = $settings['app_key'];
-        $this->authMode = ($settings['authentication_mode']) ?? 'user_secret';
-		if ($this->authMode == 'user_rsa') {
-			$this->privateKey = (isset($settings['rsa_private_key_decrypted']) && $settings['rsa_private_key_decrypted'] === true) ?
-				$settings['rsa_private_key'] : $this->encryptor->decrypt($settings['rsa_private_key']);
+		if (is_array($settings) == false) {
+			$settings = $savedSettings;
 		} else {
-			$this->appSecret = (isset($settings['app_secret_decrypted']) && $settings['app_secret_decrypted'] === true) ?
-				$settings['app_secret'] : $this->encryptor->decrypt($settings['app_secret']);
+			$settings = array_merge($savedSettings, $settings);
 		}
-    }
+
+		/* Initializes an empty settings array if the settings have not been set */
+		$available_settings = ['api_key', 'app_secret', 'domain', 'app_key', 'key_file_location', 'enable_gigya'];
+		$settings_init      = array_fill_keys($available_settings, '');
+		$settings           = array_merge($settings_init, $settings);
+		$keyFileLocation    = empty($settings['key_file_location']) ? null : $settings['key_file_location'];
+
+		$this->encryptor->initEncryptor($scopeType, $scopeCode, $keyFileLocation);
+
+		$this->apiKey    = $settings['api_key'];
+		$this->apiDomain = $settings['domain'];
+		$this->appKey    = $settings['app_key'];
+		$this->authMode  = ($settings['authentication_mode']) ?? 'user_secret';
+		if ($this->getAuthMode() === 'user_rsa') {
+			$this->setPrivateKey((isset($settings['rsa_private_key_decrypted']) && $settings['rsa_private_key_decrypted'] === true) ?
+				$settings['rsa_private_key'] : $this->encryptor->decrypt($settings['rsa_private_key']));
+		} else {
+			$this->setAppSecret((isset($settings['app_secret_decrypted']) && $settings['app_secret_decrypted'] === true) ?
+				$settings['app_secret'] : $this->encryptor->decrypt($settings['app_secret']));
+		}
+	}
 
 	/**
 	 * @return GigyaApiHelper|false
@@ -253,7 +268,7 @@ class GigyaMageHelper extends AbstractHelper
     {
         if ($this->gigyaApiHelper == null) {
             try {
-				$authKey = ($this->authMode == 'user_rsa') ? $this->privateKey : $this->appSecret;
+				$authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
                 $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->authMode);
             } catch (\Exception $e) {
                 return false;
@@ -620,7 +635,7 @@ class GigyaMageHelper extends AbstractHelper
 		return JWT::encode($payload, $privateKey, 'RS256', $applicationKey);
 	}
 
-    protected function signBaseString($key, $unsignedExpString)
+	protected function signBaseString($key, $unsignedExpString)
 	{
         $unsignedExpString = utf8_encode($unsignedExpString);
         $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);

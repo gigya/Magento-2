@@ -298,9 +298,7 @@ class GigyaApiHelper
 	 */
 	public function getSiteSchema() {
 		$params = GSFactory::createGSObjectFromArray(array("apiKey" => $this->apiKey));
-		$res = $this->sendApiCall("accounts.getSchema", $params);
-
-		return $res;
+		return $this->sendApiCall("accounts.getSchema", $params);
 	}
 
 	/**
@@ -341,9 +339,7 @@ class GigyaApiHelper
 	}
 
 	public function userObjFromArray($user_arr) {
-		$obj = GigyaUserFactory::createGigyaUserFromArray($user_arr);
-
-		return $obj;
+		return GigyaUserFactory::createGigyaUserFromArray($user_arr);
 	}
 
 	/*** Static ***/
