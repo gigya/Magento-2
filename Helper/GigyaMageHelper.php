@@ -241,10 +241,10 @@ class GigyaMageHelper extends AbstractHelper
 		}
 
 		/* Initializes an empty settings array if the settings have not been set */
-		$available_settings = ['api_key', 'app_secret', 'domain', 'app_key', 'key_file_location', 'enable_gigya'];
-		$settings_init      = array_fill_keys($available_settings, '');
-		$settings           = array_merge($settings_init, $settings);
-		$keyFileLocation    = empty($settings['key_file_location']) ? null : $settings['key_file_location'];
+		$availableSettings = ['api_key', 'app_secret', 'domain', 'app_key', 'key_file_location', 'enable_gigya'];
+		$settingsInitial   = array_fill_keys($availableSettings, '');
+		$settings          = array_merge($settingsInitial, $settings);
+		$keyFileLocation   = empty($settings['key_file_location']) ? null : $settings['key_file_location'];
 
 		$this->encryptor->initEncryptor($scopeType, $scopeCode, $keyFileLocation);
 

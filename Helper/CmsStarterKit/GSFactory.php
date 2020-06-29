@@ -87,6 +87,11 @@ class GSFactory
 		if (!is_array($array)) {
 			throw new GSException("Array is expected got " . gettype($array));
 		}
+
+		if (empty($array)) {
+			return new GSObject();
+		}
+
 		$json = json_encode($array, JSON_UNESCAPED_SLASHES);
 		if ($json === false) {
 			throw new GSException("Error converting array to json see json errno in error code", json_last_error());

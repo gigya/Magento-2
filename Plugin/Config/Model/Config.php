@@ -64,7 +64,9 @@ class Config
         $section = $subject->getData('section');
 
         if ($section == 'gigya_section') {
-            [$scopeType, $scopeCode] = $this->getScope($subject);
+            $scope = $this->getScope($subject);
+			$scopeType = $scope[0];
+			$scopeCode = $scope[1];
             $settings = $this->extractSettings($subject, $scopeType, $scopeCode);
 
             if ($settings['enable_gigya']) {
@@ -78,8 +80,8 @@ class Config
                         throw new LocalizedException(__("Bad settings. Unable to save."));
                     } else {
                         $this->gigyaMageHelper->getGigyaApiHelper()->sendApiCall(
-                            "accounts.getSchema",
-                            ["filter" => 'full']
+                            'socialize.getProvidersConfig',
+                            []
                         );
                     }
                 } catch (GSApiException $e) {
@@ -141,18 +143,15 @@ class Config
         }
 
 		if ($settings['authentication_mode'] == 'user_rsa') {
-			//			if (isset($settings['rsa_private_key']) and !$settings['rsa_private_key']) {
-			//				unset($settings['rsa_private_key']);
-			//			} else {
-			//				$settings['rsa_private_key_decrypted'] = true;
-			//			}
-			$settings['rsa_private_key_decrypted'] = true; ////
+			$settings['rsa_private_key_decrypted'] = true;
+			unset($settings['app_secret']); /* Remove secret key if RSA auth method has been chosen */
 		} else {
 			if ($settings['app_secret'] == '******') {
 				unset($settings['app_secret']);
 			} else {
 				$settings['app_secret_decrypted'] = true;
 			}
+			unset($settings['rsa_private_key']); /* Remove RSA private key if user/secret method has been chosen */
 		}
 
         return $settings;
