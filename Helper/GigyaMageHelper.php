@@ -630,6 +630,7 @@ class GigyaMageHelper extends AbstractHelper
 			'sub' => $loginToken,
 			'iat' => time(),
 			'exp' => intval($expirationTimeUnix),
+			'aud' => 'gltexp',
 		];
 
 		return JWT::encode($payload, $privateKey, 'RS256', $applicationKey);
