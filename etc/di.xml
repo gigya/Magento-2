@@ -69,6 +69,10 @@
         <plugin name="gigyaIM_Framework_Session_SessionManager" type="\Gigya\GigyaIM\Plugin\Framework\Session\SessionManager" />
     </type>
 
+    <type name="Magento\Config\Model\Config">
+        <plugin name="gigyaIM_Config_Model_Config" type="\Gigya\GigyaIM\Plugin\Config\Model\Config" />
+    </type>
+
     <type name="Magento\Framework\Session\Config">
         <plugin name="gigyaIM_Framework_Session_Config" type="\Gigya\GigyaIM\Plugin\Framework\Session\Config" />
     </type>
@@ -77,6 +81,9 @@
 		<arguments>
 			<argument name="sensitive" xsi:type="array">
 				<item name="gigya_delete/deletion_aws_details/deletion_aws_secret_key" xsi:type="string">1</item>
+				<item name="gigya_section/general/api_key" xsi:type="string">1</item>
+				<item name="gigya_section/general/app_key" xsi:type="string">1</item>
+				<item name="gigya_section/general/app_secret" xsi:type="string">1</item>
 			</argument>
 		</arguments>
 	</type>

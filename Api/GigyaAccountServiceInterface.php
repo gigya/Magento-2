@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Api;
 
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 
 /**

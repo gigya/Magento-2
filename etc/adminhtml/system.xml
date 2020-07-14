@@ -22,18 +22,43 @@
                     <label>Data center</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\Domain</source_model>
                 </field>
+                <field id="encryption_key_type" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Encryption key type</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\EncryptionKeyType</source_model>
+                    <comment><![CDATA[Choose the desired type of encryption key to use: Magento standard or a different key stored on a file at [MAGENTO_ROOT]/var folder<br /><br /><b>Important:</b> After changing this field, it is necessary to re-enter the application secret]]></comment>
+                </field>
+                <field id="key_file_location" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Path to your key file</label>
+                    <depends>
+                        <field id="encryption_key_type">key_file</field>
+                    </depends>
+                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.<br /><br /><b>Important:</b> After changing this field, it is necessary to re-enter the application secret]]></comment>
+                    <config_path>gigya_section/general/key_file_location</config_path>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation</backend_model>
+                </field>
+                <field id="authentication_mode" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Authentication mode</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\AuthenticationMode</source_model>
+                    <comment><![CDATA[Choose how to API calls to Gigya are authentication]]></comment>
+                </field>
                 <field id="app_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Application key</label>
                     <validate>validate-no-empty</validate>
-                    <backend_model>Gigya\GigyaIM\Model\Config\ValidateApiKey</backend_model>
                 </field>
-                <field id="key_file_location" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Path to your key file</label>
+                <field id="app_secret" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Application secret</label>
                     <depends>
-                        <field id="key_save_type">file</field>
+                        <field id="authentication_mode">user_secret</field>
                     </depends>
-                    <comment><![CDATA[Path to key file should be relative to the var directory of the Magento platform.]]></comment>
-                    <validate>validate-no-empty</validate>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\AppSecret</backend_model>
+                </field>
+                <field id="rsa_private_key" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>RSA private key</label>
+                    <depends>
+                        <field id="authentication_mode">user_rsa</field>
+                    </depends>
+                    <frontend_model>Gigya\GigyaIM\Block\Adminhtml\Form\EmptyTextarea</frontend_model>
+                    <backend_model>Gigya\GigyaIM\Model\Config\Backend\AppSecret</backend_model>
                 </field>
                 <field id="language" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Language mode for Gigya UI</label>
@@ -203,6 +228,16 @@
 			<label>Advanced</label>
 			<tab>gigyaim_tab</tab>
 			<resource>Gigya_GigyaIM::config</resource>
+            <group id="debug_mode" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Debug Mode</label>
+                <field id="debug_mode" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Debug mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Log path - var/log/gigya.log]]></comment>
+                    <comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
+                    <comment><![CDATA[*Never use debug mode in production environment!]]></comment>
+                </field>
+            </group>
 			<group id="synchro" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
 				<label>Synchronizing Magento from / to Gigya</label>
 				<field id="gigya_update_max_retry" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
@@ -210,16 +245,6 @@
 					<comment><![CDATA[Retries happen when a customer update to Gigya has failed, when it's been edited and saved in back office. A cron is dedicated to retry regularly the update.]]></comment>
 					<comment><![CDATA[Once this limit is reached for a given customer id there won't be any retry further and a critical si logged.]]></comment>
 					<validate>required-entry integer validate-greater-than-zero</validate>
-				</field>
-			</group>
-			<group id="debug_mode" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-				<label>Debug Mode</label>
-				<field id="debug_mode" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-					<label>Debug mode</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-					<comment><![CDATA[Log path - var/log/gigya.log]]></comment>
-					<comment><![CDATA[*Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.]]></comment>
-					<comment><![CDATA[*Never use debug mode in production environment!]]></comment>
 				</field>
 			</group>
 		</section>

@@ -1,11 +1,13 @@
 <?php
 
-namespace Gigya\GigyaIM\Helper\CmsStarterKit\sdk;
+namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
 abstract class GigyaJsonObject
 {
 	/**
 	 * GigyaJsonObject constructor.
+	 *
+	 * @param $json
 	 */
 	public function __construct($json) {
 		if (null != $json)

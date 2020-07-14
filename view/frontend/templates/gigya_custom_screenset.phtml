@@ -16,7 +16,8 @@ if ($screenset_data !== false):
 	var screenSetParams = {
 		screenSet : "<?php echo $screenset_data['desktop_screen']; ?>",
 		containerID : "<?php echo $id; ?>",
-		mobileScreenSet : "<?php echo $screenset_data['mobile_screen']; ?>" // optional - for using separate mobile screen set.
+		mobileScreenSet : "<?php echo $screenset_data['mobile_screen']; ?>", // optional - for using separate mobile screen set.
+		include : 'id_token'
 	};
 	<?php if (!empty($screenset_data['is_syncable'])): ?>
 	screenSetParams['onAfterSubmit'] = function(eventObj) {

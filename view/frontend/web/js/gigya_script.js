@@ -106,6 +106,7 @@ define([
 	 * @param eventObj
 	 *
 	 * @property eventObj.expires_in
+	 * @property eventObj.id_token
 	 */
 	gigyaMage2.Functions.gigyaLoginEventHandler = function (eventObj) {
 		var remember = gigyaMage2.Functions.getRememberMeStatus(eventObj);
@@ -113,7 +114,8 @@ define([
 		var loginData = {
 			UIDSignature: eventObj.UIDSignature,
 			signatureTimestamp: eventObj.signatureTimestamp,
-			UID: eventObj.UID
+			UID: eventObj.UID,
+			idToken: eventObj.id_token
 		};
 
 		/* Propagate Remember Me status to the SSO group */

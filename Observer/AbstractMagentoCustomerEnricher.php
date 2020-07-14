@@ -2,8 +2,8 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
+use Gigya\PHP\GSException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;

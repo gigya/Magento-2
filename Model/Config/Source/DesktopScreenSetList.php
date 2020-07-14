@@ -3,10 +3,10 @@
 namespace Gigya\GigyaIM\Model\Config\Source;
 
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 
-class DesktopScreenSetList implements ArrayInterface
+class DesktopScreenSetList implements OptionSourceInterface
 {
 	protected $config;
 	protected $serializer;

@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Magento\Customer\Model\Data\Customer;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;

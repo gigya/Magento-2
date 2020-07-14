@@ -57,16 +57,16 @@ class UserDeletion
 	protected $storeManager;
 
 	/** @var Manager */
-	private $eventManager;
+	protected $eventManager;
 
 	/** @var GigyaCronHelper */
-	private $helper;
+	protected $helper;
 
 	/** @var array */
-	private $email_success;
+	protected $email_success;
 
 	/** @var array */
-	private $email_failure;
+	protected $email_failure;
 
 	/**
 	 * UserDeletion constructor.
@@ -113,7 +113,7 @@ class UserDeletion
 		$this->eventManager = $eventManager;
 	}
 
-	private function getEmails()
+	public function getEmails()
 	{
 		$email_success = str_replace(' ', '', $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_success'));
 		$email_failure = str_replace(' ', '', $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_failure'));
