@@ -168,6 +168,10 @@ class Config
     {
         $currentSettings = $this->gigyaConfig->getGigyaGeneralConfig($scopeType, $scopeCode);
 
+        if (empty($currentSettings)) {
+            return true;
+        }
+
         if ($currentSettings['encryption_key_type'] != $settings['encryption_key_type'] &&
             (isset($settings['app_secret']) == false || empty($settings['app_secret']))) {
             throw new LocalizedException(
