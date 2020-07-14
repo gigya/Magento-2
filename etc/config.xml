@@ -4,7 +4,11 @@
 		<gigya_section>
 			<general>
 				<enable_gigya>0</enable_gigya>
+				<domain>us1.gigya.com</domain>
 				<encryption_key_type>magento</encryption_key_type>
+				<authentication_mode>user_secret</authentication_mode>
+				<language>auto</language>
+				<language_fallback>en_US</language_fallback>
 			</general>
 		</gigya_section>
         <gigya_section_fieldmapping>

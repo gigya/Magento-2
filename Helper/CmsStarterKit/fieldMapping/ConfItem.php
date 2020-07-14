@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GigyaJsonObject;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaJsonObject;
 
 class ConfItem
 {

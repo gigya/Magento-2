@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\Session;
 
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\SigUtils;
+use Gigya\PHP\SigUtils;
 use Gigya\GigyaIM\Model\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ScopeInterface;

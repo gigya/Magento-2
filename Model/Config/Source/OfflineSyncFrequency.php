@@ -2,9 +2,9 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class OfflineSyncFrequency implements ArrayInterface
+class OfflineSyncFrequency implements OptionSourceInterface
 {
 	/**
 	 * @return array

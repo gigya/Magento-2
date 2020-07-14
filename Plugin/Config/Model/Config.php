@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Plugin\Config\Model;
 
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -50,18 +51,22 @@ class Config
         $this->gigyaConfig = $gigyaConfig;
     }
 
-    /**
-     * @param \Magento\Config\Model\Config $subject
-     * @throws LocalizedException
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
+	/**
+	 * @param \Magento\Config\Model\Config $subject
+	 *
+	 * @throws LocalizedException
+	 * @throws \Gigya\PHP\GSException
+	 * @throws \Magento\Framework\Exception\NoSuchEntityException
+	 * @throws \Exception
+	 */
     public function beforeSave(\Magento\Config\Model\Config $subject)
     {
         $section = $subject->getData('section');
 
         if ($section == 'gigya_section') {
-            list($scopeType, $scopeCode) = $this->getScope($subject);
+            $scope = $this->getScope($subject);
+			$scopeType = $scope[0];
+			$scopeCode = $scope[1];
             $settings = $this->extractSettings($subject, $scopeType, $scopeCode);
 
             if ($settings['enable_gigya']) {
@@ -75,11 +80,11 @@ class Config
                         throw new LocalizedException(__("Bad settings. Unable to save."));
                     } else {
                         $this->gigyaMageHelper->getGigyaApiHelper()->sendApiCall(
-                            "accounts.getSchema",
-                            ["filter" => 'full']
+                            'socialize.getProvidersConfig',
+                            []
                         );
                     }
-                } catch (\Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException $e) {
+                } catch (GSApiException $e) {
                     $this->gigyaMageHelper->gigyaLog(
                         "Error while trying to save gigya settings. " . $e->getErrorCode() .
                         " " . $e->getMessage() . " " . $e->getCallId()
@@ -116,13 +121,17 @@ class Config
         return [$scopeType, $scopeCode];
     }
 
-    /**
-     * @param \Magento\Config\Model\Config $subject
-     * @return mixed
-     */
-    public function extractSettings(\Magento\Config\Model\Config $subject, $scopeType, $scopeCode)
+	/**
+	 * @param \Magento\Config\Model\Config $subject
+	 * @param string                       $scopeType
+	 * @param string                       $scopeCode
+	 *
+	 * @return mixed
+	 */
+	public function extractSettings(\Magento\Config\Model\Config $subject, $scopeType, $scopeCode)
     {
         $currentSettings = $this->gigyaConfig->getGigyaGeneralConfig($scopeType, $scopeCode);
+        $settings = [];
         $groups = $subject->getData('groups');
 
         foreach ($groups['general']['fields'] as $key => $value) {
@@ -133,19 +142,25 @@ class Config
             }
         }
 
-        if ($settings['app_secret'] == '******') {
-            unset($settings['app_secret']);
-        } else {
-            $settings['app_secret_decrypted'] = true;
-        }
+		if ($settings['authentication_mode'] == 'user_rsa') {
+			$settings['rsa_private_key_decrypted'] = true;
+			unset($settings['app_secret']); /* Remove secret key if RSA auth method has been chosen */
+		} else {
+			if ($settings['app_secret'] == '******') {
+				unset($settings['app_secret']);
+			} else {
+				$settings['app_secret_decrypted'] = true;
+			}
+			unset($settings['rsa_private_key']); /* Remove RSA private key if user/secret method has been chosen */
+		}
 
         return $settings;
     }
 
     /**
      * @param $settings
-     * @param $scopeType
-     * @param $scopeCode
+     * @param string $scopeType
+     * @param string $scopeCode
      * @return bool
      * @throws LocalizedException
      */

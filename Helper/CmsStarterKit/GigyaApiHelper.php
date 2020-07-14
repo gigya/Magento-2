@@ -2,17 +2,20 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSFactory;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSObject;
-use Gigya\GigyaIM\Helper\CmsStarterKit\sdk\SigUtils;
+use Gigya\PHP\GSException;
+use Gigya\PHP\GSObject;
+use Gigya\PHP\GSResponse;
+use Gigya\PHP\JWTUtils;
+use Gigya\PHP\SigUtils;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUserFactory;
+use stdClass;
 
 class GigyaApiHelper
 {
-	private $key;
-	private $secret;
+	private $userKey;
+	private $authKey;
+	private $authMode;
 	private $apiKey;
 	private $dataCenter;
 	private $defConfigFilePath;
@@ -22,42 +25,51 @@ class GigyaApiHelper
 	/**
 	 * GigyaApiHelper constructor.
 	 *
-	 * @param string $apiKey     Gigya API key
-	 * @param string $key        Gigya app/user key
-	 * @param string $secret     Gigya app/user secret
+	 * @param string $apiKey Gigya API key
+	 * @param string $userKey Gigya app/user key
+	 * @param string $authKey Gigya app/user secret or RSA private key
 	 * @param string $dataCenter Gigya data center
+	 * @param string $authMode Authentication method: user_secret or user_rsa
 	 */
-	public function __construct($apiKey, $key, $secret, $dataCenter) {
-		$this->defConfigFilePath = DIRECTORY_SEPARATOR . "configuration/DefaultConfiguration.json";
+	public function __construct($apiKey, $userKey, $authKey, $dataCenter, $authMode = 'user_secret')
+	{
+		$this->defConfigFilePath = ".." . DIRECTORY_SEPARATOR . "configuration/DefaultConfiguration.json";
 		$defaultConf             = @file_get_contents($this->defConfigFilePath);
-		if (!$defaultConf)
-		{
-			$confArray = array();
-		}
-		else
-		{
+		if (!$defaultConf) {
+			$confArray = [];
+		} else {
 			$confArray = json_decode(file_get_contents($this->defConfigFilePath));
 		}
-		$this->key        = !empty($key) ? $key : $confArray['appKey'];
-		$this->secret     = !empty($secret) ? self::decrypt($secret) : self::decrypt($confArray['appSecret']);
+		$this->userKey  = !empty($userKey) ? $userKey : $confArray['appKey'];
+		$this->authMode = $authMode;
+		if ($authMode === 'user_secret') {
+			$this->authKey = !empty($authKey) ? self::decrypt($authKey) : self::decrypt($confArray['appSecret']);
+		} else {
+			$this->authKey = self::decrypt($authKey);
+		}
+
 		$this->apiKey     = !empty($apiKey) ? $apiKey : $confArray['apiKey'];
 		$this->dataCenter = !empty($dataCenter) ? $dataCenter : $confArray['dataCenter'];
-
 	}
 
 	/**
 	 * @param string         $method
 	 * @param array|GSObject $params
 	 *
-	 * @return sdk\GSResponse
+	 * @return GSResponse
 	 *
-	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
+	 * @throws GSException
+	 * @throws \Exception
 	 */
-	public function sendApiCall($method, $params) {
-		$req = GSFactory::createGSRequestAppKey($this->apiKey, $this->key, $this->secret, $method,
-												GSFactory::createGSObjectFromArray($params), $this->dataCenter);
+	public function sendApiCall( $method, $params ) {
+		if ($this->authMode === 'user_rsa') {
+			$req = GSFactory::createGSRequestPrivateKey( $this->apiKey, $this->userKey, $this->authKey, $method,
+				GSFactory::createGSObjectFromArray( $params ), $this->dataCenter );
+		} else {
+			$req = GSFactory::createGSRequestAppKey( $this->apiKey, $this->userKey, $this->authKey, $method,
+				GSFactory::createGSObjectFromArray( $params ), $this->dataCenter );
+		}
 
 		return $req->send();
 	}
@@ -65,38 +77,63 @@ class GigyaApiHelper
 	/**
 	 * Validate and get Gigya user
 	 *
-	 * @param       $uid
-	 * @param       $uidSignature
-	 * @param       $signatureTimestamp
-	 * @param null  $include
-	 * @param null  $extraProfileFields
-	 * @param array $org_params
+	 * @param string $uid
+	 * @param string $uidSignature
+	 * @param        $signatureTimestamp
+	 * @param        $include
+	 * @param        $extraProfileFields
+	 * @param array  $orgParams
 	 *
-	 * @return bool|user\GigyaUser
+	 * @return GigyaUser|false
 	 *
 	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
-	public function validateUid($uid, $uidSignature, $signatureTimestamp, $include = null, $extraProfileFields = null, $org_params = array()) {
-		$params                       = $org_params;
+	public function validateUid($uid, $uidSignature, $signatureTimestamp, $include = null, $extraProfileFields = null, $orgParams = array()) {
+		$params                       = $orgParams;
 		$params['UID']                = $uid;
 		$params['UIDSignature']       = $uidSignature;
 		$params['signatureTimestamp'] = $signatureTimestamp;
 		$res                          = $this->sendApiCall("socialize.exchangeUIDSignature", $params);
 		$sig                          = $res->getData()->getString("UIDSignature", null);
 		$sigTimestamp                 = $res->getData()->getString("signatureTimestamp", null);
+
 		if (null !== $sig && null !== $sigTimestamp)
 		{
-			if (SigUtils::validateUserSignature($uid, $sigTimestamp, $this->secret, $sig))
+			if (SigUtils::validateUserSignature($uid, $sigTimestamp, $this->authKey, $sig))
 			{
-				$user = $this->fetchGigyaAccount($uid, $include, $extraProfileFields, $org_params);
-
-				return $user;
+				return $this->fetchGigyaAccount($uid, $include, $extraProfileFields, $orgParams);
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param string $uid
+	 * @param string $idToken
+	 *
+	 * @param string $include
+	 * @param        $extraProfileFields
+	 * @param        $orgParams
+	 *
+	 * @return GigyaUser|false
+	 *
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
+	 */
+	public function validateJwtAuth($uid, $idToken, $include = null, $extraProfileFields = null, $orgParams = null)
+	{
+		try {
+			$jwt = JWTUtils::validateSignature($idToken, $this->apiKey, $this->dataCenter);
+		} catch (\Exception $e) {
+			return false;
+		}
+
+		if ($jwt) {
+			return $this->fetchGigyaAccount($uid, $include, $extraProfileFields, $orgParams);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -109,7 +146,6 @@ class GigyaApiHelper
 	 *
 	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
 	public function fetchGigyaAccount($uid, $include = null, $extraProfileFields = null, $params = array()) {
 		if (null === $include)
@@ -149,7 +185,7 @@ class GigyaApiHelper
 	 * @return GigyaUser[]
 	 *
 	 * @throws GSApiException
-	 * @throws sdk\GSException
+	 * @throws GSException
 	 */
 	public function searchGigyaUsers($query, $useCursor = false)
 	{
@@ -226,7 +262,6 @@ class GigyaApiHelper
 	 * @throws \Exception
 	 * @throws \InvalidArgumentException
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
 	public function updateGigyaAccount($uid, $data) {
 		if (empty($uid))
@@ -260,13 +295,10 @@ class GigyaApiHelper
 	/**
 	 * @throws \Exception
 	 * @throws GSApiException
-	 * @throws sdk\GSException
 	 */
 	public function getSiteSchema() {
 		$params = GSFactory::createGSObjectFromArray(array("apiKey" => $this->apiKey));
-		$res = $this->sendApiCall("accounts.getSchema", $params);
-
-		return $res;
+		return $this->sendApiCall("accounts.getSchema", $params);
 	}
 
 	/**
@@ -275,7 +307,7 @@ class GigyaApiHelper
 	 * @return bool
 	 *
 	 * @throws \Exception
-	 * @throws sdk\GSException
+	 * @throws GSException
 	 */
 	public function isRaasEnabled($apiKey = null) {
 		if (null === $apiKey)
@@ -307,9 +339,7 @@ class GigyaApiHelper
 	}
 
 	public function userObjFromArray($user_arr) {
-		$obj = GigyaUserFactory::createGigyaUserFromArray($user_arr);
-
-		return $obj;
+		return GigyaUserFactory::createGigyaUserFromArray($user_arr);
 	}
 
 	/*** Static ***/

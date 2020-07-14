@@ -32,7 +32,8 @@ $placeholderElementId = $display == 'embed' ? 'gigya-login-embed' : 'gigya-login
                 screenSet : "<?php echo $block->getLoginDesktopScreensetId() ?>",
                 containerID : "<?php echo $placeholderElementId; ?>",
                 startScreen : "gigya-login-screen",
-                mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>" // optional - for using separate mobile screen set.
+                mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>", // optional - for using separate mobile screen set.
+				include : 'id_token'
             };
             var <?php echo $display; ?>RaasLoginScreen = {"function": "accounts.showScreenSet", "parameters": <?php echo $display; ?>LoginScreenSetParams};
             window.gigyaInit.push(<?php echo $display; ?>RaasLoginScreen);

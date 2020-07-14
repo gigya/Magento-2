@@ -60,8 +60,7 @@ abstract class GigyaUpdater
 	/**
 	 * @throws FieldMappingException
 	 * @throws \Exception
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSApiException
-	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\sdk\GSException
+	 * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
 	 */
 	public function updateGigya() {
 		$this->retrieveFieldMappings();

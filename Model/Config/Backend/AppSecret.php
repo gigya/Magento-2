@@ -2,7 +2,17 @@
 
 namespace Gigya\GigyaIM\Model\Config\Backend;
 
-class AppSecret extends \Magento\Config\Model\Config\Backend\Encrypted
+use Gigya\GigyaIM\Encryption\Encryptor;
+use Magento\Config\Model\Config\Backend\Encrypted;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+
+class AppSecret extends Encrypted
 {
     /**
      * @param \Magento\Framework\Model\Context $context
@@ -15,13 +25,13 @@ class AppSecret extends \Magento\Config\Model\Config\Backend\Encrypted
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\Config\ScopeConfigInterface $config,
-        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
-        \Gigya\GigyaIM\Encryption\Encryptor $encryptor,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        Context $context,
+        Registry $registry,
+        ScopeConfigInterface $config,
+        TypeListInterface $cacheTypeList,
+        Encryptor $encryptor,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -52,8 +62,8 @@ class AppSecret extends \Magento\Config\Model\Config\Backend\Encrypted
     public function __wakeup()
     {
         parent::__wakeup();
-        $this->_encryptor = \Magento\Framework\App\ObjectManager::getInstance()->get(
-            \Gigya\GigyaIM\Encryption\Encryptor::class
+        $this->_encryptor = ObjectManager::getInstance()->get(
+            Encryptor::class
         );
         $this->initEncryptor();
     }
@@ -89,6 +99,6 @@ class AppSecret extends \Magento\Config\Model\Config\Backend\Encrypted
     public function processValue($value)
     {
         $this->initEncryptor();
-        parent::processValue($value);
+        return parent::processValue($value);
     }
 }
