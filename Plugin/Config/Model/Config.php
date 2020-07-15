@@ -183,6 +183,13 @@ class Config
             );
         }
 
+        if ($settings['domain'] == \Gigya\GigyaIM\Model\Config\Source\Domain::OTHER &&
+            empty($settings['data_center_host']) === true) {
+            throw new LocalizedException(
+                __('It is necessary to provide a data center host')
+            );
+        }
+
         return true;
     }
 }

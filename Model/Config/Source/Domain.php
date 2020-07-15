@@ -11,6 +11,7 @@ class Domain implements OptionSourceInterface
     const DC_AU = "au1.gigya.com";
     const DC_RU = "ru1.gigya.com";
     const DC_CN = "cn1.gigya-api.cn";
+    const OTHER = "other";
 
     /**
      * @return array
@@ -23,6 +24,7 @@ class Domain implements OptionSourceInterface
             ['value' => self::DC_AU, 'label' => __('AU')],
             ['value' => self::DC_RU, 'label' => __('RU')],
             ['value' => self::DC_CN, 'label' => __('CN')],
+            ['value' => self::OTHER, 'label' => __('Other')],
         ];
     }
 }
