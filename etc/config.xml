@@ -37,9 +37,10 @@
         </gigya_session>
         <gigya_delete>
             <deletion_general>
-                <deletion_job_frequency>* 0 * * *</deletion_job_frequency>
+                <deletion_job_frequency>0 0 * * *</deletion_job_frequency>
+				<deletion_not_found_behavior>failure</deletion_not_found_behavior>
             </deletion_general>
-            <deletion_aws_details>
+			<deletion_aws_details>
                 <deletion_aws_secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </deletion_aws_details>
         </gigya_delete>

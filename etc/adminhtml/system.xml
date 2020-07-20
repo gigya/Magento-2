@@ -205,6 +205,11 @@
                     <label>Email on Failure</label>
                     <validate>validate-emails</validate>
                 </field>
+                <field id="deletion_not_found_behavior" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Behavior on Zero Users Found</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\DeletionNotFoundBehavior</source_model>
+                    <comment><![CDATA[What to do when a file has users to delete, but none of the users are to be found.]]></comment>
+                </field>
             </group>
             <group id="deletion_aws_details" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AWS Details</label>

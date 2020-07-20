@@ -20,6 +20,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Event\Manager;
+use Zend_Db;
+use Zend_Db_Select;
+use Zend_Mail;
 
 class UserDeletion
 {
@@ -358,10 +361,10 @@ class UserDeletion
 				$select_deletion_rows = $this->connection
 					->select()
 					->from($this->resourceConnection->getTableName('gigya_user_deletion'))
-					->reset(\Zend_Db_Select::COLUMNS)
+					->reset(Zend_Db_Select::COLUMNS)
 					->columns('filename');
 				$processed_files = array_column($this->connection->fetchAll($select_deletion_rows, [],
-					\Zend_Db::FETCH_ASSOC), 'filename');
+					Zend_Db::FETCH_ASSOC), 'filename');
 
 				foreach ($files as $file) {
 					if (!in_array($file, $processed_files)) {
@@ -370,7 +373,8 @@ class UserDeletion
 						$deleted_users = $this->deleteUsers('gigya', $user_array, $failed_users);
 						$total_deleted_users += count($deleted_users);
 
-						if ($csv === false or empty($deleted_users)) {
+						$no_users_behavior = $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_not_found_behavior');
+						if (($csv === false) or (empty($deleted_users) and $no_users_behavior === 'failure')) {
 							$failed_count++;
 						} else /* Job succeeded or succeeded with errors */ {
 							$job_failed = false;
@@ -393,7 +397,7 @@ class UserDeletion
 			}
 
 			/* Generic email sender init */
-			$email_sender = new \Zend_Mail();
+			$email_sender = new Zend_Mail();
 
 			if ($job_failed) {
 				/* Params for email */
@@ -412,7 +416,7 @@ class UserDeletion
 
 				$this->logger->info(
 					'Gigya user deletion job from ' . $start_time . ' succeeded or completed with errors. '
-					. $deleted_user_count . ($deleted_user_count === 1) ? ' user was' : ' users were' . ' deleted.'
+					. ($deleted_user_count ?? '0') . (($deleted_user_count === 1) ? ' user was' : ' users were') . ' deleted.'
 				);
 			}
 
