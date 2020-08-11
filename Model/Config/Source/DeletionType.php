@@ -14,7 +14,6 @@ class DeletionType implements OptionSourceInterface
 	 */
 	public function toOptionArray()
 	{
-
 		return [
 			['value' => self::HARD_DELETE, 'label' => __('Full user deletion')],
 			['value' => self::SOFT_DELETE, 'label' => __('Tag deleted user')],

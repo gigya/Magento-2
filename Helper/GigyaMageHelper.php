@@ -241,15 +241,28 @@ class GigyaMageHelper extends AbstractHelper
 		}
 
 		/* Initializes an empty settings array if the settings have not been set */
-		$availableSettings = ['api_key', 'app_secret', 'domain', 'app_key', 'key_file_location', 'enable_gigya'];
+		$availableSettings = [
+		    'api_key',
+            'app_secret',
+            'domain',
+            'data_center_host',
+            'app_key',
+            'key_file_location',
+            'enable_gigya'
+        ];
 		$settingsInitial   = array_fill_keys($availableSettings, '');
 		$settings          = array_merge($settingsInitial, $settings);
 		$keyFileLocation   = empty($settings['key_file_location']) ? null : $settings['key_file_location'];
 
 		$this->encryptor->initEncryptor($scopeType, $scopeCode, $keyFileLocation);
 
+        if ($settings['domain'] == \Gigya\GigyaIM\Model\Config\Source\Domain::OTHER) {
+            $this->apiDomain = $settings['data_center_host'];
+        } else {
+            $this->apiDomain = $settings['domain'];
+        }
+
 		$this->apiKey    = $settings['api_key'];
-		$this->apiDomain = $settings['domain'];
 		$this->appKey    = $settings['app_key'];
 		$this->authMode  = ($settings['authentication_mode']) ?? 'user_secret';
 		if ($this->getAuthMode() === 'user_rsa') {
