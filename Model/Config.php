@@ -163,7 +163,8 @@ class Config
 	 */
     public function getGigyaGeneralConfig($scopeType = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeCode = null)
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_GENERAL, $scopeType, $scopeCode);
+        $generalConfig = $this->scopeConfig->getValue(self::XML_PATH_GENERAL, $scopeType, $scopeCode);
+        return empty($generalConfig) ? [] : $generalConfig;
     }
 
     /**

@@ -168,6 +168,10 @@ class Config
     {
         $currentSettings = $this->gigyaConfig->getGigyaGeneralConfig($scopeType, $scopeCode);
 
+        if (empty($currentSettings)) {
+            return true;
+        }
+
         if ($currentSettings['encryption_key_type'] != $settings['encryption_key_type'] &&
             (isset($settings['app_secret']) == false || empty($settings['app_secret']))) {
             throw new LocalizedException(
@@ -180,6 +184,13 @@ class Config
             (isset($settings['app_secret']) == false || empty($settings['app_secret']))) {
             throw new LocalizedException(
                 __('It is necessary to re-enter application secret when modifying key file')
+            );
+        }
+
+        if ($settings['domain'] == \Gigya\GigyaIM\Model\Config\Source\Domain::OTHER &&
+            empty($settings['data_center_host']) === true) {
+            throw new LocalizedException(
+                __('It is necessary to provide a data center host')
             );
         }
 

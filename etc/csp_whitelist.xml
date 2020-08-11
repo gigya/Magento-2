@@ -3,15 +3,26 @@
 	<policies>
 		<policy id="script-src">
 			<values>
-				<!-- Gigya -->
 				<value id="gigya" type="host">*.gigya.com</value>
-				<value id="data" type="host">data:</value>
 			</values>
 		</policy>
 		<policy id="style-src">
 			<values>
-				<!-- Gigya -->
 				<value id="gigya" type="host">*.gigya.com</value>
+				<value id="gigya" type="host">'self' data:</value>
+				<value id="gigya" type="host">'unsafe-inline' data:</value>
+			</values>
+		</policy>
+		<policy id="frame-src">
+			<values>
+				<value id="gigya" type="host">*.gigya.com</value>
+			</values>
+		</policy>
+		<policy id="img-src">
+			<values>
+				<value id="gigya" type="host">*.gigya.com</value>
+				<value id="gigya_self" type="host">'self' data:</value>
+				<value id="gigya_inline" type="host">'unsafe-inline' data:</value>
 			</values>
 		</policy>
 	</policies>

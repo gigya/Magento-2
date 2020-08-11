@@ -22,10 +22,17 @@
                     <label>Data center</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\Domain</source_model>
                 </field>
+                <field id="data_center_host" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Data center host</label>
+                    <validate>validate-no-empty</validate>
+                    <depends>
+                        <field id="domain">other</field>
+                    </depends>
+                </field>
                 <field id="encryption_key_type" translate="label" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Encryption key type</label>
                     <source_model>Gigya\GigyaIM\Model\Config\Source\EncryptionKeyType</source_model>
-                    <comment><![CDATA[Choose the desired type of encryption key to use: Magento standard or a different key stored on a file at [MAGENTO_ROOT]/var folder<br /><br /><b>Important:</b> After changing this field, it is necessary to re-enter the application secret]]></comment>
+                    <comment><![CDATA[Choose the desired type of encryption key to use: Magento standard or a different key stored in a file at [MAGENTO_ROOT]/var folder<br /><br /><b>Important:</b> After changing this field, it is necessary to re-enter the application secret or RSA private key]]></comment>
                 </field>
                 <field id="key_file_location" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Path to your key file</label>
@@ -197,6 +204,11 @@
                 <field id="deletion_email_failure" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>Email on Failure</label>
                     <validate>validate-emails</validate>
+                </field>
+                <field id="deletion_not_found_behavior" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Behavior on Zero Users Found</label>
+                    <source_model>Gigya\GigyaIM\Model\Config\Source\DeletionNotFoundBehavior</source_model>
+                    <comment><![CDATA[What to do when a file has users to delete, but none of the users are to be found.]]></comment>
                 </field>
             </group>
             <group id="deletion_aws_details" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
