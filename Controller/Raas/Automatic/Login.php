@@ -46,6 +46,7 @@ class Login extends AbstractLogin
      * @var LoginHelper
      */
     protected $loginHelper;
+
     /**
      * @var Logger
      */
@@ -175,13 +176,13 @@ class Login extends AbstractLogin
 
 					return $this->getJsonResponse($this->session->isLoggedIn());
 				} catch (\Exception $e) {
-					$this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid,
+					$this->logger->debug(sprintf('User UID=%s logged to Gigya: %s', $guid,
 						\Zend_Date::now()->getIso()));
 
 					return $this->getJsonResponse(0, $e->getMessage());
 				}
 			} else {
-				$this->logger->addError(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
+				$this->logger->debug(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
 
 				return $this->getJsonResponse(0, __('Invalid Form Key'));
 			}

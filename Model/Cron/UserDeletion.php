@@ -167,7 +167,7 @@ class UserDeletion
 				}
 			}
 		} catch (\Exception $e) {
-			$this->logger->error('Error connecting Gigya user deletion to AWS A3 on Get File List: ' . $e->getMessage() . '. Please check your credentials.');
+			$this->logger->critical('Error connecting Gigya user deletion to AWS A3 on Get File List: ' . $e->getMessage() . '. Please check your credentials.');
 			return false;
 		}
 
@@ -266,7 +266,7 @@ class UserDeletion
 			try {
 				$this->registry->register('isSecureArea', true);
 			} catch (\RuntimeException $e) {
-				$this->logger->error('Gigya deletion cron: Error elevating permissions for user deletion: ' . $e->getMessage());
+				$this->logger->critical('Gigya deletion cron: Error elevating permissions for user deletion: ' . $e->getMessage());
 			}
 		}
 
@@ -303,21 +303,21 @@ class UserDeletion
 									$failed_users[] = $gigya_uid;
 								}
 							} else {
-								$this->logger->info('Gigya deletion cron: Magento user ' . $magento_uid . ' already soft-deleted at: ' . $gigya_deleted_timestamp->getValue());
+								$this->logger->debug('Gigya deletion cron: Magento user ' . $magento_uid . ' already soft-deleted at: ' . $gigya_deleted_timestamp->getValue());
 							}
 						} catch (\Exception $e) {
-							$this->logger->error('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
+							$this->logger->critical('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
 						}
 					} elseif ($deletion_type == 'hard_delete') {
 						try {
 							$this->customerRepository->delete($magento_user);
 							$deleted_users[] = $gigya_uid;
 						} catch (\Exception $e) {
-							$this->logger->error('Gigya deletion cron: Error fully deleting user: ' . $e->getMessage());
+							$this->logger->critical('Gigya deletion cron: Error fully deleting user: ' . $e->getMessage());
 						}
 					}
 				} else {
-					$this->logger->info('Gigya deletion cron: User not found with Gigya UID: ' . $gigya_uid);
+					$this->logger->critical('Gigya deletion cron: User not found with Gigya UID: ' . $gigya_uid);
 				}
 			}
 		}
@@ -405,7 +405,7 @@ class UserDeletion
 				$email_to = $this->email_failure;
 				$email_body = 'Job failed. No users were deleted. It is possible that no new users were processed, or that some users could not be deleted. Please consult the Gigya log for more info.';
 
-				$this->logger->warning('Gigya user deletion job from ' . $start_time . ' failed (no users were deleted). It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.');
+				$this->logger->critical('Gigya user deletion job from ' . $start_time . ' failed (no users were deleted). It is possible that no new users were processed, or that some users could not be deleted. Please consult the rest of the log for more info.');
 			} else {
 				$deleted_user_count = count($deleted_users);
 
@@ -432,7 +432,7 @@ class UserDeletion
 
 				$this->logger->info('Gigya deletion cron: mail sent to: ' . implode(', ', $email_to) . ' with status ' . $job_status);
 			} catch (\Zend_Mail_Exception $e) {
-				$this->logger->warning('Gigya deletion cron: unable to send email: ' . $e->getMessage());
+				$this->logger->info('Gigya deletion cron: unable to send email: ' . $e->getMessage());
 			}
 
 			$this->configWriter->save('gigya_delete/deletion_general/last_run', time());

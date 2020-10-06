@@ -91,7 +91,6 @@ class GigyaMageHelper extends AbstractHelper
         parent::__construct($context);
 
         $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general', 'website');
-        $this->debug = $context->getScopeConfig()->getValue('gigya_advanced/debug_mode/debug_mode', 'website');
         $this->logger = $logger;
         $this->configModel = $configModel;
 	    $this->scopeConfig = $context->getScopeConfig();
@@ -200,22 +199,6 @@ class GigyaMageHelper extends AbstractHelper
     public function getMaxRetryCountForGigyaUpdate()
     {
         return (int)$this->scopeConfig->getValue('gigya_advanced/synchro/gigya_update_max_retry');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDebug()
-    {
-        return $this->debug;
-    }
-
-    /**
-     * @param mixed $debug
-     */
-    public function setDebug($debug)
-    {
-        $this->debug = $debug;
     }
 
 	/**
@@ -327,6 +310,7 @@ class GigyaMageHelper extends AbstractHelper
         $extra_profile_fields_list = $this->setExtraProfileFields();
 
         $gigya_api_helper = $this->getGigyaApiHelper();
+
         if ($this->authMode == 'user_secret') {
 			$valid = $gigya_api_helper->validateUid(
 				$uid, $signature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
@@ -336,7 +320,7 @@ class GigyaMageHelper extends AbstractHelper
 		}
 
         if (!$valid) {
-            $this->gigyaLog(__FUNCTION__ .
+            $this->logger->debug(__FUNCTION__ .
                 ": Raas user validation failed. make sure to check your gigya config values. including encryption key location, and Database gigya settings");
         }
 
@@ -359,7 +343,7 @@ class GigyaMageHelper extends AbstractHelper
 
         // if map fields file exists, read map fields file and build gigya fields array
         if (is_null($config_file_path)) {
-            $this->gigyaLog(
+            $this->logger->debug(
                 "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined. 
                 Define file path at: Stores:Config:Gigya:Field Mapping"
             );
@@ -369,20 +353,20 @@ class GigyaMageHelper extends AbstractHelper
             $mapping_json = file_get_contents($config_file_path);
             if(false === $mapping_json) {
                 $err     = error_get_last();
-                $this->gigyaLog(
+                $this->logger->debug(
                     "setExtraProfileFields: Could not read mapping file at: " . $config_file_path .
                     ". error message: ". $err['message']
                 );
                 return $extra_profile_fields_list;
             }
         } else {
-            $this->gigyaLog("setExtraProfileFields: Could not find mapping file at: {$config_file_path}");
+            $this->logger->debug("setExtraProfileFields: Could not find mapping file at: {$config_file_path}");
             return $extra_profile_fields_list;
         }
 
         $field_map_array = json_decode($mapping_json, true);
         if(!is_array($field_map_array)) {
-            $this->gigyaLog(
+            $this->logger->debug(
                 "setExtraProfileFields: mapping fields file could not be properly parsed."
             );
             return $extra_profile_fields_list;
@@ -405,7 +389,7 @@ class GigyaMageHelper extends AbstractHelper
         $extra_profile_fields_file = file_get_contents($this->extra_profile_fields_config);
         if(false === $extra_profile_fields_file) {
             $err     = error_get_last();
-            $this->gigyaLog(
+            $this->logger->debug(
                 "setExtraProfileFields: Could not read $extra_profile_fields_file from: "
                 . $this->extra_profile_fields_config
                 ." .error message: ". $err['message']
@@ -415,7 +399,7 @@ class GigyaMageHelper extends AbstractHelper
 
         $extra_profile_fields_array = json_decode($extra_profile_fields_file);
         if(!is_array($field_map_array)) {
-            $this->gigyaLog(
+            $this->logger->debug(
                 "setExtraProfileFields: extra profile fields file could not be properly parsed."
             );
             return $extra_profile_fields_list;
@@ -439,16 +423,16 @@ class GigyaMageHelper extends AbstractHelper
         $message = [];
         $loginId = $gigya_user_account->getGigyaLoginId();
         if (empty($loginId)) {
-            $this->gigyaLog(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
+            $this->logger->debug(__FUNCTION__ . "Gigya user does not have email in [loginIDs][emails] array");
             array_push($message, __('Email not supplied. please make sure that your social account provides an email, or contact our support'));
         }
         $profile = $gigya_user_account->getProfile();
         if (!$profile->getFirstName()) {
-            $this->gigyaLog(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            $this->logger->debug(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
             array_push($message, __('Required field missing - first name'));
         }
         if (!$profile->getLastName()) {
-            $this->gigyaLog(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
+            $this->logger->debug(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
             array_push($message, __('Required field missing - last name'));
         }
         return $message;
@@ -478,18 +462,6 @@ class GigyaMageHelper extends AbstractHelper
             $str .= $chars[mt_rand(0, $lc)];
         }
         return $str;
-    }
-
-	/**
-	 * @param string $message
-	 * @param string $type
-	 */
-    public function gigyaLog($message, $type = 'info') {
-        if ($this->debug) {
-        	if (in_array($type, ['info', 'warning', 'error'])) {
-        		call_user_func_array([$this->logger, $type], [$message]);
-			}
-        }
     }
 
 	/**
@@ -523,13 +495,13 @@ class GigyaMageHelper extends AbstractHelper
         if (!empty($gigya_validation_o->errorCode)) {
            switch($gigya_validation_o->errorCode)  {
                case GigyaAccountServiceInterface::ERR_CODE_LOGIN_ID_ALREADY_EXISTS:
-                   $this->logger->error("Error while retrieving Gigya account data", [
+                   $this->logger->debug("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                    ]);
                    throw new GSException("Email already exists.");
                default:
-                   $this->logger->error("Error while retrieving Gigya account data", [
+                   $this->logger->debug("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                    ]);

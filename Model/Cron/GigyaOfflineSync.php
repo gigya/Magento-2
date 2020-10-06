@@ -130,7 +130,6 @@ class GigyaOfflineSync
 	public function execute()
 	{
 		$enableSync = $this->scopeConfig->getValue('gigya_section_fieldmapping/offline_sync/offline_sync_is_enabled', 'website');
-		$isDebugMode = boolval($this->gigyaMageHelper->getDebug());
 
 		$emailsOnSuccess = $this->gigyaCronHelper->getEmailsFromConfig('gigya_section_fieldmapping/offline_sync/sync_email_success');
 		$emailsOnFailure = $this->gigyaCronHelper->getEmailsFromConfig('gigya_section_fieldmapping/offline_sync/sync_email_failure');
@@ -197,9 +196,8 @@ class GigyaOfflineSync
 						}
 					} else {
 						$usersNotFound++;
-						if ($isDebugMode) {
-							$this->logger->warning(self::CRON_NAME . ': User not found. Gigya UID: ' . $gigyaUID);
-						}
+
+                        $this->logger->warning(self::CRON_NAME . ': User not found. Gigya UID: ' . $gigyaUID);
 					}
 				}
 

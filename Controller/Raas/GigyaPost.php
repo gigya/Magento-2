@@ -289,10 +289,10 @@ class GigyaPost extends LoginPost
         try {
         	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
 		} catch (GSApiException $e) {
-        	$message = ($this->config->isDebugModeEnabled()) ? $e->getLongMessage() : $e->getMessage();
-			$this->logger->error('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $message);
+			$this->logger->debug('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $e->getLongMessage());
+			throw $e;
 		} catch (\Exception $e) {
-        	$this->logger->error('There was an error validating the user. Error: '.$e->getMessage());
+        	$this->logger->debug('There was an error validating the user. Error: ' . $e->getMessage());
 		}
 
         $responseObject = $this->doLogin($validGigyaUser);
@@ -336,7 +336,6 @@ class GigyaPost extends LoginPost
                 return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
             }
 
-            $loginSuccess = false;
             try {
                 $customer = $this->gigyaSyncHelper->setMagentoLoggingContext($valid_gigya_user);
 
@@ -522,9 +521,9 @@ class GigyaPost extends LoginPost
     {
         $additionalData['location'] = $url;
         return new DataObject([
-            'response_object' => is_string($url) ?
+            'response_object' => (is_string($url) ?
                 $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url):
-                is_object($url) ? $url : null,
+                (is_object($url) ? $url : null)),
             'response_data' => $additionalData
         ]);
     }
