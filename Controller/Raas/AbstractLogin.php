@@ -436,12 +436,13 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected function createResponseDataObject($url, $additionalData = [])
     {
         $additionalData['location'] = $url;
-        return new DataObject([
-            self::RESPONSE_OBJECT => is_string($url) ?
-                $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url):
-                is_object($url) ? $url : null,
-            self::RESPONSE_DATA => $additionalData
-        ]);
+
+		return new DataObject([
+			self::RESPONSE_OBJECT => is_string($url)
+				? $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url)
+				: (is_object($url) ? $url : null),
+			self::RESPONSE_DATA   => $additionalData,
+		]);
     }
 
     /**
@@ -450,38 +451,35 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      *
      * @return DataObject
      */
-    protected function encapsulateResponse($resultRedirect, $additionalData = [])
-    {
-        $url = null;
-        if($resultRedirect instanceof Redirect)
-        {
-            $response = serialize($this->getResponse());
-            $response = unserialize($response);
+	protected function encapsulateResponse($resultRedirect, $additionalData = [])
+	{
+		$url = null;
+		if ($resultRedirect instanceof Redirect) {
+			$response = serialize($this->getResponse());
+			$response = unserialize($response);
 
-            $resultRedirect->renderResult($response);
-            $header = $response->getHeader('Location');
-            $response->clearHeader('Location');
-            /* @var $header \Zend\Http\Header\Location */
-            if($header)
-            {
-                $url = $header->getUri();
-            }
-        }
-        else
-        if($resultRedirect instanceof Forward)
-        {
-            $request = $this->getRequest();
-            $url = $this->urlModel->getUrl(
-                sprintf('%s/%s/%s', $request->getModuleName(), $request->getControllerName(), $request->getActionName()),
-                $request->getParams());
+			$resultRedirect->renderResult($response);
+			$header = $response->getHeader('Location');
+			$response->clearHeader('Location');
 
-        }
-        $additionalData['location'] = $url;
-        return new DataObject([
-            self::RESPONSE_OBJECT => $resultRedirect,
-            self::RESPONSE_DATA => $additionalData
-        ]);
-    }
+			/* @var $header \Zend\Http\Header\Location */
+			if ($header) {
+				$url = $header->getUri();
+			}
+		} elseif ($resultRedirect instanceof Forward) {
+			$request = $this->getRequest();
+			$url     = $this->urlModel->getUrl(
+				sprintf('%s/%s/%s', $request->getModuleName(), $request->getControllerName(), $request->getActionName()),
+				$request->getParams()
+			);
+		}
+		$additionalData['location'] = $url;
+
+		return new DataObject([
+			self::RESPONSE_OBJECT => $resultRedirect,
+			self::RESPONSE_DATA   => $additionalData,
+		]);
+	}
 
     /**
      * @param DataObject $object
