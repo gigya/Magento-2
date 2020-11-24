@@ -247,8 +247,8 @@
                     <source_model>Gigya\GigyaIM\Model\Config\Source\LogLevel</source_model>
                     <comment><![CDATA[Log path - var/log/gigya.log<br /><br />
     * Gigya module will still output runtime errors to var/log/gigya.log with DEBUG mode off.<br />
-    * Attention: debug level will log all calls to Gigya, is it possible to have huge amount of log data logged to disk when it is enabled.<br />
-    * Never use debug mode in production environment!]]></comment>
+    * Attention: debug level will log all calls to Gigya, it is possible to have a huge amount of log data logged to disk when it is enabled.<br />
+    * Never use debug mode in a production environment!]]></comment>
                 </field>
             </group>
 			<group id="synchro" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
