@@ -522,9 +522,9 @@ class GigyaPost extends LoginPost
     {
         $additionalData['location'] = $url;
         return new DataObject([
-            'response_object' => is_string($url) ?
-                $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url):
-                is_object($url) ? $url : null,
+            'response_object' => (is_string($url) ?
+                $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url) :
+                (is_object($url) ? $url : null)),
             'response_data' => $additionalData
         ]);
     }
