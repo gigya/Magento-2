@@ -2,8 +2,8 @@
 
 namespace Gigya\GigyaIM\Controller\Raas;
 
-
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Logger\Logger;
 use Gigya\GigyaIM\Model\Session\Extend;
 
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
@@ -14,6 +14,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
 use Magento\Framework\Stdlib\Cookie\FailureToSendException;
@@ -40,7 +41,6 @@ use Magento\Framework\Controller\Result\Forward;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Framework\Controller\Result\JsonFactory;
-
 
 abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccount
 {
@@ -139,6 +139,16 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected $resultJsonFactory;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
+     * @var JsonSerializer
+     */
+    protected $jsonSerializer;
+
+    /**
      * @param Context $context
      * @param Session $customerSession
      * @param ScopeConfigInterface $scopeConfig
@@ -165,6 +175,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * @param CookieMetadataFactory $cookieMetadataFactory
      * @param Extend $extendModel
 	 * @param JsonFactory $resultJsonFactory
+     * @param Logger $logger
+     * @param JsonSerializer $jsonSerializer
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -194,7 +206,9 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 		GigyaMageHelper $gigyaMageHelper,
 		CookieMetadataFactory $cookieMetadataFactory,
 		Extend $extendModel,
-        JsonFactory $resultJsonFactory
+        JsonFactory $resultJsonFactory,
+        Logger $logger,
+        JsonSerializer $jsonSerializer
 	) {
 		$this->session = $customerSession;
 		$this->scopeConfig = $scopeConfig;
@@ -223,6 +237,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 		$this->storeManager = $storeManager;
 		$this->extendModel = $extendModel;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->jsonSerializer = $jsonSerializer;
+        $this->logger = $logger;
 
 		$this->cookies = [];
 		$this->cookiesToDelete = [];
@@ -235,11 +251,15 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected function doLogin(\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user)
     {
+        $this->logger->debug('Loggin in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
+
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
         // if gigya user not validated return error
         if (!$valid_gigya_user) {
-            $this->addError(__('The user is not validated. Please try again or contact support.'));
+            $message = __('The user is not validated. Please try again or contact support.');
+            $this->logger->debug('Login failed: ' . $message);
+            $this->addError($message);
             return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
                 ['login_successful' => false]);
         } // we have a valid gigya user. verify that required fields exist
@@ -247,13 +267,18 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
 
             if (!empty($required_field_message)) {
+                $this->logger->debug(
+                    'Login failed, required fields not provided: ' .
+                    $this->jsonSerializer->serialize($required_field_message)
+                );
+
                 foreach ($required_field_message as $message) {
                     $this->addError($message);
                 }
+
                 return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
             }
 
-            $loginSuccess = false;
             try {
                 $customer = $this->gigyaSyncHelper->setMagentoLoggingContext($valid_gigya_user);
 
@@ -261,10 +286,10 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                     $loginSuccess = $this->gigyaLoginUser($customer);
                     $this->customerRepository->save($customer);
                     $redirect = $this->encapsulateResponse(
-                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]);
+                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]
+                    );
                 } else {
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
-                    $loginSuccess = true;
                 }
 
                 // dispatch gigya login event
@@ -275,8 +300,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 ]);
             } catch(\Exception $e) {
                 $this->addError($e->getMessage());
+                $this->logger->debug('Failed to login customer: ' . $e->getMessage());
                 $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
-                $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
             }
 
             return $redirect;
@@ -319,10 +344,13 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected function gigyaLoginUser($customer)
     {
+        $this->logger->debug('Trying to log in with customer: ' . $this->jsonSerializer->serialize($customer));
+
         try {
             $this->session->setCustomerDataAsLoggedIn($customer);
             $this->session->regenerateId();
             $this->deleteLoginRetryCounter();
+            $this->logger->debug('Customer successfully logged in');
             return true;
         } catch (EmailNotConfirmedException $e) {
             $value = $this->customerUrl->getEmailConfirmationUrl($customer['data']['email']);
@@ -333,19 +361,21 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             $this->addError($message);
             $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
+            $this->logger->debug('Unable to login user: ' . $message);
             return false;
         } catch (AuthenticationException $e) {
             $message = __('Invalid login or password.');
             $this->addError($message);
             $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
+            $this->logger->debug('Unable to login user: ' . $message);
             return false;
         } catch (\Exception $e) {
             $this->incrementLoginRetryCounter();
+            $message = __('An unspecified error occurred. Please contact us for assistance.');
             // PA DSS violation: throwing or logging an exception here can disclose customer password
-            $this->addError(
-                __('An unspecified error occurred. Please contact us for assistance.')
-            );
+            $this->addError($message);
+            $this->logger->debug('Unable to login user: ' . $message);
             return false;
         }
     }
@@ -360,17 +390,20 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected function gigyaCreateUser($resultRedirect, $gigya_user_account)
     {
         try {
+            $this->logger->debug(
+                'Creating new Magento user from Gigya user: ' .
+                $this->jsonSerializer->serialize($gigya_user_account)
+            );
             $customer = $this->customerExtractor->extract('customer_account_create', $this->_request);
-
             $password = $this->gigyaMageHelper->generatePassword();
             $redirectUrl = $this->session->getBeforeAuthUrl();
-
-            $customer = $this->accountManagement
-                ->createAccount($customer, $password, $redirectUrl);
+            $customer = $this->accountManagement->createAccount($customer, $password, $redirectUrl);
 
             if ($this->getRequest()->getParam('is_subscribed', false)) {
                 $this->subscriberFactory->create()->subscribeCustomerById($customer->getId());
             }
+
+            $this->logger->debug('New Magento customer successfully created');
 
             $this->_eventManager->dispatch(
                 'customer_register_success',
@@ -378,8 +411,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             );
 
             $this->gigyaMageHelper->setSessionExpirationCookie();
-
             $confirmationStatus = $this->accountManagement->getConfirmationStatus($customer->getId());
+
             if ($confirmationStatus === AccountManagementInterface::ACCOUNT_CONFIRMATION_REQUIRED) {
                 $email = $this->customerUrl->getEmailConfirmationUrl($customer->getEmail());
                 // @codingStandardsIgnoreStart
@@ -407,17 +440,22 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 'There is already an account with this email address. If you are sure that it is your email address, <a href="%1">click here</a> to get your password and access your account.',
                 $url
             );
+            $this->logger->debug('Failed to create Magento customer: ' . $message);
             // @codingStandardsIgnoreEnd
             $this->addError($message);
         } catch (InputException $e) {
-            $this->incrementLoginRetryCounter();;
+            $this->incrementLoginRetryCounter();
             $this->addError($this->escaper->escapeHtml($e->getMessage()));
             foreach ($e->getErrors() as $error) {
                 $this->addError($this->escaper->escapeHtml($error->getMessage()));
             }
+            $this->logger->debug(
+                'Failed to create Magento customer: ' . $this->jsonSerializer->serialize($e->getErrors())
+            );
         } catch (\Exception $e) {
             $this->incrementLoginRetryCounter();;
             $message = __('We can\'t save the customer. ') . $e->getMessage();
+            $this->logger->debug('Failed to create Magento customer: ' . $message);
             $this->addError($message);
         }
 

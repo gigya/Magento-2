@@ -39,6 +39,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
 use Gigya\GigyaIM\Model\Session\Extend;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 
 class Login extends AbstractLogin
 {
@@ -46,11 +47,6 @@ class Login extends AbstractLogin
      * @var LoginHelper
      */
     protected $loginHelper;
-
-    /**
-     * @var Logger
-     */
-    protected $logger;
 
     /**
      * @param Context $context
@@ -78,7 +74,6 @@ class Login extends AbstractLogin
      * @param GigyaMageHelper $gigyaMageHelper
      * @param CookieMetadataFactory $cookieMetadataFactory
      * @param LoginHelper $loginHelper
-     * @param Logger $logger
      * @param Extend $extendModel
 	 * @param JsonFactory $jsonFactory
      */
@@ -108,7 +103,6 @@ class Login extends AbstractLogin
         GigyaMageHelper $gigyaMageHelper,
         CookieMetadataFactory $cookieMetadataFactory,
         LoginHelper $loginHelper,
-        Logger $logger,
         Extend $extendModel,
 		JsonFactory $jsonFactory
     )
@@ -143,7 +137,6 @@ class Login extends AbstractLogin
         );
 
         $this->loginHelper = $loginHelper;
-        $this->logger = $logger;
     }
 
 	/**
@@ -158,7 +151,15 @@ class Login extends AbstractLogin
 	 */
 	public function execute()
 	{
+	    $this->logger->debug('Performing automatic login');
+
 		if ($this->session->isLoggedIn() || !$this->registration->isAllowed()) {
+		    $this->logger->debug(
+		        'Will not perform customer login: ' .
+                'customer is logged in: ' . ($this->session->isLoggedIn() ? 'true' : 'false') . ', ' .
+                'is registration allowed: ' . ($this->registration->isAllowed() ? 'true' : 'false')
+            );
+
 			return $this->getJsonResponse(0);
 		} else {
 			$loginData = $this->getRequest()->getParam('login_data');
@@ -170,6 +171,10 @@ class Login extends AbstractLogin
 				try {
 					$this->session->regenerateId();
 					$this->extendModel->extendSession(false);
+
+					$this->logger->debug(
+					    'Will get Gigya Account from login data: ' . $this->jsonSerializer->serialize($loginData)
+                    );
 
 					$valid_gigya_user = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
 					$this->doLogin($valid_gigya_user);
