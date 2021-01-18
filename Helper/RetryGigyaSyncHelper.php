@@ -146,7 +146,9 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             }
         }
 
-        $loggingEmail = $gigyaAccount->getProfile()->getEmail() ? $gigyaAccount->getProfile()->getEmail() : (($magentoCustomer) ? $magentoCustomer->getEmail() : null);
+        $loggingEmail = $gigyaAccount->getProfile()->getEmail() ?
+            $gigyaAccount->getProfile()->getEmail() :
+            ($magentoCustomer ? $magentoCustomer->getEmail() : null);
 
         return [
             'customer' => $magentoCustomer,

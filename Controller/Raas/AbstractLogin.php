@@ -439,7 +439,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         return new DataObject([
             self::RESPONSE_OBJECT => is_string($url) ?
                 $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url):
-                is_object($url) ? $url : null,
+                (is_object($url) ? $url : null),
             self::RESPONSE_DATA => $additionalData
         ]);
     }
