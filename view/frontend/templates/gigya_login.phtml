@@ -24,7 +24,6 @@ $placeholderElementId = $display == 'embed' ? 'gigya-login-embed' : 'gigya-login
             <!-- Gigya login screen placeholder - id can be dynamic: -->
             <div id="<?php echo $placeholderElementId; ?>" class="gigya-login gigya-loader-location"></div>
         <?php endif; ?>
-        <?php echo $block->getBlockHtml('formkey'); ?>
         <script>
             // add Raas login screens function to Gigya init.
             window.gigyaInit = window.gigyaInit || [];
@@ -38,5 +37,12 @@ $placeholderElementId = $display == 'embed' ? 'gigya-login-embed' : 'gigya-login
             var <?php echo $display; ?>RaasLoginScreen = {"function": "accounts.showScreenSet", "parameters": <?php echo $display; ?>LoginScreenSetParams};
             window.gigyaInit.push(<?php echo $display; ?>RaasLoginScreen);
         </script>
+
+        <form id="gigya_login_post" method="POST" action="<?= $block->getPostActionUrl() ?>">
+            <?php echo $block->getBlockHtml('formkey'); ?>
+            <input type="hidden" name="login[]" />
+            <input type="hidden" name="login_data" />
+            <input type="hidden" name="remember" />
+        </form>
     </div>
 </div>
