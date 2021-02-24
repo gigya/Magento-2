@@ -15,5 +15,8 @@
         <!-- default implementation of cms2g field mapping : for now only gender attribute, dob attribute, subscribe attribute -->
         <observer name="defaultGigyaSyncFieldMapping" instance="Gigya\GigyaIM\Observer\DefaultGigyaSyncFieldMapping" />
     </event>
+    <event name="customer_logout">
+        <observer name="gigyaLogout" instance="Gigya\GigyaIM\Observer\Session\Logout" />
+    </event>
 
 </config>

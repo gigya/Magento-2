@@ -32,14 +32,15 @@ class GigyaScriptHelper extends AbstractHelper
      *
      * @return bool|string
      */
-    public function getGigyaScriptDomain()
-    {
-        $domain = $this->gigyaMageHelper->getApiDomain();
-        switch ($domain) {
-            case Domain::DC_CN:
-                return 'cn1.gigya-api.cn';
-            default:
-                return false;
-        }
-    }
+	public function getGigyaScriptDomain()
+	{
+		$domain = $this->gigyaMageHelper->getApiDomain();
+
+		$parsed_domain = explode('.', $domain);
+		if (array_pop($parsed_domain) . array_pop($parsed_domain) == 'gigya.com') {
+			return false;
+		}
+
+		return $domain;
+	}
 }

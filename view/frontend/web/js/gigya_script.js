@@ -134,9 +134,11 @@ define([
 			remember: remember
 		};
 
-		gigya_processing_customer_request = true;
+		$('[name=login_data]', '#gigya_login_post').val(JSON.stringify(loginData));
+		$('[name=remember]', '#gigya_login_post').val(remember ? 1 : 0);
 
-		gigyaMage2.Functions.gigyaAjaxSubmit(action, data, $('.gigya-loader-location'));
+		$('body').trigger('processStart');
+		$('#gigya_login_post').submit();
 	};
 
 	gigyaMage2.Functions.getRememberMeStatus = function (eventObj) {
