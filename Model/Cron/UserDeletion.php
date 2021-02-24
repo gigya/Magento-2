@@ -303,7 +303,7 @@ class UserDeletion
 									$failed_users[] = $gigya_uid;
 								}
 							} else {
-								$this->logger->debug('Gigya deletion cron: Magento user ' . $magento_uid . ' already soft-deleted at: ' . $gigya_deleted_timestamp->getValue());
+								$this->logger->info('Gigya deletion cron: Magento user ' . $magento_uid . ' already soft-deleted at: ' . $gigya_deleted_timestamp->getValue());
 							}
 						} catch (\Exception $e) {
 							$this->logger->critical('Gigya deletion cron: Error soft-deleting user: ' . $e->getMessage());
