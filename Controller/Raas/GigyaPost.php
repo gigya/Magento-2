@@ -278,6 +278,12 @@ class GigyaPost extends LoginPost
         $remember = $this->getRequest()->getParam('remember');
         $remember = $remember == 'true' ? 1 : 0;
 
+        $this->logger->debug(
+            'Login customer: ' .
+            'remember: ' . $remember .
+            'login data: ' . $this->jsonSerializer->serialize($loginData)
+        );
+
         /** @var \Magento\Framework\Stdlib\Cookie\PublicCookieMetadata $rememberCookieMetadata */
         $rememberCookieMetadata = $this->publicCookieMetadataFactory->create();
         $rememberCookieMetadata->setPath('/');
@@ -289,10 +295,10 @@ class GigyaPost extends LoginPost
         try {
         	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
 		} catch (GSApiException $e) {
-        	$message = ($this->config->isDebugModeEnabled()) ? $e->getLongMessage() : $e->getMessage();
-			$this->logger->error('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $message);
+			$this->logger->debug('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $e->getLongMessage());
+			throw $e;
 		} catch (\Exception $e) {
-        	$this->logger->error('There was an error validating the user. Error: '.$e->getMessage());
+        	$this->logger->debug('There was an error validating the user. Error: ' . $e->getMessage());
 		}
 
         $responseObject = $this->doLogin($validGigyaUser);
@@ -318,11 +324,14 @@ class GigyaPost extends LoginPost
      */
     protected function doLogin(GigyaUser $valid_gigya_user)
     {
+        $this->logger->debug('Loggin in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
 		$resultRedirect = $this->resultRedirectFactory->create();
 
         /* If gigya user not validated return error */
         if (!$valid_gigya_user) {
-            $this->addError(__('The user is not validated. Please try again or contact support.'));
+            $message = __('The user is not validated. Please try again or contact support.');
+            $this->logger->debug('Login failed: ' . $message);
+            $this->addError($message);
             return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
                 ['login_successful' => false]);
         } // we have a valid gigya user. verify that required fields exist
@@ -330,13 +339,18 @@ class GigyaPost extends LoginPost
             $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
 
             if (!empty($required_field_message)) {
+                $this->logger->debug(
+                    'Login failed, required fields not provided: ' .
+                    $this->jsonSerializer->serialize($required_field_message)
+                );
+
                 foreach ($required_field_message as $message) {
                     $this->addError($message);
                 }
+
                 return $this->encapsulateResponse($this->accountRedirect->getRedirect(), ['login_successful' => false]);
             }
 
-            $loginSuccess = false;
             try {
                 $customer = $this->gigyaSyncHelper->setMagentoLoggingContext($valid_gigya_user);
 
@@ -344,10 +358,10 @@ class GigyaPost extends LoginPost
                     $loginSuccess = $this->gigyaLoginUser($customer);
                     $this->customerRepository->save($customer);
                     $redirect = $this->encapsulateResponse(
-                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]);
+                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]
+                    );
                 } else {
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
-                    $loginSuccess = true;
                 }
 
                 /* Dispatch gigya login event (post-login hook) */
@@ -404,10 +418,13 @@ class GigyaPost extends LoginPost
      */
     protected function gigyaLoginUser($customer)
     {
+        $this->logger->debug('Trying to log in with customer: ' . $this->jsonSerializer->serialize($customer));
+
         try {
             $this->session->setCustomerDataAsLoggedIn($customer);
             $this->session->regenerateId();
             $this->deleteLoginRetryCounter();
+            $this->logger->debug('Customer successfully logged in');
             return true;
         } catch (EmailNotConfirmedException $e) {
             $value = $this->customerUrl->getEmailConfirmationUrl($customer['data']['email']);
@@ -418,19 +435,21 @@ class GigyaPost extends LoginPost
             $this->addError($message);
             $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
+            $this->logger->debug('Unable to login user: ' . $message);
             return false;
         } catch (AuthenticationException $e) {
             $message = __('Invalid login or password.');
             $this->addError($message);
             $this->incrementLoginRetryCounter();
             $this->session->setUsername($customer['data']['email']);
+            $this->logger->debug('Unable to login user: ' . $message);
             return false;
         } catch (\Exception $e) {
             $this->incrementLoginRetryCounter();
+            $message = __('An unspecified error occurred. Please contact us for assistance.');
             // PA DSS violation: throwing or logging an exception here can disclose customer password
-            $this->addError(
-                __('An unspecified error occurred. Please contact us for assistance.')
-            );
+            $this->addError($message);
+            $this->logger->debug('Unable to login user: ' . $message);
             return false;
         }
     }
@@ -445,6 +464,10 @@ class GigyaPost extends LoginPost
     protected function gigyaCreateUser($resultRedirect, $gigya_user_account)
     {
         try {
+            $this->logger->debug(
+                'Creating new Magento user from Gigya user: ' .
+                $this->jsonSerializer->serialize($gigya_user_account)
+            );
             $customer = $this->customerExtractor->extract('customer_account_create', $this->_request);
 
             $password = $this->gigyaMageHelper->generatePassword();
@@ -457,14 +480,16 @@ class GigyaPost extends LoginPost
                 $this->subscriberFactory->create()->subscribeCustomerById($customer->getId());
             }
 
+            $this->logger->debug('New Magento customer successfully created');
+
             $this->_eventManager->dispatch(
                 'customer_register_success',
                 ['account_controller' => $this, 'customer' => $customer]
             );
 
             $this->gigyaMageHelper->setSessionExpirationCookie();
-
             $confirmationStatus = $this->customerAccountManagement->getConfirmationStatus($customer->getId());
+
             if ($confirmationStatus === AccountManagementInterface::ACCOUNT_CONFIRMATION_REQUIRED) {
                 $email = $this->customerUrl->getEmailConfirmationUrl($customer->getEmail());
                 // @codingStandardsIgnoreStart
@@ -492,6 +517,7 @@ class GigyaPost extends LoginPost
                 'There is already an account with this email address. If you are sure that it is your email address, <a href="%1">click here</a> to get your password and access your account.',
                 $url
             );
+            $this->logger->debug('Failed to create Magento customer: ' . $message);
             // @codingStandardsIgnoreEnd
             $this->addError($message);
         } catch (InputException $e) {
@@ -500,9 +526,13 @@ class GigyaPost extends LoginPost
             foreach ($e->getErrors() as $error) {
                 $this->addError($this->escaper->escapeHtml($error->getMessage()));
             }
+            $this->logger->debug(
+                'Failed to create Magento customer: ' . $this->jsonSerializer->serialize($e->getErrors())
+            );
         } catch (\Exception $e) {
             $this->incrementLoginRetryCounter();;
             $message = __('We can\'t save the customer. ') . $e->getMessage();
+            $this->logger->debug('Failed to create Magento customer: ' . $message);
             $this->addError($message);
         }
 

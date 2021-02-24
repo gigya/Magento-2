@@ -93,7 +93,7 @@ class Config
 	/**
 	 * @return int
 	 */
-	public function isDebugModeEnabled()
+	public function getDebugMode()
 	{
 		return $this->scopeConfig->getValue(self::XML_PATH_DEBUG_MODE, 'website');
 	}

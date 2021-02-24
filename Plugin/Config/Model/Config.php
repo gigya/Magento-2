@@ -5,6 +5,7 @@ namespace Gigya\GigyaIM\Plugin\Config\Model;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\StoreRepository;
@@ -33,22 +34,30 @@ class Config
     protected $gigyaConfig;
 
     /**
+     * @var GigyaLogger
+     */
+    protected $logger;
+
+    /**
      * Config constructor.
      * @param GigyaMageHelper $gigyaMageHelper
      * @param StoreRepository $storeRepository
      * @param ScopeConfigInterface $scopeConfigInterface
      * @param GigyaConfig $gigyaConfig
+     * @param GigyaLogger $logger
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
         StoreRepository $storeRepository,
         ScopeConfigInterface $scopeConfigInterface,
-        GigyaConfig $gigyaConfig
+        GigyaConfig $gigyaConfig,
+        GigyaLogger $logger
     ) {
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->storeRepository = $storeRepository;
         $this->scopeConfigInterface = $scopeConfigInterface;
         $this->gigyaConfig = $gigyaConfig;
+        $this->logger = $logger;
     }
 
 	/**
@@ -85,7 +94,7 @@ class Config
                         );
                     }
                 } catch (GSApiException $e) {
-                    $this->gigyaMageHelper->gigyaLog(
+                    $this->logger->critical(
                         "Error while trying to save gigya settings. " . $e->getErrorCode() .
                         " " . $e->getMessage() . " " . $e->getCallId()
                     );
