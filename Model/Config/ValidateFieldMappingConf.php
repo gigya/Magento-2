@@ -3,6 +3,7 @@
 namespace Gigya\GigyaIM\Model\Config;
 
 use Magento\Framework\Exception\LocalizedException;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * Customer sharing config model
@@ -11,8 +12,10 @@ use Magento\Framework\Exception\LocalizedException;
  */
 class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
 {
-	/** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
-	protected $gigyaMageHelper;
+	/**
+     * @var GigyaLogger
+     */
+	protected $logger;
 
 	/**
 	 * Constructor
@@ -23,7 +26,7 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
 	 * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
 	 * @param \Magento\Store\Model\StoreManagerInterface $storeManager
 	 * @param \Magento\Customer\Model\ResourceModel\Customer $customerResource
-	 * @param \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper
+     * @param GigyaLogger $logger
 	 * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
 	 * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
 	 * @param array $data
@@ -36,11 +39,13 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
 		\Magento\Store\Model\StoreManagerInterface $storeManager,
 		\Magento\Customer\Model\ResourceModel\Customer $customerResource,
 		\Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,
+		GigyaLogger $logger,
 		\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
 		\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
 		array $data = []
 	) {
-		$this->gigyaMageHelper = $gigyaMageHelper;
+		$this->logger = $logger;
+
 		parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
 	}
 
@@ -60,7 +65,7 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
 		if (!empty($fieldMappingFilePath) and !file_exists($fieldMappingFilePath))
 		{
 			$message = __('The field mapping file was not found. Please check the file path and try again.');
-			$this->gigyaMageHelper->gigyaLog($message, 'error');
+			$this->logger->error($message);
 			throw new LocalizedException($message);
 		}
 		elseif (file_exists($fieldMappingFilePath))
@@ -69,7 +74,7 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
 			if (!json_decode($mappingJson))
 			{
 				$message = __('The field mapping file is empty or has invalid JSON. Please verify the correctness of the file\'s contents.');
-				$this->gigyaMageHelper->gigyaLog($message, 'error');
+				$this->logger->error($message);
 				throw new LocalizedException($message);
 			}
 		}
