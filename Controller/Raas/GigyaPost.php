@@ -324,7 +324,7 @@ class GigyaPost extends LoginPost
      */
     protected function doLogin(GigyaUser $valid_gigya_user)
     {
-        $this->logger->debug('Loggin in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
+        $this->logger->debug('Logging in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
 		$resultRedirect = $this->resultRedirectFactory->create();
 
         /* If gigya user not validated return error */

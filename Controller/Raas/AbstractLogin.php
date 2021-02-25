@@ -251,7 +251,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected function doLogin(\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user)
     {
-        $this->logger->debug('Loggin in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
+        $this->logger->debug('Logging in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
 
         /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
