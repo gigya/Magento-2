@@ -127,8 +127,9 @@ class GigyaSyncHelper extends AbstractHelper
         $magentoLoggingEmail = null;
 
         $gigyaUid = $gigyaAccount->getUID();
-        $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'];
+        $gigyaEmails = $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'];
         $gigyaProfileEmail = $gigyaAccount->getProfile()->getEmail();
+		$gigyaEmails[] = $gigyaProfileEmail;
 
         // Will be fed with the emails that are already used by a Magento customer account, but to a different or null Gigya UID
         $notUsableEmails = [];
@@ -143,13 +144,12 @@ class GigyaSyncHelper extends AbstractHelper
 
         // 0. search for existing Magento accounts with Gigya loginIDs emails...
         $filterGroups = [];
-        $filter = $this->filterBuilder->setConditionType('in')->setField('email')->setValue($gigyaLoginIdsEmails)->create();
+        $filter = $this->filterBuilder->setConditionType('in')->setField('email')->setValue($gigyaEmails)->create();
         $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
-        if($this->shareConfig->isWebsiteScope())
-        {
-            $filter = $this->filterBuilder->setConditionType('eq')->setField('website_id')->setValue($this->storeManager->getStore()->getWebsiteId())->create();
-            $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
-        }
+		if ($this->shareConfig->isWebsiteScope()) {
+			$filter = $this->filterBuilder->setConditionType('eq')->setField('website_id')->setValue($this->storeManager->getStore()->getWebsiteId())->create();
+			$filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
+		}
         $searchCriteria = $this->searchCriteriaBuilder->create()->setFilterGroups($filterGroups);
         $searchResult = $this->customerRepository->getList($searchCriteria);
         // ...and among these, check if one is set to the Gigya UID
