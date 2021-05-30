@@ -129,7 +129,7 @@ class GigyaApiHelper
 			return false;
 		}
 
-		if ($jwt) {
+		if ($jwt && !empty($jwt->sub) && $jwt->sub === $uid) {
 			return $this->fetchGigyaAccount($uid, $include, $extraProfileFields, $orgParams);
 		} else {
 			return false;
