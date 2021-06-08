@@ -10,7 +10,7 @@ var gigyaHelper = {
 	checkLogout: function () {
 		var logoutCookie = gigya.utils.cookie.get("gigyaLogout");
 		if (logoutCookie) {
-			gigya.accouts.logout();
+			gigya.accounts.logout();
 		}
 	},
 
@@ -43,12 +43,12 @@ var gigyaHelper = {
 				// Do what is needed to show that the user is logged in (reload the page etc...)
 			} else {
 				// Logout user from gigya
-				gigya.account.logout();
+				gigya.accounts.logout();
 				// Show error etc...
 			}
 		}).fail(function () {
 			// Logout user from gigya
-			gigya.account.logout();
+			gigya.accounts.logout();
 			// Show error etc...
 		});
 	},
