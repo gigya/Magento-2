@@ -197,9 +197,9 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                     $methodName = 'getCustomAttribute';
                     $methodParams = strtolower($subPath);
                     $value = call_user_func(array($magentoUser, $methodName), $methodParams);
-                    if ($value == null) {
-                        throw new \Exception('Custom attribute '.$subPath.' is not set');
-                    }
+					if ($value == null) {
+						throw new \Exception('Custom attribute ' . $subPath . ' is not set');
+					}
 
                     /* Value is of type AttributeValue */
                     $value = $value->getValue();

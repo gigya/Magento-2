@@ -349,9 +349,9 @@ class GigyaMageHelper extends AbstractHelper
             );
             return $extra_profile_fields_list;
         }
-        if(file_exists($config_file_path)) {
+        if (file_exists($config_file_path)) {
             $mapping_json = file_get_contents($config_file_path);
-            if(false === $mapping_json) {
+            if (false === $mapping_json) {
                 $err     = error_get_last();
                 $this->logger->debug(
                     "setExtraProfileFields: Could not read mapping file at: " . $config_file_path .
@@ -365,7 +365,7 @@ class GigyaMageHelper extends AbstractHelper
         }
 
         $field_map_array = json_decode($mapping_json, true);
-        if(!is_array($field_map_array)) {
+        if (!is_array($field_map_array)) {
             $this->logger->debug(
                 "setExtraProfileFields: mapping fields file could not be properly parsed."
             );
@@ -376,7 +376,7 @@ class GigyaMageHelper extends AbstractHelper
         $profile_fields = array();
         foreach ($field_map_array as $full_field) {
             // if gigyaName contains value with profile, add the profile field to profile_fields
-            if(strpos($full_field['gigyaName'], "profile") === 0) {
+            if (strpos($full_field['gigyaName'], "profile") === 0) {
                 $field = explode( ".",$full_field['gigyaName'])[1];
                 array_push($profile_fields, $field);
             }
@@ -398,7 +398,7 @@ class GigyaMageHelper extends AbstractHelper
         }
 
         $extra_profile_fields_array = json_decode($extra_profile_fields_file);
-        if(!is_array($field_map_array)) {
+        if (!is_array($field_map_array)) {
             $this->logger->debug(
                 "setExtraProfileFields: extra profile fields file could not be properly parsed."
             );
@@ -406,7 +406,7 @@ class GigyaMageHelper extends AbstractHelper
         }
         //compare arrays for matching fields to map and build extra profile fields list
         $extra_fields_match = array_intersect($extra_profile_fields_array, $profile_fields);
-        if(count($extra_fields_match) > 0) {
+        if (count($extra_fields_match) > 0) {
             $extra_profile_fields_list = implode(",",$extra_fields_match);
         }
 

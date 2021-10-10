@@ -2,6 +2,8 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
+
 abstract class CmsUpdater
 {
 	/**
@@ -21,10 +23,10 @@ abstract class CmsUpdater
 	/**
 	 * CmsUpdater constructor
 	 *
-	 * @param \Gigya\GigyaIM\Helper\CmsStarterKit\User\GigyaUser $gigyaAccount
-	 * @param string                                             $mappingFilePath
+	 * @param GigyaUser $gigyaAccount
+	 * @param string    $mappingFilePath
 	 */
-	public function __construct($gigyaAccount, $mappingFilePath) {
+	public function __construct(GigyaUser $gigyaAccount, $mappingFilePath) {
 		$this->gigyaUser = $gigyaAccount;
 		$this->path      = (string) $mappingFilePath;
 		$this->mapped    = !empty($this->path);

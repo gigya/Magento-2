@@ -99,10 +99,10 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
                     $value = $this->transformGigyaToMagentoBoolean($value);
                 }
 
-                if (substr($mageKey, 0, 6) === "custom") {
+                if (substr($mageKey, 0, 7) === "custom_") {
                     $key = substr($mageKey, 7);
 
-                    if($account instanceof AbstractExtensibleModel)
+                    if ($account instanceof AbstractExtensibleModel)
                     {
                         $account->setCustomAttribute($key, $value);
                     }
