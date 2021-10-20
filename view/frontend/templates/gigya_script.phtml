@@ -57,6 +57,8 @@ $scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigy
 		}
         else
         {
+            console.log("valor do login state url");
+            console.log(login_state_url);
 			$.ajax({
 				type: "GET",
 				url: login_state_url,

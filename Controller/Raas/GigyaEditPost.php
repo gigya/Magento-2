@@ -142,6 +142,11 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
             try {
                 $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
+                $gigyaEmails = $gigyaAccount->getLoginIDs()['emails'];
+                $gigyaProfileEmail = $gigyaAccount->getProfile()->getEmail();
+                $this->logger->info("GIGYA POST Emails: " . json_encode($gigyaEmails));
+                $this->logger->info("GIGYA POST Profile Emails: " . json_encode($gigyaProfileEmail));
+
                 if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
                     throw new InputException("Could not validate the given Gigya data");
                 }
@@ -149,12 +154,24 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
                 $eligibleCustomer = $this->gigyaSyncHelper->setMagentoLoggingContext($gigyaAccount);
 
                 if ($eligibleCustomer == null || $eligibleCustomer->getId() != $customerId) {
-                    throw new InputException("Could not retrieve a valid Magento customer with the given Gigya data");
+                    throw new InputException(__("Could not retrieve a valid Magento customer with the given Gigya data"));
                 }
 
                 $this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);
 
                 $this->customerRepository->save($eligibleCustomer);
+
+                $customerEmail = array_shift($gigyaEmails);
+                $gigyaEmails[] = $gigyaProfileEmail;
+
+                $this->logger->info("GIGYA CUSTOMER ID: " . json_encode($eligibleCustomer->getId()));
+                $this->logger->info("GIGYA CUSTOMER Customer: " . json_encode($customerEmail));
+                $this->logger->info("GIGYA CUSTOMER Emails: " . json_encode($gigyaEmails));
+
+                $updateCustomer = $this->customerRepository->getById($eligibleCustomer->getId());
+                $updateCustomer->setEmail($customerEmail);
+                $updateCustomer->setCustomAttribute('gigya_emails', implode(',', $gigyaEmails));
+                $this->customerRepository->save($updateCustomer);
             } catch (AuthenticationException $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             } catch (InputException $e) {
