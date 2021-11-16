@@ -267,6 +267,7 @@ class GigyaMageHelper extends AbstractHelper
 				$authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
                 $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->authMode);
             } catch (\Exception $e) {
+                $this->logger->addError($e->getMessage());
                 return false;
             }
         }
@@ -344,7 +345,7 @@ class GigyaMageHelper extends AbstractHelper
         // if map fields file exists, read map fields file and build gigya fields array
         if (is_null($config_file_path)) {
             $this->logger->debug(
-                "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined. 
+                "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined.
                 Define file path at: Stores:Config:Gigya:Field Mapping"
             );
             return $extra_profile_fields_list;
