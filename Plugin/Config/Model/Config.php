@@ -88,11 +88,7 @@ class Config
                     if ($gigyaApiHelper === false) {
                         throw new LocalizedException(__("Bad settings. Unable to save."));
                     } else {
-                        // $this->gigyaMageHelper->getGigyaApiHelper()->sendApiCall(
-                        //     'socialize.getProvidersConfig',
-                        //     []
-                        // );
-                        return true;
+                         $gigyaApiHelper->sendApiCall("accounts.getSchema", []);
                     }
                 } catch (GSApiException $e) {
                     $this->logger->critical(
