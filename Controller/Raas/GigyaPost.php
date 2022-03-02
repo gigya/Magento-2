@@ -356,7 +356,6 @@ class GigyaPost extends LoginPost
 
                 if ($customer) {
                     $loginSuccess = $this->gigyaLoginUser($customer);
-                    $this->customerRepository->save($customer);
                     $redirect = $this->encapsulateResponse(
                         $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]
                     );

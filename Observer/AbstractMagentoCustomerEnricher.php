@@ -26,7 +26,7 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * . enrich the Magento required fields with the Gigya attributes (first name, last name, email)
  *
  */
-abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implements ObserverInterface
+abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
 {
     const EVENT_MAP_GIGYA_TO_MAGENTO_SUCCESS = 'gigya_success_map_to_magento';
 
@@ -51,6 +51,18 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
     protected $gigyaToMagentoMapper;
 
     /**
+     * Registry used to avoid conflicts between enrichers
+     * @var EnricherCustomerRegistry
+     */
+    protected $enricherCustomerRegistry;
+
+    /**
+     * Array used to avoid enrich the same customer twice
+     * @var int[]
+     */
+    protected $enrichedCustomers = [];
+
+    /**
      * AbstractMagentoCustomerEnricher constructor.
      *
      * @param CustomerRepositoryInterface $customerRepository
@@ -59,6 +71,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * @param ManagerInterface $eventDispatcher
      * @param GigyaLogger $logger
      * @param GigyaToMagento $gigyaToMagentoMapper
+     * @param EnricherCustomerRegistry $enricherCustomerRegistry
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -66,7 +79,8 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         GigyaSyncHelper $gigyaSyncHelper,
         ManagerInterface $eventDispatcher,
         GigyaLogger $logger,
-        GigyaToMagento $gigyaToMagentoMapper
+        GigyaToMagento $gigyaToMagentoMapper,
+        EnricherCustomerRegistry $enricherCustomerRegistry
     ) {
         $this->customerRepository = $customerRepository;
         $this->gigyaAccountRepository = $gigyaAccountRepository;
@@ -74,6 +88,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
         $this->gigyaToMagentoMapper = $gigyaToMagentoMapper;
+        $this->enricherCustomerRegistry = $enricherCustomerRegistry;
     }
 
     /**
@@ -85,17 +100,37 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
      * @param Customer $magentoCustomer
      * @return bool
      */
-    protected function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)
+    protected function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true)
     {
-        $result =
-            $magentoCustomer != null
-            && !$magentoCustomer->isDeleted()
-            && !$magentoCustomer->isObjectNew()
-            && !$this->retrieveRegisteredCustomer($magentoCustomer)
-            && !(empty($magentoCustomer->getGigyaUid()))
-            && !$this->gigyaSyncHelper->isCustomerIdExcludedFromSync($magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS);
+        $this->logger->debug("Shall enrich Magento customer with Gigya data?");
 
-        return $result;
+        $key = $this->enricherCustomerRegistry->getCustomerRegistryKey($magentoCustomer);
+
+        if ($magentoCustomer === null) {
+            $this->logger->debug("No, no customer found");
+        } elseif ($magentoCustomer->isDeleted() === true) {
+            $this->logger->debug("No, customer is deleted");
+        } elseif ($magentoCustomer->isObjectNew() === true) {
+            $this->logger->debug("No, customer is new");
+        } elseif (isset($this->enrichedCustomers[$key])) {
+            $this->logger->debug("No, customer it's already enriched");
+        } elseif (is_object($this->enricherCustomerRegistry->retrieveRegisteredCustomer($magentoCustomer)) === true) {
+            $this->logger->debug("No, customer it's already in enrichment process");
+        } elseif (empty($magentoCustomer->getGigyaUid()) === true) {
+            $this->logger->debug("No, customer does not have a Gigya ID");
+        } elseif ($this->gigyaSyncHelper->isCustomerIdExcludedFromSync(
+            $magentoCustomer->getId(),
+            GigyaSyncHelper::DIR_G2CMS
+        )) {
+            $this->logger->debug("No, customer it is excluded from sync");
+        } else {
+            if ($final === true) {
+                $this->logger->debug("Yes, enrich Magento customer with Gigya data");
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -166,7 +201,7 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 			return $magentoCustomer;
 		}
 
-        $this->pushRegisteredCustomer($magentoCustomer);
+        $this->logger->debug("Enriching Magento customer with Gigya data");
 
         $this->gigyaSyncHelper->updateMagentoCustomerRequiredFieldsWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
@@ -220,17 +255,25 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
 	 */
     public function execute(Observer $observer)
     {
+        $this->logger->debug("Update customer Gigya => Magento on event " . $observer->getEvent()->getName());
+
 		/** @var \Magento\Customer\Model\Backend\Customer $magentoCustomer */
         $magentoCustomer = $observer->getData('customer');
         if (empty($magentoCustomer->getGigyaAccountEnriched())) {
             $magentoCustomer->setGigyaAccountEnriched(false);
         }
 
-        $gigyaData = null;
-        if ($this->shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)) {
+        if ($this->shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $observer->getEvent()->getName())) {
+            $key = $this->enricherCustomerRegistry->getCustomerRegistryKey($magentoCustomer);
+            $this->enrichedCustomers[$key] = 1;
+            $this->enricherCustomerRegistry->pushRegisteredCustomer($magentoCustomer);
+
             try {
                 $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
-                $magentoCustomer = $this->enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaData['gigya_user'], $gigyaData['gigya_logging_email']);
+                $magentoCustomer = $this->enrichMagentoCustomerWithGigyaData(
+                    $magentoCustomer, $gigyaData['gigya_user'],
+                    $gigyaData['gigya_logging_email']
+                );
                 $magentoCustomer->setGigyaAccountEnriched(true);
                 $customerEntityId = $magentoCustomer->getId();
                 $excludeSyncCms2G = true;
@@ -257,6 +300,8 @@ abstract class AbstractMagentoCustomerEnricher extends AbstractEnricher implemen
                     'exception' => $e
                 ]);
             }
+
+            $this->enricherCustomerRegistry->removeRegisteredCustomer($magentoCustomer);
         }
     }
 }

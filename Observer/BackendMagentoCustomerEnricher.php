@@ -9,6 +9,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\CustomerRegistry;
 use Magento\Framework\Event\ManagerInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\App\Action\Context;
 
 /**
  * BackendMagentoCustomerEnricher
@@ -28,6 +29,9 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /** @var CustomerRegistry  */
     protected $customerRegistry;
 
+    /** @var Context */
+    protected $context;
+
     /**
      * BackendMagentoCustomerEnricher constructor.
      *
@@ -38,6 +42,8 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      * @param GigyaLogger $logger
      * @param CustomerRegistry $customerRegistry
      * @param GigyaToMagento $gigyaToMagentoMapper
+     * @param EnricherCustomerRegistry $enricherCustomerRegistry
+     * @param Context $context
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -46,7 +52,9 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
         ManagerInterface $eventDispatcher,
         GigyaLogger $logger,
         CustomerRegistry $customerRegistry,
-        GigyaToMagento $gigyaToMagentoMapper
+        GigyaToMagento $gigyaToMagentoMapper,
+        EnricherCustomerRegistry $enricherCustomerRegistry,
+        Context $context
     ) {
         parent::__construct(
             $customerRepository,
@@ -54,10 +62,12 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
             $gigyaSyncHelper,
             $eventDispatcher,
             $logger,
-            $gigyaToMagentoMapper
+            $gigyaToMagentoMapper,
+            $enricherCustomerRegistry
         );
 
         $this->customerRegistry = $customerRegistry;
+        $this->context = $context;
     }
 
     /**
@@ -74,4 +84,35 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
 			$this->customerRegistry->push($magentoCustomer);
 		}
 	}
+
+    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true)
+    {
+        $result = parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, false);
+
+        if ($result === true) {
+            $actionName = $this->context->getRequest()->getActionName();
+            $moduleName = $this->context->getRequest()->getModuleName();
+            $controllerName = $this->context->getRequest()->getControllerName();
+            $route = "{$moduleName}_{$controllerName}_{$actionName}";
+
+            $candidateRoutes = [
+                'customer_index_edit' => ['customer_load_after'],
+                'customer_index_save' => ['customer_save_commit_after']
+            ];
+
+            if (in_array($route, array_keys($candidateRoutes)) === false) {
+                $this->logger->debug("No, route {$route} it is not a candidate for enrichment");
+                $result = false;
+            } elseif (in_array($event, $candidateRoutes[$route]) === false) {
+                $this->logger->debug("No, route {$route} it is not allowed for event {$event}");
+                $result = false;
+            }
+        }
+
+        if ($result === true && $final === true) {
+            $this->logger->debug("Yes, enrich Magento customer with Gigya data");
+        }
+
+        return $result;
+    }
 }

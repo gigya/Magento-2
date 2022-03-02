@@ -6,9 +6,9 @@ namespace Gigya\GigyaIM\Observer;
 use Magento\Customer\Model\Customer;
 
 /**
- * AbstractEnricher
+ * EnricherCustomerRegistry
  *
- * Base class for enrichers Gigya data from / to Magento customer.
+ * Class for enrichers Gigya data from / to Magento customer.
  *
  * @author      vlemaire <info@x2i.fr>
  *
@@ -19,7 +19,7 @@ use Magento\Customer\Model\Customer;
  * The accounts are kept in memory during the same server call only : a subsequent call will reset this registry.
  *
  */
-class AbstractEnricher
+class EnricherCustomerRegistry
 {
     /**
      * Array to push customer entities once they've been synchronized from / to Gigya.
@@ -36,7 +36,7 @@ class AbstractEnricher
      * @param Customer $customer
      * @return string Concatenation of websiteId|gigyaUid
      */
-    protected function getCustomerRegistryKey($customer)
+    public function getCustomerRegistryKey($customer)
     {
         return $customer->getWebsiteId().'|'.$customer->getGigyaUid();
     }
@@ -47,7 +47,7 @@ class AbstractEnricher
      * @param Customer $customer
      * @return Customer|null
      */
-    protected function retrieveRegisteredCustomer($customer)
+    public function retrieveRegisteredCustomer($customer)
     {
         $key = $this->getCustomerRegistryKey($customer);
         $result = (array_key_exists($key, $this->customerRegistry)) ? $this->customerRegistry[$key] : null;
@@ -60,8 +60,16 @@ class AbstractEnricher
      *
      * @param $customer
      */
-    protected function pushRegisteredCustomer($customer)
+    public function pushRegisteredCustomer($customer)
     {
         $this->customerRegistry[$this->getCustomerRegistryKey($customer)] = $customer;
+    }
+
+    public function removeRegisteredCustomer($customer)
+    {
+        $key = $this->getCustomerRegistryKey($customer);
+        unset($this->customerRegistry[$key]);
+
+        return $this;
     }
 }
