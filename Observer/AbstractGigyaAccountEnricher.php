@@ -119,7 +119,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
         } elseif ($magentoCustomer->isObjectNew() === true) {
             $this->logger->debug("No, customer is new");
         } elseif (is_object($this->enricherCustomerRegistry->retrieveRegisteredCustomer($magentoCustomer)) === true) {
-            $this->logger->debug("No, customer it's already in enrichment process");
+            $this->logger->debug("No, customer is already in enrichment process");
         } elseif (empty($magentoCustomer->getGigyaUid()) === true) {
             $this->logger->debug("No, customer does not have a Gigya ID");
         } elseif ($this->gigyaSyncHelper->isCustomerIdExcludedFromSync(

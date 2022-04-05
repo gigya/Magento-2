@@ -113,9 +113,9 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
         } elseif ($magentoCustomer->isObjectNew() === true) {
             $this->logger->debug("No, customer is new");
         } elseif (isset($this->enrichedCustomers[$key])) {
-            $this->logger->debug("No, customer it's already enriched");
+            $this->logger->debug("No, customer is already enriched");
         } elseif (is_object($this->enricherCustomerRegistry->retrieveRegisteredCustomer($magentoCustomer)) === true) {
-            $this->logger->debug("No, customer it's already in enrichment process");
+            $this->logger->debug("No, customer is already in enrichment process");
         } elseif (empty($magentoCustomer->getGigyaUid()) === true) {
             $this->logger->debug("No, customer does not have a Gigya ID");
         } elseif ($this->gigyaSyncHelper->isCustomerIdExcludedFromSync(
