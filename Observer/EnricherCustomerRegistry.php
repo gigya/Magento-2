@@ -24,7 +24,7 @@ class EnricherCustomerRegistry
     /**
      * Array to push customer entities once they've been synchronized from / to Gigya.
      *
-     * We will avoid to enrich several time the same instance by checking this registry.
+     * We will avoid enriching the same instance several times by checking this registry.
      *
      * @var array $customerRegistry
      */

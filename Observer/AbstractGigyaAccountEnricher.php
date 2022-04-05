@@ -29,7 +29,7 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
  *
  * When it's triggered it will :
  * . check that the Gigya data have to be enriched
- * . enrich the Gigya data with extended fields mapping
+ * . enrich the Gigya data with extended field mapping
  */
 class AbstractGigyaAccountEnricher implements ObserverInterface
 {

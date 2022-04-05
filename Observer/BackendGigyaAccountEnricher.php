@@ -17,7 +17,7 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
  *
  * @inheritdoc
  *
- * Overrides the behaviour in case of exception during the fields mapping : the enrichment must be canceled.
+ * Overrides the behaviour in case of exception during the field mapping : the enrichment must be canceled.
  *
  * @author      vlemaire <info@x2i.fr>
  */

@@ -169,7 +169,6 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
             }
         } else {
             $magentoBillingAddress->save();
-//            echo json_encode($magentoBillingAddress->getData()); die;
             $account->cleanAllAddresses();
         }
     }

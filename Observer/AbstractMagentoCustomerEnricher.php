@@ -57,7 +57,7 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     protected $enricherCustomerRegistry;
 
     /**
-     * Array used to avoid enrich the same customer twice
+     * Array used to avoid enriching the same customer twice
      * @var int[]
      */
     protected $enrichedCustomers = [];
