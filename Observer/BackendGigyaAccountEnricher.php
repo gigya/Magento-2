@@ -5,8 +5,10 @@ namespace Gigya\GigyaIM\Observer;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Model\FieldMapping\GigyaFromMagento;
-use \Magento\Framework\Event\ManagerInterface as EventManager;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
+use Magento\Customer\Model\ResourceModel\Customer as CustomerResourceModel;
+use Magento\Customer\Model\CustomerFactory;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 
@@ -15,7 +17,7 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
  *
  * @inheritdoc
  *
- * Overrides the behaviour in case of exception during the fields mapping : the enrichment must be canceled.
+ * Overrides the behaviour in case of exception during the field mapping : the enrichment must be canceled.
  *
  * @author      vlemaire <info@x2i.fr>
  */
@@ -24,17 +26,24 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
     /** @var  MessageManager */
     protected $messageManager;
 
-	/**
-	 * BackendGigyaAccountEnricher constructor.
-	 *
-	 * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-	 * @param GigyaSyncHelper                 $gigyaSyncHelper
-	 * @param EventManager                    $eventDispatcher
-	 * @param GigyaLogger                     $logger
-	 * @param MessageManager                  $messageManager
-	 * @param GigyaFromMagento                $gigyaFromMagento
-	 * @param GigyaConfig                     $config
-	 */
+    /** @var CustomerResourceModel */
+    protected $customerResourceModel;
+
+    /** @var CustomerFactory */
+    protected $customerFactory;
+
+    /**
+     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
+     * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param EventManager $eventDispatcher
+     * @param GigyaLogger $logger
+     * @param MessageManager $messageManager
+     * @param GigyaFromMagento $gigyaFromMagento
+     * @param GigyaConfig $config
+     * @param EnricherCustomerRegistry $enricherCustomerRegistry
+     * @param CustomerResourceModel $customerResourceModel
+     * @param CustomerFactory $customerFactory
+     */
     public function __construct(
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
         GigyaSyncHelper $gigyaSyncHelper,
@@ -42,9 +51,22 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
         GigyaLogger $logger,
         MessageManager $messageManager,
         GigyaFromMagento $gigyaFromMagento,
-		GigyaConfig $config
+		GigyaConfig $config,
+        EnricherCustomerRegistry $enricherCustomerRegistry,
+        CustomerResourceModel $customerResourceModel,
+        CustomerFactory $customerFactory
     ) {
-        parent::__construct($gigyaAccountRepository, $gigyaSyncHelper, $eventDispatcher, $logger, $gigyaFromMagento, $config);
+        parent::__construct(
+            $gigyaAccountRepository,
+            $gigyaSyncHelper,
+            $eventDispatcher,
+            $logger,
+            $gigyaFromMagento,
+            $config,
+            $enricherCustomerRegistry,
+            $customerResourceModel,
+            $customerFactory
+        );
 
         $this->messageManager = $messageManager;
     }

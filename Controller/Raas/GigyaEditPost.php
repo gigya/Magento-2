@@ -143,13 +143,13 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
                 $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
                 if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
-                    throw new InputException("Could not validate the given Gigya data");
+                    throw new InputException(__("Could not validate the given Gigya data"));
                 }
 
                 $eligibleCustomer = $this->gigyaSyncHelper->setMagentoLoggingContext($gigyaAccount);
 
                 if ($eligibleCustomer == null || $eligibleCustomer->getId() != $customerId) {
-                    throw new InputException("Could not retrieve a valid Magento customer with the given Gigya data");
+                    throw new InputException(__("Could not retrieve a valid Magento customer with the given Gigya data"));
                 }
 
                 $this->gigyaMageHelper->transferAttributes($customer, $eligibleCustomer);

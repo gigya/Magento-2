@@ -11,6 +11,8 @@ use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Customer\Api\Data\AddressInterfaceFactory as AddressFactory;
+use Magento\Customer\Api\AddressRepositoryInterface;
 
 /**
  * MagentoCustomerFieldsUpdater
@@ -39,17 +41,27 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     /** @var fieldMapping\Conf|bool  */
     protected $confMapping = false;
 
+    /** @var AddressFactory */
+    protected $addressFactory;
+
+    /** @var AddressRepositoryInterface */
+    protected $addressRepository;
+
     /**
      * MagentoCustomerFieldsUpdater constructor.
      *
      * @param CacheType $gigyaCacheType
      * @param EventManagerInterface $eventManager
      * @param GigyaLogger $logger
+     * @param AddressFactory $addressFactory
+     * @param AddressRepositoryInterface $addressRepository
      */
     public function __construct(
         CacheType $gigyaCacheType,
         EventManagerInterface $eventManager,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+        AddressFactory $addressFactory,
+        AddressRepositoryInterface $addressRepository
     )
     {
         parent::__construct(new GigyaUser(null), null);
@@ -57,6 +69,8 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         $this->gigyaCacheType = $gigyaCacheType;
         $this->eventManager = $eventManager;
         $this->logger = $logger;
+        $this->addressFactory = $addressFactory;
+        $this->addressRepository = $addressRepository;
     }
 
     /**
@@ -81,6 +95,16 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
      */
     public function setAccountValues(&$account) {
     	$gigyaMapping = $this->getGigyaMapping();
+        $magentoBillingAddress = $account->getDefaultBillingAddress();
+
+        if ($magentoBillingAddress === false) {
+            $isBillingAddressNew = true;
+            /** @var \Magento\Customer\Model\Data\Address $magentoBillingAddress */
+            $magentoBillingAddress = $this->addressFactory->create();
+        } else {
+            $isBillingAddressNew = false;
+        }
+
         foreach ($gigyaMapping as $gigyaName => $confs) {
             /** @var \Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\ConfItem $conf */
             $value = parent::getValueFromGigyaAccount($gigyaName); // e.g: loginProvider = facebook
@@ -102,18 +126,50 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
                 if (substr($mageKey, 0, 6) === "custom") {
                     $key = substr($mageKey, 7);
 
-                    if($account instanceof AbstractExtensibleModel)
-                    {
+                    if ($account instanceof AbstractExtensibleModel) {
                         $account->setCustomAttribute($key, $value);
-                    }
-                    else
-                    {
+                    } else {
                         $account->setData($key, $value);
                     }
+                } elseif (substr($mageKey, 0, 7) === "address") {
+                    $magentoBillingAddress->setData(substr($mageKey, 8), $value);
                 } else {
                     $account->setData($mageKey, $value);
                 }
             }
+        }
+
+        if ($isBillingAddressNew) {
+            try {
+                $firstname = $magentoBillingAddress->getFirstname();
+                $lastname = $magentoBillingAddress->getLastname();
+
+                if (empty($firstname)) {
+                    $magentoBillingAddress->setData('firstname', $account->getData('firstname'));
+                }
+
+                if (empty($lastname)) {
+                    $magentoBillingAddress->setData('lastname', $account->getData('lastname'));
+                }
+
+                $magentoBillingAddress->setCustomerId($account->getId());
+
+                /** @var \Magento\Customer\Model\Backend\Customer $account */
+                $this->addressRepository->save($magentoBillingAddress);
+                $account->cleanAllAddresses();
+                $account->setDefaultBilling($magentoBillingAddress->getId());
+
+                if (is_null($account->getDefaultShipping())) {
+                    $account->setDefaultShipping($magentoBillingAddress->getId());
+                }
+
+                $this->logger->debug("Added address {$magentoBillingAddress->getId()} to customer");
+            } catch (\Exception $e) {
+                $this->logger->debug("Failed to import customer address data: " . $e->getMessage());
+            }
+        } else {
+            $magentoBillingAddress->save();
+            $account->cleanAllAddresses();
         }
     }
 

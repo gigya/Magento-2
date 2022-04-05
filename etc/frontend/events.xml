@@ -5,8 +5,12 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="customer_save_before">
+    <event name="customer_load_after">
         <observer name="gigyaFrontendCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\FrontendMagentoCustomerEnricher" />
+    </event>
+    <event name="customer_address_save_commit_after">
+        <!-- Enrich the Gigya account data with the corresponding Magento customer entity, and update the account on Gigya service -->
+        <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\FrontendGigyaAccountEnricher" />
     </event>
     <event name="controller_action_predispatch">
         <observer name="gigyaExtendSession" instance="Gigya\GigyaIM\Observer\Session\Extend" />

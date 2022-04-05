@@ -34,6 +34,7 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
 	 * @param GigyaLogger $logger
 	 * @param Context $context
 	 * @param GigyaToMagento $gigyaToMagentoMapper
+     * @param EnricherCustomerRegistry $enricherCustomerRegistry
 	 */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -41,7 +42,8 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
         GigyaSyncHelper $gigyaSyncHelper,
         GigyaLogger $logger,
         Context $context,
-        GigyaToMagento $gigyaToMagentoMapper
+        GigyaToMagento $gigyaToMagentoMapper,
+        EnricherCustomerRegistry $enricherCustomerRegistry
     ) {
         parent::__construct(
             $customerRepository,
@@ -49,7 +51,8 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
             $gigyaSyncHelper,
             $context->getEventManager(),
             $logger,
-            $gigyaToMagentoMapper
+            $gigyaToMagentoMapper,
+            $enricherCustomerRegistry
         );
 
         $this->context = $context;
@@ -60,14 +63,33 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      *
      * Add a check on the request's action name : update shall be performed only if we are going to login, create or update an account.
      */
-    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer)
+    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true)
     {
-        $actionName = $this->context->getRequest()->getActionName();
+        $result = parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, false);
 
-        $result = $actionName == 'loginPost'
-            || $actionName == 'createPost'
-            || $actionName == 'editPost';
+        if ($result === true) {
+            $actionName = $this->context->getRequest()->getActionName();
+            $moduleName = $this->context->getRequest()->getModuleName();
+            $controllerName = $this->context->getRequest()->getControllerName();
+            $route = "{$moduleName}_{$controllerName}_{$actionName}";
 
-        return $result && parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer);
+            $candidateRoutes = [
+                'customer_account_loginPost',
+                'customer_account_createPost',
+                'customer_account_editPost',
+                'customer_address_edit'
+            ];
+
+            if (in_array($route, $candidateRoutes) === false) {
+                $this->logger->debug("No, route {$route} it is not a candidate for enrichment");
+                $result = false;
+            }
+        }
+
+        if ($result === true && $final === true) {
+            $this->logger->debug("Yes, enrich Magento customer with Gigya data");
+        }
+
+        return $result;
     }
 }
