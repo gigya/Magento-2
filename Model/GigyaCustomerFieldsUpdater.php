@@ -11,6 +11,8 @@ use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Customer\Model\ResourceModel\Address as AddressResourceModel;
+use Magento\Customer\Model\AddressFactory;
 
 /**
  * GigyaCustomerFieldsUpdater
@@ -39,11 +41,17 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
     /** @var  GigyaUser */
     private $gigyaUser;
 
-	/** @var Subscriber */
-	private $subscriber;
+    /** @var Subscriber */
+    private $subscriber;
 
     /** @var fieldMapping\Conf|bool  */
-    private $confMapping = false;
+    protected $confMapping = false;
+
+    /** @var AddressResourceModel */
+    public $addressResourceModel;
+
+    /** @var AddressFactory */
+    public $addressFactory;
 
     /**
      * GigyaCustomerFieldsUpdater constructor.
@@ -52,14 +60,18 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      * @param CacheType $gigyaCacheType
      * @param EventManagerInterface $eventManager
      * @param GigyaLogger $logger
-	 * @param Subscriber $subscriber
+     * @param Subscriber $subscriber
+     * @param AddressResourceModel $addressResourceModel
+     * @param AddressFactory $addressFactory
      */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
         CacheType $gigyaCacheType,
         EventManagerInterface $eventManager,
         GigyaLogger $logger,
-		Subscriber $subscriber
+        Subscriber $subscriber,
+        AddressResourceModel $addressResourceModel,
+        AddressFactory $addressFactory
     )
     {
         $apiHelper = $gigyaMageHelper->getGigyaApiHelper();
@@ -70,6 +82,8 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
         $this->eventManager = $eventManager;
         $this->logger = $logger;
         $this->subscriber = $subscriber;
+        $this->addressResourceModel = $addressResourceModel;
+        $this->addressFactory = $addressFactory;
     }
 
     /**
@@ -205,11 +219,27 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                     $value = $value->getValue();
                 }
                 elseif ($subPath === 'isSubscribed')
-				{
-					$subscriber = $this->subscriber->loadByCustomerId($magentoUser->getId());
-					$value = $subscriber->isSubscribed();
-				}
-                else {
+                {
+                    $subscriber = $this->subscriber->loadByCustomerId($magentoUser->getId());
+                    $value = $subscriber->isSubscribed();
+                } elseif (strpos($subPath, 'address_') === 0) {
+                    $subPath = substr($subPath, 8);
+                    $param0 = null;
+
+                    /** @var \Magento\Customer\Model\Address $magentoBilling */
+                    $magentoBilling = $this->addressFactory->create();
+                    $this->addressResourceModel->load($magentoBilling, $magentoUser->getDefaultBilling());
+                    $methodName = 'get' . ucfirst($subPath);
+
+                    if (in_array($subPath, ['street0', 'street1', 'street2', 'street3'])) {
+                        $param0 = substr($subPath, -1);
+                        $methodName = 'getStreetLine';
+                    }
+
+                    $value = call_user_func(array($magentoBilling, $methodName), $param0);
+                    //If the fieldset is set to street, then implode address lines
+                    $value = is_array($value) ? implode(', ', $value) : $value;
+                } else {
                     $methodName = 'get' . ucfirst($this->mixify($subPath, '_'));
                     $value = call_user_func(array($magentoUser, $methodName)) ?: '';
                 }
@@ -287,7 +317,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * @param fieldMapping\Conf $mappingConf
      */
-    protected function setMappingCache($mappingConf)
+    public function setMappingCache($mappingConf)
     {
         if (!$this->gigyaCacheType->test(CacheType::CACHE_TAG)) {
             $this->confMapping = $mappingConf;
@@ -302,7 +332,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * @return fieldMapping\Conf|false False if the cache is deactivated and the method self::setMappingCache() has not been called yet on this instance.
      */
-    protected function getMappingFromCache()
+    public function getMappingFromCache()
     {
         if (!$this->gigyaCacheType->test(CacheType::CACHE_TAG)) {
             return $this->confMapping;

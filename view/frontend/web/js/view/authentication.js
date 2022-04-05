@@ -24,6 +24,8 @@ define([], function () {
             login: function() {
                 if (typeof gigya_enabled !== "undefined" && gigya_enabled) {
                     this.switchToScreen('gigya-login-screen');
+                } else {
+                    return this._super();
                 }
             },
 

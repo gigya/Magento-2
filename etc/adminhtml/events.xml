@@ -9,7 +9,11 @@
         <!-- Enrich the Magento customer entity with the corresponding Gigya's account data, and save the entity -->
         <observer name="gigyaBackendMagentoCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendMagentoCustomerEnricher" />
     </event>
-    <event name="customer_save_before">
+    <event name="customer_save_commit_after">
+        <!-- Enrich the Gigya account data with the corresponding Magento customer entity, and update the account on Gigya service -->
+        <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendGigyaAccountEnricher" />
+    </event>
+    <event name="customer_address_save_commit_after">
         <!-- Enrich the Gigya account data with the corresponding Magento customer entity, and update the account on Gigya service -->
         <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendGigyaAccountEnricher" />
     </event>
