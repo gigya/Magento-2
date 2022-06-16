@@ -52,10 +52,10 @@ class GigyaOfflineSync
 	/** @var GigyaToMagento */
 	protected $gigyaToMagento;
 
-	const MAX_USERS = 1000; /* Maximum users to get from accounts.search */
-	const RETRY_WAIT = 60; /* Time to wait between retry if Gigya fails */
-	const UPDATE_DELAY = 60000; /* 60 seconds */
-	const CRON_NAME = 'Gigya offline sync';
+    const MAX_USERS = 300; /* Maximum users to get from accounts.search */
+    const RETRY_WAIT = 60; /* Time to wait between retry if Gigya fails */
+    const UPDATE_DELAY = 60000; /* 60 seconds */
+    const CRON_NAME = 'Gigya offline sync';
 
 	/**
 	 * GigyaOfflineSync constructor.
