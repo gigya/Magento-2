@@ -120,7 +120,7 @@ class GigyaCronHelper extends AbstractHelper
 	public function getEmailsFromConfig($configSetting, $validDelimiters = [',', ';'])
 	{
 		/* Get config */
-		$emails = str_replace(' ', '', $this->scopeConfig->getValue($configSetting));
+        $emails = str_replace(' ', '', (string)$this->scopeConfig->getValue($configSetting));
 
 		/* If config was empty or non-existent */
 		if (empty($emails)) {

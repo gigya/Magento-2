@@ -118,8 +118,8 @@ class UserDeletion
 
 	public function getEmails()
 	{
-		$email_success = str_replace(' ', '', $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_success'));
-		$email_failure = str_replace(' ', '', $this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_failure'));
+        $email_success = str_replace(' ', '', (string)$this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_success'));
+        $email_failure = str_replace(' ', '', (string)$this->scopeConfig->getValue('gigya_delete/deletion_general/deletion_email_failure'));
 		if (empty($email_failure)) {
 			$email_failure = $email_success;
 		}

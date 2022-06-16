@@ -62,8 +62,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         GigyaLogger $logger,
         AddressFactory $addressFactory,
         AddressRepositoryInterface $addressRepository
-    )
-    {
+    ) {
         parent::__construct(new GigyaUser(null), null);
 
         $this->gigyaCacheType = $gigyaCacheType;
@@ -76,7 +75,8 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     /**
      * Method callCmsHook
      */
-    public function callCmsHook() {
+    public function callCmsHook()
+    {
         /** @var ObjectManagerInterface $om */
         $om = ObjectManager::getInstance();
         /** @var ManagerInterface $manager */
@@ -93,9 +93,20 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     /**
      * @param \Magento\Customer\Model\Data\Customer $account
      */
-    public function setAccountValues(&$account) {
-    	$gigyaMapping = $this->getGigyaMapping();
-        $magentoBillingAddress = $account->getDefaultBillingAddress();
+    public function setAccountValues(&$account)
+    {
+        $gigyaMapping = $this->getGigyaMapping();
+        $magentoBillingAddressId = $account->getDefaultBilling();
+        try {
+            $magentoBillingAddress = $this->addressRepository->getById($magentoBillingAddressId);
+        } catch (\Exception $ex) {
+            $this->logger->error($ex->__toString());
+            $magentoBillingAddress = false;
+        }
+
+        if (null === $magentoBillingAddress) {
+            $magentoBillingAddress = false;
+        }
 
         if ($magentoBillingAddress === false) {
             $isBillingAddressNew = true;
@@ -111,12 +122,12 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
 
             /* If no value found, log and skip field */
             if (is_null($value)) {
-                $this->logger->info( __FUNCTION__ . ": Value for {$gigyaName} not found in Gigya user object for Magento user {$account->getId()}. Check your field mapping configuration");
+                $this->logger->info(__FUNCTION__ . ": Value for {$gigyaName} not found in Gigya user object for Magento user {$account->getId()}. Check your field mapping configuration");
                 continue;
             }
 
             foreach ($confs as $conf) {
-    	        $mageKey = $conf->getCmsName();     // e.g: mageKey = prefix
+                $mageKey = $conf->getCmsName();     // e.g: mageKey = prefix
                 $value   = $this->castValue($value, $conf);
 
                 if (gettype($value) == "boolean") {
@@ -154,9 +165,9 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
 
                 $magentoBillingAddress->setCustomerId($account->getId());
 
-                /** @var \Magento\Customer\Model\Backend\Customer $account */
+                /** @var \Magento\Customer\Model\Data\Customer $account */
                 $this->addressRepository->save($magentoBillingAddress);
-                $account->cleanAllAddresses();
+//                $account->cleanAllAddresses();
                 $account->setDefaultBilling($magentoBillingAddress->getId());
 
                 if (is_null($account->getDefaultShipping())) {
@@ -168,8 +179,13 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
                 $this->logger->debug("Failed to import customer address data: " . $e->getMessage());
             }
         } else {
-            $magentoBillingAddress->save();
-            $account->cleanAllAddresses();
+            try {
+                $this->addressRepository->save($magentoBillingAddress);
+            } catch (\Exception $ex) {
+                $this->logger->error($ex->__toString());
+            }
+
+//            $account->cleanAllAddresses();
         }
     }
 
@@ -178,7 +194,8 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
      * @param bool $gigya_bool
      * @return string $magento_bool
      */
-    protected function transformGigyaToMagentoBoolean($gigya_bool) {
+    protected function transformGigyaToMagentoBoolean($gigya_bool)
+    {
         if ($gigya_bool == true) {
             $magento_bool = '1';
         } else {
@@ -187,31 +204,31 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         return $magento_bool;
     }
 
-	/**
-	 * Nothing done here. This method exists for interface compatibility with php_cms_kit (aka cms-starter-kit) module
-	 *
-	 * Save will be performed by CATODO
-	 *
-	 * Reasons is : retry on M2 update
-	 *
-	 * @param $cmsAccount
-	 * @param $cmsAccountSaver
-	 */
+    /**
+     * Nothing done here. This method exists for interface compatibility with php_cms_kit (aka cms-starter-kit) module
+     *
+     * Save will be performed by CATODO
+     *
+     * Reasons is : retry on M2 update
+     *
+     * @param $cmsAccount
+     * @param $cmsAccountSaver
+     */
     public function saveCmsAccount(&$cmsAccount, $cmsAccountSaver = null)
     {
     }
 
-	/**
-	 * @param boolean     $skipCache
-	 *
-	 * @throws \Exception
-	 */
+    /**
+     * @param boolean     $skipCache
+     *
+     * @throws \Exception
+     */
     public function retrieveFieldMappings($skipCache = false)
     {
-    	$conf = false;
-    	if (!$skipCache) {
-        	$conf = $this->getMappingFromCache();
-		}
+        $conf = false;
+        if (!$skipCache) {
+            $conf = $this->getMappingFromCache();
+        }
 
         if ($conf === false) {
             $mappingJson = file_get_contents($this->getPath());
@@ -223,8 +240,8 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
             $conf = new fieldMapping\Conf($mappingJson);
 
             if (!$skipCache) {
-            	$this->setMappingCache($conf);
-			}
+                $this->setMappingCache($conf);
+            }
         }
 
         $this->setGigyaMapping($conf->getGigyaKeyed());
@@ -242,8 +259,12 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         if (!$this->gigyaCacheType->test(CacheType::CACHE_TAG)) {
             $this->confMapping = $mappingConf;
         } else {
-            $this->gigyaCacheType->save(serialize($mappingConf), CacheType::TYPE_IDENTIFIER, [CacheType::CACHE_TAG],
-                86400);
+            $this->gigyaCacheType->save(
+                serialize($mappingConf),
+                CacheType::TYPE_IDENTIFIER,
+                [CacheType::CACHE_TAG],
+                86400
+            );
         }
     }
 
