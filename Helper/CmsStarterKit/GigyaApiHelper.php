@@ -202,16 +202,17 @@ class GigyaApiHelper
 
 		$gigyaData = $this->sendApiCall('accounts.search', $params)->getData()->serialize();
 
-		foreach ($gigyaData['results'] as $userData) {
-			if (isset($userData['profile'])) {
-				$profileArray = $userData['profile'];
-				$gigyaUser = GigyaUserFactory::createGigyaUserFromArray($userData);
-				$gigyaProfile = GigyaUserFactory::createGigyaProfileFromArray($profileArray);
-				$gigyaUser->setProfile($gigyaProfile);
+        foreach ($gigyaData['results'] as $key => $userData) {
+            if (isset($userData['profile'])) {
+                $profileArray = $userData['profile'];
+                $gigyaUser = GigyaUserFactory::createGigyaUserFromArray($userData);
+                $gigyaProfile = GigyaUserFactory::createGigyaProfileFromArray($profileArray);
+                $gigyaUser->setProfile($gigyaProfile);
+                $gigyaUsers[] = $gigyaUser;
+            }
 
-				$gigyaUsers[] = $gigyaUser;
-			}
-		}
+            unset($gigyaData['results'][$key]);
+        }
 
 		if (!empty($gigyaData['nextCursorId'])) {
 			$cursorId = $gigyaData['nextCursorId'];
