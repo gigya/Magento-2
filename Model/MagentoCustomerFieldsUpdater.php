@@ -4,15 +4,16 @@ namespace Gigya\GigyaIM\Model;
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
-use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
-use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
-use Magento\Framework\Model\AbstractExtensibleModel;
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\Event\ManagerInterface;
-use Magento\Customer\Api\Data\AddressInterfaceFactory as AddressFactory;
+use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\AddressInterfaceFactory as AddressFactory;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
+use Magento\Framework\Model\AbstractExtensibleModel;
+use Magento\Framework\ObjectManagerInterface;
 
 /**
  * MagentoCustomerFieldsUpdater

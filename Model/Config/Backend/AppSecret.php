@@ -14,6 +14,8 @@ use Magento\Framework\Registry;
 
 class AppSecret extends Encrypted
 {
+    private Encryptor $encryptor;
+
     /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -44,6 +46,7 @@ class AppSecret extends Encrypted
             $resourceCollection,
             $data
         );
+        $this->encryptor = $encryptor;
     }
 
     /**
@@ -51,7 +54,7 @@ class AppSecret extends Encrypted
      */
     public function initEncryptor()
     {
-        $this->_encryptor->initEncryptor($this->getScope(), $this->getScopeId());
+        $this->encryptor->initEncryptor($this->getScope(), $this->getScopeId());
     }
 
     /**
