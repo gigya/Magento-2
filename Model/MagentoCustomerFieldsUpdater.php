@@ -168,7 +168,6 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
 
                 /** @var \Magento\Customer\Model\Data\Customer $account */
                 $this->addressRepository->save($magentoBillingAddress);
-//                $account->cleanAllAddresses();
                 $account->setDefaultBilling($magentoBillingAddress->getId());
 
                 if (is_null($account->getDefaultShipping())) {
@@ -185,8 +184,6 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
             } catch (\Exception $ex) {
                 $this->logger->error($ex->__toString());
             }
-
-//            $account->cleanAllAddresses();
         }
     }
 
