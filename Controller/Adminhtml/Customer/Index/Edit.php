@@ -10,6 +10,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
+use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\DataObjectFactory;
 use Magento\Backend\App\Action\Context;
@@ -107,7 +108,10 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
      */
     protected function initCurrentCustomer()
     {
-        $this->customerId = parent::initCurrentCustomer();
+        $this->customerId = (int)$this->getRequest()->getParam('id');
+        if ($this->customerId) {
+            $this->_coreRegistry->register(RegistryConstants::CURRENT_CUSTOMER_ID, $this->customerId);
+        }
 
         return $this->customerId;
     }

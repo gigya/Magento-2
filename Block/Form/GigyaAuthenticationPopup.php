@@ -31,9 +31,9 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
      */
     public function __construct(
         Context $context,
+        Config $config,
         array $data = [],
-        Json $serializer = null,
-        Config $config
+        Json $serializer = null
     ) {
         $this->config = $config;
 
@@ -65,7 +65,7 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
             $this->getLayout()->unsetElement('customer_form_register');
             $this->getLayout()->unsetElement('customer_edit');
         }
-        
+
         return parent::_toHtml();
     }
 }
