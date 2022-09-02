@@ -75,7 +75,7 @@ class Login extends AbstractLogin
      * @param CookieMetadataFactory $cookieMetadataFactory
      * @param LoginHelper $loginHelper
      * @param Extend $extendModel
-	 * @param JsonFactory $jsonFactory
+     * @param JsonFactory $jsonFactory
      */
     public function __construct(
         Context $context,
@@ -102,9 +102,11 @@ class Login extends AbstractLogin
         CookieManagerInterface $cookieManager,
         GigyaMageHelper $gigyaMageHelper,
         CookieMetadataFactory $cookieMetadataFactory,
-        LoginHelper $loginHelper,
         Extend $extendModel,
-		JsonFactory $jsonFactory
+        JsonFactory $jsonFactory,
+        Logger $logger,
+        JsonSerializer $jsonSerializer,
+        LoginHelper $loginHelper
     )
     {
         parent::__construct(
@@ -133,7 +135,9 @@ class Login extends AbstractLogin
             $gigyaMageHelper,
             $cookieMetadataFactory,
             $extendModel,
-			$jsonFactory
+            $jsonFactory,
+            $logger,
+            $jsonSerializer
         );
 
         $this->loginHelper = $loginHelper;
