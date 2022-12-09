@@ -7,7 +7,6 @@ use Gigya\GigyaIM\Logger\Logger;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultFactory;
-use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
@@ -15,8 +14,9 @@ use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Magento\Framework\DataObject;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
+use Magento\Framework\Stdlib\Cookie\FailureToSendException;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -31,22 +31,21 @@ use Magento\Customer\Model\Url as CustomerUrl;
 use Magento\Customer\Model\Registration;
 use Magento\Framework\Escaper;
 use Magento\Customer\Model\CustomerExtractor;
-use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
-use Magento\Framework\Exception\EmailNotConfirmedException;
-use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
 use Gigya\GigyaIM\Model\Session\Extend;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
+use Zend_Json_Decoder;
+use Zend_Json_Exception;
 
 class Login extends AbstractLogin
 {
     /**
      * @var LoginHelper
      */
-    protected $loginHelper;
+    protected LoginHelper $loginHelper;
 
     /**
      * @param Context $context
@@ -75,7 +74,9 @@ class Login extends AbstractLogin
      * @param CookieMetadataFactory $cookieMetadataFactory
      * @param LoginHelper $loginHelper
      * @param Extend $extendModel
-	 * @param JsonFactory $jsonFactory
+     * @param JsonFactory $jsonFactory
+     * @param Logger $logger
+     * @param JsonSerializer $jsonSerializer
      */
     public function __construct(
         Context $context,
@@ -104,9 +105,10 @@ class Login extends AbstractLogin
         CookieMetadataFactory $cookieMetadataFactory,
         LoginHelper $loginHelper,
         Extend $extendModel,
-		JsonFactory $jsonFactory
-    )
-    {
+		JsonFactory $jsonFactory,
+        Logger $logger,
+        JsonSerializer $jsonSerializer
+    ) {
         parent::__construct(
             $context,
             $customerSession,
@@ -133,7 +135,9 @@ class Login extends AbstractLogin
             $gigyaMageHelper,
             $cookieMetadataFactory,
             $extendModel,
-			$jsonFactory
+	    $jsonFactory,
+            $logger,
+            $jsonSerializer
         );
 
         $this->loginHelper = $loginHelper;
@@ -145,9 +149,9 @@ class Login extends AbstractLogin
 	 * @return ResponseInterface|\Magento\Framework\Controller\ResultInterface|mixed
 	 *
 	 * @throws InputException
-	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
-	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
-	 * @throws \Zend_Json_Exception
+	 * @throws CookieSizeLimitReachedException
+	 * @throws FailureToSendException
+	 * @throws Zend_Json_Exception
 	 */
 	public function execute()
 	{
@@ -163,7 +167,7 @@ class Login extends AbstractLogin
 			return $this->getJsonResponse(0);
 		} else {
 			$loginData = $this->getRequest()->getParam('login_data');
-			$loginDataObject = \Zend_Json_Decoder::decode($loginData);
+			$loginDataObject = Zend_Json_Decoder::decode($loginData);
 			$guid = isset($loginDataObject['UID']) ? $loginDataObject['UID'] : '';
 			$request = $this->getRequest();
 
@@ -203,18 +207,17 @@ class Login extends AbstractLogin
 	 * @return mixed
 	 *
 	 * @throws InputException
-	 * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
-	 * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+	 * @throws CookieSizeLimitReachedException
+	 * @throws FailureToSendException
 	 */
     protected function getJsonResponse($doReload, $errorMessage = '')
     {
-        if($doReload)
-        {
-            if($errorMessage)
-            {
+        if ($doReload) {
+            if ($errorMessage) {
                 $this->messageManager->addErrorMessage($errorMessage);
             }
         }
+
         $this->applyCookies();
         return $this->resultFactory
             ->create(ResultFactory::TYPE_JSON)
