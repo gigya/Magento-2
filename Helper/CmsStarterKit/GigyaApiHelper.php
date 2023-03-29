@@ -202,7 +202,7 @@ class GigyaApiHelper
     {
         $gigyaUsers = [];
 
-        if (is_array($query)) /* Query is actually a set of params. Useful for setting cursor ID instead of query */ {
+        if (is_array($query)) { /* Query is actually a set of params. Useful for setting cursor ID instead of query */
             $params = $query;
         } else {
             $params = ['query' => $query];

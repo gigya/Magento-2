@@ -174,76 +174,76 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * @param GigyaMageHelper $gigyaMageHelper
      * @param CookieMetadataFactory $cookieMetadataFactory
      * @param Extend $extendModel
-	 * @param JsonFactory $resultJsonFactory
+     * @param JsonFactory $resultJsonFactory
      * @param Logger $logger
      * @param JsonSerializer $jsonSerializer
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
-	public function __construct(
-		Context $context,
-		Session $customerSession,
-		ScopeConfigInterface $scopeConfig,
-		StoreManagerInterface $storeManager,
-		AccountManagementInterface $accountManagement,
-		Address $addressHelper,
-		UrlFactory $urlFactory,
-		FormFactory $formFactory,
-		SubscriberFactory $subscriberFactory,
-		RegionInterfaceFactory $regionDataFactory,
-		AddressInterfaceFactory $addressDataFactory,
-		CustomerInterfaceFactory $customerDataFactory,
-		CustomerUrl $customerUrl,
-		Registration $registration,
-		Escaper $escaper,
-		CustomerExtractor $customerExtractor,
-		DataObjectHelper $dataObjectHelper,
-		AccountRedirect $accountRedirect,
-		CustomerRepositoryInterface $customerRepository,
-		GigyaSyncHelper $gigyaSyncHelper,
-		Validator $formKeyValidator,
-		CookieManagerInterface $cookieManager,
-		GigyaMageHelper $gigyaMageHelper,
-		CookieMetadataFactory $cookieMetadataFactory,
-		Extend $extendModel,
+    public function __construct(
+        Context $context,
+        Session $customerSession,
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        AccountManagementInterface $accountManagement,
+        Address $addressHelper,
+        UrlFactory $urlFactory,
+        FormFactory $formFactory,
+        SubscriberFactory $subscriberFactory,
+        RegionInterfaceFactory $regionDataFactory,
+        AddressInterfaceFactory $addressDataFactory,
+        CustomerInterfaceFactory $customerDataFactory,
+        CustomerUrl $customerUrl,
+        Registration $registration,
+        Escaper $escaper,
+        CustomerExtractor $customerExtractor,
+        DataObjectHelper $dataObjectHelper,
+        AccountRedirect $accountRedirect,
+        CustomerRepositoryInterface $customerRepository,
+        GigyaSyncHelper $gigyaSyncHelper,
+        Validator $formKeyValidator,
+        CookieManagerInterface $cookieManager,
+        GigyaMageHelper $gigyaMageHelper,
+        CookieMetadataFactory $cookieMetadataFactory,
+        Extend $extendModel,
         JsonFactory $resultJsonFactory,
         Logger $logger,
         JsonSerializer $jsonSerializer
-	) {
-		$this->session = $customerSession;
-		$this->scopeConfig = $scopeConfig;
-		$this->storeManager = $storeManager;
-		$this->accountManagement = $accountManagement;
-		$this->addressHelper = $addressHelper;
-		$this->formFactory = $formFactory;
-		$this->subscriberFactory = $subscriberFactory;
-		$this->regionDataFactory = $regionDataFactory;
-		$this->addressDataFactory = $addressDataFactory;
-		$this->customerDataFactory = $customerDataFactory;
-		$this->customerUrl = $customerUrl;
-		$this->registration = $registration;
-		$this->escaper = $escaper;
-		$this->customerExtractor = $customerExtractor;
-		$this->urlModel = $urlFactory->create();
-		$this->dataObjectHelper = $dataObjectHelper;
-		$this->accountRedirect = $accountRedirect;
-		parent::__construct($context);
-		$this->gigyaMageHelper = $gigyaMageHelper;
-		$this->customerRepository = $customerRepository;
-		$this->gigyaSyncHelper = $gigyaSyncHelper;
-		$this->formKeyValidator = $formKeyValidator;
-		$this->cookieManager = $cookieManager;
-		$this->cookieMetadataFactory = $cookieMetadataFactory;
-		$this->storeManager = $storeManager;
-		$this->extendModel = $extendModel;
+    ) {
+        $this->session = $customerSession;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
+        $this->accountManagement = $accountManagement;
+        $this->addressHelper = $addressHelper;
+        $this->formFactory = $formFactory;
+        $this->subscriberFactory = $subscriberFactory;
+        $this->regionDataFactory = $regionDataFactory;
+        $this->addressDataFactory = $addressDataFactory;
+        $this->customerDataFactory = $customerDataFactory;
+        $this->customerUrl = $customerUrl;
+        $this->registration = $registration;
+        $this->escaper = $escaper;
+        $this->customerExtractor = $customerExtractor;
+        $this->urlModel = $urlFactory->create();
+        $this->dataObjectHelper = $dataObjectHelper;
+        $this->accountRedirect = $accountRedirect;
+        parent::__construct($context);
+        $this->gigyaMageHelper = $gigyaMageHelper;
+        $this->customerRepository = $customerRepository;
+        $this->gigyaSyncHelper = $gigyaSyncHelper;
+        $this->formKeyValidator = $formKeyValidator;
+        $this->cookieManager = $cookieManager;
+        $this->cookieMetadataFactory = $cookieMetadataFactory;
+        $this->storeManager = $storeManager;
+        $this->extendModel = $extendModel;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->jsonSerializer = $jsonSerializer;
         $this->logger = $logger;
 
-		$this->cookies = [];
-		$this->cookiesToDelete = [];
-		$this->messageStorage = [];
-	}
+        $this->cookies = [];
+        $this->cookiesToDelete = [];
+        $this->messageStorage = [];
+    }
 
     /**
      * @param \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user
@@ -260,10 +260,12 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             $message = __('The user is not validated. Please try again or contact support.');
             $this->logger->debug('Login failed: ' . $message);
             $this->addError($message);
-            return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
-                ['login_successful' => false]);
-        } // we have a valid gigya user. verify that required fields exist
-        else {
+            return $redirect = $this->encapsulateResponse(
+                $this->accountRedirect->getRedirect(),
+                ['login_successful' => false]
+            );
+            // we have a valid gigya user. verify that required fields exist
+        } else {
             $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
 
             if (!empty($required_field_message)) {
@@ -286,7 +288,8 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                     $loginSuccess = $this->gigyaLoginUser($customer);
                     $this->customerRepository->save($customer);
                     $redirect = $this->encapsulateResponse(
-                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]
+                        $this->accountRedirect->getRedirect(),
+                        ['login_successful' => $loginSuccess]
                     );
                 } else {
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
@@ -298,7 +301,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                     "customer" => $customer,
                     "accountManagement" => $this->accountManagement
                 ]);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->addError($e->getMessage());
                 $this->logger->debug('Failed to login customer: ' . $e->getMessage());
                 $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
@@ -453,7 +456,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                 'Failed to create Magento customer: ' . $this->jsonSerializer->serialize($e->getErrors())
             );
         } catch (\Exception $e) {
-            $this->incrementLoginRetryCounter();;
+            $this->incrementLoginRetryCounter();
             $message = __('We can\'t save the customer. ') . $e->getMessage();
             $this->logger->debug('Failed to create Magento customer: ' . $message);
             $this->addError($message);
@@ -477,7 +480,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
         return new DataObject([
             self::RESPONSE_OBJECT => (is_string($url) ?
                 $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setUrl($url) :
-				(is_object($url) ? $url : null)),
+                (is_object($url) ? $url : null)),
             self::RESPONSE_DATA => $additionalData
         ]);
     }
@@ -491,8 +494,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected function encapsulateResponse($resultRedirect, $additionalData = [])
     {
         $url = null;
-        if($resultRedirect instanceof Redirect)
-        {
+        if ($resultRedirect instanceof Redirect) {
             $response = serialize($this->getResponse());
             $response = unserialize($response);
 
@@ -500,18 +502,15 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             $header = $response->getHeader('Location');
             $response->clearHeader('Location');
             /* @var $header \Zend\Http\Header\Location */
-            if($header)
-            {
+            if ($header) {
                 $url = $header->getUri();
             }
-        }
-        else
-        if($resultRedirect instanceof Forward)
-        {
+        } elseif ($resultRedirect instanceof Forward) {
             $request = $this->getRequest();
             $url = $this->urlModel->getUrl(
                 sprintf('%s/%s/%s', $request->getModuleName(), $request->getControllerName(), $request->getActionName()),
-                $request->getParams());
+                $request->getParams()
+            );
 
         }
         $additionalData['location'] = $url;
@@ -558,8 +557,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected function getCookie($name, $defaultValue)
     {
         $defaultValue = (int) $this->cookieManager->getCookie($name, $defaultValue);
-        if(!isset($this->cookies[$name]))
-        {
+        if (!isset($this->cookies[$name])) {
             $this->cookies[$name] = $defaultValue;
         }
         return $this->cookies[$name];
@@ -595,35 +593,34 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     protected function deleteLoginRetryCounter()
     {
         $this->cookiesToDelete[self::RETRY_COOKIE_NAME] = true;
-        if(isset($this->cookies[self::RETRY_COOKIE_NAME]))
-        {
+        if (isset($this->cookies[self::RETRY_COOKIE_NAME])) {
             unset($this->cookies[self::RETRY_COOKIE_NAME]);
         }
         return $this;
     }
 
-	/**
-	 * @return $this
-	 *
-	 * @throws CookieSizeLimitReachedException
-	 * @throws FailureToSendException
-	 * @throws InputException
-	 */
-	protected function applyCookies()
-	{
-		$metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
+    /**
+     * @return $this
+     *
+     * @throws CookieSizeLimitReachedException
+     * @throws FailureToSendException
+     * @throws InputException
+     */
+    protected function applyCookies()
+    {
+        $metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
 
-		$metadata->setDuration(60)->setPath($this->storeManager->getStore()->getStorePath());
-		foreach ($this->cookies as $name => $value) {
-			if (isset($this->cookiesToDelete[$name])) {
-				$this->cookieManager->deleteCookie($name);
-			} else {
-				$this->cookieManager->setPublicCookie($name, $value, $metadata);
-			}
-		}
+        $metadata->setDuration(60)->setPath($this->storeManager->getStore()->getStorePath());
+        foreach ($this->cookies as $name => $value) {
+            if (isset($this->cookiesToDelete[$name])) {
+                $this->cookieManager->deleteCookie($name);
+            } else {
+                $this->cookieManager->setPublicCookie($name, $value, $metadata);
+            }
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * @param string $message
@@ -650,8 +647,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      */
     protected function addMessage($message, $type)
     {
-        if(!isset($this->messageStorage[$type]))
-        {
+        if (!isset($this->messageStorage[$type])) {
             $this->messageStorage[$type] = [];
         }
         $this->messageStorage[$type][] = $message;
@@ -660,11 +656,9 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
     protected function applyMessages()
     {
-        foreach($this->messageStorage as $type => $messages)
-        {
-            foreach($messages as $message)
-            {
-                switch($type) {
+        foreach ($this->messageStorage as $type => $messages) {
+            foreach ($messages as $message) {
+                switch ($type) {
                     case \Magento\Framework\Message\MessageInterface::TYPE_SUCCESS:
                         $this->messageManager->addSuccessMessage($message);
                         break;

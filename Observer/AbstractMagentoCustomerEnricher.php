@@ -144,7 +144,8 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      * @param $gigyaAccountLoggingEmail string
      * @return boolean Whether the enrichment can go on or not. Default is true.
      */
-    protected function processEventMapGigyaToMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
+    protected function processEventMapGigyaToMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
+    {
 
         // Ignore : enrichment shall not fail on third party code exception
         $this->logger->warning(
@@ -160,19 +161,19 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
         return true;
     }
 
-	/**
-	 * Given a Magento customer, retrieves the corresponding Gigya account data from the Gigya service.
-	 *
-	 * @param $magentoCustomer
-	 *
-	 * @return array [
-	 *                  'gigya_user' => GigyaUser : the data from the Gigya service
-	 *                  'gigya_logging_email' => string : the email for logging as set on this Gigya account
-	 *               ]
-	 *
-	 * @throws GSException
-	 * @throws \Magento\Framework\Exception\LocalizedException
-	 */
+    /**
+     * Given a Magento customer, retrieves the corresponding Gigya account data from the Gigya service.
+     *
+     * @param $magentoCustomer
+     *
+     * @return array [
+     *                  'gigya_user' => GigyaUser : the data from the Gigya service
+     *                  'gigya_logging_email' => string : the email for logging as set on this Gigya account
+     *               ]
+     *
+     * @throws GSException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     protected function getGigyaDataForEnrichment($magentoCustomer)
     {
         $gigyaAccountData = $this->gigyaAccountRepository->get($magentoCustomer->getGigyaUid());
@@ -190,16 +191,16 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      * @param $magentoCustomer Customer
      * @param $gigyaAccountData GigyaUser
      * @param $gigyaAccountLoggingEmail string
-	 *
+     *
      * @return Customer The updated Magento customer entity.
-	 *
+     *
      * @throws \Exception
      */
     protected function enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
     {
-		if (is_null($gigyaAccountData)) {
-			return $magentoCustomer;
-		}
+        if (null === $gigyaAccountData) {
+            return $magentoCustomer;
+        }
 
         $this->logger->debug("Enriching Magento customer with Gigya data");
 
@@ -217,8 +218,12 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getId()
             ]);
-            if (!$this->processEventMapGigyaToMagentoException($e, $magentoCustomer, $gigyaAccountData,
-                $gigyaAccountLoggingEmail)
+            if (!$this->processEventMapGigyaToMagentoException(
+                $e,
+                $magentoCustomer,
+                $gigyaAccountData,
+                $gigyaAccountLoggingEmail
+            )
             ) {
                 throw new GigyaFieldMappingException($e);
             }
@@ -227,37 +232,38 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
         return $magentoCustomer;
     }
 
-	/**
-	 * Saves the Customer entity in database
-	 *
-	 * @param \Magento\Customer\Model\Backend\Customer $magentoCustomer $magentoCustomer
-	 *
-	 * @throws \Magento\Framework\Exception\InputException
-	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Magento\Framework\Exception\State\InputMismatchException
-	 */
-    public function saveMagentoCustomer($magentoCustomer) {
+    /**
+     * Saves the Customer entity in database
+     *
+     * @param \Magento\Customer\Model\Backend\Customer $magentoCustomer $magentoCustomer
+     *
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\State\InputMismatchException
+     */
+    public function saveMagentoCustomer($magentoCustomer)
+    {
         $this->customerRepository->save($magentoCustomer->getDataModel());
     }
 
-	/**
-	 * Will synchronize Magento account entity with Gigya account if needed.
-	 *
-	 * @param Observer $observer
-	 *
-	 * @return void
-	 *
-	 * @throws GSException
-	 * @throws \Exception
-	 * @throws \Magento\Framework\Exception\InputException
-	 * @throws \Magento\Framework\Exception\LocalizedException
-	 * @throws \Magento\Framework\Exception\State\InputMismatchException
-	 */
+    /**
+     * Will synchronize Magento account entity with Gigya account if needed.
+     *
+     * @param Observer $observer
+     *
+     * @return void
+     *
+     * @throws GSException
+     * @throws \Exception
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\State\InputMismatchException
+     */
     public function execute(Observer $observer)
     {
         $this->logger->debug("Update customer Gigya => Magento on event " . $observer->getEvent()->getName());
 
-		/** @var \Magento\Customer\Model\Backend\Customer $magentoCustomer */
+        /** @var \Magento\Customer\Model\Backend\Customer $magentoCustomer */
         $magentoCustomer = $observer->getData('customer');
         if (empty($magentoCustomer->getGigyaAccountEnriched())) {
             $magentoCustomer->setGigyaAccountEnriched(false);
@@ -271,7 +277,8 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
             try {
                 $gigyaData = $this->getGigyaDataForEnrichment($magentoCustomer);
                 $magentoCustomer = $this->enrichMagentoCustomerWithGigyaData(
-                    $magentoCustomer, $gigyaData['gigya_user'],
+                    $magentoCustomer,
+                    $gigyaData['gigya_user'],
                     $gigyaData['gigya_logging_email']
                 );
                 $magentoCustomer->setGigyaAccountEnriched(true);
@@ -289,11 +296,13 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
                 } finally {
                     // If the synchro to Gigya was not already disabled we re-enable it
                     if (!$excludeSyncCms2G) {
-                        $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($magentoCustomer->getId(),
-                            GigyaSyncHelper::DIR_CMS2G);
+                        $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync(
+                            $magentoCustomer->getId(),
+                            GigyaSyncHelper::DIR_CMS2G
+                        );
                     }
                 }
-            } catch(GSApiException $e) {
+            } catch (GSApiException $e) {
                 $this->logger->error('Could not update Magento customer account with Gigya data due to Gigya service call error', [
                     'customer_entity_id' => $magentoCustomer->getEntityId(),
                     'gigya_uid' => $magentoCustomer->getGigyaUid(),

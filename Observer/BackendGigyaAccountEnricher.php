@@ -51,7 +51,7 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
         GigyaLogger $logger,
         MessageManager $messageManager,
         GigyaFromMagento $gigyaFromMagento,
-		GigyaConfig $config,
+        GigyaConfig $config,
         EnricherCustomerRegistry $enricherCustomerRegistry,
         CustomerResourceModel $customerResourceModel,
         CustomerFactory $customerFactory
@@ -71,14 +71,15 @@ class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
         $this->messageManager = $messageManager;
     }
 
-	/**
+    /**
      * @inheritdoc
      *
      * Display a warning and returns false to prevent enrichment process to go on : we want to cancel it.
      *
      * @return false
      */
-    protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail) {
+    protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
+    {
         parent::processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail);
 
         $this->messageManager->addWarningMessage("Error on synchronizing data to Gigya. User profile didn't update. Please verify mapping fields between Gigya and Magento.");

@@ -33,8 +33,8 @@ class RetryMagentoCustomerFieldsUpdater extends MagentoCustomerFieldsUpdater
 
     /**
      * @inheritdoc
-	 *
-	 * @param fieldMapping\Conf $mappingConf
+     *
+     * @param fieldMapping\Conf $mappingConf
      *
      * Builds $this->retryConfMapping based on the $mappingConf param, but with inversion of the mapping directions : cms2g becomes g2cms and vice-versa.
      * In turns this is this object that we set on parent::setMappingCache, instead of $mappingConf.
@@ -46,11 +46,11 @@ class RetryMagentoCustomerFieldsUpdater extends MagentoCustomerFieldsUpdater
         foreach ($newMappingConf as &$entry) {
             if (array_key_exists('direction', $entry)) {
                 switch ($entry['direction']) {
-                    case 'cms2g' :
+                    case 'cms2g':
                         $entry['direction'] = 'g2cms';
                         break;
 
-                    case 'g2cms' :
+                    case 'g2cms':
                         $entry['direction'] = 'cms2g';
                         break;
                 }
@@ -67,12 +67,12 @@ class RetryMagentoCustomerFieldsUpdater extends MagentoCustomerFieldsUpdater
      *
      * The $gigyaMapping param is ignored : we call parent::setGigyaMapping with our own retrieved from $this->retryConfMapping->getGigyaKeyed()
      */
-	public function setGigyaMapping($gigyaMapping)
-	{
-		if (!empty($this->retryConfMapping)) {
-			$gigyaMapping = $this->retryConfMapping->getGigyaKeyed();
-		}
+    public function setGigyaMapping($gigyaMapping)
+    {
+        if (!empty($this->retryConfMapping)) {
+            $gigyaMapping = $this->retryConfMapping->getGigyaKeyed();
+        }
 
-		parent::setGigyaMapping($gigyaMapping);
-	}
+        parent::setGigyaMapping($gigyaMapping);
+    }
 }

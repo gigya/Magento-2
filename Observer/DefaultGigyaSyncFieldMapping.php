@@ -20,59 +20,59 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
  */
 class DefaultGigyaSyncFieldMapping implements ObserverInterface
 {
-	/** @var GigyaConfig */
-	protected $config;
+    /** @var GigyaConfig */
+    protected $config;
 
-	public function __construct(GigyaConfig $config) {
-		$this->config = $config;
-	}
+    public function __construct(GigyaConfig $config)
+    {
+        $this->config = $config;
+    }
 
-	/**
+    /**
      * Method execute
      *
      * @param Observer $observer
-	 *
-	 * @throws \Zend_Date_Exception
+     *
+     * @throws \Zend_Date_Exception
      */
     public function execute(Observer $observer)
     {
-    	if ($this->config->isGigyaEnabled())
-		{
-			/** @var GigyaUser $gigyaUser */
-			$gigyaUser = $observer->getData('gigya_user');
+        if ($this->config->isGigyaEnabled()) {
+            /** @var GigyaUser $gigyaUser */
+            $gigyaUser = $observer->getData('gigya_user');
 
-			/** @var Customer $magentoCustomer */
-			$magentoCustomer = $observer->getData('customer');
-			/** @var GigyaProfile $gigyaProfile */
-			$gigyaProfile = $gigyaUser->getProfile();
+            /** @var Customer $magentoCustomer */
+            $magentoCustomer = $observer->getData('customer');
+            /** @var GigyaProfile $gigyaProfile */
+            $gigyaProfile = $gigyaUser->getProfile();
 
-			// 'Translate' the gender code from Magento to Gigya value
-			switch($magentoCustomer->getGender()) {
-				case 1:
-					$gigyaProfile->setGender('m');
-					break;
+            // 'Translate' the gender code from Magento to Gigya value
+            switch ($magentoCustomer->getGender()) {
+                case 1:
+                    $gigyaProfile->setGender('m');
+                    break;
 
-				case 2:
-					$gigyaProfile->setGender('f');
-					break;
+                case 2:
+                    $gigyaProfile->setGender('f');
+                    break;
 
-				default:
-					$gigyaProfile->setGender('u');
-			}
+                default:
+                    $gigyaProfile->setGender('u');
+            }
 
-			// 'Translate' the date of birth code from Gigya to Magento value
-			$dob = $magentoCustomer->getDob();
+            // 'Translate' the date of birth code from Gigya to Magento value
+            $dob = $magentoCustomer->getDob();
 
-			if ($dob !== null && trim($dob) !== '') {
-				$date = new \Zend_Date($dob, 'YYYY-MM-dd');
-				$birthYear = (int)$date->get(\Zend_Date::YEAR);
-				$birthMonth = (int)$date->get(\Zend_Date::MONTH);
-				$birthDay = (int)$date->get(\Zend_Date::DAY);
+            if ($dob !== null && trim($dob) !== '') {
+                $date = new \Zend_Date($dob, 'YYYY-MM-dd');
+                $birthYear = (int)$date->get(\Zend_Date::YEAR);
+                $birthMonth = (int)$date->get(\Zend_Date::MONTH);
+                $birthDay = (int)$date->get(\Zend_Date::DAY);
 
-				$gigyaProfile->setBirthDay($birthDay);
-				$gigyaProfile->setBirthMonth($birthMonth);
-				$gigyaProfile->setBirthYear($birthYear);
-			}
-		}
+                $gigyaProfile->setBirthDay($birthDay);
+                $gigyaProfile->setBirthMonth($birthMonth);
+                $gigyaProfile->setBirthYear($birthYear);
+            }
+        }
     }
 }

@@ -56,25 +56,25 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /** @var int */
     private $maxGigyaUpdateRetryCount;
 
-	/**
-	 * RetryGigyaSyncHelper constructor.
-	 *
-	 * @param Context $helperContext
-	 * @param MessageManager $messageManager
-	 * @param CustomerRepositoryInterface $customerRepository
-	 * @param SearchCriteriaBuilder $searchCriteriaBuilder
-	 * @param FilterBuilder $filterBuilder
-	 * @param FilterGroupBuilder $filterGroupBuilder
-	 * @param StoreManagerInterface $storeManager
-	 * @param Session $customerSession
-	 * @param AppState $state
-	 * @param Share $shareConfig
-	 * @param Context $context
-	 * @param GigyaLogger $logger
-	 * @param ResourceConnection $resourceConnection
-	 * @param ConnectionFactory $connectionFactory
-	 * @param GigyaMageHelper $gigyaMageHelper
-	 */
+    /**
+     * RetryGigyaSyncHelper constructor.
+     *
+     * @param Context $helperContext
+     * @param MessageManager $messageManager
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
+     * @param FilterGroupBuilder $filterGroupBuilder
+     * @param StoreManagerInterface $storeManager
+     * @param Session $customerSession
+     * @param AppState $state
+     * @param Share $shareConfig
+     * @param Context $context
+     * @param GigyaLogger $logger
+     * @param ResourceConnection $resourceConnection
+     * @param ConnectionFactory $connectionFactory
+     * @param GigyaMageHelper $gigyaMageHelper
+     */
     public function __construct(
         HelperContext $helperContext,
         MessageManager $messageManager,
@@ -91,8 +91,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         ResourceConnection $resourceConnection,
         ConnectionFactory $connectionFactory,
         GigyaMageHelper $gigyaMageHelper
-    )
-    {
+    ) {
         parent::__construct(
             $helperContext,
             $messageManager,
@@ -121,8 +120,9 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      */
     public function getMagentoCustomerAndLoggingEmail($gigyaAccount)
     {
-    	if (empty($gigyaAccount))
-    		return null;
+        if (empty($gigyaAccount)) {
+            return null;
+        }
 
         $magentoCustomer = null;
         $customerEntityId = $gigyaAccount->getCustomerEntityId();
@@ -138,8 +138,8 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         try {
             $magentoCustomer = $this->customerRepository->getById($customerEntityId);
         } catch (NoSuchEntityException $e) {
-		} catch (LocalizedException $e) {
-		} finally {
+        } catch (LocalizedException $e) {
+        } finally {
             // If the synchro from Gigya was not already disabled we re-enable it
             if (!$excludeSyncG2Cms) {
                 $this->undoExcludeCustomerIdFromSync($magentoCustomer->getId(), GigyaSyncHelper::DIR_G2CMS);
@@ -181,15 +181,16 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *
      * @param $origin string self::ORIGIN_GIGYA or self::ORIGIN_CMS or null (in that case no check is made on the entry origin)
      * @param int $customerEntityId
-	 *
+     *
      * @return int -1 if no retry is currently scheduled, the retry count otherwise.
-	 *
+     *
      * @throws RetryGigyaException
      */
     public function getCurrentRetryCount($origin, $customerEntityId)
     {
-    	if (empty($customerEntityId))
-    		return -1;
+        if (empty($customerEntityId)) {
+            return -1;
+        }
 
         if ($origin != null && $origin != self::ORIGIN_GIGYA && $origin != self::ORIGIN_CMS) {
             throw new RetryGigyaException('Origin value should be within ['.self::ORIGIN_GIGYA.', '.self::ORIGIN_CMS.']');
@@ -222,7 +223,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * @param $origin string self::ORIGIN_GIGYA or self::ORIGIN_CMS or null (in that case no check is made on the entry origin)
      * @param $uid string Default is null. If not null will get the unique entry scheduled for this Gigya uid.
      * @param $getGigyaData bool Default is false. If not false will include the Gigya data stored on this entry.
-	 *
+     *
      * @return array [
      *                 'customer_entity_id' : int,
      *                 'customer_entity_email' : string,
@@ -230,7 +231,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      *                 'retry_count' : int
      *                 (if $getGigyaData == true) 'data' : json string
      *               ]
-	 *
+     *
      * @throws RetryGigyaException
      */
     public function getRetryEntries($origin, $uid = null, $getGigyaData = false)
@@ -258,7 +259,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
 
         $selectRetryRows = $this->connection
             ->select()
-	        ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
+            ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns($columns);
 
@@ -379,8 +380,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         $customerEntityId,
         $successMessage = null,
         $failureMessage = null
-    )
-    {
+    ) {
         if ($origin != null && $origin != self::ORIGIN_GIGYA && $origin != self::ORIGIN_CMS) {
             throw new RetryGigyaException('Origin value should be within ['.self::ORIGIN_GIGYA.', '.self::ORIGIN_CMS.']');
         }
@@ -395,7 +395,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
                 }
                 $this->connection->delete(
                     'gigya_sync_retry',
-                     $where
+                    $where
                 );
                 if (!is_null($successMessage)) {
                     $this->logger->info(
@@ -447,7 +447,8 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * @return void
      * @throws RetryGigyaException
      */
-    public function scheduleRetry($origin, $customerEntityId, $customerEntityEmail, $gigyaAccountData, $message) {
+    public function scheduleRetry($origin, $customerEntityId, $customerEntityEmail, $gigyaAccountData, $message)
+    {
 
         if ($origin != self::ORIGIN_GIGYA && $origin != self::ORIGIN_CMS) {
             throw new RetryGigyaException('Origin value should be within ['.self::ORIGIN_GIGYA.', '.self::ORIGIN_CMS.']');
@@ -500,7 +501,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             }
 
             $this->commit();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->rollBack();
             $this->logger->critical(
                 'Could not log retry entry for '.$origin.'. No automatic retry will be performed on it.',

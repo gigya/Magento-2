@@ -9,35 +9,36 @@ use Magento\Widget\Block\BlockInterface;
 
 class CustomScreenSet extends Template implements BlockInterface
 {
-	protected $_template = "gigya_custom_screenset.phtml";
-	protected $serializer;
-	protected $config;
+    protected $_template = "gigya_custom_screenset.phtml";
+    protected $serializer;
+    protected $config;
 
-	public function __construct(
-		Template\Context $context,
-		SerializerInterface $serializer,
-		GigyaConfig $config,
-		array $data = []
-	) {
-		parent::__construct($context, $data);
+    public function __construct(
+        Template\Context $context,
+        SerializerInterface $serializer,
+        GigyaConfig $config,
+        array $data = []
+    ) {
+        parent::__construct($context, $data);
 
-		$this->serializer = $serializer;
-		$this->config = $config;
-	}
+        $this->serializer = $serializer;
+        $this->config = $config;
+    }
 
-	/**
-	 * @param $desktopScreenSet
-	 *
-	 * @return array|false
-	 */
-	public function getScreenSetConfig($desktopScreenSet) {
-		$screenSets = $this->serializer->unserialize($this->config->getCustomScreensets());
-		foreach ($screenSets as $screenSet) {
-			if ($screenSet['desktop_screen'] == $desktopScreenSet) {
-				return $screenSet;
-			}
-		}
+    /**
+     * @param $desktopScreenSet
+     *
+     * @return array|false
+     */
+    public function getScreenSetConfig($desktopScreenSet)
+    {
+        $screenSets = $this->serializer->unserialize($this->config->getCustomScreensets());
+        foreach ($screenSets as $screenSet) {
+            if ($screenSet['desktop_screen'] == $desktopScreenSet) {
+                return $screenSet;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

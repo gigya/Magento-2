@@ -97,6 +97,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     public function setAccountValues(&$account)
     {
         $gigyaMapping = $this->getGigyaMapping();
+        $this->logger->info('account data', ['data' => $account]);
         $magentoBillingAddressId = $account->getDefaultBilling();
         try {
             $magentoBillingAddress = $this->addressRepository->getById($magentoBillingAddressId);
@@ -157,11 +158,11 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
                 $lastname = $magentoBillingAddress->getLastname();
 
                 if (empty($firstname)) {
-                    $magentoBillingAddress->setData('firstname', $account->getData('firstname'));
+                    $magentoBillingAddress->setData('firstname', $account->getFirstname());
                 }
 
                 if (empty($lastname)) {
-                    $magentoBillingAddress->setData('lastname', $account->getData('lastname'));
+                    $magentoBillingAddress->setData('lastname', $account->getLastname());
                 }
 
                 $magentoBillingAddress->setCustomerId($account->getId());

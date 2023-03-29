@@ -58,19 +58,19 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
      */
     protected $resultJsonFactory;
 
-	/**
-	 * @param Context                     $context
-	 * @param Session                     $customerSession
-	 * @param AccountManagementInterface  $customerAccountManagement
-	 * @param CustomerRepositoryInterface $customerRepository
-	 * @param GigyaSyncHelper             $gigyaSyncHelper
-	 * @param Validator                   $formKeyValidator
-	 * @param CustomerExtractor           $customerExtractor
-	 * @param GigyaConfig                 $config
-	 * @param GigyaMageHelper             $gigyaMageHelper
-	 * @param GigyaLogger                 $logger
-	 * @param ResultJsonFactory           $resultJsonFactory
-	 */
+    /**
+     * @param Context                     $context
+     * @param Session                     $customerSession
+     * @param AccountManagementInterface  $customerAccountManagement
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param GigyaSyncHelper             $gigyaSyncHelper
+     * @param Validator                   $formKeyValidator
+     * @param CustomerExtractor           $customerExtractor
+     * @param GigyaConfig                 $config
+     * @param GigyaMageHelper             $gigyaMageHelper
+     * @param GigyaLogger                 $logger
+     * @param ResultJsonFactory           $resultJsonFactory
+     */
     public function __construct(
         Context $context,
         Session $customerSession,
@@ -81,10 +81,9 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
         CustomerExtractor $customerExtractor,
         GigyaConfig $config,
         GigyaMageHelper $gigyaMageHelper,
-		GigyaLogger $logger,
+        GigyaLogger $logger,
         ResultJsonFactory $resultJsonFactory
-    )
-    {
+    ) {
         parent::__construct(
             $context,
             $customerSession,

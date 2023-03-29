@@ -59,8 +59,16 @@ class GigyaRegister extends Register
     ) {
         $this->configModel = $configModel;
         parent::__construct(
-            $context, $directoryHelper, $jsonEncoder, $configCacheType, $regionCollectionFactory,
-            $countryCollectionFactory, $moduleManager, $customerSession, $customerUrl, $data
+            $context,
+            $directoryHelper,
+            $jsonEncoder,
+            $configCacheType,
+            $regionCollectionFactory,
+            $countryCollectionFactory,
+            $moduleManager,
+            $customerSession,
+            $customerUrl,
+            $data
         );
     }
 

@@ -25,7 +25,8 @@ use \Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * @author      vlemaire <info@x2i.fr>
  *
  */
-class GigyaAccountService implements GigyaAccountServiceInterface {
+class GigyaAccountService implements GigyaAccountServiceInterface
+{
 
     /**
      * Event dispatched when the Gigya data have correctly been sent to the Gigya remote service.
@@ -88,31 +89,27 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         GigyaMageHelper $gigyaMageHelper,
         EventManager $eventManager,
         GigyaLogger $logger
-    )
-    {
+    ) {
         $this->gigyaMageHelper = $gigyaMageHelper;
         $this->eventManager = $eventManager;
         $this->logger = $logger;
     }
 
-	public static function __init() {
-		if (is_null(self::$gigyaProfileAttributes))
-		{
-			self::$gigyaProfileAttributes = array();
+    public static function __init()
+    {
+        if (is_null(self::$gigyaProfileAttributes)) {
+            self::$gigyaProfileAttributes = [];
 
-			$gigyaProfileMethods = get_class_methods(GigyaProfile::class);
-			if (!empty($gigyaProfileMethod))
-			{
-				foreach ($gigyaProfileMethods as $gigyaProfileMethod)
-				{
-					if (strpos($gigyaProfileMethod, 'get') === 0)
-					{
-						self::$gigyaProfileAttributes[] = lcfirst(substr($gigyaProfileMethod, 3));
-					}
-				}
-			}
-		}
-	}
+            $gigyaProfileMethods = get_class_methods(GigyaProfile::class);
+            if (!empty($gigyaProfileMethod)) {
+                foreach ($gigyaProfileMethods as $gigyaProfileMethod) {
+                    if (strpos($gigyaProfileMethod, 'get') === 0) {
+                        self::$gigyaProfileAttributes[] = lcfirst(substr($gigyaProfileMethod, 3));
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Facility to build the profile data correctly formatted for the service call.
@@ -128,7 +125,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 
         foreach (self::$gigyaProfileAttributes as $gigyaProfileAttribute) {
             if (!in_array($gigyaProfileAttribute, self::$gigyaProfileForbiddenAttributes)) {
-                $value = call_user_func(array($profile, 'get' . $gigyaProfileAttribute));
+                $value = call_user_func([$profile, 'get' . $gigyaProfileAttribute]);
                 if (!is_null($value)) {
                     $result[$gigyaProfileAttribute] = $value;
                 }
@@ -146,11 +143,11 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
      */
     public static function getGigyaApiSubscriptionsData(GigyaUser $gigyaAccount)
     {
-		$subscriptions = $gigyaAccount->getSubscriptions() ?? [];
+        $subscriptions = $gigyaAccount->getSubscriptions() ?? [];
 
-		$result = [];
+        $result = [];
 
-		if (count($subscriptions)) {
+        if (count($subscriptions)) {
             /** @var GigyaSubscriptionContainer $subscriptionContainer */
             foreach ($subscriptions as $subscriptionId => $subscriptionContainer) {
                 $subscriptionData = $subscriptionContainer->getSubscriptionAsArray();
@@ -158,7 +155,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                 // Remove null value
                 $subscriptionData = array_filter(
                     $subscriptionData,
-                    function($value, $key) {
+                    function ($value, $key) {
                         return $value !== null;
                     },
                     ARRAY_FILTER_USE_BOTH
@@ -211,7 +208,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
 
         $accountData = array_filter(
             $rawAccountData,
-            function($value, $key) {
+            function ($value, $key) {
                 return $value !== null;
             },
             ARRAY_FILTER_USE_BOTH
@@ -220,15 +217,15 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return $accountData;
     }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param bool $dispatchEvent If true (default value) will dispatch
-	 *                            self::EVENT_UPDATE_GIGYA_SUCCESS
-	 *                            or self::EVENT_UPDATE_GIGYA_FAILURE
-	 *
-	 * @throws GSException
-	 */
+    /**
+     * @inheritdoc
+     *
+     * @param bool $dispatchEvent If true (default value) will dispatch
+     *                            self::EVENT_UPDATE_GIGYA_SUCCESS
+     *                            or self::EVENT_UPDATE_GIGYA_FAILURE
+     *
+     * @throws GSException
+     */
     public function update($gigyaAccount, $dispatchEvent = true)
     {
         $result = null;
@@ -264,21 +261,20 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
             if ($dispatchEvent) {
                 $this->eventManager->dispatch(self::EVENT_UPDATE_GIGYA_SUCCESS, [
                         'customer_entity_id' => $gigyaAccount->getCustomerEntityId()
-                    ]
-                );
+                    ]);
             }
-		} catch (GSApiException $e) {
+        } catch (GSApiException $e) {
             $message = $e->getLongMessage();
             $this->logger->debug(
-				'Failure encountered on call to Gigya service API',
+                'Failure encountered on call to Gigya service API',
                 [
-                    'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
-                    'gigya_data' => $gigyaApiData,
-                    'exception' => [
-                        'code' => $e->getCode(),
-                        'message' => $message
-                    ]
+                'customer_entity_id' => $gigyaAccount->getCustomerEntityId(),
+                'gigya_data' => $gigyaApiData,
+                'exception' => [
+                  'code' => $e->getCode(),
+                  'message' => $message
                 ]
+                  ]
             );
 
             if ($dispatchEvent) {
@@ -287,8 +283,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
                         'customer_entity_email' => $gigyaAccount->getCustomerEntityEmail(),
                         'gigya_data' => $gigyaApiData,
                         'message' => $message
-                    ]
-                );
+                    ]);
             }
 
             throw $e;
@@ -297,16 +292,16 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return $result;
     }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * @param string $uid
-	 *
-	 * @return GigyaUser|mixed
-	 *
-	 * @throws GSApiException
-	 * @throws GSException
-	 */
+    /**
+     * @inheritdoc
+     *
+     * @param string $uid
+     *
+     * @return GigyaUser|mixed
+     *
+     * @throws GSApiException
+     * @throws GSException
+     */
     function get($uid)
     {
         unset(self::$loadedGigyaUsers[$uid]);
@@ -320,12 +315,12 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         return $result;
     }
 
-	/**
-	 * @param string $uid
-	 *
-	 * @return GigyaUser|mixed|null
-	 * @throws GSException
-	 */
+    /**
+     * @param string $uid
+     *
+     * @return GigyaUser|mixed|null
+     * @throws GSException
+     */
     function rollback($uid)
     {
         $result = null;
@@ -333,7 +328,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface {
         if ($gigyaUser != null) {
             try {
                 $result = $this->update($gigyaUser, false);
-            } catch(GSApiException $e) {
+            } catch (GSApiException $e) {
                 $this->logger->warning('Could not rollback Gigya data');
             }
         }

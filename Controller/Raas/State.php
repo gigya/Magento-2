@@ -20,11 +20,9 @@ class State extends Action
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Customer\Model\Session $customerSession
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->customerSession = $customerSession;
-
     }
 
     /**

@@ -66,20 +66,20 @@ class GigyaSyncHelper extends AbstractHelper
      */
     protected $shareConfig;
 
-	/**
-	 * GigyaSyncHelper constructor.
-	 *
-	 * @param HelperContext               $helperContext
-	 * @param MessageManager              $messageManager
-	 * @param CustomerRepositoryInterface $customerRepository
-	 * @param SearchCriteriaBuilder       $searchCriteriaBuilder
-	 * @param FilterBuilder               $filterBuilder
-	 * @param FilterGroupBuilder          $filterGroupBuilder
-	 * @param StoreManagerInterface       $storeManager
-	 * @param Session                     $customerSession
-	 * @param AppState                    $state
-	 * @param Share                       $shareConfig
-	 */
+    /**
+     * GigyaSyncHelper constructor.
+     *
+     * @param HelperContext               $helperContext
+     * @param MessageManager              $messageManager
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param SearchCriteriaBuilder       $searchCriteriaBuilder
+     * @param FilterBuilder               $filterBuilder
+     * @param FilterGroupBuilder          $filterGroupBuilder
+     * @param StoreManagerInterface       $storeManager
+     * @param Session                     $customerSession
+     * @param AppState                    $state
+     * @param Share                       $shareConfig
+     */
     public function __construct(
         HelperContext $helperContext,
         MessageManager $messageManager,
@@ -91,8 +91,7 @@ class GigyaSyncHelper extends AbstractHelper
         Session $customerSession,
         AppState $state,
         Share $shareConfig
-    )
-    {
+    ) {
         parent::__construct($helperContext);
         $this->messageManager = $messageManager;
         $this->customerRepository =$customerRepository;
@@ -105,20 +104,20 @@ class GigyaSyncHelper extends AbstractHelper
         $this->shareConfig = $shareConfig;
     }
 
-	/**
-	 * Given a GigyaUser built with the data returned by the Gigya's RaaS service we identify the Magento customer and the eligible email for logging.
-	 *
-	 * @param GigyaUser $gigyaAccount The data furnished by the Gigya RaaS service.
-	 *
-	 * @return array [
-	 *                  'customer' => CustomerInterface If not null it's the existing Magento customer account that shall be used for Magento logging. Otherwise it means that a Magento customer account should be created with the 'logging_email'.
-	 *                  'logging_email' => string The email to set on the Magento customer account.
-	 *               ]
-	 *
-	 * @throws GSException If no Magento customer account could be used nor created with this Gigya UID and provided LoginIDs emails : user can not be logged in.
-	 *                     Reason can be for instance : all emails attached with this Gigya account are already set on Magento accounts on this website but for other Gigya UIDs.
-	 * @throws \Magento\Framework\Exception\LocalizedException
-	 */
+    /**
+     * Given a GigyaUser built with the data returned by the Gigya's RaaS service we identify the Magento customer and the eligible email for logging.
+     *
+     * @param GigyaUser $gigyaAccount The data furnished by the Gigya RaaS service.
+     *
+     * @return array [
+     *                  'customer' => CustomerInterface If not null it's the existing Magento customer account that shall be used for Magento logging. Otherwise it means that a Magento customer account should be created with the 'logging_email'.
+     *                  'logging_email' => string The email to set on the Magento customer account.
+     *               ]
+     *
+     * @throws GSException If no Magento customer account could be used nor created with this Gigya UID and provided LoginIDs emails : user can not be logged in.
+     *                     Reason can be for instance : all emails attached with this Gigya account are already set on Magento accounts on this website but for other Gigya UIDs.
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function getMagentoCustomerAndLoggingEmail($gigyaAccount)
     {
         /** @var CustomerInterface $magentoLoggingCustomer */
@@ -129,7 +128,7 @@ class GigyaSyncHelper extends AbstractHelper
         $gigyaUid = $gigyaAccount->getUID();
         $gigyaEmails = $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'];
         $gigyaProfileEmail = $gigyaAccount->getProfile()->getEmail();
-		$gigyaEmails[] = $gigyaProfileEmail;
+        $gigyaEmails[] = $gigyaProfileEmail;
 
         // Will be fed with the emails that are already used by a Magento customer account, but to a different or null Gigya UID
         $notUsableEmails = [];
@@ -146,10 +145,10 @@ class GigyaSyncHelper extends AbstractHelper
         $filterGroups = [];
         $filter = $this->filterBuilder->setConditionType('in')->setField('email')->setValue($gigyaEmails)->create();
         $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
-		if ($this->shareConfig->isWebsiteScope()) {
-			$filter = $this->filterBuilder->setConditionType('eq')->setField('website_id')->setValue($this->storeManager->getStore()->getWebsiteId())->create();
-			$filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
-		}
+        if ($this->shareConfig->isWebsiteScope()) {
+            $filter = $this->filterBuilder->setConditionType('eq')->setField('website_id')->setValue($this->storeManager->getStore()->getWebsiteId())->create();
+            $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
+        }
         $searchCriteria = $this->searchCriteriaBuilder->create()->setFilterGroups($filterGroups);
         $searchResult = $this->customerRepository->getList($searchCriteria);
         // ...and among these, check if one is set to the Gigya UID
@@ -278,7 +277,7 @@ class GigyaSyncHelper extends AbstractHelper
      */
     public function updateMagentoCustomerDataWithSessionGigyaAccount($magentoCustomer, $gigyaAccount, $gigyaLoggingEmail)
     {
-        $magentoCustomer->setCustomAttribute('gigya_uid',$gigyaAccount->getUID());
+        $magentoCustomer->setCustomAttribute('gigya_uid', $gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaLoggingEmail);
         $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
         $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
@@ -321,12 +320,10 @@ class GigyaSyncHelper extends AbstractHelper
      */
     public function excludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
     {
-        if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
-        {
+        if (in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G])) {
             self::$customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = true;
         }
-        if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
-        {
+        if (in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS])) {
             self::$customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = true;
         }
         return $this;
@@ -341,12 +338,10 @@ class GigyaSyncHelper extends AbstractHelper
      */
     public function undoExcludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
     {
-        if(in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G]))
-        {
+        if (in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G])) {
             self::$customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = false;
         }
-        if(in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS]))
-        {
+        if (in_array($dir, [self::DIR_BOTH, self::DIR_G2CMS])) {
             self::$customerIdsExcludedFromSync[self::DIR_G2CMS][$customerId] = false;
         }
         return $this;
@@ -364,5 +359,4 @@ class GigyaSyncHelper extends AbstractHelper
         return isset(self::$customerIdsExcludedFromSync[$dir][$customerId])
             && self::$customerIdsExcludedFromSync[$dir][$customerId];
     }
-
 }

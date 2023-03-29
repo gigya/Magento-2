@@ -33,8 +33,7 @@ class Config
         GigyaConfig $config,
         State $state,
         RequestHttp $request
-    )
-    {
+    ) {
         $this->config = $config;
         $this->state = $state;
         $this->request = $request;
@@ -44,7 +43,7 @@ class Config
      * @param \Magento\Framework\Session\Config $subject
      * @param $cookieLifetime
      * @param $default
-	 *
+     *
      * @return array
      */
     public function beforeSetCookieLifetime(\Magento\Framework\Session\Config $subject, $cookieLifetime, $default = null)
@@ -74,7 +73,7 @@ class Config
             }
         }
 
-        return array($cookieLifetime, $default);
+        return [$cookieLifetime, $default];
     }
 
     /**

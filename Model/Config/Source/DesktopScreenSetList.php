@@ -8,30 +8,29 @@ use Magento\Framework\Serialize\SerializerInterface;
 
 class DesktopScreenSetList implements OptionSourceInterface
 {
-	protected $config;
-	protected $serializer;
+    protected $config;
+    protected $serializer;
 
-	public function __construct(
-		GigyaConfig $gigyaConfig,
-		SerializerInterface $serializer
-	) {
-		$this->config     = $gigyaConfig;
-		$this->serializer = $serializer;
-	}
+    public function __construct(
+        GigyaConfig $gigyaConfig,
+        SerializerInterface $serializer
+    ) {
+        $this->config     = $gigyaConfig;
+        $this->serializer = $serializer;
+    }
 
-	public function toOptionArray() {
-		$screensetConfig = $this->config->getCustomScreensets();
+    public function toOptionArray()
+    {
+        $screensetConfig = $this->config->getCustomScreensets();
 
-		$screensets = array();
+        $screensets = [];
 
-		if (!empty($screensetConfig))
-		{
-			foreach ($this->serializer->unserialize($screensetConfig) as $screenset)
-			{
-				$screensets[] = ['value' => $screenset['desktop_screen'], 'label' => $screenset['desktop_screen']];
-			}
-		}
+        if (!empty($screensetConfig)) {
+            foreach ($this->serializer->unserialize($screensetConfig) as $screenset) {
+                $screensets[] = ['value' => $screenset['desktop_screen'], 'label' => $screenset['desktop_screen']];
+            }
+        }
 
-		return $screensets;
-	}
+        return $screensets;
+    }
 }

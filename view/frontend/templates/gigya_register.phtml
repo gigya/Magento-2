@@ -10,7 +10,7 @@
  * Capture Gigya login event.
  * Create and submit registration form.
  * Submit to Gigya model Controller.
-**/
+ **/
 
 /** @var \Gigya\GigyaIM\Block\Form\GigyaRegister $block */
 ?>
@@ -23,7 +23,7 @@
         containerID : "gigya-register",
         startScreen : "gigya-register-screen",
         mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>", // optional - for using separate mobile screen set.
-		include : 'id_token'
+        include : 'id_token'
     };
     var raasRegisterScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
     window.gigyaInit.push(raasRegisterScreen);

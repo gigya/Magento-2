@@ -74,29 +74,28 @@ class Config
         ScopeConfigInterface $scopeConfig,
         CookieManagerInterface $cookieManager,
         Logger $logger
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->cookieManager = $cookieManager;
         $this->logger = $logger;
         $this->remember = $remember = $this->cookieManager->getCookie('remember');
     }
 
-	/**
-	 * @return int
-	 */
+    /**
+     * @return int
+     */
     public function isGigyaEnabled()
-	{
-		return $this->scopeConfig->getValue(self::XML_PATH_GENERAL . '/enable_gigya', 'website');
-	}
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_GENERAL . '/enable_gigya', 'website');
+    }
 
-	/**
-	 * @return int
-	 */
-	public function getDebugMode()
-	{
-		return $this->scopeConfig->getValue(self::XML_PATH_DEBUG_MODE, 'website');
-	}
+    /**
+     * @return int
+     */
+    public function getDebugMode()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_DEBUG_MODE, 'website');
+    }
 
     /**
      * @param null $type
@@ -155,12 +154,12 @@ class Config
         return $this->scopeConfig->getValue(self::XML_PATH_MAPPING_FILE_PATH, 'website');
     }
 
-	/**
-	 * @param string $scopeType
-	 * @param string $scopeCode
-	 *
-	 * @return array
-	 */
+    /**
+     * @param string $scopeType
+     * @param string $scopeCode
+     *
+     * @return array
+     */
     public function getGigyaGeneralConfig($scopeType = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeCode = null)
     {
         $generalConfig = $this->scopeConfig->getValue(self::XML_PATH_GENERAL, $scopeType, $scopeCode);
@@ -207,10 +206,11 @@ class Config
         return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID, 'website');
     }
 
-	/**
-	 * @return string
-	 */
-    public function getCustomScreensets() {
-    	return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_CUSTOM_SCREENSETS, 'website');
-	}
+    /**
+     * @return string
+     */
+    public function getCustomScreensets()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_CUSTOM_SCREENSETS, 'website');
+    }
 }

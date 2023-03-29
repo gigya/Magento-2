@@ -79,7 +79,8 @@ class AppSecret extends Encrypted
     protected function _afterLoad()
     {
         $this->initEncryptor();
-        parent::_afterLoad();;
+        parent::_afterLoad();
+        ;
     }
 
     /**

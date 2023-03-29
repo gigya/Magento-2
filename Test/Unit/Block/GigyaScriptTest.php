@@ -42,13 +42,17 @@ class GigyaScriptTest extends TestCase
      * Test language settings:
      * Normal behavior - language is set to "en_US" -> getLanguage returns "en_US"
      */
-    public function testLanguage_gigyaLanguageIsSetToEn() {
+    public function testLanguage_gigyaLanguageIsSetToEn()
+    {
         $this->scopeConfig->expects($this->any())->method('getValue')
             ->with("gigya_section/general/language")
             ->will($this->returnValue('en'));
 
-        $this->assertEquals('en', $this->block->getLanguage(),
-            "language is set to \"en\", but getLanguage does not return the same value");
+        $this->assertEquals(
+            'en',
+            $this->block->getLanguage(),
+            "language is set to \"en\", but getLanguage does not return the same value"
+        );
     }
 
     protected function tearDown()
@@ -56,5 +60,4 @@ class GigyaScriptTest extends TestCase
         $this->block = null;
         $this->scopeConfig = null;
     }
-
 }

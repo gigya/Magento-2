@@ -29,15 +29,14 @@ class GigyaMageHelper extends AbstractHelper
     const MODULE_NAME = 'Gigya_GigyaIM';
 
     private $extra_profile_fields_config = "https://s3.amazonaws.com/gigya-cms-configs/extraProfileFieldsMap.json";
-
     private $apiKey;
     private $apiDomain;
-	private $authMode;
+    private $authMode;
     private $appKey;
     private $keyFileLocation;
     private $debug;
 
-	private $privateKey;
+    private $privateKey;
     private $appSecret;
 
     /** @var GigyaApiHelper  */
@@ -64,20 +63,20 @@ class GigyaMageHelper extends AbstractHelper
     const CHARS_PASSWORD_DIGITS = '23456789';
     const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
-	/**
-	 * GigyaMageHelper constructor.
-	 *
-	 * @param Context                $context
-	 * @param GigyaLogger            $logger
-	 * @param ModuleListInterface    $moduleList
-	 * @param Config                 $configModel
-	 * @param Session                $session
-	 * @param CookieManagerInterface $cookieManager
-	 * @param SigUtils               $sigUtils
-	 * @param Encryptor              $encryptor
-	 *
-	 * @throws \Exception
-	 */
+    /**
+     * GigyaMageHelper constructor.
+     *
+     * @param Context                $context
+     * @param GigyaLogger            $logger
+     * @param ModuleListInterface    $moduleList
+     * @param Config                 $configModel
+     * @param Session                $session
+     * @param CookieManagerInterface $cookieManager
+     * @param SigUtils               $sigUtils
+     * @param Encryptor              $encryptor
+     *
+     * @throws \Exception
+     */
     public function __construct(
         Context $context,
         GigyaLogger $logger,
@@ -93,7 +92,7 @@ class GigyaMageHelper extends AbstractHelper
         $this->configSettings = $context->getScopeConfig()->getValue('gigya_section/general', 'website');
         $this->logger = $logger;
         $this->configModel = $configModel;
-	    $this->scopeConfig = $context->getScopeConfig();
+        $this->scopeConfig = $context->getScopeConfig();
         $this->_moduleList = $moduleList;
         $this->session = $session;
         $this->cookieManager = $cookieManager;
@@ -104,19 +103,24 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
+     * Retrive the application secret
+     *
      * @return string
      */
-	public function getAppSecret()
+    public function getAppSecret()
     {
         return $this->appSecret;
     }
 
-	/**
-	 * @return string
-	 */
-	public function getPrivateKey() {
-    	return $this->privateKey ?? '';
-	}
+    /**
+     * Retrive the application private key
+     *
+     * @return string
+     */
+    public function getPrivateKey()
+    {
+        return $this->privateKey ?? '';
+    }
 
     /**
      * @return mixed
@@ -134,26 +138,26 @@ class GigyaMageHelper extends AbstractHelper
         $this->apiKey = $apiKey;
     }
 
-	/**
-	 * @param string $privateKey
-	 */
-	public function setPrivateKey($privateKey)
-	{
-		$this->privateKey = $privateKey;
-	}
+    /**
+     * @param string $privateKey
+     */
+    public function setPrivateKey($privateKey)
+    {
+        $this->privateKey = $privateKey;
+    }
 
-	/**
-	 * @param mixed $appSecret
-	 */
-	public function setAppSecret($appSecret)
-	{
-		$this->appSecret = $appSecret;
-	}
+    /**
+     * @param mixed $appSecret
+     */
+    public function setAppSecret($appSecret)
+    {
+        $this->appSecret = $appSecret;
+    }
 
     /**
      * @return string
      */
-	public function getApiDomain()
+    public function getApiDomain()
     {
         return $this->apiDomain;
     }
@@ -174,12 +178,13 @@ class GigyaMageHelper extends AbstractHelper
         return $this->appKey;
     }
 
-	/**
-	 * @return string
-	 */
-    public function getAuthMode() {
-    	return $this->authMode ?? 'user_secret';
-	}
+    /**
+     * @return string
+     */
+    public function getAuthMode()
+    {
+        return $this->authMode ?? 'user_secret';
+    }
 
     /**
      * @param mixed $appKey
@@ -201,70 +206,70 @@ class GigyaMageHelper extends AbstractHelper
         return (int)$this->scopeConfig->getValue('gigya_advanced/synchro/gigya_update_max_retry');
     }
 
-	/**
-	 * Gigya settings are set in Stores->configuration->Gigya Identity management
-	 *
-	 * @param string $scopeType
-	 * @param        $scopeCode
-	 * @param        $settings
-	 *
-	 * @throws \Exception
-	 */
-	public function setGigyaSettings(
-		$scopeType = ScopeInterface::SCOPE_WEBSITE,
-		$scopeCode = null,
-		$settings = null
-	) {
-		$savedSettings = $this->configModel->getGigyaGeneralConfig($scopeType, $scopeCode);
+    /**
+     * Gigya settings are set in Stores->configuration->Gigya Identity management
+     *
+     * @param string $scopeType
+     * @param        $scopeCode
+     * @param        $settings
+     *
+     * @throws \Exception
+     */
+    public function setGigyaSettings(
+        $scopeType = ScopeInterface::SCOPE_WEBSITE,
+        $scopeCode = null,
+        $settings = null
+    ) {
+        $savedSettings = $this->configModel->getGigyaGeneralConfig($scopeType, $scopeCode);
 
-		if (is_array($settings) == false) {
-			$settings = $savedSettings;
-		} else {
-			$settings = array_merge($savedSettings, $settings);
-		}
+        if (is_array($settings) == false) {
+            $settings = $savedSettings;
+        } else {
+            $settings = array_merge($savedSettings, $settings);
+        }
 
-		/* Initializes an empty settings array if the settings have not been set */
-		$availableSettings = [
-			'api_key',
-			'app_secret',
-			'domain',
-			'data_center_host',
-			'app_key',
-			'key_file_location',
-			'enable_gigya',
-		];
-		$settingsInitial   = array_fill_keys($availableSettings, '');
-		$settings          = array_merge($settingsInitial, $settings);
-		$keyFileLocation   = empty($settings['key_file_location']) ? null : $settings['key_file_location'];
+        /* Initializes an empty settings array if the settings have not been set */
+        $availableSettings = [
+            'api_key',
+            'app_secret',
+            'domain',
+            'data_center_host',
+            'app_key',
+            'key_file_location',
+            'enable_gigya',
+        ];
+        $settingsInitial   = array_fill_keys($availableSettings, '');
+        $settings          = array_merge($settingsInitial, $settings);
+        $keyFileLocation   = empty($settings['key_file_location']) ? null : $settings['key_file_location'];
 
-		$this->encryptor->initEncryptor($scopeType, $scopeCode, $keyFileLocation);
+        $this->encryptor->initEncryptor($scopeType, $scopeCode, $keyFileLocation);
 
-		if ($settings['domain'] == \Gigya\GigyaIM\Model\Config\Source\Domain::OTHER) {
-			$this->apiDomain = $settings['data_center_host'];
-		} else {
-			$this->apiDomain = $settings['domain'];
-		}
+        if ($settings['domain'] == \Gigya\GigyaIM\Model\Config\Source\Domain::OTHER) {
+            $this->apiDomain = $settings['data_center_host'];
+        } else {
+            $this->apiDomain = $settings['domain'];
+        }
 
-		$this->apiKey    = $settings['api_key'];
-		$this->appKey    = $settings['app_key'];
-		$this->authMode  = ($settings['authentication_mode']) ?? 'user_secret';
-		if ($this->getAuthMode() === 'user_rsa') {
-			$this->setPrivateKey((isset($settings['rsa_private_key_decrypted']) && $settings['rsa_private_key_decrypted'] === true) ?
-				$settings['rsa_private_key'] : $this->encryptor->decrypt($settings['rsa_private_key']));
-		} else {
-			$this->setAppSecret((isset($settings['app_secret_decrypted']) && $settings['app_secret_decrypted'] === true) ?
-				$settings['app_secret'] : $this->encryptor->decrypt($settings['app_secret']));
-		}
-	}
+        $this->apiKey    = $settings['api_key'];
+        $this->appKey    = $settings['app_key'];
+        $this->authMode  = ($settings['authentication_mode']) ?? 'user_secret';
+        if ($this->getAuthMode() === 'user_rsa') {
+            $this->setPrivateKey((isset($settings['rsa_private_key_decrypted']) && $settings['rsa_private_key_decrypted'] === true) ?
+                $settings['rsa_private_key'] : $this->encryptor->decrypt($settings['rsa_private_key']));
+        } else {
+            $this->setAppSecret((isset($settings['app_secret_decrypted']) && $settings['app_secret_decrypted'] === true) ?
+                $settings['app_secret'] : $this->encryptor->decrypt($settings['app_secret']));
+        }
+    }
 
-	/**
-	 * @return GigyaApiHelper|false
-	 */
+    /**
+     * @return GigyaApiHelper|false
+     */
     public function getGigyaApiHelper()
     {
         if ($this->gigyaApiHelper == null) {
             try {
-				$authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
+                $authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
                 $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->authMode);
             } catch (\Exception $e) {
                 return false;
@@ -278,7 +283,8 @@ class GigyaMageHelper extends AbstractHelper
      * CMS+Gigya environment params to send with Gigya API request
      * @return array CMS+Gigya environment params tro send with Gigya API request
      */
-    protected function createEnvironmentParam() {
+    protected function createEnvironmentParam()
+    {
         // get Magento version
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
@@ -288,22 +294,22 @@ class GigyaMageHelper extends AbstractHelper
         $gigya_version = $this->_moduleList->getOne(self::MODULE_NAME)['setup_version'];
         $php_version = phpversion();
 
-        $org_params = array();
+        $org_params = [];
         $org_params["environment"] = "cms_version:Magento_{$magento_version},gigya_version:Gigya_module_{$gigya_version},php_version:{$php_version}";
 
         return $org_params;
     }
 
-	/**
-	 * @param string $uid
-	 * @param string $signature	UIDSignature or ID Token
-	 * @param string $signatureTimestamp
-	 *
-	 * @return bool|\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
-	 *
-	 * @throws GSApiException
-	 * @throws \Exception
-	 */
+    /**
+     * @param string $uid
+     * @param string $signature    UIDSignature or ID Token
+     * @param string $signatureTimestamp
+     *
+     * @return bool|\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
+     *
+     * @throws GSApiException
+     * @throws \Exception
+     */
     public function validateAndFetchRaasUser($uid, $signature, $signatureTimestamp)
     {
         $org_params = $this->createEnvironmentParam();
@@ -312,12 +318,17 @@ class GigyaMageHelper extends AbstractHelper
         $gigya_api_helper = $this->getGigyaApiHelper();
 
         if ($this->authMode == 'user_secret') {
-			$valid = $gigya_api_helper->validateUid(
-				$uid, $signature, $signatureTimestamp, null, $extra_profile_fields_list, $org_params
-			);
-		} else {
-			$valid = $gigya_api_helper->validateJwtAuth($uid, $signature, null, $extra_profile_fields_list, $org_params);
-		}
+            $valid = $gigya_api_helper->validateUid(
+                $uid,
+                $signature,
+                $signatureTimestamp,
+                null,
+                $extra_profile_fields_list,
+                $org_params
+            );
+        } else {
+            $valid = $gigya_api_helper->validateJwtAuth($uid, $signature, null, $extra_profile_fields_list, $org_params);
+        }
 
         if (!$valid) {
             $this->logger->debug(__FUNCTION__ .
@@ -336,22 +347,23 @@ class GigyaMageHelper extends AbstractHelper
     {
         $extra_profile_fields_list = null;
         // if field mapping module is on, set $config_file_path
-        if (is_null($this->_moduleList->getOne(self::MODULE_NAME)['setup_version'])) {
+        if (null === $this->_moduleList->getOne(self::MODULE_NAME)['setup_version']) {
             return $extra_profile_fields_list;
         }
         $config_file_path = $this->configModel->getMappingFilePath();
 
         // if map fields file exists, read map fields file and build gigya fields array
-        if (is_null($config_file_path)) {
+        if (null === $config_file_path) {
             $this->logger->debug(
-                "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined. 
+                "setExtraProfileFields: Mapping fields module is on but mapping fields file path is not defined.
                 Define file path at: Stores:Config:Gigya:Field Mapping"
             );
             return $extra_profile_fields_list;
         }
-        if(file_exists($config_file_path)) {
+
+        if (file_exists($config_file_path)) {
             $mapping_json = file_get_contents($config_file_path);
-            if(false === $mapping_json) {
+            if (false === $mapping_json) {
                 $err     = error_get_last();
                 $this->logger->debug(
                     "setExtraProfileFields: Could not read mapping file at: " . $config_file_path .
@@ -359,13 +371,14 @@ class GigyaMageHelper extends AbstractHelper
                 );
                 return $extra_profile_fields_list;
             }
+
         } else {
             $this->logger->debug("setExtraProfileFields: Could not find mapping file at: {$config_file_path}");
             return $extra_profile_fields_list;
         }
 
         $field_map_array = json_decode($mapping_json, true);
-        if(!is_array($field_map_array)) {
+        if (!is_array($field_map_array)) {
             $this->logger->debug(
                 "setExtraProfileFields: mapping fields file could not be properly parsed."
             );
@@ -373,11 +386,11 @@ class GigyaMageHelper extends AbstractHelper
         }
 
         // create one dimension array of gigyaName profile fields
-        $profile_fields = array();
+        $profile_fields = [];
         foreach ($field_map_array as $full_field) {
             // if gigyaName contains value with profile, add the profile field to profile_fields
-            if(strpos($full_field['gigyaName'], "profile") === 0) {
-                $field = explode( ".",$full_field['gigyaName'])[1];
+            if (strpos($full_field['gigyaName'], "profile") === 0) {
+                $field = explode(".", $full_field['gigyaName'])[1];
                 array_push($profile_fields, $field);
             }
         }
@@ -387,7 +400,7 @@ class GigyaMageHelper extends AbstractHelper
 
         // download and create extra fields map array
         $extra_profile_fields_file = file_get_contents($this->extra_profile_fields_config);
-        if(false === $extra_profile_fields_file) {
+        if (false === $extra_profile_fields_file) {
             $err     = error_get_last();
             $this->logger->debug(
                 "setExtraProfileFields: Could not read $extra_profile_fields_file from: "
@@ -398,7 +411,7 @@ class GigyaMageHelper extends AbstractHelper
         }
 
         $extra_profile_fields_array = json_decode($extra_profile_fields_file);
-        if(!is_array($field_map_array)) {
+        if (!is_array($field_map_array)) {
             $this->logger->debug(
                 "setExtraProfileFields: extra profile fields file could not be properly parsed."
             );
@@ -406,8 +419,8 @@ class GigyaMageHelper extends AbstractHelper
         }
         //compare arrays for matching fields to map and build extra profile fields list
         $extra_fields_match = array_intersect($extra_profile_fields_array, $profile_fields);
-        if(count($extra_fields_match) > 0) {
-            $extra_profile_fields_list = implode(",",$extra_fields_match);
+        if (count($extra_fields_match) > 0) {
+            $extra_profile_fields_list = implode(",", $extra_fields_match);
         }
 
         return $extra_profile_fields_list;
@@ -415,7 +428,7 @@ class GigyaMageHelper extends AbstractHelper
 
     /**
      * @param GigyaUser $gigya_user_account
-	 *
+     *
      * @return array $message (validation errors messages)
      */
     public function verifyGigyaRequiredFields($gigya_user_account)
@@ -438,7 +451,8 @@ class GigyaMageHelper extends AbstractHelper
         return $message;
     }
 
-    public function generatePassword($len = 8) {
+    public function generatePassword($len = 8)
+    {
         $chars = self::CHARS_PASSWORD_LOWERS
             . self::CHARS_PASSWORD_UPPERS
             . self::CHARS_PASSWORD_DIGITS
@@ -464,202 +478,201 @@ class GigyaMageHelper extends AbstractHelper
         return $str;
     }
 
-	/**
-	 * Method updateGigyaAccount
-	 *
-	 * @param string $uid  UID
-	 * @param array  $data data
-	 *
-	 * @return void
-	 *
-	 * @throws GSApiException
-	 */
-    public function updateGigyaAccount($uid, $data = array())
+    /**
+     * Method updateGigyaAccount
+     *
+     * @param string $uid  UID
+     * @param array  $data data
+     *
+     * @return void
+     *
+     * @throws GSApiException
+     */
+    public function updateGigyaAccount($uid, $data = [])
     {
         $this->getGigyaApiHelper()->updateGigyaAccount($uid, $data);
     }
 
-	/**
-	 * Given a frontend Gigya response, retrieve all the Gigya's account data.
-	 *
-	 * @param string $loginData A json string issued from frontend Gigya forms.
-	 *
-	 * @return false|GigyaUser
-	 *
-	 * @throws GSException If the Gigya service returned an error.
-	 * @throws GSApiException
-	 */
+    /**
+     * Given a frontend Gigya response, retrieve all the Gigya's account data.
+     *
+     * @param string $loginData A json string issued from frontend Gigya forms.
+     *
+     * @return false|GigyaUser
+     *
+     * @throws GSException If the Gigya service returned an error.
+     * @throws GSApiException
+     */
     public function getGigyaAccountDataFromLoginData($loginData)
     {
         $gigya_validation_o = json_decode($loginData);
         if (!empty($gigya_validation_o->errorCode)) {
-           switch($gigya_validation_o->errorCode)  {
-               case GigyaAccountServiceInterface::ERR_CODE_LOGIN_ID_ALREADY_EXISTS:
-                   $this->logger->debug("Error while retrieving Gigya account data", [
+            switch ($gigya_validation_o->errorCode) {
+                case GigyaAccountServiceInterface::ERR_CODE_LOGIN_ID_ALREADY_EXISTS:
+                    $this->logger->debug("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
-                   ]);
-                   throw new GSException("Email already exists.");
-               default:
-                   $this->logger->debug("Error while retrieving Gigya account data", [
+                    ]);
+                    throw new GSException("Email already exists.");
+                default:
+                    $this->logger->debug("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
                        'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
-                   ]);
-                   throw new GSException(sprintf("Unable to get Gigya account data : %s / %s", $gigya_validation_o->errorCode, $gigya_validation_o->errorMessage));
-           }
+                    ]);
+                    throw new GSException(sprintf("Unable to get Gigya account data : %s / %s", $gigya_validation_o->errorCode, $gigya_validation_o->errorMessage));
+            }
         }
 
         return $this->validateAndFetchRaasUser(
             $gigya_validation_o->UID,
-			($this->authMode == 'user_secret') ? $gigya_validation_o->UIDSignature : $gigya_validation_o->idToken,
+            ($this->authMode == 'user_secret') ? $gigya_validation_o->UIDSignature : $gigya_validation_o->idToken,
             $gigya_validation_o->signatureTimestamp
         );
     }
 
-	/**
-	 * @param $uid
-	 *
-	 * @return GigyaUser
-	 *
-	 * @throws GSApiException
-	 */
+    /**
+     * @param $uid
+     *
+     * @return GigyaUser
+     *
+     * @throws GSApiException
+     */
     public function getGigyaAccountDataFromUid($uid)
     {
         return $this->getGigyaApiHelper()->fetchGigyaAccount($uid);
     }
 
-	/**
-	 * @return bool
-	 */
-	public function isSessionExpirationCookieExpired()
-	{
-		$APIKey = $this->getApiKey();
-		$value = $this->cookieManager->getCookie("gltexp_" . $APIKey);
-		if (!$value) {
-			return true;
-		}
+    /**
+     * @return bool
+     */
+    public function isSessionExpirationCookieExpired()
+    {
+        $APIKey = $this->getApiKey();
+        $value = $this->cookieManager->getCookie("gltexp_" . $APIKey);
+        if (!$value) {
+            return true;
+        }
 
-		$value = preg_replace('/^(\d+)_.*$/', '$1', $value);
-		if (is_numeric($value)) {
-			$value = intval($value);
-			return ($value < time());
-		}
-		return true;
-	}
+        $value = preg_replace('/^(\d+)_.*$/', '$1', $value);
+        if (is_numeric($value)) {
+            $value = (int)$value;
+            return ($value < time());
+        }
+        return true;
+    }
 
-	/**
-	 * @param int $secondsToExpiration
-	 */
-	public function setSessionExpirationCookie($secondsToExpiration = null)
-	{
-		if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED)
-		{
-			$currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
+    /**
+     * @param int $secondsToExpiration
+     */
+    public function setSessionExpirationCookie($secondsToExpiration = null)
+    {
+        if ($this->configModel->getSessionMode() == Config::SESSION_MODE_EXTENDED) {
+            $currentTime = $_SERVER['REQUEST_TIME']; // current Unix time (number of seconds since January 1 1970 00:00:00 GMT)
 
-			$APIKey = $this->getApiKey();
-			$tokenCookieName = "glt_" . $APIKey;
-			if (isset($_COOKIE[$tokenCookieName])) {
-				if (is_null($secondsToExpiration)) {
-					$secondsToExpiration = $this->configModel->getSessionExpiration();
-				}
-				$cookieName = "gltexp_" . $APIKey; // define the cookie name
-				$cookieValue = $this->calculateExpCookieValue($secondsToExpiration); // calculate the cookie value
-				$cookiePath = "/"; // cookie's path must be base domain
+            $APIKey = $this->getApiKey();
+            $tokenCookieName = "glt_" . $APIKey;
+            if (isset($_COOKIE[$tokenCookieName])) {
+                if (null === $secondsToExpiration) {
+                    $secondsToExpiration = $this->configModel->getSessionExpiration();
+                }
+                $cookieName = "gltexp_" . $APIKey; // define the cookie name
+                $cookieValue = $this->calculateExpCookieValue($secondsToExpiration); // calculate the cookie value
+                $cookiePath = "/"; // cookie's path must be base domain
 
-				$expirationTime = strval($currentTime + $secondsToExpiration); // expiration time in Unix time format
+                $expirationTime = (string)($currentTime + $secondsToExpiration); // expiration time in Unix time format
 
-				setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
-			}
-		}
-	}
+                setrawcookie($cookieName, $cookieValue, $expirationTime, $cookiePath);
+            }
+        }
+    }
 
-	public function calculateExpCookieValue($secondsToExpiration = null)
-	{
-		if (is_null($secondsToExpiration)) {
-			$secondsToExpiration = $this->configModel->getSessionExpiration();
-		}
+    public function calculateExpCookieValue($secondsToExpiration = null)
+    {
+        if (null === $secondsToExpiration) {
+            $secondsToExpiration = $this->configModel->getSessionExpiration();
+        }
 
-		$APIKey = $this->getApiKey();
-		$tokenCookieName = "glt_" . $APIKey; /* The name of the token-cookie Gigya stores (Gigya Login Token, or GLT) */
-		$tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
-		$loginToken = explode("|", $tokenCookieValue)[0]; /* Get the login token from the token-cookie. */
-		$applicationKey = $this->getAppKey();
+        $APIKey = $this->getApiKey();
+        $tokenCookieName = "glt_" . $APIKey; /* The name of the token-cookie Gigya stores (Gigya Login Token, or GLT) */
+        $tokenCookieValue = trim($_COOKIE[$tokenCookieName]);
+        $loginToken = explode("|", $tokenCookieValue)[0]; /* Get the login token from the token-cookie. */
+        $applicationKey = $this->getAppKey();
 
-		if ($this->getAuthMode() == 'user_rsa') {
-			$privateKey = $this->getPrivateKey();
-			return $this->calculateDynamicSessionSignatureJwtSigned($loginToken, $secondsToExpiration, $applicationKey, $privateKey);
-		} else {
-			$secret = $this->getAppSecret();
-			return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
-		}
-	}
+        if ($this->getAuthMode() == 'user_rsa') {
+            $privateKey = $this->getPrivateKey();
+            return $this->calculateDynamicSessionSignatureJwtSigned($loginToken, $secondsToExpiration, $applicationKey, $privateKey);
+        } else {
+            $secret = $this->getAppSecret();
+            return $this->getDynamicSessionSignatureUserSigned($loginToken, $secondsToExpiration, $applicationKey, $secret);
+        }
+    }
 
-	protected function getDynamicSessionSignatureUserSigned($glt_cookie, $timeoutInSeconds, $userKey, $secret)
-	{
-		// cookie format:
-		// <expiration time in unix time format>_<User Key>_BASE64(HMACSHA1(secret key, <login token>_<expiration time in unix time format>_<User Key>))
-		$expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $timeoutInSeconds;
-		$expirationTimeUnix = (string)floor($expirationTimeUnixMS);
-		$unsignedExpString = $glt_cookie . "_" . $expirationTimeUnix . "_" . $userKey;
-		$signedExpString = SigUtils::calcSignature($unsignedExpString, $secret); // sign the base string using the secret key
+    protected function getDynamicSessionSignatureUserSigned($glt_cookie, $timeoutInSeconds, $userKey, $secret)
+    {
+        // cookie format:
+        // <expiration time in unix time format>_<User Key>_BASE64(HMACSHA1(secret key, <login token>_<expiration time in unix time format>_<User Key>))
+        $expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $timeoutInSeconds;
+        $expirationTimeUnix = (string)floor($expirationTimeUnixMS);
+        $unsignedExpString = $glt_cookie . "_" . $expirationTimeUnix . "_" . $userKey;
+        $signedExpString = SigUtils::calcSignature($unsignedExpString, $secret); // sign the base string using the secret key
 
-		return $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString; // define the cookie value
-	}
+        return $expirationTimeUnix . "_" . $userKey . "_" . $signedExpString; // define the cookie value
+    }
 
-	protected function calculateDynamicSessionSignatureJwtSigned(string $loginToken, int $secondsToExpiration, string $applicationKey, string $privateKey)
-	{
-		$expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $secondsToExpiration;
-		$expirationTimeUnix   = (string)floor($expirationTimeUnixMS);
+    protected function calculateDynamicSessionSignatureJwtSigned(string $loginToken, int $secondsToExpiration, string $applicationKey, string $privateKey)
+    {
+        $expirationTimeUnixMS = (SigUtils::currentTimeMillis() / 1000) + $secondsToExpiration;
+        $expirationTimeUnix   = (string)floor($expirationTimeUnixMS);
 
-		$payload = [
-			'sub' => $loginToken,
-			'iat' => time(),
-			'exp' => intval($expirationTimeUnix),
-			'aud' => 'gltexp',
-		];
+        $payload = [
+            'sub' => $loginToken,
+            'iat' => time(),
+            'exp' => (int)$expirationTimeUnix,
+            'aud' => 'gltexp',
+        ];
 
-		return JWT::encode($payload, $privateKey, 'RS256', $applicationKey);
-	}
+        return JWT::encode($payload, $privateKey, 'RS256', $applicationKey);
+    }
 
-	protected function signBaseString($key, $unsignedExpString)
-	{
+    protected function signBaseString($key, $unsignedExpString)
+    {
         $unsignedExpString = utf8_encode($unsignedExpString);
         $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);
         $signature = base64_encode($rawHmac);
         return $signature;
     }
 
-	/**
-	 * @param CustomerInterface $from
-	 * @param CustomerInterface $to
-	 *
-	 * @return $this
-	 */
+    /**
+     * @param CustomerInterface $from
+     * @param CustomerInterface $to
+     *
+     * @return $this
+     */
     public function transferAttributes(CustomerInterface $from, CustomerInterface $to)
-	{
-		$ext = $from->getExtensionAttributes();
+    {
+        $ext = $from->getExtensionAttributes();
 
-		if (!is_null($ext)) {
-			$to->setExtensionAttributes($ext);
-		}
+        if (null !== $ext) {
+            $to->setExtensionAttributes($ext);
+        }
 
-		foreach (get_class_methods(CustomerInterface::class) as $method) {
-			$match = [];
+        foreach (get_class_methods(CustomerInterface::class) as $method) {
+            $match = [];
 
-			if (preg_match('/^get(.*)/', $method, $match)
-				&& $method != 'getId'
-				&& $method != 'getExtensionAttributes'
-				&& $method != 'getCustomAttribute'
-				&& $method != 'getData'
-			) {
-				$getter = $method;
-				$setter = 'set' . $match[1];
-				if (method_exists($to, $setter)) {
-					$to->$setter($from->$getter());
-				}
-			}
-		}
+            if (preg_match('/^get(.*)/', $method, $match)
+                && $method != 'getId'
+                && $method != 'getExtensionAttributes'
+                && $method != 'getCustomAttribute'
+                && $method != 'getData'
+            ) {
+                $getter = $method;
+                $setter = 'set' . $match[1];
+                if (method_exists($to, $setter)) {
+                    $to->$setter($from->$getter());
+                }
+            }
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 }

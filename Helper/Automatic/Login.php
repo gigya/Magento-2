@@ -12,8 +12,8 @@ class Login extends AbstractHelper
 
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager)
-    {
+        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager
+    ) {
         parent::__construct($context);
         $this->cookieManager = $cookieManager;
         $this->host = $context->getHttpHeader()->getHttpHost();

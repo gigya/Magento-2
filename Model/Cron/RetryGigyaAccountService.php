@@ -20,11 +20,18 @@ use \Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * @author      vlemaire <info@x2i.fr>
  *
  */
-class RetryGigyaAccountService extends GigyaAccountService {
+class RetryGigyaAccountService extends GigyaAccountService
+{
 
     /** @var RetryGigyaSyncHelper  */
     protected $retryGigyaSyncHelper;
 
+    /**
+     * @param GigyaMageHelper $gigyaMageHelper
+     * @param EventManager $eventManager
+     * @param GigyaLogger $logger
+     * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
+     */
     public function __construct(
         GigyaMageHelper $gigyaMageHelper,
         EventManager $eventManager,
@@ -37,27 +44,26 @@ class RetryGigyaAccountService extends GigyaAccountService {
         $this->logger = $logger;
     }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * The Gigya account is retrieved from the scheduled retry entry linked to this uid, if any.
-	 *
-	 * Will add the 'customer_entity_id' on the resulting GigyaUser.
-	 *
-	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
-	 */
-    function get($uid)
+    /**
+     * @inheritdoc
+     *
+     * The Gigya account is retrieved from the scheduled retry entry linked to this uid, if any.
+     *
+     * Will add the 'customer_entity_id' on the resulting GigyaUser.
+     *
+     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     */
+    public function get($uid)
     {
         $savedGigyaData = $this->retryGigyaSyncHelper->getRetryEntries(null, $uid, true);
 
-        if (!empty($savedGigyaData))
-		{
-			$result = GigyaUserFactory::createGigyaUserFromArray(unserialize($savedGigyaData[0]['data']));
-			$result->setCustomerEntityId($savedGigyaData[0]['customer_entity_id']);
+        if (!empty($savedGigyaData)) {
+            $result = GigyaUserFactory::createGigyaUserFromArray(unserialize($savedGigyaData[0]['data']));
+            $result->setCustomerEntityId($savedGigyaData[0]['customer_entity_id']);
 
-			return $result;
-		}
+            return $result;
+        }
 
-		return null;
+        return null;
     }
 }

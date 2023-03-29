@@ -24,25 +24,25 @@ class GigyaLogin extends Login
      */
     protected $configModel;
 
-	/**
-	 * Login constructor.
-	 *
-	 * @param Context $context
-	 * @param Session $customerSession
-	 * @param Url     $customerUrl
-	 * @param Config  $configModel
-	 * @param array   $data
-	 */
+    /**
+     * Login constructor.
+     *
+     * @param Context $context
+     * @param Session $customerSession
+     * @param Url     $customerUrl
+     * @param Config  $configModel
+     * @param array   $data
+     */
     public function __construct(
         Context $context,
         Session $customerSession,
         Url $customerUrl,
         Config $configModel,
         array $data = []
-	) {
-		$this->configModel = $configModel;
-		parent::__construct($context, $customerSession, $customerUrl, $data);
-	}
+    ) {
+        $this->configModel = $configModel;
+        parent::__construct($context, $customerSession, $customerUrl, $data);
+    }
 
     /**
      * @return string
@@ -60,18 +60,19 @@ class GigyaLogin extends Login
         return $this->configModel->getLoginMobileScreensetId();
     }
 
-	/**
-	 * @return string
-	 *
-	 * @throws LocalizedException
-	 */
-    public function _toHtml() {
+    /**
+     * @return string
+     *
+     * @throws LocalizedException
+     */
+    public function _toHtml()
+    {
         if ($this->configModel->isGigyaEnabled()) {
-			$this->getLayout()->unsetElement('customer.login.container');
-			$this->getLayout()->unsetElement('customer_form_register');
-			$this->getLayout()->unsetElement('customer_edit');
-		}
+            $this->getLayout()->unsetElement('customer.login.container');
+            $this->getLayout()->unsetElement('customer_form_register');
+            $this->getLayout()->unsetElement('customer_edit');
+        }
 
-		return parent::_toHtml();
-	}
+        return parent::_toHtml();
+    }
 }
