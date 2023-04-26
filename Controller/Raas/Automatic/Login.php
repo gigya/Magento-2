@@ -14,9 +14,12 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
+use Magento\Framework\Stdlib\Cookie\FailureToSendException;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
@@ -46,7 +49,7 @@ class Login extends AbstractLogin
     /**
      * @var LoginHelper
      */
-    protected $loginHelper;
+    protected LoginHelper $loginHelper;
 
     /**
      * @param Context $context
@@ -76,6 +79,8 @@ class Login extends AbstractLogin
      * @param LoginHelper $loginHelper
      * @param Extend $extendModel
      * @param JsonFactory $jsonFactory
+     * @param Logger $logger
+     * @param JsonSerializer $jsonSerializer
      */
     public function __construct(
         Context $context,
@@ -104,7 +109,9 @@ class Login extends AbstractLogin
         CookieMetadataFactory $cookieMetadataFactory,
         LoginHelper $loginHelper,
         Extend $extendModel,
-        JsonFactory $jsonFactory
+        JsonFactory $jsonFactory,
+        Logger $logger,
+        JsonSerializer $jsonSerializer
     ) {
         parent::__construct(
             $context,
@@ -132,7 +139,9 @@ class Login extends AbstractLogin
             $gigyaMageHelper,
             $cookieMetadataFactory,
             $extendModel,
-            $jsonFactory
+            $jsonFactory,
+            $logger,
+            $jsonSerializer
         );
 
         $this->loginHelper = $loginHelper;
@@ -141,14 +150,14 @@ class Login extends AbstractLogin
     /**
      * Dispatch request
      *
-     * @return ResponseInterface|\Magento\Framework\Controller\ResultInterface|mixed
+     * @return ResponseInterface|ResultInterface|mixed
      *
      * @throws InputException
-     * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
-     * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+     * @throws CookieSizeLimitReachedException
+     * @throws FailureToSendException
      * @throws \Zend_Json_Exception
      */
-    public function execute()
+    public function execute(): mixed
     {
         $this->logger->debug('Performing automatic login');
 
@@ -163,7 +172,7 @@ class Login extends AbstractLogin
         } else {
             $loginData = $this->getRequest()->getParam('login_data');
             $loginDataObject = \Zend_Json_Decoder::decode($loginData);
-            $guid = isset($loginDataObject['UID']) ? $loginDataObject['UID'] : '';
+            $guid = $loginDataObject['UID'] ?? '';
             $request = $this->getRequest();
 
             if ($this->formKeyValidator->validate($request) && $this->loginHelper->validateAutoLoginParameters($request)) {
@@ -205,10 +214,10 @@ class Login extends AbstractLogin
      * @return mixed
      *
      * @throws InputException
-     * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
-     * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+     * @throws CookieSizeLimitReachedException
+     * @throws FailureToSendException
      */
-    protected function getJsonResponse($doReload, $errorMessage = '')
+    protected function getJsonResponse($doReload, string $errorMessage = ''): mixed
     {
         if ($doReload) {
             if ($errorMessage) {

@@ -23,6 +23,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Framework\Module\Dir;
 
 class GigyaMageHelper extends AbstractHelper
 {
@@ -85,7 +86,8 @@ class GigyaMageHelper extends AbstractHelper
         Session $session,
         CookieManagerInterface $cookieManager,
         SigUtils $sigUtils,
-        Encryptor $encryptor
+        Encryptor $encryptor,
+        Dir $dir
     ) {
         parent::__construct($context);
 
@@ -98,6 +100,7 @@ class GigyaMageHelper extends AbstractHelper
         $this->cookieManager = $cookieManager;
         $this->sigUtils = $sigUtils;
         $this->encryptor = $encryptor;
+        $this->dir = $dir;
 
         $this->setGigyaSettings();
     }
@@ -270,7 +273,7 @@ class GigyaMageHelper extends AbstractHelper
         if ($this->gigyaApiHelper == null) {
             try {
                 $authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
-                $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->authMode);
+                $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->dir, $this->authMode);
             } catch (\Exception $e) {
                 return false;
             }
