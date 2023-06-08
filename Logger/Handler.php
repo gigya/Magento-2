@@ -2,7 +2,10 @@
 
 namespace Gigya\GigyaIM\Logger;
 
-class Handler extends \Magento\Framework\Logger\Handler\Base
+use Magento\Framework\Logger\Handler\Base;
+use Gigya\GigyaIM\Logger\Logger;
+
+class Handler extends Base
 {
     /**
      * Logging level

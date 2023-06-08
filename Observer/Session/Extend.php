@@ -3,19 +3,23 @@
 namespace Gigya\GigyaIM\Observer\Session;
 
 use Gigya\GigyaIM\Model\Session\Extend as ExtendModel;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
+use Magento\Framework\Stdlib\Cookie\FailureToSendException;
 
 class Extend implements ObserverInterface
 {
     /**
      * @var ExtendModel
      */
-    protected $sessionExtendModel;
+    protected ExtendModel $sessionExtendModel;
 
     /** @var GigyaConfig */
-    protected $config;
+    protected GigyaConfig $config;
 
     /**
      * @param ExtendModel $sessionExtendModel
@@ -30,11 +34,14 @@ class Extend implements ObserverInterface
     /**
      * @param Observer $observer
      * @return void
+     * @throws InputException
+     * @throws CookieSizeLimitReachedException
+     * @throws FailureToSendException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         if ($this->config->isGigyaEnabled()) {
-            /* @var $request \Magento\Framework\App\RequestInterface */
+            /* @var $request RequestInterface */
             $request = $observer->getEvent()->getRequest();
             if ($request->isAjax()) {
                 $this->sessionExtendModel->extendSession();

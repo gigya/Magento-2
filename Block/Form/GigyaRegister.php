@@ -27,7 +27,7 @@ class GigyaRegister extends Register
     /**
      * @var GigyaConfig
      */
-    protected $configModel;
+    protected GigyaConfig $configModel;
 
     /**
      * Register constructor.

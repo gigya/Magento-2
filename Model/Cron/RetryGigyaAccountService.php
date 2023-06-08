@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
+use Gigya\GigyaIM\Exception\RetryGigyaException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUserFactory;
@@ -9,8 +10,8 @@ use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
-use \Magento\Framework\Event\ManagerInterface as EventManager;
-use \Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Event\ManagerInterface as EventManager;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * GigyaAccountService
@@ -24,7 +25,7 @@ class RetryGigyaAccountService extends GigyaAccountService
 {
 
     /** @var RetryGigyaSyncHelper  */
-    protected $retryGigyaSyncHelper;
+    protected RetryGigyaSyncHelper $retryGigyaSyncHelper;
 
     /**
      * @param GigyaMageHelper $gigyaMageHelper
@@ -51,7 +52,7 @@ class RetryGigyaAccountService extends GigyaAccountService
      *
      * Will add the 'customer_entity_id' on the resulting GigyaUser.
      *
-     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     * @throws RetryGigyaException
      */
     public function get($uid)
     {

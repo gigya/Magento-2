@@ -10,8 +10,8 @@ use Magento\Widget\Block\BlockInterface;
 class CustomScreenSet extends Template implements BlockInterface
 {
     protected $_template = "gigya_custom_screenset.phtml";
-    protected $serializer;
-    protected $config;
+    protected SerializerInterface $serializer;
+    protected GigyaConfig $config;
 
     public function __construct(
         Template\Context $context,
@@ -30,7 +30,7 @@ class CustomScreenSet extends Template implements BlockInterface
      *
      * @return array|false
      */
-    public function getScreenSetConfig($desktopScreenSet)
+    public function getScreenSetConfig($desktopScreenSet): bool|array
     {
         $screenSets = $this->serializer->unserialize($this->config->getCustomScreensets());
         foreach ($screenSets as $screenSet) {

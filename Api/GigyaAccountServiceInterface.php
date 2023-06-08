@@ -33,7 +33,7 @@ interface GigyaAccountServiceInterface
      * @throws GSApiException If error encountered on service call or functional error returned by service.
      * Check error code to identify the case.
      */
-    public function update($gigyaAccount);
+    public function update(GigyaUser $gigyaAccount);
 
     /**
      * Get a Gigya customer account.
@@ -41,7 +41,7 @@ interface GigyaAccountServiceInterface
      * @param string $uid
      * @return GigyaUser
      */
-    public function get($uid);
+    public function get(string $uid): GigyaUser;
 
     /**
      * Update the Gigya service with the latest successfully updated version of an account.
@@ -51,5 +51,5 @@ interface GigyaAccountServiceInterface
      * @param $uid string
      * @return GigyaUser null if the rollback failed or if the given uid has not been updated so far (thus nothing to roll back)
      */
-    public function rollback($uid);
+    public function rollback(string $uid): GigyaUser;
 }

@@ -6,6 +6,7 @@
 namespace Gigya\GigyaIM\Block\Form;
 
 use \Magento\Customer\Block\Account\AuthenticationPopup;
+use Magento\Framework\Exception\LocalizedException;
 use \Magento\Framework\View\Element\Template\Context;
 use \Magento\Framework\Serialize\Serializer\Json;
 use \Gigya\GigyaIM\Model\Config;
@@ -20,7 +21,7 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
     /**
      * @var Config
      */
-    protected $config;
+    protected Config $config;
 
     /**
      * GigyaAuthenticationPopup constructor.
@@ -58,8 +59,9 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
 
     /**
      * @return string
+     * @throws LocalizedException
      */
-    public function _toHtml()
+    public function _toHtml(): string
     {
 
         if ($this->config->isGigyaEnabled()) {

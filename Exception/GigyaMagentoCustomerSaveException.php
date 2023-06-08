@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Exception;
 
-class GigyaMagentoCustomerSaveException extends \Exception
+use Exception;
+
+class GigyaMagentoCustomerSaveException extends Exception
 {
 
 }

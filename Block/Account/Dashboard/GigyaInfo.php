@@ -49,7 +49,7 @@ class GigyaInfo extends Info
     /**
      * @return string
      */
-    public function getProfileDesktopScreensetId()
+    public function getProfileDesktopScreensetId(): string
     {
         return $this->configModel->getProfileDesktopScreensetId();
     }
@@ -57,7 +57,7 @@ class GigyaInfo extends Info
     /**
      * @return string
      */
-    public function getProfileMobileScreensetId()
+    public function getProfileMobileScreensetId(): string
     {
         return $this->configModel->getProfileMobileScreensetId();
     }

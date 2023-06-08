@@ -24,13 +24,13 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
 class BackendGigyaAccountEnricher extends AbstractGigyaAccountEnricher
 {
     /** @var  MessageManager */
-    protected $messageManager;
+    protected MessageManager $messageManager;
 
     /** @var CustomerResourceModel */
-    protected $customerResourceModel;
+    protected CustomerResourceModel $customerResourceModel;
 
     /** @var CustomerFactory */
-    protected $customerFactory;
+    protected CustomerFactory $customerFactory;
 
     /**
      * @param GigyaAccountRepositoryInterface $gigyaAccountRepository

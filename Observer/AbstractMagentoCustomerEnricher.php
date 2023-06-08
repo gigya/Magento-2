@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Gigya\PHP\GSException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
@@ -12,9 +13,12 @@ use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\ManagerInterface;
-use \Magento\Framework\Event\Observer;
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\State\InputMismatchException;
 
 /**
  * AbstractMagentoCustomerEnricher
@@ -33,34 +37,34 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
     const EVENT_MAP_GIGYA_TO_MAGENTO_FAILURE = 'gigya_failed_map_to_magento';
 
     /** @var  CustomerRepositoryInterface */
-    protected $customerRepository;
+    protected CustomerRepositoryInterface $customerRepository;
 
     /** @var  GigyaAccountRepositoryInterface */
-    protected $gigyaAccountRepository;
+    protected GigyaAccountRepositoryInterface $gigyaAccountRepository;
 
     /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
+    protected GigyaSyncHelper $gigyaSyncHelper;
 
     /** @var ManagerInterface */
-    protected $eventDispatcher;
+    protected ManagerInterface $eventDispatcher;
 
     /** @var  GigyaLogger */
-    protected $logger;
+    protected GigyaLogger $logger;
 
     /** @var GigyaToMagento */
-    protected $gigyaToMagentoMapper;
+    protected GigyaToMagento $gigyaToMagentoMapper;
 
     /**
      * Registry used to avoid conflicts between enrichers
      * @var EnricherCustomerRegistry
      */
-    protected $enricherCustomerRegistry;
+    protected EnricherCustomerRegistry $enricherCustomerRegistry;
 
     /**
      * Array used to avoid enriching the same customer twice
      * @var int[]
      */
-    protected $enrichedCustomers = [];
+    protected array $enrichedCustomers = [];
 
     /**
      * AbstractMagentoCustomerEnricher constructor.
@@ -138,7 +142,7 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      *
      * Default behavior is to log a warning (exception is muted)
      *
-     * @param $e \Exception
+     * @param $e Exception
      * @param $magentoCustomer Customer
      * @param $gigyaAccountData GigyaUser
      * @param $gigyaAccountLoggingEmail string
@@ -172,7 +176,7 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      *               ]
      *
      * @throws GSException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     protected function getGigyaDataForEnrichment($magentoCustomer)
     {
@@ -194,7 +198,7 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      *
      * @return Customer The updated Magento customer entity.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function enrichMagentoCustomerWithGigyaData($magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
     {
@@ -213,7 +217,7 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getId()
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_TO_MAGENTO_FAILURE, [
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getId()
@@ -237,9 +241,9 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      *
      * @param \Magento\Customer\Model\Backend\Customer $magentoCustomer $magentoCustomer
      *
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\State\InputMismatchException
+     * @throws InputException
+     * @throws LocalizedException
+     * @throws InputMismatchException
      */
     public function saveMagentoCustomer($magentoCustomer)
     {
@@ -254,10 +258,10 @@ abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
      * @return void
      *
      * @throws GSException
-     * @throws \Exception
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\State\InputMismatchException
+     * @throws Exception
+     * @throws InputException
+     * @throws LocalizedException
+     * @throws InputMismatchException
      */
     public function execute(Observer $observer)
     {

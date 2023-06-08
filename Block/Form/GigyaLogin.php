@@ -22,7 +22,7 @@ class GigyaLogin extends Login
     /**
      * @var Config
      */
-    protected $configModel;
+    protected Config $configModel;
 
     /**
      * Login constructor.
@@ -65,7 +65,7 @@ class GigyaLogin extends Login
      *
      * @throws LocalizedException
      */
-    public function _toHtml()
+    public function _toHtml(): string
     {
         if ($this->configModel->isGigyaEnabled()) {
             $this->getLayout()->unsetElement('customer.login.container');

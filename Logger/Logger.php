@@ -11,7 +11,7 @@ class Logger extends \Monolog\Logger
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    protected ScopeConfigInterface $scopeConfig;
 
     /**
      * Logger constructor.

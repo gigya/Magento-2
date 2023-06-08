@@ -2,19 +2,35 @@
 
 namespace Gigya\GigyaIM\Controller\Adminhtml\Customer\Index;
 
+use Exception;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
+use Magento\Backend\Model\View\Result\ForwardFactory;
+use Magento\Backend\Model\View\Result\Page;
+use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory;
-use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Customer\Controller\RegistryConstants;
+use Magento\Customer\Helper\View;
+use Magento\Customer\Model\Address\Mapper;
+use Magento\Customer\Model\AddressFactory;
+use Magento\Customer\Model\CustomerFactory;
+use Magento\Customer\Model\Metadata\FormFactory;
 use Magento\Framework\Api\DataObjectHelper;
+use Magento\Framework\Api\ExtensibleDataObjectConverter;
+use Magento\Framework\App\Response\Http\FileFactory;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Math\Random;
+use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Framework\Registry;
+use Magento\Framework\View\LayoutFactory;
+use Magento\Framework\View\Result\PageFactory;
+use Magento\Newsletter\Model\SubscriberFactory;
 
 /**
  * Edit
@@ -27,13 +43,13 @@ use Magento\Framework\Registry;
 class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
 {
     /** @var  int */
-    protected $customerId;
+    protected int $customerId;
 
     /** @var RetryGigyaSyncHelper */
-    protected $retryGigyaSyncHelper;
+    protected RetryGigyaSyncHelper $retryGigyaSyncHelper;
 
     /** @var GigyaLogger */
-    protected $logger;
+    protected GigyaLogger $logger;
 
     /**
      * @inheritdoc
@@ -43,29 +59,29 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
     public function __construct(
         Context $context,
         Registry $coreRegistry,
-        \Magento\Framework\App\Response\Http\FileFactory $fileFactory,
-        \Magento\Customer\Model\CustomerFactory $customerFactory,
-        \Magento\Customer\Model\AddressFactory $addressFactory,
-        \Magento\Customer\Model\Metadata\FormFactory $formFactory,
-        \Magento\Newsletter\Model\SubscriberFactory $subscriberFactory,
-        \Magento\Customer\Helper\View $viewHelper,
-        \Magento\Framework\Math\Random $random,
+        FileFactory $fileFactory,
+        CustomerFactory $customerFactory,
+        AddressFactory $addressFactory,
+        FormFactory $formFactory,
+        SubscriberFactory $subscriberFactory,
+        View $viewHelper,
+        Random $random,
         CustomerRepositoryInterface $customerRepository,
-        \Magento\Framework\Api\ExtensibleDataObjectConverter $extensibleDataObjectConverter,
-        \Magento\Customer\Model\Address\Mapper $addressMapper,
+        ExtensibleDataObjectConverter $extensibleDataObjectConverter,
+        Mapper $addressMapper,
         AccountManagementInterface $customerAccountManagement,
         AddressRepositoryInterface $addressRepository,
         CustomerInterfaceFactory $customerDataFactory,
         AddressInterfaceFactory $addressDataFactory,
         \Magento\Customer\Model\Customer\Mapper $customerMapper,
-        \Magento\Framework\Reflection\DataObjectProcessor $dataObjectProcessor,
+        DataObjectProcessor $dataObjectProcessor,
         DataObjectHelper $dataObjectHelper,
         DataObjectFactory $objectFactory,
-        \Magento\Framework\View\LayoutFactory $layoutFactory,
+        LayoutFactory $layoutFactory,
         \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
-        \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        PageFactory $resultPageFactory,
+        ForwardFactory $resultForwardFactory,
+        JsonFactory $resultJsonFactory,
         RetryGigyaSyncHelper $retryGigyaSyncHelper,
         GigyaLogger $logger
     ) {
@@ -136,7 +152,6 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
 
                 if ($retryG2CMSCount == -1) {
                     if ($retryCMS2GCount == -1) {
-                        /** @var CustomerInterface $customer */
                         $customer = $this->_customerRepository->getById($this->customerId);
                         if ($customer->getCustomAttribute('gigya_account_enriched')->getValue() === true) {
                             $this->messageManager->addSuccessMessage(__('Data is up-to-date with Gigya account.'));
@@ -160,7 +175,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
             }
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $resultRedirect = $this->resultRedirectFactory->create();
             $resultRedirect->setPath('customer/*/index');

@@ -2,12 +2,12 @@
 
 namespace Gigya\GigyaIM\Controller\Raas\Automatic;
 
+use Exception;
 use Gigya\GigyaIM\Controller\Raas\AbstractLogin;
 use Gigya\GigyaIM\Logger\Logger;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultFactory;
-use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
@@ -16,7 +16,6 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Magento\Framework\DataObject;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
 use Magento\Framework\Stdlib\Cookie\FailureToSendException;
@@ -34,10 +33,7 @@ use Magento\Customer\Model\Url as CustomerUrl;
 use Magento\Customer\Model\Registration;
 use Magento\Framework\Escaper;
 use Magento\Customer\Model\CustomerExtractor;
-use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
-use Magento\Framework\Exception\EmailNotConfirmedException;
-use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
@@ -188,7 +184,7 @@ class Login extends AbstractLogin
                     $this->doLogin($valid_gigya_user);
 
                     return $this->getJsonResponse($this->session->isLoggedIn());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->debug(sprintf(
                         'User UID=%s logged to Gigya: %s',
                         $guid,

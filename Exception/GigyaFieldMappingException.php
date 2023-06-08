@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Exception;
 
-class GigyaFieldMappingException extends \Exception
+use Exception;
+
+class GigyaFieldMappingException extends Exception
 {
 
 }
