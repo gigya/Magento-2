@@ -2,7 +2,6 @@
 
 namespace Gigya\GigyaIM\Observer;
 
-
 use Magento\Customer\Model\Customer;
 
 /**
@@ -58,13 +57,19 @@ class EnricherCustomerRegistry
     /**
      * Push a customer in the registry ($customerRegistry)
      *
-     * @param $customer
+     * @param Customer $customer
      */
     public function pushRegisteredCustomer($customer)
     {
         $this->customerRegistry[$this->getCustomerRegistryKey($customer)] = $customer;
     }
 
+    /**
+     * Remove the customer
+     *
+     * @param Customer $customer
+     * @return $this
+     */
     public function removeRegisteredCustomer($customer)
     {
         $key = $this->getCustomerRegistryKey($customer);

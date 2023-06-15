@@ -29,8 +29,7 @@ class ConnectionFactory
     public function __construct(
         ConnectionFactoryInterface $connectionFactory,
         DeploymentConfig $deploymentConfig
-    )
-    {
+    ) {
         $this->connectionFactory = $connectionFactory;
         $this->deploymentConfig = $deploymentConfig;
     }

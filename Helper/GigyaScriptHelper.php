@@ -19,10 +19,10 @@ class GigyaScriptHelper extends AbstractHelper
      * @param \Magento\Framework\App\Helper\Context $context
      * @param GigyaMageHelper $gigyaMageHelper
      */
-	public function __construct(
-		Context $context,
-		GigyaMageHelper $gigyaMageHelper
-	) {
+    public function __construct(
+        Context $context,
+        GigyaMageHelper $gigyaMageHelper
+    ) {
         parent::__construct($context);
         $this->gigyaMageHelper = $gigyaMageHelper;
     }
@@ -32,15 +32,15 @@ class GigyaScriptHelper extends AbstractHelper
      *
      * @return bool|string
      */
-	public function getGigyaScriptDomain()
-	{
-		$domain = $this->gigyaMageHelper->getApiDomain();
+    public function getGigyaScriptDomain()
+    {
+        $domain = $this->gigyaMageHelper->getApiDomain();
 
-		$parsed_domain = explode('.', $domain);
-		if (array_pop($parsed_domain) . array_pop($parsed_domain) == 'gigya.com') {
-			return false;
-		}
+        $parsed_domain = explode('.', $domain);
+        if (array_pop($parsed_domain) . array_pop($parsed_domain) == 'gigya.com') {
+            return false;
+        }
 
-		return $domain;
-	}
+        return $domain;
+    }
 }

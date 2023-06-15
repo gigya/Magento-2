@@ -26,21 +26,20 @@ class GigyaToMagento extends AbstractFieldMapping
     /** @var ScopeConfigInterface  */
     protected $scopeConfig;
 
-	/**
-	 * GigyaToMagentoFieldMapping constructor.
-	 *
-	 * @param ScopeConfigInterface         $scopeConfig
-	 * @param GigyaLogger                  $logger
-	 * @param MagentoCustomerFieldsUpdater $customerFieldsUpdater
-	 * @param ModuleDirReader              $moduleDirReader
-	 */
+    /**
+     * GigyaToMagentoFieldMapping constructor.
+     *
+     * @param ScopeConfigInterface         $scopeConfig
+     * @param GigyaLogger                  $logger
+     * @param MagentoCustomerFieldsUpdater $customerFieldsUpdater
+     * @param ModuleDirReader              $moduleDirReader
+     */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         GigyaLogger $logger,
         MagentoCustomerFieldsUpdater $customerFieldsUpdater,
         ModuleDirReader $moduleDirReader
-    )
-    {
+    ) {
         parent::__construct($scopeConfig, $moduleDirReader, $logger);
         $this->customerFieldsUpdater = $customerFieldsUpdater;
     }
@@ -50,9 +49,9 @@ class GigyaToMagento extends AbstractFieldMapping
      *
      * The mapping rules are retrieved from the json field mapping file pointed to by backend configuration key 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path'
      *
-	 * @param Customer|CustomerInterface $customer
-	 * @param array                      $gigyaUser
-	 * @param boolean                    $skipCache
+     * @param Customer|CustomerInterface $customer
+     * @param array                      $gigyaUser
+     * @param boolean                    $skipCache
      *
      * @throws GigyaFieldMappingException
      */

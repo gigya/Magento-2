@@ -10,7 +10,6 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
  *
  * Proxy to the Gigya service for all operations concerning the Gigya's customer accounts.
  *
- * @package Gigya\GigyaIM\Api
  */
 interface GigyaAccountServiceInterface
 {
@@ -31,9 +30,10 @@ interface GigyaAccountServiceInterface
      * Update or create a Gigya customer account.
      *
      * @param GigyaUser $gigyaAccount Shall have a uid not null.
-     * @throws GSApiException If error encountered on service call or functional error returned by service. Check error code to identify the case.
+     * @throws GSApiException If error encountered on service call or functional error returned by service.
+     * Check error code to identify the case.
      */
-    function update($gigyaAccount);
+    public function update($gigyaAccount);
 
     /**
      * Get a Gigya customer account.
@@ -41,7 +41,7 @@ interface GigyaAccountServiceInterface
      * @param string $uid
      * @return GigyaUser
      */
-    function get($uid);
+    public function get($uid);
 
     /**
      * Update the Gigya service with the latest successfully updated version of an account.
@@ -51,5 +51,5 @@ interface GigyaAccountServiceInterface
      * @param $uid string
      * @return GigyaUser null if the rollback failed or if the given uid has not been updated so far (thus nothing to roll back)
      */
-    function rollback($uid);
+    public function rollback($uid);
 }

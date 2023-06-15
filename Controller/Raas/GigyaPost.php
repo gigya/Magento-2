@@ -139,55 +139,55 @@ class GigyaPost extends LoginPost
      */
     protected $storeManager;
 
-	/**
-	 * @var GigyaLogger
-	 */
-	protected $logger;
+    /**
+     * @var GigyaLogger
+     */
+    protected $logger;
 
     /**
      * @var JsonSerializer
      */
-	protected $jsonSerializer;
+    protected $jsonSerializer;
 
     /**
      * @var PublicCookieMetadataFactory
      */
-	protected $publicCookieMetadataFactory;
+    protected $publicCookieMetadataFactory;
 
-	/**
-	 * GigyaPost constructor.
-	 *
-	 * - Parent class parameters
-	 * @param Context $context
-	 * @param Session $customerSession
-	 * @param AccountManagementInterface $customerAccountManagement
-	 * @param CustomerUrl $customerUrl
-	 * @param Validator $formKeyValidator
-	 * @param AccountRedirect $accountRedirect
-	 *
-	 * - Magento CreatePost parameters
-	 * These ones needs to be on this constructor because Gigya plugin join both actions: login and create
-	 * @param $addressHelper Address
-	 * @param SubscriberFactory $subscriberFactory
-	 * @param Escaper $escaper
-	 * @param CustomerExtractor $customerExtractor
-	 * @param UrlInterface $urlModel
-	 *
-	 * - Custom parameters
-	 * @param UrlFactory $urlFactory
-	 * @param GigyaMageHelper $gigyaMageHelper
-	 * @param CustomerRepositoryInterface $customerRepository
-	 * @param GigyaSyncHelper $gigyaSyncHelper
-	 * @param CookieManagerInterface $cookieManager
-	 * @param CookieMetadataFactory $cookieMetadataFactory
-	 * @param StoreManagerInterface $storeManager
-	 * @param Extend $extendModel
-	 * @param JsonFactory $resultJsonFactory
-	 * @param GigyaConfig $config
-	 * @param GigyaLogger $logger
+    /**
+     * GigyaPost constructor.
+     *
+     * - Parent class parameters
+     * @param Context $context
+     * @param Session $customerSession
+     * @param AccountManagementInterface $customerAccountManagement
+     * @param CustomerUrl $customerUrl
+     * @param Validator $formKeyValidator
+     * @param AccountRedirect $accountRedirect
+     *
+     * - Magento CreatePost parameters
+     * These ones needs to be on this constructor because Gigya plugin join both actions: login and create
+     * @param Address $addressHelper
+     * @param SubscriberFactory $subscriberFactory
+     * @param Escaper $escaper
+     * @param CustomerExtractor $customerExtractor
+     * @param UrlInterface $urlModel
+     *
+     * - Custom parameters
+     * @param UrlFactory $urlFactory
+     * @param GigyaMageHelper $gigyaMageHelper
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param CookieManagerInterface $cookieManager
+     * @param CookieMetadataFactory $cookieMetadataFactory
+     * @param StoreManagerInterface $storeManager
+     * @param Extend $extendModel
+     * @param JsonFactory $resultJsonFactory
+     * @param GigyaConfig $config
+     * @param GigyaLogger $logger
      * @param JsonSerializer $jsonSerializer
      * @param PublicCookieMetadataFactory $publicCookieMetadataFactory
-	 */
+     */
     public function __construct(
         // Parent class parameters
         Context $context,
@@ -196,14 +196,12 @@ class GigyaPost extends LoginPost
         CustomerUrl $customerUrl,
         Validator $formKeyValidator,
         AccountRedirect $accountRedirect,
-
         // Magento CreatePost parameters
         Address $addressHelper,
         SubscriberFactory $subscriberFactory,
         Escaper $escaper,
         CustomerExtractor $customerExtractor,
         UrlInterface $urlModel,
-
         // Custom parameters
         UrlFactory $urlFactory,
         GigyaMageHelper $gigyaMageHelper,
@@ -215,7 +213,7 @@ class GigyaPost extends LoginPost
         Extend $extendModel,
         JsonFactory $resultJsonFactory,
         GigyaConfig $config,
-		GigyaLogger $logger,
+        GigyaLogger $logger,
         JsonSerializer $jsonSerializer,
         PublicCookieMetadataFactory $publicCookieMetadataFactory
     ) {
@@ -254,20 +252,20 @@ class GigyaPost extends LoginPost
         $this->publicCookieMetadataFactory = $publicCookieMetadataFactory;
     }
 
-	/**
-	 * Gigya logic:
-	 * 1. Validate gigya user
-	 * 2. Get Gigya account info
-	 * 3. Check if account exists in Magento
-	 * 4. Login /create in magento
-	 *
-	 * @return Forward|\Magento\Framework\Controller\Result\Json|Redirect
-	 *
-	 * @throws CookieSizeLimitReachedException
-	 * @throws FailureToSendException
-	 * @throws InputException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
-	 */
+    /**
+     * Gigya logic:
+     * 1. Validate gigya user
+     * 2. Get Gigya account info
+     * 3. Check if account exists in Magento
+     * 4. Login /create in magento
+     *
+     * @return Forward|\Magento\Framework\Controller\Result\Json|Redirect
+     *
+     * @throws CookieSizeLimitReachedException
+     * @throws FailureToSendException
+     * @throws InputException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function execute()
     {
         if ($this->config->isGigyaEnabled() == false) {
@@ -290,16 +288,16 @@ class GigyaPost extends LoginPost
         $this->cookieManager->setPublicCookie('remember', $remember, $rememberCookieMetadata);
         $this->config->setRemember($remember);
 
-		$validGigyaUser = false;
+        $validGigyaUser = false;
 
         try {
-        	$validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
-		} catch (GSApiException $e) {
-			$this->logger->debug('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $e->getLongMessage());
-			throw $e;
-		} catch (\Exception $e) {
-        	$this->logger->debug('There was an error validating the user. Error: ' . $e->getMessage());
-		}
+            $validGigyaUser = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($loginData);
+        } catch (GSApiException $e) {
+            $this->logger->debug('Gigya returned an error when validating the user. It is possible that there is a problem with the Gigya credentials configured on the site. Error details: ' . $e->getLongMessage());
+            throw $e;
+        } catch (\Exception $e) {
+            $this->logger->debug('There was an error validating the user. Error: ' . $e->getMessage());
+        }
 
         $responseObject = $this->doLogin($validGigyaUser);
 
@@ -319,23 +317,25 @@ class GigyaPost extends LoginPost
 
     /**
      * @param \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user
-	 *
+     *
      * @return DataObject
      */
     protected function doLogin(GigyaUser $valid_gigya_user)
     {
         $this->logger->debug('Logging in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
-		$resultRedirect = $this->resultRedirectFactory->create();
+        $resultRedirect = $this->resultRedirectFactory->create();
 
         /* If gigya user not validated return error */
         if (!$valid_gigya_user) {
             $message = __('The user is not validated. Please try again or contact support.');
             $this->logger->debug('Login failed: ' . $message);
             $this->addError($message);
-            return $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect(),
-                ['login_successful' => false]);
-        } // we have a valid gigya user. verify that required fields exist
-        else {
+            return $redirect = $this->encapsulateResponse(
+                $this->accountRedirect->getRedirect(),
+                ['login_successful' => false]
+            );
+            // we have a valid gigya user. verify that required fields exist
+        } else {
             $required_field_message = $this->gigyaMageHelper->verifyGigyaRequiredFields($valid_gigya_user);
 
             if (!empty($required_field_message)) {
@@ -357,7 +357,8 @@ class GigyaPost extends LoginPost
                 if ($customer) {
                     $loginSuccess = $this->gigyaLoginUser($customer);
                     $redirect = $this->encapsulateResponse(
-                        $this->accountRedirect->getRedirect(), ['login_successful' => $loginSuccess]
+                        $this->accountRedirect->getRedirect(),
+                        ['login_successful' => $loginSuccess]
                     );
                 } else {
                     $redirect = $this->gigyaCreateUser($resultRedirect, $valid_gigya_user);
@@ -369,7 +370,7 @@ class GigyaPost extends LoginPost
                     "customer" => $customer,
                     "accountManagement" => $this->customerAccountManagement
                 ]);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->addError($e->getMessage());
                 $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
                 $defaultUrl = $this->urlModel->getUrl('customer/login', ['_secure' => true]);
@@ -379,13 +380,13 @@ class GigyaPost extends LoginPost
         }
     }
 
-	/**
-	 * Retrieve success message
-	 *
-	 * @return string
-	 *
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
-	 */
+    /**
+     * Retrieve success message
+     *
+     * @return string
+     *
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     protected function getSuccessMessage()
     {
         if ($this->addressHelper->isVatValidationEnabled()) {
@@ -529,7 +530,8 @@ class GigyaPost extends LoginPost
                 'Failed to create Magento customer: ' . $this->jsonSerializer->serialize($e->getErrors())
             );
         } catch (\Exception $e) {
-            $this->incrementLoginRetryCounter();;
+            $this->incrementLoginRetryCounter();
+            ;
             $message = __('We can\'t save the customer. ') . $e->getMessage();
             $this->logger->debug('Failed to create Magento customer: ' . $message);
             $this->addError($message);
@@ -567,8 +569,7 @@ class GigyaPost extends LoginPost
     protected function encapsulateResponse($resultRedirect, $additionalData = [])
     {
         $url = null;
-        if($resultRedirect instanceof Redirect)
-        {
+        if ($resultRedirect instanceof Redirect) {
             $response = serialize($this->getResponse());
             $response = unserialize($response);
 
@@ -576,20 +577,17 @@ class GigyaPost extends LoginPost
             $header = $response->getHeader('Location');
             $response->clearHeader('Location');
             /* @var $header \Zend\Http\Header\Location */
-            if($header)
-            {
+            if ($header) {
                 $url = $header->getUri();
             }
-        }
-        else
-            if($resultRedirect instanceof Forward)
-            {
-                $request = $this->getRequest();
-                $url = $this->urlModel->getUrl(
-                    sprintf('%s/%s/%s', $request->getModuleName(), $request->getControllerName(), $request->getActionName()),
-                    $request->getParams());
+        } elseif ($resultRedirect instanceof Forward) {
+            $request = $this->getRequest();
+            $url = $this->urlModel->getUrl(
+                sprintf('%s/%s/%s', $request->getModuleName(), $request->getControllerName(), $request->getActionName()),
+                $request->getParams()
+            );
 
-            }
+        }
         $additionalData['location'] = $url;
         return new DataObject([
             'response_object' => $resultRedirect,
@@ -634,8 +632,7 @@ class GigyaPost extends LoginPost
     protected function getCookie($name, $defaultValue)
     {
         $defaultValue = (int) $this->cookieManager->getCookie($name, $defaultValue);
-        if(!isset($this->cookies[$name]))
-        {
+        if (!isset($this->cookies[$name])) {
             $this->cookies[$name] = $defaultValue;
         }
         return $this->cookies[$name];
@@ -671,21 +668,20 @@ class GigyaPost extends LoginPost
     protected function deleteLoginRetryCounter()
     {
         $this->cookiesToDelete['gig_login_retry'] = true;
-        if(isset($this->cookies['gig_login_retry']))
-        {
+        if (isset($this->cookies['gig_login_retry'])) {
             unset($this->cookies['gig_login_retry']);
         }
         return $this;
     }
 
-	/**
-	 * @return $this
-	 *
-	 * @throws CookieSizeLimitReachedException
-	 * @throws FailureToSendException
-	 * @throws InputException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
-	 */
+    /**
+     * @return $this
+     *
+     * @throws CookieSizeLimitReachedException
+     * @throws FailureToSendException
+     * @throws InputException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     protected function applyCookies()
     {
         $metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
@@ -727,8 +723,7 @@ class GigyaPost extends LoginPost
      */
     protected function addMessage($message, $type)
     {
-        if(!isset($this->messageStorage[$type]))
-        {
+        if (!isset($this->messageStorage[$type])) {
             $this->messageStorage[$type] = [];
         }
         $this->messageStorage[$type][] = $message;
@@ -737,11 +732,9 @@ class GigyaPost extends LoginPost
 
     protected function applyMessages()
     {
-        foreach($this->messageStorage as $type => $messages)
-        {
-            foreach($messages as $message)
-            {
-                switch($type) {
+        foreach ($this->messageStorage as $type => $messages) {
+            foreach ($messages as $message) {
+                switch ($type) {
                     case \Magento\Framework\Message\MessageInterface::TYPE_SUCCESS:
                         $this->messageManager->addSuccessMessage($message);
                         break;
@@ -756,6 +749,7 @@ class GigyaPost extends LoginPost
                 }
             }
         }
+
         return $this;
     }
 }

@@ -22,7 +22,7 @@ class GigyaInfo extends Info
     /**
      * @var Config
      */
-    protected $configModel;
+    protected Config $configModel;
 
     /**
      * Info constructor.

@@ -13,62 +13,61 @@ use Magento\Framework\Serialize\SerializerInterface;
 
 class AdditionalScreenSet extends ConfigValue
 {
-	/**
-	 * @var SerializerInterface
-	 */
-	protected $serializer;
+    /**
+     * @var SerializerInterface
+     */
+    protected $serializer;
 
-	/**
-	 * @param SerializerInterface   $serializer
-	 * @param Context               $context
-	 * @param Registry              $registry
-	 * @param ScopeConfigInterface  $config
-	 * @param TypeListInterface     $cacheTypeList
-	 * @param AbstractResource|null $resource
-	 * @param AbstractDb|null       $resourceCollection
-	 * @param array                 $data
-	 */
-	public function __construct(
-		SerializerInterface $serializer,
-		Context $context,
-		Registry $registry,
-		ScopeConfigInterface $config,
-		TypeListInterface $cacheTypeList,
-		AbstractResource $resource = null,
-		AbstractDb $resourceCollection = null,
-		array $data = []
-	) {
-		$this->serializer = $serializer;
-		parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
-	}
+    /**
+     * @param SerializerInterface   $serializer
+     * @param Context               $context
+     * @param Registry              $registry
+     * @param ScopeConfigInterface  $config
+     * @param TypeListInterface     $cacheTypeList
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null       $resourceCollection
+     * @param array                 $data
+     */
+    public function __construct(
+        SerializerInterface $serializer,
+        Context $context,
+        Registry $registry,
+        ScopeConfigInterface $config,
+        TypeListInterface $cacheTypeList,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        array $data = []
+    ) {
+        $this->serializer = $serializer;
+        parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
+    }
 
-	/**
-	 * @return void
-	 */
-	public function beforeSave() {
-		/** @var array $value */
-		$value = $this->getValue();
-		unset($value['__empty']);
-		$encodedValue = $this->serializer->serialize($value);
+    /**
+     * @return void
+     */
+    public function beforeSave()
+    {
+        /** @var array $value */
+        $value = $this->getValue();
+        unset($value['__empty']);
+        $encodedValue = $this->serializer->serialize($value);
 
-		$this->setValue($encodedValue);
-	}
+        $this->setValue($encodedValue);
+    }
 
-	/**
-	 * @return void
-	 */
-	protected function _afterLoad() {
-		/** @var string $value */
-		$value = $this->getValue();
-		if (!empty($value))
-		{
-			$decodedValue = $this->serializer->unserialize($value);
+    /**
+     * @return void
+     */
+    protected function _afterLoad()
+    {
+        /** @var string $value */
+        $value = $this->getValue();
+        if (!empty($value)) {
+            $decodedValue = $this->serializer->unserialize($value);
 
-			$this->setValue($decodedValue);
-		}
-		else
-		{
-			$this->setValue('');
-		}
-	}
+            $this->setValue($decodedValue);
+        } else {
+            $this->setValue('');
+        }
+    }
 }

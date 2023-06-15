@@ -10,6 +10,7 @@ use Gigya\PHP\GSResponse;
 use Gigya\PHP\JWTUtils;
 use Gigya\PHP\SigUtils;
 use stdClass;
+use Magento\Framework\Module\Dir;
 
 class GigyaApiHelper
 {
@@ -19,6 +20,7 @@ class GigyaApiHelper
     private $apiKey;
     private $dataCenter;
     private $defConfigFilePath;
+    private $dir;
 
     const IV_SIZE = 16;
 
@@ -31,15 +33,25 @@ class GigyaApiHelper
      * @param string $dataCenter Gigya data center
      * @param string $authMode Authentication method: user_secret or user_rsa
      */
-    public function __construct($apiKey, $userKey, $authKey, $dataCenter, $authMode = 'user_secret')
-    {
-        $this->defConfigFilePath = ".." . DIRECTORY_SEPARATOR . "configuration/DefaultConfiguration.json";
-        $defaultConf             = @file_get_contents($this->defConfigFilePath);
+    public function __construct(
+        $apiKey,
+        $userKey,
+        $authKey,
+        $dataCenter,
+        Dir $dir,
+        $authMode = 'user_secret'
+    ) {
+        $this->dir = $dir;
+        $modulePath = $this->dir->getDir('Gigya_GigyaIM');
+        $this->defConfigFilePath = $modulePath  . DIRECTORY_SEPARATOR . "Helper" . DIRECTORY_SEPARATOR . 'CMSStarterKit'
+            . DIRECTORY_SEPARATOR . "configuration/DefaultConfiguration.json";
+        $defaultConf = @file_get_contents($this->defConfigFilePath);
         if (!$defaultConf) {
             $confArray = [];
         } else {
-            $confArray = json_decode(file_get_contents($this->defConfigFilePath));
+            $confArray = json_decode(file_get_contents($this->defConfigFilePath), true);
         }
+
         $this->userKey  = !empty($userKey) ? $userKey : $confArray['appKey'];
         $this->authMode = $authMode;
         if ($authMode === 'user_secret') {
@@ -202,7 +214,7 @@ class GigyaApiHelper
     {
         $gigyaUsers = [];
 
-        if (is_array($query)) /* Query is actually a set of params. Useful for setting cursor ID instead of query */ {
+        if (is_array($query)) { /* Query is actually a set of params. Useful for setting cursor ID instead of query */
             $params = $query;
         } else {
             $params = ['query' => $query];
@@ -385,7 +397,7 @@ class GigyaApiHelper
             $key = getenv("KEK");
         }
         $iv    = openssl_random_pseudo_bytes(self::IV_SIZE);
-        $crypt = openssl_encrypt($str, 'AES-256-CBC', $key, null, $iv);
+        $crypt = openssl_encrypt($str, 'AES-256-CBC', $key, 0, $iv);
 
         return trim(base64_encode($iv . $crypt));
     }

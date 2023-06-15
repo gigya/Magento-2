@@ -39,21 +39,21 @@ class KeyFileLocation extends \Magento\Framework\App\Config\Value
         $this->gigyaEncryptorHelper = $gigyaEncryptorHelper;
     }
 
-	/**
-	 * @return \Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation
-	 *
-	 * @throws \Magento\Framework\Exception\LocalizedException
-	 */
+    /**
+     * @return \Gigya\GigyaIM\Model\Config\Backend\KeyFileLocation
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function beforeSave()
     {
         $keyFileLocation = $this->getValue();
 
         if (empty($keyFileLocation) === false) {
-        	try {
-            	$gigyaEncryptKey = $this->gigyaEncryptorHelper->getKeyFromFile($this->getValue());
-			} catch (FileSystemException $e) {
-				throw new LocalizedException(__("Invalid or empty key file provided"));
-			}
+            try {
+                $gigyaEncryptKey = $this->gigyaEncryptorHelper->getKeyFromFile($this->getValue());
+            } catch (FileSystemException $e) {
+                throw new LocalizedException(__("Invalid or empty key file provided"));
+            }
 
             if ($gigyaEncryptKey === false) {
                 throw new LocalizedException(__("Invalid or empty key file provided"));

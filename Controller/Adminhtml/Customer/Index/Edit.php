@@ -33,9 +33,9 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
     protected $retryGigyaSyncHelper;
 
     /** @var GigyaLogger */
-	protected $logger;
+    protected $logger;
 
-	/**
+    /**
      * @inheritdoc
      *
      * @param RetryGigyaSyncHelper $retryGigyaSyncHelper
@@ -67,7 +67,7 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
         \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         RetryGigyaSyncHelper $retryGigyaSyncHelper,
-		GigyaLogger $logger
+        GigyaLogger $logger
     ) {
         parent::__construct(
             $context,
@@ -116,15 +116,15 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
         return $this->customerId;
     }
 
-	/**
-	 * @inheritdoc
-	 *
-	 * Display an appropriate status message relative to the Gigya synchronizing process :
-	 * . when customer page is loaded we have to tell if the Customer entity is up-to-date with the current Gigya profile data, or not (may be the Customer is already concerned by a retry scheduled, or the Gigya service is not reachable)
-	 * . when it's saved we have to tell if a retry is scheduled due to an error on saving (could be a Gigya service call failure as well as a Magento update failure)
-	 *
-	 * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect|\Magento\Framework\Controller\Result\Redirect
-	 */
+    /**
+     * @inheritdoc
+     *
+     * Display an appropriate status message relative to the Gigya synchronizing process :
+     * . when customer page is loaded we have to tell if the Customer entity is up-to-date with the current Gigya profile data, or not (may be the Customer is already concerned by a retry scheduled, or the Gigya service is not reachable)
+     * . when it's saved we have to tell if a retry is scheduled due to an error on saving (could be a Gigya service call failure as well as a Magento update failure)
+     *
+     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect|\Magento\Framework\Controller\Result\Redirect
+     */
     public function execute()
     {
         try {
@@ -144,15 +144,15 @@ class Edit extends \Magento\Customer\Controller\Adminhtml\Index\Edit
                             $this->messageManager->addWarningMessage(__('Data synchronizing from Gigya is impossible. The data could be outdated, please come back later.'));
                         }
                     }
-                } else if ($retryG2CMSCount == 0) {
+                } elseif ($retryG2CMSCount == 0) {
                     $this->messageManager->addWarningMessage(__('Data is not synchronized to Gigya account, retrying in progress.'));
-                } else if ($retryG2CMSCount > 0) {
+                } elseif ($retryG2CMSCount > 0) {
                     $this->messageManager->addWarningMessage(__('Retry data synchronizing to Gigya failed. Please wait for next retry or try to update the data again.'));
                 }
 
                 if ($retryCMS2GCount == 0) {
                     $this->messageManager->addWarningMessage(__('Data is not synchronized to Gigya account, retrying in progress.'));
-                } else if ($retryCMS2GCount > 0) {
+                } elseif ($retryCMS2GCount > 0) {
                     $this->messageManager->addWarningMessage(__('Retry data synchronizing to Gigya failed. Please wait for next retry or try to update the data again.'));
                 }
 

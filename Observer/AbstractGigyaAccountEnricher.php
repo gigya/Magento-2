@@ -53,7 +53,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
     protected $gigyaFromMagento;
 
     /** @var GigyaConfig */
-	protected $config;
+    protected $config;
 
     /** @var EnricherCustomerRegistry */
     protected $enricherCustomerRegistry;
@@ -83,7 +83,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
         ManagerInterface $eventDispatcher,
         GigyaLogger $logger,
         GigyaFromMagento $gigyaFromMagento,
-		GigyaConfig $config,
+        GigyaConfig $config,
         EnricherCustomerRegistry $enricherCustomerRegistry,
         CustomerResourceModel $customerResourceModel,
         CustomerFactory $customerFactory
@@ -167,9 +167,9 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
      * Performs the enrichment of the Gigya account with the Magento data.
      *
      * @param Customer $magentoCustomer
-	 *
+     *
      * @return GigyaUser
-	 *
+     *
      * @throws \Exception
      */
     protected function enrichGigyaAccount($magentoCustomer)
@@ -184,7 +184,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
         try {
             $this->gigyaFromMagento->run($magentoCustomer->getDataModel(), $gigyaAccountData);
 
-			$this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS, [
+            $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS, [
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getEntityId()
             ]);
@@ -193,8 +193,12 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getEntityId()
             ]);
-            if (!$this->processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData,
-                $gigyaAccountLoggingEmail)
+            if (!$this->processEventMapGigyaFromMagentoException(
+                $e,
+                $magentoCustomer,
+                $gigyaAccountData,
+                $gigyaAccountLoggingEmail
+            )
             ) {
                 throw new GigyaFieldMappingException($e);
             }
@@ -211,13 +215,13 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
      *
      * @param Observer $observer Must hang a data 'customer' of type Magento\Customer\Model\Customer
      * @return void
-	 *
-	 * @throws \Exception
-	 * @throws GSApiException
+     *
+     * @throws \Exception
+     * @throws GSApiException
      */
     public function execute(Observer $observer)
     {
-    	if ($this->config->isGigyaEnabled()) {
+        if ($this->config->isGigyaEnabled()) {
             $this->logger->debug("Update customer Magento => Gigya on event " . $observer->getEvent()->getName());
 
             $dataObject = $observer->getData('data_object');
@@ -231,7 +235,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
                 $magentoCustomer = $dataObject;
             }
 
-			if ($this->shallEnrichGigyaWithMagentoCustomerData($magentoCustomer)) {
+            if ($this->shallEnrichGigyaWithMagentoCustomerData($magentoCustomer)) {
                 $this->enricherCustomerRegistry->pushRegisteredCustomer($magentoCustomer);
                 $magentoCustomerId = $magentoCustomer->getId();
                 $magentoCustomer = $this->customerFactory->create();
@@ -248,11 +252,11 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
                 }
 
                 /** @var GigyaUser $gigyaAccountData */
-				$gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
-				$this->gigyaAccountRepository->update($gigyaAccountData);
+                $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
+                $this->gigyaAccountRepository->update($gigyaAccountData);
 
                 $this->enricherCustomerRegistry->removeRegisteredCustomer($magentoCustomer);
-			}
-		}
+            }
+        }
     }
 }

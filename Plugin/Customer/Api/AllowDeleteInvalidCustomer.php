@@ -10,7 +10,6 @@ namespace Gigya\GigyaIM\Plugin\Customer\Api;
  *
  * @author akhayrullin <info@x2i.fr>
  *
- * @package Gigya\GigyaIM\Plugin\Customer\Api
  */
 class AllowDeleteInvalidCustomer
 {
@@ -24,8 +23,7 @@ class AllowDeleteInvalidCustomer
      */
     public function __construct(
         \Gigya\GigyaIM\Helper\GigyaSyncHelper $gigyaSyncHelper
-    )
-    {
+    ) {
         $this->gigyaSyncHelper = $gigyaSyncHelper;
     }
 
@@ -41,8 +39,7 @@ class AllowDeleteInvalidCustomer
         \Magento\Customer\Api\CustomerRepositoryInterface $subject,
         \Closure $proceed,
         \Magento\Customer\Api\Data\CustomerInterface $customer
-    )
-    {
+    ) {
         $customerId = $customer->getId();
         $this->gigyaSyncHelper->excludeCustomerIdFromSync($customerId);
         $return = $proceed($customer);
@@ -60,9 +57,9 @@ class AllowDeleteInvalidCustomer
      */
     public function aroundDeleteById(
         \Magento\Customer\Api\CustomerRepositoryInterface $subject,
-        \Closure $proceed, $customerId
-    )
-    {
+        \Closure $proceed,
+        $customerId
+    ) {
         $this->gigyaSyncHelper->excludeCustomerIdFromSync($customerId);
         $return = $proceed($customerId);
         $this->gigyaSyncHelper->undoExcludeCustomerIdFromSync($customerId);

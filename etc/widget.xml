@@ -1,33 +1,33 @@
 <?xml version="1.0" ?>
 <widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
-	<widget class="Gigya\GigyaIM\Block\Widget\CustomScreenSet" id="gigya_custom_screenset">
-		<label>Gigya Screen-Set</label>
-		<description>Gigya Custom Screen-Set</description>
-		<parameters>
-			<parameter name="element_id" sort_order="10" visible="true" xsi:type="text">
-				<label>Display Element ID</label>
-				<description>Part of the container ID for the screen-set in the DOM. The full ID will be "gigya-screenset-[Display Element ID]-[Display Type]". Truncated to 64 characters.</description>
-			</parameter>
-			<parameter name="display" sort_order="20" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\ScreenSetDisplayType">
-				<label>Display Type</label>
-			</parameter>
-			<parameter name="link_text" sort_order="30" visible="true" xsi:type="text">
-				<label>Link text</label>
-				<depends>
-					<parameter name="display" value="popup" />
-				</depends>
-			</parameter>
-			<parameter name="link_class" sort_order="31" visible="true" xsi:type="text">
-				<label>Link class</label>
-				<description>The popup will be triggered by a link that has this CSS class</description>
-				<depends>
-					<parameter name="display" value="popup" />
-				</depends>
-			</parameter>
-			<parameter name="desktop" sort_order="40" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\DesktopScreenSetList">
-				<label>Screen-Set</label>
-				<description>This will also load the relevant mobile screen set and other corresponding configuration parameters</description>
-			</parameter>
-		</parameters>
-	</widget>
+    <widget class="Gigya\GigyaIM\Block\Widget\CustomScreenSet" id="gigya_custom_screenset">
+        <label>Gigya Screen-Set</label>
+        <description>Gigya Custom Screen-Set</description>
+        <parameters>
+            <parameter name="element_id" sort_order="10" visible="true" xsi:type="text">
+                <label>Display Element ID</label>
+                <description>Part of the container ID for the screen-set in the DOM. The full ID will be "gigya-screenset-[Display Element ID]-[Display Type]". Truncated to 64 characters.</description>
+            </parameter>
+            <parameter name="display" sort_order="20" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\ScreenSetDisplayType">
+                <label>Display Type</label>
+            </parameter>
+            <parameter name="link_text" sort_order="30" visible="true" xsi:type="text">
+                <label>Link text</label>
+                <depends>
+                    <parameter name="display" value="popup" />
+                </depends>
+            </parameter>
+            <parameter name="link_class" sort_order="31" visible="true" xsi:type="text">
+                <label>Link class</label>
+                <description>The popup will be triggered by a link that has this CSS class</description>
+                <depends>
+                    <parameter name="display" value="popup" />
+                </depends>
+            </parameter>
+            <parameter name="desktop" sort_order="40" visible="true" xsi:type="select" source_model="Gigya\GigyaIM\Model\Config\Source\DesktopScreenSetList">
+                <label>Screen-Set</label>
+                <description>This will also load the relevant mobile screen set and other corresponding configuration parameters</description>
+            </parameter>
+        </parameters>
+    </widget>
 </widgets>

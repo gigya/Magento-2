@@ -14,7 +14,8 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  *
  * @inheritdoc
  *
- * Overrides the check for knowing if a Magento customer shall be enriched : it's also depending on the request's action name.
+ * Overrides the check for knowing if a Magento customer shall be enriched : it's also depending on the request's
+ * action name.
  * @see FrontendMagentoCustomerEnricher::shallEnrichMagentoCustomerWithGigyaAccount()
  *
  * @author      vlemaire <info@x2i.fr>
@@ -25,17 +26,17 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /** @var Context */
     protected $context;
 
-	/**
-	 * FrontendMagentoCustomerEnricher constructor.
-	 *
-	 * @param CustomerRepositoryInterface $customerRepository
-	 * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
-	 * @param GigyaSyncHelper $gigyaSyncHelper
-	 * @param GigyaLogger $logger
-	 * @param Context $context
-	 * @param GigyaToMagento $gigyaToMagentoMapper
+    /**
+     * FrontendMagentoCustomerEnricher constructor.
+     *
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param GigyaAccountRepositoryInterface $gigyaAccountRepository
+     * @param GigyaSyncHelper $gigyaSyncHelper
+     * @param GigyaLogger $logger
+     * @param Context $context
+     * @param GigyaToMagento $gigyaToMagentoMapper
      * @param EnricherCustomerRegistry $enricherCustomerRegistry
-	 */
+     */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         GigyaAccountRepositoryInterface $gigyaAccountRepository,
@@ -61,7 +62,8 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /**
      * @inheritdoc
      *
-     * Add a check on the request's action name : update shall be performed only if we are going to login, create or update an account.
+     * Add a check on the request's action name : update shall be performed only if we are going to login, create or
+     * update an account.
      */
     public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true)
     {

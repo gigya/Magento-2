@@ -10,7 +10,8 @@ use Magento\Customer\Model\Data\Customer;
  *
  * @author      vlemaire <info@x2i.fr>
  */
-abstract class AbstractGigyaFieldsUpdater extends GigyaUpdater  {
+abstract class AbstractGigyaFieldsUpdater extends GigyaUpdater
+{
 
     /**
      * @var Customer
@@ -20,7 +21,8 @@ abstract class AbstractGigyaFieldsUpdater extends GigyaUpdater  {
     /**
      * @return Customer
      */
-    public function getMagentoUser() {
+    public function getMagentoUser()
+    {
 
         return $this->magentoUser;
     }
@@ -28,7 +30,8 @@ abstract class AbstractGigyaFieldsUpdater extends GigyaUpdater  {
     /**
      * @param Customer $magentoUser
      */
-    public function setMagentoUser($magentoUser) {
+    public function setMagentoUser($magentoUser)
+    {
 
         $this->magentoUser = $magentoUser;
     }

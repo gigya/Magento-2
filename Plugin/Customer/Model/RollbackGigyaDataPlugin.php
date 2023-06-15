@@ -40,26 +40,25 @@ class RollbackGigyaDataPlugin
         $this->retryGigyaSyncHelper = $retryGigyaSyncHelper;
     }
 
-	/**
-	 * If the Magento customer save fails AND is to be synchronized to Gigya (*) we have to roll back the Gigya account because it could have been updated just before the save.
-	 *
-	 * (*) we also save the Magento customer when it's loaded in backend, after being enriched with the current data from Gigya : in this case we do not want to sync back the customer to Gigya.
-	 *
-	 * @param CustomerRepositoryInterface $subject
-	 * @param \Closure $proceed
-	 * @param CustomerInterface $customer
-	 *
-	 * @return CustomerInterface
-	 *
-	 * @throws GigyaMagentoCustomerSaveException
-	 * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
-	 */
+    /**
+     * If the Magento customer save fails AND is to be synchronized to Gigya (*) we have to roll back the Gigya account because it could have been updated just before the save.
+     *
+     * (*) we also save the Magento customer when it's loaded in backend, after being enriched with the current data from Gigya : in this case we do not want to sync back the customer to Gigya.
+     *
+     * @param CustomerRepositoryInterface $subject
+     * @param \Closure $proceed
+     * @param CustomerInterface $customer
+     *
+     * @return CustomerInterface
+     *
+     * @throws GigyaMagentoCustomerSaveException
+     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     */
     public function aroundSave(
         CustomerRepositoryInterface $subject,
         \Closure $proceed,
         CustomerInterface $customer
-    )
-    {
+    ) {
         $result = null;
 
         try {
@@ -76,10 +75,10 @@ class RollbackGigyaDataPlugin
             }
         } catch (\Exception $e) {
             $uid = $customer->getCustomAttribute('gigya_uid') != null ? $customer->getCustomAttribute('gigya_uid')->getValue() : null;
-            if (!is_null($uid)) {
+            if (null !== $uid) {
                 if (!$this->retryGigyaSyncHelper->isCustomerIdExcludedFromSync($customer->getId(), GigyaSyncHelper::DIR_CMS2G)) {
                     $rolledBackGigyaAccount = $this->gigyaAccountService->rollback($uid);
-                    if (!is_null($rolledBackGigyaAccount)) {
+                    if (null !== $rolledBackGigyaAccount) {
                         $this->retryGigyaSyncHelper->scheduleRetry(
                             RetryGigyaSyncHelper::ORIGIN_CMS,
                             $customer->getId(),

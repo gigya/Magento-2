@@ -34,32 +34,32 @@ class UpgradeData implements UpgradeDataInterface
      */
     protected $attributeSetFactory;
 
-	/**
-	 * @var CustomerAttributeResourceModel
-	 */
-	protected $customerAttributeResourceModel;
+    /**
+     * @var CustomerAttributeResourceModel
+     */
+    protected $customerAttributeResourceModel;
 
     /**
      * @var Zend_Db_ExprFactory
      */
-	protected $zendDbExprFactory;
+    protected $zendDbExprFactory;
 
     /**
      * @var ResourceModelConfig
      */
-	protected $resourceModelConfig;
+    protected $resourceModelConfig;
 
-	/**
-	 * @param CustomerSetupFactory $customerSetupFactory
-	 * @param AttributeSetFactory $attributeSetFactory
-	 * @param CustomerAttributeResourceModel $customerAttributeResourceModel
+    /**
+     * @param CustomerSetupFactory $customerSetupFactory
+     * @param AttributeSetFactory $attributeSetFactory
+     * @param CustomerAttributeResourceModel $customerAttributeResourceModel
      * @param Zend_Db_ExprFactory $zendDbExprFactory
      * @param ResourceModelConfig $resourceModelConfig
-	 */
+     */
     public function __construct(
         CustomerSetupFactory $customerSetupFactory,
         AttributeSetFactory $attributeSetFactory,
-		CustomerAttributeResourceModel $customerAttributeResourceModel,
+        CustomerAttributeResourceModel $customerAttributeResourceModel,
         Zend_Db_ExprFactory $zendDbExprFactory,
         ResourceModelConfig $resourceModelConfig
     ) {
@@ -75,11 +75,11 @@ class UpgradeData implements UpgradeDataInterface
      *
      * @param ModuleDataSetupInterface $setup
      * @param ModuleContextInterface $context
-	 *
+     *
      * @return void
-	 *
-	 * @throws LocalizedException
-	 * @throws \Exception
+     *
+     * @throws LocalizedException
+     * @throws \Exception
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -114,7 +114,7 @@ class UpgradeData implements UpgradeDataInterface
                     'used_in_forms' => ['adminhtml_customer'],
                 ]);
 
-			$this->customerAttributeResourceModel->save($attribute);
+            $this->customerAttributeResourceModel->save($attribute);
         }
 
         if (version_compare($context->getVersion(), '5.0.5') < 0) {
@@ -144,7 +144,7 @@ class UpgradeData implements UpgradeDataInterface
                     'used_in_forms' => [],
                 ]);
 
-			$this->customerAttributeResourceModel->save($attribute);
+            $this->customerAttributeResourceModel->save($attribute);
         }
 
         if (version_compare($context->getVersion(), '5.0.7') < 0) {
@@ -180,7 +180,7 @@ class UpgradeData implements UpgradeDataInterface
                     'used_in_forms' => ['adminhtml_customer'],
                 ]);
 
-			$this->customerAttributeResourceModel->save($attribute);
+            $this->customerAttributeResourceModel->save($attribute);
         }
 
         if (version_compare($context->getVersion(), '5.6.0') < 0) {
@@ -192,7 +192,7 @@ class UpgradeData implements UpgradeDataInterface
                 $pathExpr = $this->zendDbExprFactory->create(['expression' => "'gigya_section/general/app_secret'"]);
 
                 $select = $connection->select()
-                    ->from($gigyaSettingsTable, array($pathExpr, 'app_secret'))
+                    ->from($gigyaSettingsTable, [$pathExpr, 'app_secret'])
                     ->where('id = ?', 1);
 
                 $result = $connection->query($select);
