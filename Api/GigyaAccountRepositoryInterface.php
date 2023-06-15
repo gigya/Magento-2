@@ -19,9 +19,10 @@ interface GigyaAccountRepositoryInterface
      * Update an existing Gigya customer account.
      *
      * @param GigyaUser $gigyaAccount Shall have a uid not null.
-     * @throws GSApiException If error encountered on service call or functional error returned by service. Check error code to identify the case.
+     * @throws GSApiException If error encountered on service call or functional error returned by service.
+     * Check error code to identify the case.
      */
-    function update($gigyaAccount);
+    public function update($gigyaAccount);
 
     /**
      * Get a Gigya customer account.
@@ -29,5 +30,5 @@ interface GigyaAccountRepositoryInterface
      * @param string $uid
      * @return GigyaUser
      */
-    function get($uid);
+    public function get($uid);
 }

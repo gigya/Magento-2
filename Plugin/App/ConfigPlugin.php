@@ -26,16 +26,15 @@ class ConfigPlugin
         $path = null,
         $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
         $scopeCode = null
-    )
-    {
+    ) {
         if ($path == GigyaConfig::XML_PATH_SESSION_EXPIRATION) {
 
-            switch($subject->getValue(GigyaConfig::XML_PATH_SESSION_MODE)) {
+            switch ($subject->getValue(GigyaConfig::XML_PATH_SESSION_MODE)) {
 
-                case GigyaConfig::SESSION_MODE_BROWSER_INSTANCE :
+                case GigyaConfig::SESSION_MODE_BROWSER_INSTANCE:
                     return 0;
 
-                case GigyaConfig::SESSION_MODE_ENDLESS :
+                case GigyaConfig::SESSION_MODE_ENDLESS:
                     return self::ENDLESS_SESSION_LIFETIME;
             }
         }

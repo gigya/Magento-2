@@ -14,14 +14,13 @@ class GigyaUID extends \Magento\Backend\Block\Template
     public function getGUIDFromParentBlock()
     {
         $customer = $this->getCustomerFromParentBlock();
-        if($customer)
-        {
+        if ($customer) {
             $attribute = $customer->getCustomAttribute('gigya_uid');
-            if($attribute)
-            {
+            if ($attribute) {
                 return $attribute->getValue();
             }
         }
+
         return false;
     }
 
@@ -33,10 +32,10 @@ class GigyaUID extends \Magento\Backend\Block\Template
     protected function getCustomerFromParentBlock()
     {
         $parentBlock = $this->getParentBlock();
-        if($parentBlock && $parentBlock instanceof PersonalInfo)
-        {
+        if ($parentBlock && $parentBlock instanceof PersonalInfo) {
             return $parentBlock->getCustomer();
         }
+
         return false;
     }
 }

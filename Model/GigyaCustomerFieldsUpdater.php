@@ -72,11 +72,10 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
         Subscriber $subscriber,
         AddressResourceModel $addressResourceModel,
         AddressFactory $addressFactory
-    )
-    {
+    ) {
         $apiHelper = $gigyaMageHelper->getGigyaApiHelper();
 
-		parent::__construct(null, null, null, $apiHelper);
+        parent::__construct(null, null, null, $apiHelper);
 
         $this->gigyaCacheType = $gigyaCacheType;
         $this->eventManager = $eventManager;
@@ -91,7 +90,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * Magento customer to use for mapping must be set before this method by calling self::getMagentoCustomer()
      *
-	 * @throws GigyaFieldMappingException
+     * @throws GigyaFieldMappingException
      */
     public function callCmsHook()
     {
@@ -117,7 +116,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      */
     public function updateGigya()
     {
-		parent::updateGigya(); /* In order to allow saving a Magento 2 customer even when there is an error from Gigya, surround this with a try/catch */
+        parent::updateGigya(); /* In order to allow saving a Magento 2 customer even when there is an error from Gigya, surround this with a try/catch */
 
         /** @var array $updatedGigyaData */
         $updatedGigyaData = $this->getGigyaArray();
@@ -129,7 +128,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                 foreach ($updatedGigyaProfile as $name => $value) {
                     $methodName = 'set' . ucfirst($name);
                     $methodParams = $value;
-                    call_user_func(array($this->gigyaUser->getProfile(), $methodName), $methodParams);
+                    call_user_func([$this->gigyaUser->getProfile(), $methodName], $methodParams);
                 }
             } elseif ($key === 'data') {
                 $this->gigyaUser->setData($updatedGigyaData['data']);
@@ -137,7 +136,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                 /* Specific code for subscriptions */
                 /** @var array $subscriptionData */
                 foreach ($array as $subscriptionId => $subscriptionData) {
-                	if (array_key_exists('email', $subscriptionData) and is_array($subscriptionData['email'])) {
+                    if (array_key_exists('email', $subscriptionData) and is_array($subscriptionData['email'])) {
                         $subscription = new GigyaSubscription(null);
 
                         foreach ($subscriptionData['email'] as $subscriptionField => $subscriptionValue) {
@@ -152,7 +151,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                 /* Specific code for other fields */
                 $methodName = 'set' . ucfirst($key);
                 $methodParams = $array;
-                call_user_func(array($this->gigyaUser, $methodName), $methodParams);
+                call_user_func([$this->gigyaUser, $methodName], $methodParams);
             }
         }
     }
@@ -174,7 +173,8 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      * @param $delimiter
      * @return mixed
      */
-    private function mixify($word, $delimiter){
+    private function mixify($word, $delimiter)
+    {
 
         $word = strtolower($word);
         $word = ucwords($word, $delimiter);
@@ -197,7 +197,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      */
     public function getValueFromMagentoCustomer($cmsName)
     {
-		$subPaths = explode('.', $cmsName);
+        $subPaths = explode('.', $cmsName);
         if (empty($subPaths)) {
             $this->logger->warning(sprintf("cmsName should not be empty."));
             return null;
@@ -210,16 +210,14 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                     $subPath = substr($subPath, 7);
                     $methodName = 'getCustomAttribute';
                     $methodParams = strtolower($subPath);
-                    $value = call_user_func(array($magentoUser, $methodName), $methodParams);
+                    $value = call_user_func([$magentoUser, $methodName], $methodParams);
                     if ($value == null) {
                         throw new \Exception('Custom attribute '.$subPath.' is not set');
                     }
 
                     /* Value is of type AttributeValue */
                     $value = $value->getValue();
-                }
-                elseif ($subPath === 'isSubscribed')
-                {
+                } elseif ($subPath === 'isSubscribed') {
                     $subscriber = $this->subscriber->loadByCustomerId($magentoUser->getId());
                     $value = $subscriber->isSubscribed();
                 } elseif (strpos($subPath, 'address_') === 0) {
@@ -236,15 +234,15 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                         $methodName = 'getStreetLine';
                     }
 
-                    $value = call_user_func(array($magentoBilling, $methodName), $param0);
+                    $value = call_user_func([$magentoBilling, $methodName], $param0);
                     //If the fieldset is set to street, then implode address lines
                     $value = is_array($value) ? implode(', ', $value) : $value;
                 } else {
                     $methodName = 'get' . ucfirst($this->mixify($subPath, '_'));
-                    $value = call_user_func(array($magentoUser, $methodName)) ?: '';
+                    $value = call_user_func([$magentoUser, $methodName]) ?: '';
                 }
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new GigyaFieldMappingException(sprintf('Field mapping Magento to Gigya : exception while looking for Customer entity value [%s] : %s', $cmsName, $e->getMessage()));
         }
 
@@ -266,7 +264,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 
         try {
             parent::retrieveFieldMappings();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             if (!$this->confMapping || $this->confMapping->getMappingConf() == null) {
                 throw new GigyaFieldMappingException("Field mapping file could not be found or is empty or is not correctly formated.");
             } else {
@@ -322,8 +320,12 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
         if (!$this->gigyaCacheType->test(CacheType::CACHE_TAG)) {
             $this->confMapping = $mappingConf;
         } else {
-            $this->gigyaCacheType->save(serialize($mappingConf), CacheType::TYPE_IDENTIFIER, [CacheType::CACHE_TAG],
-                86400);
+            $this->gigyaCacheType->save(
+                serialize($mappingConf),
+                CacheType::TYPE_IDENTIFIER,
+                [CacheType::CACHE_TAG],
+                86400
+            );
         }
     }
 

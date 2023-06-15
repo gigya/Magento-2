@@ -113,10 +113,10 @@ class GigyaCronHelper extends AbstractHelper
      * Parses a configuration setting and return an array of email addresses. An empty array is returned if the field is blank.
      * The function does not perform any validation on the correctness of the email addresses, but will return false if more than one valid delimiter is present in the emails string.
      * Input example:
-     * 		string: "a@a.com, b@b.com"
+     *         string: "a@a.com, b@b.com"
      *
-     * @param string	$configSetting
-     * @param array		$validDelimiters
+     * @param string    $configSetting
+     * @param array        $validDelimiters
      *
      * @return array|false
      */

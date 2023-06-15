@@ -1,29 +1,29 @@
 <?xml version="1.0"?>
 <csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp/etc/csp_whitelist.xsd">
-	<policies>
-		<policy id="script-src">
-			<values>
-				<value id="gigya" type="host">*.gigya.com</value>
-			</values>
-		</policy>
-		<policy id="style-src">
-			<values>
-				<value id="gigya" type="host">*.gigya.com</value>
-				<value id="gigya" type="host">'self' data:</value>
-				<value id="gigya" type="host">'unsafe-inline' data:</value>
-			</values>
-		</policy>
-		<policy id="frame-src">
-			<values>
-				<value id="gigya" type="host">*.gigya.com</value>
-			</values>
-		</policy>
-		<policy id="img-src">
-			<values>
-				<value id="gigya" type="host">*.gigya.com</value>
-				<value id="gigya_self" type="host">'self' data:</value>
-				<value id="gigya_inline" type="host">'unsafe-inline' data:</value>
-			</values>
-		</policy>
-	</policies>
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="gigya" type="host">*.gigya.com</value>
+            </values>
+        </policy>
+        <policy id="style-src">
+            <values>
+                <value id="gigya" type="host">*.gigya.com</value>
+                <value id="gigya" type="host">'self' data:</value>
+                <value id="gigya" type="host">'unsafe-inline' data:</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="gigya" type="host">*.gigya.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="gigya" type="host">*.gigya.com</value>
+                <value id="gigya_self" type="host">'self' data:</value>
+                <value id="gigya_inline" type="host">'unsafe-inline' data:</value>
+            </values>
+        </policy>
+    </policies>
 </csp_whitelist>

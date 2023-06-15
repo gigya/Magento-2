@@ -8,31 +8,31 @@ use Magento\Framework\Serialize\SerializerInterface;
 
 class MobileScreenSetList implements OptionSourceInterface
 {
-	protected $config;
-	protected $serializer;
+    protected $config;
+    protected $serializer;
 
-	public function __construct(
-		GigyaConfig $gigyaConfig,
-		SerializerInterface $serializer
-	) {
-		$this->config     = $gigyaConfig;
-		$this->serializer = $serializer;
-	}
+    public function __construct(
+        GigyaConfig $gigyaConfig,
+        SerializerInterface $serializer
+    ) {
+        $this->config     = $gigyaConfig;
+        $this->serializer = $serializer;
+    }
 
-	public function toOptionArray() {
-		$screensetConfig = $this->config->getCustomScreensets();
+    public function toOptionArray()
+    {
+        $screensetConfig = $this->config->getCustomScreensets();
 
-		$screensets = array();
+        $screensets = [];
 
-		if (!empty($screensetConfig))
-		{
-			foreach ($this->serializer->unserialize($screensetConfig) as $screenset)
-			{
-				if (!empty($screenset['mobile_screen']))
-					$screensets[] = ['value' => $screenset['mobile_screen'], 'label' => $screenset['mobile_screen']];
-			}
-		}
+        if (!empty($screensetConfig)) {
+            foreach ($this->serializer->unserialize($screensetConfig) as $screenset) {
+                if (!empty($screenset['mobile_screen'])) {
+                    $screensets[] = ['value' => $screenset['mobile_screen'], 'label' => $screenset['mobile_screen']];
+                }
+            }
+        }
 
-		return $screensets;
-	}
+        return $screensets;
+    }
 }

@@ -60,22 +60,22 @@ class Config
         $this->logger = $logger;
     }
 
-	/**
-	 * @param \Magento\Config\Model\Config $subject
-	 *
-	 * @throws LocalizedException
-	 * @throws \Gigya\PHP\GSException
-	 * @throws \Magento\Framework\Exception\NoSuchEntityException
-	 * @throws \Exception
-	 */
+    /**
+     * @param \Magento\Config\Model\Config $subject
+     *
+     * @throws LocalizedException
+     * @throws \Gigya\PHP\GSException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Exception
+     */
     public function beforeSave(\Magento\Config\Model\Config $subject)
     {
         $section = $subject->getData('section');
 
         if ($section == 'gigya_section') {
             $scope = $this->getScope($subject);
-			$scopeType = $scope[0];
-			$scopeCode = $scope[1];
+            $scopeType = $scope[0];
+            $scopeCode = $scope[1];
             $settings = $this->extractSettings($subject, $scopeType, $scopeCode);
 
             if ($settings['enable_gigya']) {
@@ -114,9 +114,9 @@ class Config
      */
     public function getScope(\Magento\Config\Model\Config $subject)
     {
-        $store = intval($subject->getData('store'));
+        $store = (int)$subject->getData('store');
         $website = $store > 0 ? $this->storeRepository->getById($store)->getWebsiteId() :
-            intval($subject->getData('website'));
+            (int)$subject->getData('website');
 
         if ($website > 0) {
             $scopeType = ScopeInterface::SCOPE_WEBSITES;
@@ -130,14 +130,14 @@ class Config
         return [$scopeType, $scopeCode];
     }
 
-	/**
-	 * @param \Magento\Config\Model\Config $subject
-	 * @param string                       $scopeType
-	 * @param string                       $scopeCode
-	 *
-	 * @return mixed
-	 */
-	public function extractSettings(\Magento\Config\Model\Config $subject, $scopeType, $scopeCode)
+    /**
+     * @param \Magento\Config\Model\Config $subject
+     * @param string                       $scopeType
+     * @param string                       $scopeCode
+     *
+     * @return mixed
+     */
+    public function extractSettings(\Magento\Config\Model\Config $subject, $scopeType, $scopeCode)
     {
         $currentSettings = $this->gigyaConfig->getGigyaGeneralConfig($scopeType, $scopeCode);
         $settings = [];
@@ -151,17 +151,17 @@ class Config
             }
         }
 
-		if ($settings['authentication_mode'] == 'user_rsa') {
-			$settings['rsa_private_key_decrypted'] = true;
-			unset($settings['app_secret']); /* Remove secret key if RSA auth method has been chosen */
-		} else {
-			if ($settings['app_secret'] == '******') {
-				unset($settings['app_secret']);
-			} else {
-				$settings['app_secret_decrypted'] = true;
-			}
-			unset($settings['rsa_private_key']); /* Remove RSA private key if user/secret method has been chosen */
-		}
+        if ($settings['authentication_mode'] == 'user_rsa') {
+            $settings['rsa_private_key_decrypted'] = true;
+            unset($settings['app_secret']); /* Remove secret key if RSA auth method has been chosen */
+        } else {
+            if ($settings['app_secret'] == '******') {
+                unset($settings['app_secret']);
+            } else {
+                $settings['app_secret_decrypted'] = true;
+            }
+            unset($settings['rsa_private_key']); /* Remove RSA private key if user/secret method has been chosen */
+        }
 
         return $settings;
     }

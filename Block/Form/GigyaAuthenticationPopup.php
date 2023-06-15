@@ -59,7 +59,8 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
     /**
      * @return string
      */
-    public function _toHtml() {
+    public function _toHtml()
+    {
 
         if ($this->config->isGigyaEnabled()) {
             $this->getLayout()->unsetElement('customer_form_register');

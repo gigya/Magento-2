@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-		<gigya_section>
-			<general>
-				<enable_gigya>0</enable_gigya>
-				<domain>us1.gigya.com</domain>
-				<encryption_key_type>magento</encryption_key_type>
-				<authentication_mode>user_secret</authentication_mode>
-				<language>auto</language>
-				<language_fallback>en_US</language_fallback>
-			</general>
-		</gigya_section>
+        <gigya_section>
+            <general>
+                <enable_gigya>0</enable_gigya>
+                <domain>us1.gigya.com</domain>
+                <encryption_key_type>magento</encryption_key_type>
+                <authentication_mode>user_secret</authentication_mode>
+                <language>auto</language>
+                <language_fallback>en_US</language_fallback>
+            </general>
+        </gigya_section>
         <gigya_section_fieldmapping>
             <offline_sync>
                 <offline_sync_is_enabled>0</offline_sync_is_enabled>
                 <offline_sync_frequency>0 * * * *</offline_sync_frequency>
             </offline_sync>
         </gigya_section_fieldmapping>
-		<gigya_screensets>
+        <gigya_screensets>
             <login_registration>
                 <desktop_screenset_id>Default-RegistrationLogin</desktop_screenset_id>
             </login_registration>
@@ -38,16 +38,16 @@
         <gigya_delete>
             <deletion_general>
                 <deletion_job_frequency>0 0 * * *</deletion_job_frequency>
-				<deletion_not_found_behavior>failure</deletion_not_found_behavior>
+                <deletion_not_found_behavior>failure</deletion_not_found_behavior>
             </deletion_general>
-			<deletion_aws_details>
+            <deletion_aws_details>
                 <deletion_aws_secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </deletion_aws_details>
         </gigya_delete>
-		<gigya_advanced>
-			<synchro>
-				<gigya_update_max_retry>5</gigya_update_max_retry>
-			</synchro>
-		</gigya_advanced>
+        <gigya_advanced>
+            <synchro>
+                <gigya_update_max_retry>5</gigya_update_max_retry>
+            </synchro>
+        </gigya_advanced>
     </default>
 </config>

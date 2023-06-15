@@ -15,32 +15,34 @@ use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
  */
 class GigyaAccountRepository implements GigyaAccountRepositoryInterface
 {
-	/** @var  GigyaAccountServiceInterface */
-	protected $gigyaAccountService;
+    /** @var  GigyaAccountServiceInterface */
+    protected $gigyaAccountService;
 
-	/**
-	 * GigyaAccountRepository constructor.
-	 *
-	 * @param GigyaAccountServiceInterface $gigyaAccountService
-	 */
-	public function __construct(GigyaAccountServiceInterface $gigyaAccountService) {
-		$this->gigyaAccountService = $gigyaAccountService;
-	}
+    /**
+     * GigyaAccountRepository constructor.
+     *
+     * @param GigyaAccountServiceInterface $gigyaAccountService
+     */
+    public function __construct(GigyaAccountServiceInterface $gigyaAccountService)
+    {
+        $this->gigyaAccountService = $gigyaAccountService;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	function update($gigyaAccount) {
-		if ($gigyaAccount->getUid())
-		{
-			$this->gigyaAccountService->update($gigyaAccount);
-		}
-	}
+    /**
+     * @inheritdoc
+     */
+    function update($gigyaAccount)
+    {
+        if ($gigyaAccount->getUid()) {
+            $this->gigyaAccountService->update($gigyaAccount);
+        }
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	function get($uid) {
-		return $this->gigyaAccountService->get($uid);
-	}
+    /**
+     * @inheritdoc
+     */
+    function get($uid)
+    {
+        return $this->gigyaAccountService->get($uid);
+    }
 }
