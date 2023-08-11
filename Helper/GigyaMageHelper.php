@@ -50,9 +50,6 @@ class GigyaMageHelper extends AbstractHelper
 
     public $logger;
 
-    /** @var  Session */
-    protected $session;
-
     protected $sigUtils;
 
     /**

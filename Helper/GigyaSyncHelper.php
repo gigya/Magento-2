@@ -53,11 +53,6 @@ class GigyaSyncHelper extends AbstractHelper
      */
     protected $storeManager;
 
-    /**
-     * @var Session
-     */
-    protected $session;
-
     /** @var  AppState */
     protected $appState;
 
@@ -76,7 +71,6 @@ class GigyaSyncHelper extends AbstractHelper
      * @param FilterBuilder               $filterBuilder
      * @param FilterGroupBuilder          $filterGroupBuilder
      * @param StoreManagerInterface       $storeManager
-     * @param Session                     $customerSession
      * @param AppState                    $state
      * @param Share                       $shareConfig
      */
