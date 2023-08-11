@@ -66,7 +66,6 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
      * @param FilterBuilder $filterBuilder
      * @param FilterGroupBuilder $filterGroupBuilder
      * @param StoreManagerInterface $storeManager
-     * @param Session $customerSession
      * @param AppState $state
      * @param Share $shareConfig
      * @param Context $context
@@ -83,7 +82,6 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         FilterBuilder $filterBuilder,
         FilterGroupBuilder $filterGroupBuilder,
         StoreManagerInterface $storeManager,
-        Session $customerSession,
         AppState $state,
         Share $shareConfig,
         Context $context,
