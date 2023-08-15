@@ -4,6 +4,7 @@
  */
 namespace Gigya\GigyaIM\Helper;
 
+use Exception;
 use Firebase\JWT\JWT;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
@@ -71,7 +72,6 @@ class GigyaMageHelper extends AbstractHelper
      * @param GigyaLogger            $logger
      * @param ModuleListInterface    $moduleList
      * @param Config                 $configModel
-     * @param Session                $session
      * @param CookieManagerInterface $cookieManager
      * @param SigUtils               $sigUtils
      * @param Encryptor              $encryptor
@@ -83,7 +83,6 @@ class GigyaMageHelper extends AbstractHelper
         GigyaLogger $logger,
         ModuleListInterface $moduleList,
         Config $configModel,
-        Session $session,
         CookieManagerInterface $cookieManager,
         SigUtils $sigUtils,
         Encryptor $encryptor,
@@ -96,7 +95,6 @@ class GigyaMageHelper extends AbstractHelper
         $this->configModel = $configModel;
         $this->scopeConfig = $context->getScopeConfig();
         $this->_moduleList = $moduleList;
-        $this->session = $session;
         $this->cookieManager = $cookieManager;
         $this->sigUtils = $sigUtils;
         $this->encryptor = $encryptor;
@@ -106,7 +104,7 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * Retrive the application secret
+     * Retrieve the application secret
      *
      * @return string
      */
@@ -116,7 +114,7 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * Retrive the application private key
+     * Retrieve the application private key
      *
      * @return string
      */
@@ -216,7 +214,7 @@ class GigyaMageHelper extends AbstractHelper
      * @param        $scopeCode
      * @param        $settings
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setGigyaSettings(
         $scopeType = ScopeInterface::SCOPE_WEBSITE,
@@ -274,7 +272,7 @@ class GigyaMageHelper extends AbstractHelper
             try {
                 $authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
                 $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->dir, $this->authMode);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return false;
             }
         }
@@ -311,7 +309,7 @@ class GigyaMageHelper extends AbstractHelper
      * @return bool|\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
      *
      * @throws GSApiException
-     * @throws \Exception
+     * @throws Exception
      */
     public function validateAndFetchRaasUser($uid, $signature, $signatureTimestamp)
     {
@@ -514,13 +512,13 @@ class GigyaMageHelper extends AbstractHelper
                 case GigyaAccountServiceInterface::ERR_CODE_LOGIN_ID_ALREADY_EXISTS:
                     $this->logger->debug("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
-                       'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
+//                       'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                     ]);
                     throw new GSException("Email already exists.");
                 default:
                     $this->logger->debug("Error while retrieving Gigya account data", [
                        'gigya_data' => $loginData,
-                       'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
+//                       'customer_entity_id' => ($this->session->isLoggedIn()) ? $this->session->getCustomerId() : 'not logged in'
                     ]);
                     throw new GSException(sprintf("Unable to get Gigya account data : %s / %s", $gigya_validation_o->errorCode, $gigya_validation_o->errorMessage));
             }

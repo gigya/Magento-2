@@ -100,7 +100,6 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             $filterBuilder,
             $filterGroupBuilder,
             $storeManager,
-            $customerSession,
             $state,
             $shareConfig
         );
