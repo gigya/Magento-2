@@ -65,7 +65,7 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      * Add a check on the request's action name : update shall be performed only if we are going to login, create or
      * update an account.
      */
-    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true)
+    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true): bool
     {
         $result = parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, false);
 

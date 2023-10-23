@@ -29,10 +29,10 @@ use Magento\Framework\App\Action\Context;
 class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
 {
     /** @var CustomerRegistry  */
-    protected $customerRegistry;
+    protected CustomerRegistry $customerRegistry;
 
     /** @var Context */
-    protected $context;
+    protected Context $context;
 
     /**
      * BackendMagentoCustomerEnricher constructor.
@@ -77,7 +77,7 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      *
      * If GigyaMagentoCustomerSaveException is caught it's muted. Any other exception is not muted.
      */
-    public function saveMagentoCustomer($magentoCustomer)
+    public function saveMagentoCustomer($magentoCustomer): void
     {
         try {
             parent::saveMagentoCustomer($magentoCustomer);
@@ -90,10 +90,10 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     /**
      * @param $magentoCustomer
      * @param $event
-     * @param $final
+     * @param bool $final
      * @return bool|mixed
      */
-    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true)
+    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, bool $final = true): bool
     {
         $result = parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, false);
 

@@ -17,7 +17,6 @@ use Magento\Framework\App\Helper\Context as HelperContext;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Customer\Model\Session;
 use Magento\Framework\App\State as AppState;
 
 class GigyaSyncHelper extends AbstractHelper
@@ -53,11 +52,6 @@ class GigyaSyncHelper extends AbstractHelper
      */
     protected $storeManager;
 
-    /**
-     * @var Session
-     */
-    protected $session;
-
     /** @var  AppState */
     protected $appState;
 
@@ -76,7 +70,6 @@ class GigyaSyncHelper extends AbstractHelper
      * @param FilterBuilder               $filterBuilder
      * @param FilterGroupBuilder          $filterGroupBuilder
      * @param StoreManagerInterface       $storeManager
-     * @param Session                     $customerSession
      * @param AppState                    $state
      * @param Share                       $shareConfig
      */
@@ -296,7 +289,7 @@ class GigyaSyncHelper extends AbstractHelper
         // This value will be set with the preferred email that should be attached with the Magento customer account, among all the Gigya loginIDs emails
         // We initialize it to null. If it's still null at the end of the algorithm that means that the user can not logged in
         // because all Gigya loginIDs emails are already set to existing Magento customer accounts with a different or null Gigya UID
-        // Using Object manager in order to fix the di issue
+        // Using Object manager in order to fix the di compilation issue
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         $session = $om->get('Magento\Customer\Model\Session');
         $session->setGigyaAccountLoggingEmail(null);

@@ -18,7 +18,6 @@ use Gigya\GigyaIM\Model\Config;
 use Gigya\GigyaIM\Model\SettingsFactory;
 use Gigya\GigyaIM\Encryption\Encryptor;
 use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Customer\Model\Session;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -50,15 +49,14 @@ class GigyaMageHelper extends AbstractHelper
 
     public $logger;
 
-    /** @var  Session */
-    protected $session;
-
     protected $sigUtils;
 
     /**
      * @var Encryptor
      */
     protected $encryptor;
+
+    protected $dir;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -68,15 +66,15 @@ class GigyaMageHelper extends AbstractHelper
     /**
      * GigyaMageHelper constructor.
      *
-     * @param Context                $context
-     * @param GigyaLogger            $logger
-     * @param ModuleListInterface    $moduleList
-     * @param Config                 $configModel
+     * @param Context $context
+     * @param GigyaLogger $logger
+     * @param ModuleListInterface $moduleList
+     * @param Config $configModel
      * @param CookieManagerInterface $cookieManager
-     * @param SigUtils               $sigUtils
-     * @param Encryptor              $encryptor
-     *
-     * @throws \Exception
+     * @param SigUtils $sigUtils
+     * @param Encryptor $encryptor
+     * @param Dir $dir
+     * @throws Exception
      */
     public function __construct(
         Context $context,
@@ -306,7 +304,7 @@ class GigyaMageHelper extends AbstractHelper
      * @param string $signature    UIDSignature or ID Token
      * @param string $signatureTimestamp
      *
-     * @return bool|\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
+     * @return bool|GigyaUser
      *
      * @throws GSApiException
      * @throws Exception

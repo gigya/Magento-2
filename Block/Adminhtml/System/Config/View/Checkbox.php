@@ -6,7 +6,7 @@ use Magento\Framework\View\Element\AbstractBlock;
 
 class Checkbox extends AbstractBlock
 {
-    protected function _toHtml()
+    protected function _toHtml(): string
     {
         $elementId   = $this->getInputId();
         $elementName = $this->getInputName();

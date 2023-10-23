@@ -27,7 +27,7 @@ class GigyaRegister extends Register
     /**
      * @var GigyaConfig
      */
-    protected $configModel;
+    protected GigyaConfig $configModel;
 
     /**
      * Register constructor.
@@ -75,7 +75,7 @@ class GigyaRegister extends Register
     /**
      * @return string
      */
-    public function getLoginDesktopScreensetId()
+    public function getLoginDesktopScreensetId(): string
     {
         return $this->configModel->getLoginDesktopScreensetId();
     }
@@ -83,7 +83,7 @@ class GigyaRegister extends Register
     /**
      * @return string
      */
-    public function getLoginMobileScreensetId()
+    public function getLoginMobileScreensetId(): string
     {
         return $this->configModel->getLoginMobileScreensetId();
     }

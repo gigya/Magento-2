@@ -2,10 +2,12 @@
 
 namespace Gigya\GigyaIM\Controller\Raas;
 
+use Exception;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Logger\Logger;
 use Gigya\GigyaIM\Model\Session\Extend;
-
+use Magento\Customer\Controller\AbstractAccount;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Action\Context;
@@ -14,11 +16,13 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
 use Magento\Framework\Stdlib\Cookie\FailureToSendException;
 use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Helper\Address;
@@ -41,8 +45,9 @@ use Magento\Framework\Controller\Result\Forward;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Zend\Http\Header\Location;
 
-abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccount
+abstract class AbstractLogin extends AbstractAccount
 {
     const RESPONSE_OBJECT = 'response_object';
     const RESPONSE_DATA = 'response_data';
@@ -52,101 +57,94 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     const EVENT_POST_USER_LOGIN = 'gigya_post_user_login';
 
     /** @var AccountManagementInterface */
-    protected $accountManagement;
+    protected AccountManagementInterface $accountManagement;
 
     /** @var Address */
-    protected $addressHelper;
+    protected Address $addressHelper;
 
     /** @var FormFactory */
-    protected $formFactory;
+    protected FormFactory $formFactory;
 
     /** @var SubscriberFactory */
-    protected $subscriberFactory;
+    protected SubscriberFactory $subscriberFactory;
 
     /** @var RegionInterfaceFactory */
-    protected $regionDataFactory;
+    protected RegionInterfaceFactory $regionDataFactory;
 
     /** @var AddressInterfaceFactory */
-    protected $addressDataFactory;
+    protected AddressInterfaceFactory $addressDataFactory;
 
     /** @var Registration */
-    protected $registration;
+    protected Registration $registration;
 
     /** @var CustomerInterfaceFactory */
-    protected $customerDataFactory;
+    protected CustomerInterfaceFactory $customerDataFactory;
 
     /** @var CustomerUrl */
-    protected $customerUrl;
+    protected CustomerUrl $customerUrl;
 
     /** @var Escaper */
-    protected $escaper;
+    protected Escaper $escaper;
 
     /** @var CustomerExtractor */
-    protected $customerExtractor;
+    protected CustomerExtractor $customerExtractor;
 
-    /** @var \Magento\Framework\UrlInterface */
-    protected $urlModel;
+    /** @var UrlInterface */
+    protected UrlInterface $urlModel;
 
     /** @var DataObjectHelper */
-    protected $dataObjectHelper;
+    protected DataObjectHelper $dataObjectHelper;
 
-    /**
-     * @var Session
-     */
-    protected $session;
+    /** @var Session */
+    protected Session $session;
 
-    /**
-     * @var AccountRedirect
-     */
-    protected $accountRedirect;
+    /** @var AccountRedirect */
+    protected AccountRedirect $accountRedirect;
 
     /** @var  GigyaMageHelper */
-    protected $gigyaMageHelper;
+    protected GigyaMageHelper $gigyaMageHelper;
 
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    protected $customerRepository;
+    /** @var CustomerRepositoryInterface */
+    protected CustomerRepositoryInterface $customerRepository;
 
     /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
+    protected GigyaSyncHelper $gigyaSyncHelper;
 
     /** @var array */
-    protected $cookies;
+    protected array $cookies;
 
     /** @var array */
-    protected $cookiesToDelete;
+    protected array $cookiesToDelete;
 
-    /**
-     * @var Extend
-     */
-    protected $extendModel;
+    /** @var Extend */
+    protected Extend $extendModel;
 
-    /**
-     * @var array
-     */
-    protected $messageStorage;
+    /** @var array */
+    protected array $messageStorage;
 
-    protected $scopeConfig;
-    protected $formKeyValidator;
-    protected $cookieManager;
-    protected $cookieMetadataFactory;
-    protected $storeManager;
+    /** @var ScopeConfigInterface  */
+    protected ScopeConfigInterface $scopeConfig;
 
-    /**
-     * @var JsonFactory
-     */
-    protected $resultJsonFactory;
+    /** @var Validator  */
+    protected Validator $formKeyValidator;
 
-    /**
-     * @var Logger
-     */
-    protected $logger;
+    /** @var CookieManagerInterface  */
+    protected CookieManagerInterface $cookieManager;
 
-    /**
-     * @var JsonSerializer
-     */
-    protected $jsonSerializer;
+    /** @var CookieMetadataFactory  */
+    protected CookieMetadataFactory $cookieMetadataFactory;
+
+    /** @var StoreManagerInterface  */
+    protected StoreManagerInterface $storeManager;
+
+    /** @var JsonFactory */
+    protected JsonFactory $resultJsonFactory;
+
+    /** @var Logger */
+    protected Logger $logger;
+
+    /** @var JsonSerializer */
+    protected JsonSerializer $jsonSerializer;
 
     /**
      * @param Context $context
@@ -246,14 +244,12 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     }
 
     /**
-     * @param \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user
+     * @param GigyaUser $valid_gigya_user
      * @return DataObject
      */
-    protected function doLogin(\Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser $valid_gigya_user)
+    protected function doLogin(GigyaUser $valid_gigya_user): DataObject
     {
         $this->logger->debug('Logging in with valid Gigya user: ' . $this->jsonSerializer->serialize($valid_gigya_user));
-
-        /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
         // if gigya user not validated return error
         if (!$valid_gigya_user) {
@@ -301,7 +297,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
                     "customer" => $customer,
                     "accountManagement" => $this->accountManagement
                 ]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->addError($e->getMessage());
                 $this->logger->debug('Failed to login customer: ' . $e->getMessage());
                 $redirect = $this->encapsulateResponse($this->accountRedirect->getRedirect());
@@ -315,8 +311,9 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      * Retrieve success message
      *
      * @return string
+     * @throws NoSuchEntityException
      */
-    protected function getSuccessMessage()
+    protected function getSuccessMessage(): string
     {
         if ($this->addressHelper->isVatValidationEnabled()) {
             if ($this->addressHelper->getTaxCalculationAddressType() == Address::TYPE_SHIPPING) {
@@ -345,7 +342,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      *
      * @return bool
      */
-    protected function gigyaLoginUser($customer)
+    protected function gigyaLoginUser($customer): bool
     {
         $this->logger->debug('Trying to log in with customer: ' . $this->jsonSerializer->serialize($customer));
 
@@ -373,7 +370,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             $this->session->setUsername($customer['data']['email']);
             $this->logger->debug('Unable to login user: ' . $message);
             return false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->incrementLoginRetryCounter();
             $message = __('An unspecified error occurred. Please contact us for assistance.');
             // PA DSS violation: throwing or logging an exception here can disclose customer password
@@ -390,7 +387,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      *
      * @return DataObject
      */
-    protected function gigyaCreateUser($resultRedirect, $gigya_user_account)
+    protected function gigyaCreateUser($resultRedirect, $gigya_user_account): DataObject
     {
         try {
             $this->logger->debug(
@@ -455,7 +452,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             $this->logger->debug(
                 'Failed to create Magento customer: ' . $this->jsonSerializer->serialize($e->getErrors())
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->incrementLoginRetryCounter();
             $message = __('We can\'t save the customer. ') . $e->getMessage();
             $this->logger->debug('Failed to create Magento customer: ' . $message);
@@ -474,7 +471,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
      *
      * @return DataObject
      */
-    protected function createResponseDataObject($url, $additionalData = [])
+    protected function createResponseDataObject($url, $additionalData = []): DataObject
     {
         $additionalData['location'] = $url;
         return new DataObject([
@@ -486,12 +483,12 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
     }
 
     /**
-     * @param \Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\Result\Forward $resultRedirect
+     * @param Forward|Redirect $resultRedirect
      * @param array $additionalData
      *
      * @return DataObject
      */
-    protected function encapsulateResponse($resultRedirect, $additionalData = [])
+    protected function encapsulateResponse(Forward|Redirect $resultRedirect, array $additionalData = []): DataObject
     {
         $url = null;
         if ($resultRedirect instanceof Redirect) {
@@ -501,7 +498,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
             $resultRedirect->renderResult($response);
             $header = $response->getHeader('Location');
             $response->clearHeader('Location');
-            /* @var $header \Zend\Http\Header\Location */
+            /* @var $header Location */
             if ($header) {
                 $url = $header->getUri();
             }
@@ -522,7 +519,7 @@ abstract class AbstractLogin extends \Magento\Customer\Controller\AbstractAccoun
 
     /**
      * @param DataObject $object
-     * @return \Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\Result\Forward $resultRedirect
+     * @return Redirect|Forward $resultRedirect
      */
     protected function extractResponseFromDataObject(DataObject $object)
     {

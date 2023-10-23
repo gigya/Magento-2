@@ -8,6 +8,8 @@ namespace Gigya\GigyaIM\Block;
 
 use Gigya\GigyaIM\Helper\GigyaScriptHelper;
 use Magento\Customer\Model\Session;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Locale\Resolver;
 use Magento\Framework\View\Element\Template;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -20,12 +22,12 @@ class GigyaScript extends Template
     /**
      * @var Session
      */
-    protected $_customerSession;
+    protected Session $_customerSession;
 
     /**
-     * @var \Magento\Customer\Model\Url
+     * @var Url
      */
-    protected $_customerUrl;
+    protected Url $_customerUrl;
 
     /**
      * @var GigyaLogger
@@ -33,21 +35,22 @@ class GigyaScript extends Template
     protected $_logger;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    protected ScopeConfigInterface $scopeConfig;
 
     /**
-     * @var \Gigya\GigyaIM\Model\Config
+     * @var GigyaConfig
      */
-    protected $configModel;
+    protected GigyaConfig $configModel;
 
     /**
      * @var EncoderInterface
      */
-    protected $urlEncoder;
+    protected EncoderInterface $urlEncoder;
 
-    protected $scriptHelper;
+    protected GigyaScriptHelper $scriptHelper;
+    private \Magento\Store\Api\Data\StoreInterface $store;
 
     /**
      * GigyaScript constructor.
@@ -57,25 +60,27 @@ class GigyaScript extends Template
      * @param GigyaConfig $configModel
      * @param GigyaLogger $logger
      * @param EncoderInterface $urlEncoder
+     * @param GigyaScriptHelper $scriptHelper
+     * @param Resolver $resolver
      * @param array $data
      */
     public function __construct(
         Context $context,
         Session $customerSession,
         Url $customerUrl,
-        GigyaConfig $configModel,
         GigyaLogger $logger,
+        GigyaConfig $configModel,
         EncoderInterface $urlEncoder,
         GigyaScriptHelper $scriptHelper,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->_isScopePrivate = false;
-        $this->_customerUrl = $customerUrl;
         $this->_customerSession = $customerSession;
+        $this->_customerUrl = $customerUrl;
         $this->_logger = $logger;
-        $this->scopeConfig = $context->getScopeConfig();
         $this->configModel = $configModel;
+        $this->scopeConfig = $context->getScopeConfig();
         $this->urlEncoder = $urlEncoder;
         $this->scriptHelper = $scriptHelper;
     }
@@ -83,17 +88,17 @@ class GigyaScript extends Template
     /**
      * @return Template
      */
-    protected function _prepareLayout()
+    protected function _prepareLayout(): Template
     {
         return parent::_prepareLayout();
     }
 
-    public function isGigyaEnabled()
+    public function isGigyaEnabled(): int
     {
         return $this->configModel->isGigyaEnabled();
     }
 
-    public function getScriptsHelper()
+    public function getScriptsHelper(): GigyaScriptHelper
     {
         return $this->scriptHelper;
     }
@@ -101,11 +106,11 @@ class GigyaScript extends Template
     /**
      * Set the frontend user session/remember lifetime according to the configured session/remember mode.
      *
-     * @see \Gigya\GigyaIM\Model\Config for session management modes.
-     *
      * @return int : Magento Customer session/remember expiration
+     * @see GigyaConfig for session management modes.
+     *
      */
-    public function getUserSessionLifetime($type = null)
+    public function getUserSessionLifetime($type = null): int
     {
         $result = null;
 
@@ -135,13 +140,12 @@ class GigyaScript extends Template
     /**
      * @return String Gigya API key set in default.xml
      */
-    public function getGigyaApiKey()
+    public function getGigyaApiKey(): string
     {
-        $api = $this->scopeConfig->getValue("gigya_section/general/api_key", "website");
-        return $api;
+        return $this->scopeConfig->getValue("gigya_section/general/api_key", "website");
     }
 
-    public function getBaseUrl()
+    public function getBaseUrl(): string
     {
         return $this->getUrl('/', ['_secure' => $this->getRequest()->isSecure()]);
     }
@@ -151,7 +155,7 @@ class GigyaScript extends Template
      *
      * @return string
      */
-    public function getPostActionUrl()
+    public function getPostActionUrl(): string
     {
         // If there is no referer defined, defines page itself as a referer
         // This is important in case the customer get to store already logged in from another site
@@ -167,19 +171,25 @@ class GigyaScript extends Template
 
     /**
      * Retrieve URL used for checking the login state
-     * @return int
+     * @return int|string
      */
-    public function getMagentoLoginStateUrl()
+    public function getMagentoLoginStateUrl(): int|string
     {
         return (string)$this->getUrl('gigya_raas/raas/state');
     }
 
-    public function getLogoutUrl()
+    /**
+     * @return string
+     */
+    public function getLogoutUrl(): string
     {
         return (string)$this->getUrl('customer/account/logout');
     }
 
-    public function getLoginUrl()
+    /**
+     * @return string
+     */
+    public function getLoginUrl(): string
     {
         return (string)$this->getUrl('gigya_raas/raas_automatic/login');
     }
@@ -192,33 +202,39 @@ class GigyaScript extends Template
      *   set language (local/default/en)
      * else set selected language
      */
-    public function getLanguage()
+    public function getLanguage(): mixed
     {
         $lang = $this->scopeConfig->getValue("gigya_section/general/language", "website");
         if ($lang == "auto") {
             $lang = $this->checkLocalLang();
         }
+
         if (!array_key_exists($lang, $this->gigyaSupportedLanguages())) {
             // log: "local language - $local_lang is not supported by gigya, reverting to default lang"
             $lang = $this->scopeConfig->getValue("gigya_section/general/language_fallback", "website");
         }
+
         return $lang;
     }
 
-    protected function checkLocalLang()
+    /**
+     * @return string
+     */
+    protected function checkLocalLang(): string
     {
         /** @var \Magento\Framework\ObjectManagerInterface $om */
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         /** @var \Magento\Framework\Locale\Resolver $resolver */
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
         $local_lang = $resolver->getLocale();
+
         return substr($local_lang, 0, 2);
     }
 
     /**
      * Associative array of Gigya supported languages
      */
-    protected function gigyaSupportedLanguages()
+    protected function gigyaSupportedLanguages(): array
     {
         return [
             "en" => "English", "ar" => "Arabic", "br" => "Bulgarian", "ca" => "Catalan", "hr" => "Croatian",

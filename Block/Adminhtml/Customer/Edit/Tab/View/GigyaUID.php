@@ -2,16 +2,18 @@
 
 namespace Gigya\GigyaIM\Block\Adminhtml\Customer\Edit\Tab\View;
 
+use Magento\Backend\Block\Template;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Block\Adminhtml\Edit\Tab\View\PersonalInfo;
 
-class GigyaUID extends \Magento\Backend\Block\Template
+class GigyaUID extends Template
 {
     /**
      * Extract the Gigya ID from the customer present in the parent block.
      *
      * @return bool|string
      */
-    public function getGUIDFromParentBlock()
+    public function getGUIDFromParentBlock(): bool|string
     {
         $customer = $this->getCustomerFromParentBlock();
         if ($customer) {
@@ -27,9 +29,9 @@ class GigyaUID extends \Magento\Backend\Block\Template
     /**
      * Extract the current customer from the parent block.
      *
-     * @return bool|\Magento\Customer\Api\Data\CustomerInterface
+     * @return bool|CustomerInterface
      */
-    protected function getCustomerFromParentBlock()
+    protected function getCustomerFromParentBlock(): bool|CustomerInterface
     {
         $parentBlock = $this->getParentBlock();
         if ($parentBlock && $parentBlock instanceof PersonalInfo) {

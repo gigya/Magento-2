@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
@@ -38,31 +39,31 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
     const EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE = 'gigya_failed_map_from_magento';
 
     /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
+    protected GigyaSyncHelper $gigyaSyncHelper;
 
     /** @var  GigyaAccountRepositoryInterface */
-    protected $gigyaAccountRepository;
+    protected GigyaAccountRepositoryInterface $gigyaAccountRepository;
 
     /** @var ManagerInterface */
-    protected $eventDispatcher;
+    protected ManagerInterface $eventDispatcher;
 
     /** @var  GigyaLogger */
-    protected $logger;
+    protected GigyaLogger $logger;
 
     /** @var GigyaFromMagento */
-    protected $gigyaFromMagento;
+    protected GigyaFromMagento $gigyaFromMagento;
 
     /** @var GigyaConfig */
-    protected $config;
+    protected GigyaConfig $config;
 
     /** @var EnricherCustomerRegistry */
-    protected $enricherCustomerRegistry;
+    protected EnricherCustomerRegistry $enricherCustomerRegistry;
 
     /** @var CustomerResourceModel */
-    protected $customerResourceModel;
+    protected CustomerResourceModel $customerResourceModel;
 
     /** @var CustomerFactory */
-    protected $customerFactory;
+    protected CustomerFactory $customerFactory;
 
     /**
      * AbstractGigyaAccountEnricher constructor.
@@ -100,15 +101,16 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
     }
 
     /**
-     * Check if a Magento customer entity's data are to used to enrich the data to the Gigya service.
+     * Check if a Magento customer entity's data are used to enrich the data to the Gigya service.
      *
-     * Will return true if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non empty gigya_uid value,
-     * and if this customer id is not explicitly flagged has not to be synchronized (@see GigyaSyncHelper::isProductIdExcludedFromSync())
-     *
-     * @param Customer $magentoCustomer
+     * Will return true if the customer is not null, not flagged as deleted, not a new customer, not flagged has already synchronized, has a non-empty gigya_uid value,
+     * and if this customer id is not explicitly flagged has not to be synchronized (@param Customer $magentoCustomer
+     * @param bool $final
      * @return bool
+     * @see GigyaSyncHelper::isProductIdExcludedFromSync())
+     *
      */
-    protected function shallEnrichGigyaWithMagentoCustomerData($magentoCustomer, $final = true)
+    protected function shallEnrichGigyaWithMagentoCustomerData($magentoCustomer, bool $final = true): bool
     {
         $this->logger->debug("Shall enrich Gigya with Magento customer data?");
 
@@ -142,7 +144,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
      *
      * Default behavior is to log a warning (exception is muted)
      *
-     * @param $e \Exception
+     * @param $e Exception
      * @param $magentoCustomer Customer
      * @param $gigyaAccountData GigyaUser
      * @param $gigyaAccountLoggingEmail string
@@ -170,9 +172,9 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
      *
      * @return GigyaUser
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function enrichGigyaAccount($magentoCustomer)
+    protected function enrichGigyaAccount($magentoCustomer): GigyaUser
     {
         $this->logger->debug("Enriching Gigya account with Magento data");
 
@@ -188,7 +190,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getEntityId()
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->eventDispatcher->dispatch(self::EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE, [
                 "gigya_uid" => $gigyaAccountData->getUID(),
                 "customer_entity_id" => $magentoCustomer->getEntityId()
@@ -216,10 +218,10 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
      * @param Observer $observer Must hang a data 'customer' of type Magento\Customer\Model\Customer
      * @return void
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws GSApiException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         if ($this->config->isGigyaEnabled()) {
             $this->logger->debug("Update customer Magento => Gigya on event " . $observer->getEvent()->getName());
@@ -251,7 +253,6 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
                     }
                 }
 
-                /** @var GigyaUser $gigyaAccountData */
                 $gigyaAccountData = $this->enrichGigyaAccount($magentoCustomer);
                 $this->gigyaAccountRepository->update($gigyaAccountData);
 

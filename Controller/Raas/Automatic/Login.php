@@ -2,12 +2,12 @@
 
 namespace Gigya\GigyaIM\Controller\Raas\Automatic;
 
+use Exception;
 use Gigya\GigyaIM\Controller\Raas\AbstractLogin;
 use Gigya\GigyaIM\Logger\Logger;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultFactory;
-use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Magento\Customer\Model\Account\Redirect as AccountRedirect;
 use Magento\Framework\Api\DataObjectHelper;
@@ -16,7 +16,6 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Magento\Framework\DataObject;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
 use Magento\Framework\Stdlib\Cookie\FailureToSendException;
@@ -34,15 +33,15 @@ use Magento\Customer\Model\Url as CustomerUrl;
 use Magento\Customer\Model\Registration;
 use Magento\Framework\Escaper;
 use Magento\Customer\Model\CustomerExtractor;
-use Magento\Framework\Exception\StateException;
 use Magento\Framework\Exception\InputException;
-use Magento\Framework\Exception\EmailNotConfirmedException;
-use Magento\Framework\Exception\AuthenticationException;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
 use Gigya\GigyaIM\Model\Session\Extend;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
+use Zend_Date;
+use Zend_Json_Decoder;
+use Zend_Json_Exception;
 
 class Login extends AbstractLogin
 {
@@ -155,7 +154,7 @@ class Login extends AbstractLogin
      * @throws InputException
      * @throws CookieSizeLimitReachedException
      * @throws FailureToSendException
-     * @throws \Zend_Json_Exception
+     * @throws Zend_Json_Exception
      */
     public function execute(): mixed
     {
@@ -171,7 +170,7 @@ class Login extends AbstractLogin
             return $this->getJsonResponse(0);
         } else {
             $loginData = $this->getRequest()->getParam('login_data');
-            $loginDataObject = \Zend_Json_Decoder::decode($loginData);
+            $loginDataObject = Zend_Json_Decoder::decode($loginData);
             $guid = $loginDataObject['UID'] ?? '';
             $request = $this->getRequest();
 
@@ -188,17 +187,17 @@ class Login extends AbstractLogin
                     $this->doLogin($valid_gigya_user);
 
                     return $this->getJsonResponse($this->session->isLoggedIn());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->debug(sprintf(
                         'User UID=%s logged to Gigya: %s',
                         $guid,
-                        \Zend_Date::now()->getIso()
+                        Zend_Date::now()->getIso()
                     ));
 
                     return $this->getJsonResponse(0, $e->getMessage());
                 }
             } else {
-                $this->logger->debug(sprintf('User UID=%s logged to Gigya: %s', $guid, \Zend_Date::now()->getIso()));
+                $this->logger->debug(sprintf('User UID=%s logged to Gigya: %s', $guid, Zend_Date::now()->getIso()));
 
                 return $this->getJsonResponse(0, __('Invalid Form Key'));
             }

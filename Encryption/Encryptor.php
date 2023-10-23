@@ -14,23 +14,23 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    protected ScopeConfigInterface $scopeConfig;
 
     /**
      * If true will use Gigya Encryptor instead of Magento
      * @var bool
      */
-    protected $useGigyaEncryptor = false;
+    protected bool $useGigyaEncryptor = false;
 
     /**
      * @var string
      */
-    protected $gigyaEncryptKey;
+    protected string $gigyaEncryptKey;
 
     /**
      * @var GigyaEncryptorHelper
      */
-    protected $gigyaEncryptorHelper;
+    protected GigyaEncryptorHelper $gigyaEncryptorHelper;
 
     /**
      * Encryptor constructor.
@@ -57,7 +57,8 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
         $scopeType = ScopeInterface::SCOPE_WEBSITE,
         $scopeCode = null,
         $keyFileLocation = null
-    ) {
+    ): void
+    {
         if ($keyFileLocation == null) {
             $keyFileLocation = $this->scopeConfig->getValue(
                 'gigya_section/general/key_file_location',
@@ -79,7 +80,7 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
     /**
      * @return bool
      */
-    public function getUseGigyaEncryptor()
+    public function getUseGigyaEncryptor(): bool
     {
         return $this->useGigyaEncryptor;
     }

@@ -10,8 +10,12 @@
 
 namespace Gigya\GigyaIM\Controller\Raas;
 
+use Exception;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Magento\Customer\Controller\Account\EditPost;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -23,11 +27,13 @@ use Magento\Framework\Exception\InputException;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Framework\Controller\Result\JsonFactory as ResultJsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
-class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
+class GigyaEditPost extends EditPost
 {
     /** @var AccountManagementInterface */
-    protected $customerAccountManagement;
+    protected AccountManagementInterface $customerAccountManagement;
 
     /** @var CustomerRepositoryInterface */
     protected $customerRepository;
@@ -42,21 +48,21 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
     protected $session;
 
     /** @var GigyaMageHelper */
-    protected $gigyaMageHelper;
+    protected GigyaMageHelper $gigyaMageHelper;
 
     /** @var  GigyaSyncHelper */
-    protected $gigyaSyncHelper;
+    protected GigyaSyncHelper $gigyaSyncHelper;
 
     /** @var GigyaConfig */
-    protected $config;
+    protected GigyaConfig $config;
 
     /** @var GigyaLogger */
-    protected $logger;
+    protected GigyaLogger $logger;
 
     /**
      * @var ResultJsonFactory
      */
-    protected $resultJsonFactory;
+    protected ResultJsonFactory $resultJsonFactory;
 
     /**
      * @param Context                     $context
@@ -103,18 +109,17 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
     /**
      * Edit profile and change customer password action
      *
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Json
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function execute()
+    public function execute(): Json
     {
         if ($this->config->isGigyaEnabled() == false) {
             return parent::execute();
         }
 
-        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
         $resultJson = $this->resultJsonFactory->create();
 
         if (!$this->formKeyValidator->validate($this->getRequest())) {
@@ -159,7 +164,7 @@ class GigyaEditPost extends \Magento\Customer\Controller\Account\EditPost
             } catch (InputException $e) {
                 $message = __('Invalid input') . $e->getMessage();
                 $this->messageManager->addErrorMessage($message);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $message = __('We can\'t save the customer. ') . $e->getMessage();
                 $this->messageManager->addErrorMessage($message);
             }

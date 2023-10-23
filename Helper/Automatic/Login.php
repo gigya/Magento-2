@@ -3,23 +3,25 @@
 namespace Gigya\GigyaIM\Helper\Automatic;
 
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 
 class Login extends AbstractHelper
 {
-    protected $cookieManager;
-    protected $host;
+    protected CookieManagerInterface $cookieManager;
+    protected string $host;
 
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager
+        Context $context,
+        CookieManagerInterface $cookieManager
     ) {
         parent::__construct($context);
         $this->cookieManager = $cookieManager;
         $this->host = $context->getHttpHeader()->getHttpHost();
     }
 
-    public function validateAutoLoginParameters(RequestInterface $request)
+    public function validateAutoLoginParameters(RequestInterface $request): bool
     {
         $domain = preg_replace('/^([^:]+)((\:\d+)?)$/', '$1', $this->host);
         $guid = $request->getParam('guid');

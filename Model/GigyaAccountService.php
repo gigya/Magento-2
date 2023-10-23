@@ -39,19 +39,19 @@ class GigyaAccountService implements GigyaAccountServiceInterface
     const EVENT_UPDATE_GIGYA_FAILURE = 'gigya_failed_sync_to_gigya';
 
     /** @var  GigyaMageHelper */
-    protected $gigyaMageHelper;
+    protected GigyaMageHelper $gigyaMageHelper;
 
     /** @var EventManager */
-    protected $eventManager;
+    protected EventManager $eventManager;
 
     /** @var  GigyaLogger */
-    protected $logger;
+    protected GigyaLogger $logger;
 
-    /** @var array All Gigya profile attributes */
-    private static $gigyaProfileAttributes = null;
+    /** @var array|null All Gigya profile attributes */
+    private static ?array $gigyaProfileAttributes = null;
 
     /** @var array Gigya profile attributes that shall not be updated (Gigya service validation rule) */
-    private static $gigyaProfileForbiddenAttributes = [ // CATODO : should be in config.xml
+    private static array $gigyaProfileForbiddenAttributes = [ // CATODO : should be in config.xml
         // Dynamic fields
         'likes',
         'favorites',
@@ -68,7 +68,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      *
      * @var array of GigyaUser
      */
-    private static $loadedGigyaUsers = [];
+    private static array $loadedGigyaUsers = [];
 
     /**
      * Stores the latest GigyaUser instances get from the Gigya service, and that have been updated to the Gigya service.
@@ -76,7 +76,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      *
      * @var array of GigyaUser
      */
-    private static $loadedAndUpdatedOriginalGigyaUsers = [];
+    private static array $loadedAndUpdatedOriginalGigyaUsers = [];
 
     /**
      * GigyaAccountService constructor.
@@ -95,7 +95,10 @@ class GigyaAccountService implements GigyaAccountServiceInterface
         $this->logger = $logger;
     }
 
-    public static function __init()
+    /**
+     * @return void
+     */
+    public static function __init(): void
     {
         if (is_null(self::$gigyaProfileAttributes)) {
             self::$gigyaProfileAttributes = [];
@@ -103,7 +106,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
             $gigyaProfileMethods = get_class_methods(GigyaProfile::class);
             if (!empty($gigyaProfileMethod)) {
                 foreach ($gigyaProfileMethods as $gigyaProfileMethod) {
-                    if (strpos($gigyaProfileMethod, 'get') === 0) {
+                    if (str_starts_with($gigyaProfileMethod, 'get')) {
                         self::$gigyaProfileAttributes[] = lcfirst(substr($gigyaProfileMethod, 3));
                     }
                 }
@@ -117,7 +120,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      * @param GigyaUser $gigyaAccount
      * @return array
      */
-    public static function getGigyaApiProfileData(GigyaUser $gigyaAccount)
+    public static function getGigyaApiProfileData(GigyaUser $gigyaAccount): array
     {
         $profile = $gigyaAccount->getProfile();
 
@@ -141,7 +144,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      * @param GigyaUser $gigyaAccount
      * @return array
      */
-    public static function getGigyaApiSubscriptionsData(GigyaUser $gigyaAccount)
+    public static function getGigyaApiSubscriptionsData(GigyaUser $gigyaAccount): array
     {
         $subscriptions = $gigyaAccount->getSubscriptions() ?? [];
 
@@ -176,7 +179,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      * @param GigyaUser $gigyaAccount
      * @return array With entries uid, profile, data
      */
-    public static function getGigyaApiAccountData(GigyaUser $gigyaAccount)
+    public static function getGigyaApiAccountData(GigyaUser $gigyaAccount): array
     {
         $rawAccountData = [
             'UID' => $gigyaAccount->getUID(),
@@ -226,7 +229,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      *
      * @throws GSException
      */
-    public function update($gigyaAccount, $dispatchEvent = true)
+    public function update(GigyaUser $gigyaAccount)
     {
         $result = null;
         $gigyaApiData = self::getGigyaApiAccountData($gigyaAccount);
@@ -297,12 +300,11 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      *
      * @param string $uid
      *
-     * @return GigyaUser|mixed
+     * @return GigyaUser
      *
      * @throws GSApiException
-     * @throws GSException
      */
-    function get($uid)
+    public function get(string $uid)
     {
         unset(self::$loadedGigyaUsers[$uid]);
 
@@ -318,10 +320,10 @@ class GigyaAccountService implements GigyaAccountServiceInterface
     /**
      * @param string $uid
      *
-     * @return GigyaUser|mixed|null
+     * @return GigyaUser
      * @throws GSException
      */
-    function rollback($uid)
+    public function rollback(string $uid): GigyaUser
     {
         $result = null;
         $gigyaUser = (array_key_exists($uid, self::$loadedAndUpdatedOriginalGigyaUsers)) ? self::$loadedAndUpdatedOriginalGigyaUsers[$uid] : null;

@@ -187,7 +187,7 @@ class Config
      */
     public function getLoginMobileScreensetId()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_MOBILE_SCREENSET_ID, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_LOGIN_MOBILE_SCREENSET_ID, 'website');
     }
 
     /**
@@ -203,7 +203,7 @@ class Config
      */
     public function getProfileMobileScreensetId()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID, 'website');
     }
 
     /**

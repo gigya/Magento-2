@@ -2,24 +2,27 @@
 
 namespace Gigya\GigyaIM\Controller\Raas;
 
+use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 
 class State extends Action
 {
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var Session
      */
-    protected $customerSession;
+    protected Session $customerSession;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Customer\Model\Session $customerSession
+     * @param Context $context
+     * @param Session $customerSession
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Customer\Model\Session $customerSession
+        Context $context,
+        Session $customerSession
     ) {
         parent::__construct($context);
         $this->customerSession = $customerSession;
@@ -28,10 +31,9 @@ class State extends Action
     /**
      * Dispatch request
      *
-     * @return \Magento\Framework\Controller\ResultInterface|ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
+     * @return ResultInterface|ResponseInterface
      */
-    public function execute()
+    public function execute(): ResultInterface|ResponseInterface
     {
         return $this->resultFactory
             ->create(ResultFactory::TYPE_JSON)
