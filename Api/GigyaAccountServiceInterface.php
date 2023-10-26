@@ -41,7 +41,7 @@ interface GigyaAccountServiceInterface
      * @param string $uid
      * @return GigyaUser
      */
-    public function get(string $uid);
+    public function get(string $uid): GigyaUser;
 
     /**
      * Update the Gigya service with the latest successfully updated version of an account.
@@ -51,5 +51,5 @@ interface GigyaAccountServiceInterface
      * @param $uid string
      * @return GigyaUser null if the rollback failed or if the given uid has not been updated so far (thus nothing to roll back)
      */
-    public function rollback(string $uid);
+    public function rollback(string $uid): GigyaUser;
 }

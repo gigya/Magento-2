@@ -54,7 +54,7 @@ class RetryGigyaAccountService extends GigyaAccountService
      *
      * @throws RetryGigyaException
      */
-    public function get(string $uid)
+    public function get(string $uid): GigyaUser
     {
         $savedGigyaData = $this->retryGigyaSyncHelper->getRetryEntries(null, $uid, true);
 

@@ -17,6 +17,7 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Message\MessageInterface;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
@@ -256,7 +257,7 @@ abstract class AbstractLogin extends AbstractAccount
             $message = __('The user is not validated. Please try again or contact support.');
             $this->logger->debug('Login failed: ' . $message);
             $this->addError($message);
-            return $redirect = $this->encapsulateResponse(
+            return $this->encapsulateResponse(
                 $this->accountRedirect->getRedirect(),
                 ['login_successful' => false]
             );
@@ -471,7 +472,7 @@ abstract class AbstractLogin extends AbstractAccount
      *
      * @return DataObject
      */
-    protected function createResponseDataObject($url, $additionalData = []): DataObject
+    protected function createResponseDataObject(string $url, array $additionalData = []): DataObject
     {
         $additionalData['location'] = $url;
         return new DataObject([
@@ -521,7 +522,7 @@ abstract class AbstractLogin extends AbstractAccount
      * @param DataObject $object
      * @return Redirect|Forward $resultRedirect
      */
-    protected function extractResponseFromDataObject(DataObject $object)
+    protected function extractResponseFromDataObject(DataObject $object): Forward|Redirect
     {
         return $object->getData(self::RESPONSE_OBJECT);
     }
@@ -530,7 +531,7 @@ abstract class AbstractLogin extends AbstractAccount
      * @param DataObject $object
      * @return array
      */
-    protected function extractDataFromDataObject(DataObject $object)
+    protected function extractDataFromDataObject(DataObject $object): array
     {
         return $object->getData(self::RESPONSE_DATA);
     }
@@ -540,7 +541,7 @@ abstract class AbstractLogin extends AbstractAccount
      * @param $value
      * @return $this
      */
-    protected function setCookie($name, $value)
+    protected function setCookie($name, $value): static
     {
         $this->cookies[$name] = $value;
         return $this;
@@ -551,7 +552,7 @@ abstract class AbstractLogin extends AbstractAccount
      * @param $defaultValue
      * @return mixed
      */
-    protected function getCookie($name, $defaultValue)
+    protected function getCookie($name, $defaultValue): mixed
     {
         $defaultValue = (int) $this->cookieManager->getCookie($name, $defaultValue);
         if (!isset($this->cookies[$name])) {
@@ -563,7 +564,7 @@ abstract class AbstractLogin extends AbstractAccount
     /**
      * @return array
      */
-    protected function getCookies()
+    protected function getCookies(): array
     {
         return $this->cookies;
     }
@@ -571,7 +572,7 @@ abstract class AbstractLogin extends AbstractAccount
     /**
      * @return bool
      */
-    protected function isLoginRetryCounterExceeded()
+    protected function isLoginRetryCounterExceeded(): bool
     {
         return $this->getCookie(self::RETRY_COOKIE_NAME, 0) >= 3;
     }
@@ -579,7 +580,7 @@ abstract class AbstractLogin extends AbstractAccount
     /**
      * @return $this
      */
-    protected function incrementLoginRetryCounter()
+    protected function incrementLoginRetryCounter(): static
     {
         return $this->setCookie(self::RETRY_COOKIE_NAME, (int) $this->getCookie(self::RETRY_COOKIE_NAME, 0)+1);
     }
@@ -587,7 +588,7 @@ abstract class AbstractLogin extends AbstractAccount
     /**
      * @return $this
      */
-    protected function deleteLoginRetryCounter()
+    protected function deleteLoginRetryCounter(): static
     {
         $this->cookiesToDelete[self::RETRY_COOKIE_NAME] = true;
         if (isset($this->cookies[self::RETRY_COOKIE_NAME])) {
@@ -603,7 +604,7 @@ abstract class AbstractLogin extends AbstractAccount
      * @throws FailureToSendException
      * @throws InputException
      */
-    protected function applyCookies()
+    protected function applyCookies(): static
     {
         $metadata = $this->cookieMetadataFactory->createPublicCookieMetadata();
 
@@ -623,18 +624,18 @@ abstract class AbstractLogin extends AbstractAccount
      * @param string $message
      * @return $this
      */
-    protected function addError($message)
+    protected function addError(string $message): static
     {
-        return $this->addMessage($message, \Magento\Framework\Message\MessageInterface::TYPE_ERROR);
+        return $this->addMessage($message, MessageInterface::TYPE_ERROR);
     }
 
     /**
      * @param string $message
      * @return $this
      */
-    protected function addSuccess($message)
+    protected function addSuccess(string $message): static
     {
-        return $this->addMessage($message, \Magento\Framework\Message\MessageInterface::TYPE_SUCCESS);
+        return $this->addMessage($message, MessageInterface::TYPE_SUCCESS);
     }
 
     /**
@@ -642,7 +643,7 @@ abstract class AbstractLogin extends AbstractAccount
      * @param string $type
      * @return $this
      */
-    protected function addMessage($message, $type)
+    protected function addMessage(string $message, string $type): static
     {
         if (!isset($this->messageStorage[$type])) {
             $this->messageStorage[$type] = [];
@@ -651,16 +652,16 @@ abstract class AbstractLogin extends AbstractAccount
         return $this;
     }
 
-    protected function applyMessages()
+    protected function applyMessages(): static
     {
         foreach ($this->messageStorage as $type => $messages) {
             foreach ($messages as $message) {
                 switch ($type) {
-                    case \Magento\Framework\Message\MessageInterface::TYPE_SUCCESS:
+                    case MessageInterface::TYPE_SUCCESS:
                         $this->messageManager->addSuccessMessage($message);
                         break;
 
-                    case \Magento\Framework\Message\MessageInterface::TYPE_ERROR:
+                    case MessageInterface::TYPE_ERROR:
                         $this->messageManager->addErrorMessage($message);
                         break;
 

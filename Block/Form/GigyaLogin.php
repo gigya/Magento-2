@@ -5,12 +5,12 @@
 
 namespace Gigya\GigyaIM\Block\Form;
 
-use \Magento\Customer\Block\Form\Login;
-use \Gigya\GigyaIM\Model\Config;
+use Magento\Customer\Block\Form\Login;
+use Gigya\GigyaIM\Model\Config;
 use Magento\Framework\Exception\LocalizedException;
-use \Magento\Framework\View\Element\Template\Context;
-use \Magento\Customer\Model\Session;
-use \Magento\Customer\Model\Url;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Url;
 
 /**
  * Class Login

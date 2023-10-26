@@ -17,7 +17,7 @@ class Checkbox extends AbstractBlock
                'name="' . $elementName . '" data-column="' . $columnName . '"' .
                'value="1" ' .
                ($column['size'] ? 'size="' . $column['size'] . '"' : '') .
-               ' class="' . (isset($column['class']) ? $column['class'] : 'input-text') . '"' .
+               ' class="' . ($column['class'] ?? 'input-text') . '"' .
                (isset($column['style']) ? ' style="' . $column['style'] . '"' : '') . '/>';
     }
 }

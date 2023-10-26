@@ -304,7 +304,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      *
      * @throws GSApiException
      */
-    public function get(string $uid)
+    public function get(string $uid): GigyaUser
     {
         unset(self::$loadedGigyaUsers[$uid]);
 

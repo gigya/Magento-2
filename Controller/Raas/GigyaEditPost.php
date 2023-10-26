@@ -116,7 +116,7 @@ class GigyaEditPost extends EditPost
      */
     public function execute(): Json
     {
-        if ($this->config->isGigyaEnabled() == false) {
+        if (!$this->config->isGigyaEnabled()) {
             return parent::execute();
         }
 
@@ -146,7 +146,7 @@ class GigyaEditPost extends EditPost
             try {
                 $gigyaAccount = $this->gigyaMageHelper->getGigyaAccountDataFromLoginData($this->getRequest()->getParam('gigya_user'));
 
-                if ($gigyaAccount == false || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
+                if (!$gigyaAccount || $gigyaAccount->getUID() != $this->session->getGigyaAccountData()->getUID()) {
                     throw new InputException(__("Could not validate the given Gigya data"));
                 }
 

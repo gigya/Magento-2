@@ -150,7 +150,7 @@ class AbstractGigyaAccountEnricher implements ObserverInterface
      * @param $gigyaAccountLoggingEmail string
      * @return boolean Whether the enrichment can go on or not. Default is true.
      */
-    protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail)
+    protected function processEventMapGigyaFromMagentoException($e, $magentoCustomer, $gigyaAccountData, $gigyaAccountLoggingEmail): bool
     {
         $this->logger->warning(
             'Exception raised when enriching Gigya account with Magento data.',

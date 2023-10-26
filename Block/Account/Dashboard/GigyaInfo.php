@@ -5,12 +5,12 @@
 
 namespace Gigya\GigyaIM\Block\Account\Dashboard;
 
-use \Magento\Customer\Block\Account\Dashboard\Info;
-use \Gigya\GigyaIM\Model\Config;
-use \Magento\Framework\View\Element\Template\Context;
-use \Magento\Customer\Helper\Session\CurrentCustomer;
-use \Magento\Newsletter\Model\SubscriberFactory;
-use \Magento\Customer\Helper\View;
+use Magento\Customer\Block\Account\Dashboard\Info;
+use Gigya\GigyaIM\Model\Config;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Customer\Helper\Session\CurrentCustomer;
+use Magento\Newsletter\Model\SubscriberFactory;
+use Magento\Customer\Helper\View;
 
 /**
  * Class Info

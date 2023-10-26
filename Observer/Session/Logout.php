@@ -37,8 +37,8 @@ class Logout implements ObserverInterface
     public function __construct(
         GigyaMageHelper $mageHelper,
         Logger $logger,
-        Config $config)
-    {
+        Config $config
+    ) {
         $this->mageHelper = $mageHelper;
         $this->logger = $logger;
         $this->config = $config;

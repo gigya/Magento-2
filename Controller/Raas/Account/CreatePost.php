@@ -2,9 +2,10 @@
 
 namespace Gigya\GigyaIM\Controller\Raas\Account;
 
+use Magento\Customer\Controller\Account\CreatePost as CreatePostParent;
 use Magento\Framework\Controller\Result\Redirect;
 
-class CreatePost extends \Magento\Customer\Controller\Account\CreatePost
+class CreatePost extends CreatePostParent
 {
     /**
      * @return Redirect

@@ -55,8 +55,7 @@ class GigyaMageHelper extends AbstractHelper
      * @var Encryptor
      */
     protected $encryptor;
-
-    protected $dir;
+    protected Dir $dir;
 
     const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
     const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -102,7 +101,7 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * Retrieve the application secret
+     * Retrive the application secret
      *
      * @return string
      */
@@ -112,7 +111,7 @@ class GigyaMageHelper extends AbstractHelper
     }
 
     /**
-     * Retrieve the application private key
+     * Retrive the application private key
      *
      * @return string
      */

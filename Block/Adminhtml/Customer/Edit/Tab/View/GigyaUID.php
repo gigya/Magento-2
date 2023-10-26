@@ -34,7 +34,7 @@ class GigyaUID extends Template
     protected function getCustomerFromParentBlock(): bool|CustomerInterface
     {
         $parentBlock = $this->getParentBlock();
-        if ($parentBlock && $parentBlock instanceof PersonalInfo) {
+        if ($parentBlock instanceof PersonalInfo) {
             return $parentBlock->getCustomer();
         }
 

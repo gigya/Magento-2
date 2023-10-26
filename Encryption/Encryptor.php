@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Encryption;
 
+use Exception;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Math\Random;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -89,7 +90,7 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
      * @param $value
      * @return $this
      */
-    public function setUseGigyaEncryptor($value)
+    public function setUseGigyaEncryptor($value): static
     {
         $this->useGigyaEncryptor = $value;
         return $this;
@@ -99,7 +100,7 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
      * @param string $data
      * @return string
      */
-    public function encrypt($data)
+    public function encrypt($data): string
     {
         if ($this->getUseGigyaEncryptor()) {
             return GigyaApiHelper::enc($data, $this->gigyaEncryptKey);
@@ -110,15 +111,15 @@ class Encryptor extends \Magento\Framework\Encryption\Encryptor
 
     /**
      * @param string $data
-     * @return string
-     * @throws \Exception
+     * @return false|string
+     * @throws Exception
      */
-    public function decrypt($data)
+    public function decrypt($data): false|string
     {
         if ($this->getUseGigyaEncryptor()) {
             try {
                 return GigyaApiHelper::decrypt($data, $this->gigyaEncryptKey);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return false;
             }
         } else {
