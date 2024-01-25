@@ -9,22 +9,22 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @var string
      */
-    private $emailSentTime;
+    private string $emailSentTime;
 
     /**
      * @var string
      */
-    private $confirmTime;
+    private string $confirmTime;
 
     /**
      * @var string
      */
-    private $status;
+    private string $status;
 
     /**
      * @return string
      */
-    public function getEmailSentTime()
+    public function getEmailSentTime(): string
     {
         return $this->emailSentTime;
     }
@@ -32,7 +32,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @param string $emailSentTime
      */
-    public function setEmailSentTime($emailSentTime)
+    public function setEmailSentTime($emailSentTime): void
     {
         $this->emailSentTime = $emailSentTime;
     }
@@ -40,7 +40,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getConfirmTime()
+    public function getConfirmTime(): string
     {
         return $this->confirmTime;
     }
@@ -48,7 +48,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @param string $confirmTime
      */
-    public function setConfirmTime($confirmTime)
+    public function setConfirmTime($confirmTime): void
     {
         $this->confirmTime = $confirmTime;
     }
@@ -56,7 +56,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -64,7 +64,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @param string $status
      */
-    public function setStatus($status)
+    public function setStatus($status): void
     {
         $this->status = $status;
     }
@@ -72,7 +72,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @return array
      */
-    public function asArray()
+    public function asArray(): array
     {
         return [
             'emailSentTime' => $this->getEmailSentTime(),

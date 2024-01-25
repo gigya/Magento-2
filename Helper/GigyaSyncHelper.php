@@ -14,6 +14,7 @@ use Magento\Framework\Api\Search\SearchCriteriaBuilder;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context as HelperContext;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -31,34 +32,34 @@ class GigyaSyncHelper extends AbstractHelper
     protected static $customerIdsExcludedFromSync = [ self::DIR_CMS2G => [], self::DIR_G2CMS => [] ];
 
     /**
-     * @var \Magento\Framework\Message\ManagerInterface
+     * @var MessageManager
      */
-    protected $messageManager;
+    protected MessageManager $messageManager;
 
     /** @var CustomerRepositoryInterface */
-    protected $customerRepository;
+    protected CustomerRepositoryInterface $customerRepository;
 
     /** @var SearchCriteriaBuilder */
-    protected $searchCriteriaBuilder;
+    protected SearchCriteriaBuilder $searchCriteriaBuilder;
 
     /** @var FilterBuilder */
-    protected $filterBuilder;
+    protected FilterBuilder $filterBuilder;
 
     /** @var  FilterGroupBuilder */
-    protected $filterGroupBuilder;
+    protected FilterGroupBuilder $filterGroupBuilder;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
-    protected $storeManager;
+    protected StoreManagerInterface $storeManager;
 
     /** @var  AppState */
-    protected $appState;
+    protected AppState $appState;
 
     /**
      * @var Share
      */
-    protected $shareConfig;
+    protected Share $shareConfig;
 
     /**
      * GigyaSyncHelper constructor.
@@ -107,9 +108,9 @@ class GigyaSyncHelper extends AbstractHelper
      *
      * @throws GSException If no Magento customer account could be used nor created with this Gigya UID and provided LoginIDs emails : user can not be logged in.
      *                     Reason can be for instance : all emails attached with this Gigya account are already set on Magento accounts on this website but for other Gigya UIDs.
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
-    public function getMagentoCustomerAndLoggingEmail($gigyaAccount)
+    public function getMagentoCustomerAndLoggingEmail($gigyaAccount): array
     {
         /** @var CustomerInterface $magentoLoggingCustomer */
         $magentoLoggingCustomer = null;
@@ -231,11 +232,11 @@ class GigyaSyncHelper extends AbstractHelper
      * @param string $gigyaAccountLoggingEmail
      * @return void
      */
-    public function updateMagentoCustomerRequiredFieldsWithGigyaData($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail)
+    public function updateMagentoCustomerRequiredFieldsWithGigyaData($magentoCustomer, $gigyaAccount, $gigyaAccountLoggingEmail): void
     {
         try {
             $areaCode = $this->appState->getAreaCode();
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $areaCode = null;
         }
 
@@ -266,7 +267,7 @@ class GigyaSyncHelper extends AbstractHelper
      * @param string $gigyaLoggingEmail
      * @return void
      */
-    public function updateMagentoCustomerDataWithSessionGigyaAccount($magentoCustomer, $gigyaAccount, $gigyaLoggingEmail)
+    public function updateMagentoCustomerDataWithSessionGigyaAccount($magentoCustomer, $gigyaAccount, $gigyaLoggingEmail): void
     {
         $magentoCustomer->setCustomAttribute('gigya_uid', $gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaLoggingEmail);
@@ -284,7 +285,7 @@ class GigyaSyncHelper extends AbstractHelper
      * @return CustomerInterface The Magento customer linked with this Gigya account (can be null if no account exists yet)
      * @throws @see getMagentoCustomerAndLoggingEmail()
      */
-    public function setMagentoLoggingContext($gigyaAccount)
+    public function setMagentoLoggingContext($gigyaAccount): CustomerInterface
     {
         // This value will be set with the preferred email that should be attached with the Magento customer account, among all the Gigya loginIDs emails
         // We initialize it to null. If it's still null at the end of the algorithm that means that the user can not logged in
@@ -312,7 +313,7 @@ class GigyaSyncHelper extends AbstractHelper
      * @param string $dir direction: "cms2g", "g2cms" or "both"
      * @return $this
      */
-    public function excludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
+    public function excludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH): static
     {
         if (in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G])) {
             self::$customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = true;
@@ -330,7 +331,7 @@ class GigyaSyncHelper extends AbstractHelper
      * @param string $dir direction: "cms2g", "g2cms" or "both"
      * @return $this
      */
-    public function undoExcludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH)
+    public function undoExcludeCustomerIdFromSync($customerId, $dir = self::DIR_BOTH): static
     {
         if (in_array($dir, [self::DIR_BOTH, self::DIR_CMS2G])) {
             self::$customerIdsExcludedFromSync[self::DIR_CMS2G][$customerId] = false;
@@ -348,7 +349,7 @@ class GigyaSyncHelper extends AbstractHelper
      * @param string $dir direction: "cms2g" or "g2cms", but not "both"
      * @return bool
      */
-    public function isCustomerIdExcludedFromSync($customerId, $dir)
+    public function isCustomerIdExcludedFromSync($customerId, $dir): bool
     {
         return isset(self::$customerIdsExcludedFromSync[$dir][$customerId])
             && self::$customerIdsExcludedFromSync[$dir][$customerId];

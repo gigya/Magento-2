@@ -2,6 +2,8 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\ds;
 
-class DsQueryException extends \Exception
+use Exception;
+
+class DsQueryException extends Exception
 {
 }

@@ -17,22 +17,22 @@ use Magento\Store\Model\StoreManagerInterface;
 class GigyaCronHelper extends AbstractHelper
 {
     /** @var SearchCriteriaInterface  */
-    protected $searchCriteria;
+    protected SearchCriteriaInterface $searchCriteria;
 
     /** @var FilterGroup */
-    protected $filterGroup;
+    protected FilterGroup $filterGroup;
 
     /** @var FilterBuilder */
-    protected $filterBuilder;
+    protected FilterBuilder $filterBuilder;
 
     /** @var CustomerRepository */
-    protected $customerRepository;
+    protected CustomerRepository $customerRepository;
 
     /** @var StoreManagerInterface */
-    protected $storeManager;
+    protected StoreManagerInterface $storeManager;
 
     /** @var GigyaLogger */
-    protected $logger;
+    protected GigyaLogger $logger;
 
     /**
      * GigyaCronHelper constructor.
@@ -72,7 +72,7 @@ class GigyaCronHelper extends AbstractHelper
      *
      * @throws LocalizedException
      */
-    public function getCustomersByAttributeValue($attributeCode, $value)
+    public function getCustomersByAttributeValue($attributeCode, $value): array
     {
         $this->filterGroup->setFilters(
             [
@@ -99,7 +99,7 @@ class GigyaCronHelper extends AbstractHelper
      *
      * @throws LocalizedException
      */
-    public function getFirstCustomerByAttributeValue($attributeCode, $value)
+    public function getFirstCustomerByAttributeValue($attributeCode, $value): ?CustomerInterface
     {
         $customers = $this->getCustomersByAttributeValue($attributeCode, $value);
         if (count($customers) > 0) {
@@ -120,7 +120,7 @@ class GigyaCronHelper extends AbstractHelper
      *
      * @return array|false
      */
-    public function getEmailsFromConfig($configSetting, $validDelimiters = [',', ';'])
+    public function getEmailsFromConfig($configSetting, $validDelimiters = [',', ';']): false|array
     {
         /* Get config */
         $emails = str_replace(' ', '', (string)$this->scopeConfig->getValue($configSetting));
@@ -144,7 +144,7 @@ class GigyaCronHelper extends AbstractHelper
             }
         }
 
-        /* If no delimiters found, return an array containing the entire input (assumed: it is a single email address). Otherwise return found array */
+        /* If no delimiters found, return an array containing the entire input (assumed: it is a single email address). Otherwise, return found array */
         if (empty($email_array)) {
             return [$emails];
         }
@@ -162,7 +162,7 @@ class GigyaCronHelper extends AbstractHelper
      * @return boolean
      * @throws NoSuchEntityException
      */
-    public function sendEmail($job_type, $job_status, $email_to, $processed_items = null, $failed_items = 0, $custom_email_body = '')
+    public function sendEmail($job_type, $job_status, $email_to, $processed_items = null, $failed_items = 0, $custom_email_body = ''): bool
     {
         if (empty($email_to)) {
             return false;

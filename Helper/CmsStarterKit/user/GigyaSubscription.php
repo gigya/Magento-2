@@ -9,27 +9,27 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @var boolean
      */
-    private $isSubscribed;
+    private bool $isSubscribed;
 
     /**
      * @var array
      */
-    private $tags;
+    private array $tags;
 
     /**
      * @var string
      */
-    private $lastUpdatedSubscriptionState;
+    private string $lastUpdatedSubscriptionState;
 
     /**
      * @var GigyaSubscriptionDoubleOptIn
      */
-    private $doubleOptIn;
+    private GigyaSubscriptionDoubleOptIn $doubleOptIn;
 
     /**
      * @return boolean
      */
-    public function getIsSubscribed()
+    public function getIsSubscribed(): bool
     {
         return $this->isSubscribed;
     }
@@ -37,7 +37,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @param boolean $isSubscribed
      */
-    public function setIsSubscribed($isSubscribed)
+    public function setIsSubscribed($isSubscribed): void
     {
         $this->isSubscribed = $isSubscribed;
     }
@@ -45,7 +45,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getTags()
+    public function getTags(): array
     {
         return $this->tags;
     }
@@ -53,7 +53,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @param string|array $tags
      */
-    public function setTags($tags)
+    public function setTags($tags): void
     {
         if (is_string($tags)) {
             $tags = json_decode($tags);
@@ -64,7 +64,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getLastUpdatedSubscriptionState()
+    public function getLastUpdatedSubscriptionState(): string
     {
         return $this->lastUpdatedSubscriptionState;
     }
@@ -72,7 +72,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @param string $lastUpdatedSubscriptionState
      */
-    public function setLastUpdatedSubscriptionState($lastUpdatedSubscriptionState)
+    public function setLastUpdatedSubscriptionState($lastUpdatedSubscriptionState): void
     {
         $this->lastUpdatedSubscriptionState = $lastUpdatedSubscriptionState;
     }
@@ -80,7 +80,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @return GigyaSubscriptionDoubleOptIn
      */
-    public function getDoubleOptIn()
+    public function getDoubleOptIn(): GigyaSubscriptionDoubleOptIn
     {
         return $this->doubleOptIn;
     }
@@ -88,7 +88,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @param GigyaSubscriptionDoubleOptIn|array $doubleOptIn
      */
-    public function setDoubleOptIn($doubleOptIn)
+    public function setDoubleOptIn($doubleOptIn): void
     {
         if (is_array($doubleOptIn)) {
             $doubleOptInObject = new GigyaSubscriptionDoubleOptIn(null);
@@ -109,7 +109,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @return array|null
      */
-    public function getDoubleOptInAsArray()
+    public function getDoubleOptInAsArray(): ?array
     {
         $result = null;
 
@@ -123,7 +123,7 @@ class GigyaSubscription extends GigyaJsonObject
     /**
      * @return array
      */
-    public function asArray()
+    public function asArray(): array
     {
         return [
             'isSubscribed'                 => $this->getIsSubscribed(),

@@ -9,13 +9,16 @@ namespace Gigya\GigyaIM\Block;
 use Gigya\GigyaIM\Helper\GigyaScriptHelper;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Locale\Resolver;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\View\Element\Template;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Framework\Url\EncoderInterface;
 use Magento\Customer\Model\Url;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Store\Api\Data\StoreInterface;
 
 class GigyaScript extends Template
 {
@@ -50,7 +53,7 @@ class GigyaScript extends Template
     protected EncoderInterface $urlEncoder;
 
     protected GigyaScriptHelper $scriptHelper;
-    private \Magento\Store\Api\Data\StoreInterface $store;
+    private StoreInterface $store;
 
     /**
      * GigyaScript constructor.
@@ -61,7 +64,6 @@ class GigyaScript extends Template
      * @param GigyaLogger $logger
      * @param EncoderInterface $urlEncoder
      * @param GigyaScriptHelper $scriptHelper
-     * @param Resolver $resolver
      * @param array $data
      */
     public function __construct(
@@ -222,9 +224,9 @@ class GigyaScript extends Template
      */
     protected function checkLocalLang(): string
     {
-        /** @var \Magento\Framework\ObjectManagerInterface $om */
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        /** @var \Magento\Framework\Locale\Resolver $resolver */
+        /** @var ObjectManagerInterface $om */
+        $om = ObjectManager::getInstance();
+        /** @var Resolver $resolver */
         $resolver = $om->get('Magento\Framework\Locale\Resolver');
         $local_lang = $resolver->getLocale();
 

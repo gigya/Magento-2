@@ -3,6 +3,9 @@
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\ds;
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
+use Gigya\PHP\GSException;
+use Gigya\PHP\GSObject;
 
 class DsQueryObject
 {
@@ -12,50 +15,47 @@ class DsQueryObject
     /**
      * @var string
      */
-    private $query;
+    private string $query;
 
     /**
      * @var array
      */
-    private $fields;
+    private array $fields;
 
     /**
      * @var string
      */
-    private $table;
+    private string $table;
 
     /**
      * @var array
      */
-    private $ors;
+    private array $ors;
 
     /**
      * @var array
      */
-    private $ands;
+    private array $ands;
 
     /**
      * @var string
      */
-    private $oid;
+    private string $oid;
 
     /**
      * @var array
      */
-    private $operators;
+    private array $operators;
 
     /**
-     * @var string
+     * @var string|null
      */
-    /**
-     * @var string
-     */
-    private $uid = null;
+    private ?string $uid = null;
 
     /**
      * @var GigyaApiHelper
      */
-    private $apiHelper;
+    private GigyaApiHelper $apiHelper;
 
     /**
      * DsQueryObject constructor.
@@ -85,9 +85,9 @@ class DsQueryObject
      * @param string $valueType
      *
      * @return $this
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
+     * @throws DsQueryException
      */
-    public function addWhere($field, $op, $value, $valueType = "string")
+    public function addWhere($field, $op, $value, string $valueType = "string"): static
     {
         $this->addAnd($field, $op, $value, $valueType);
 
@@ -95,14 +95,14 @@ class DsQueryObject
     }
 
     /**
-     * @param string  $filed
-     * @param array   $terms
+     * @param string $filed
+     * @param array $terms
      *
-     * @param  string $andOr
+     * @param string $andOr
      *
      * @return $this
      */
-    public function addIn($filed, $terms, $andOr = "and")
+    public function addIn(string $filed, array $terms, string $andOr = "and"): static
     {
 
         array_walk(
@@ -128,9 +128,9 @@ class DsQueryObject
      * @param string $andOr
      *
      * @return $this
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
+     * @throws DsQueryException
      */
-    public function addContains($field, $term, $andOr = "and")
+    public function addContains(string $field, string $term, string $andOr = "and"): static
     {
         if ("or" == $andOr) {
             $this->addOr($field, "contains", $term);
@@ -148,9 +148,9 @@ class DsQueryObject
      * @param string $valueType
      *
      * @return $this
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
+     * @throws DsQueryException
      */
-    public function addOr($field, $op, $value, $valueType = "string")
+    public function addOr(string $field, string $op, string $value, string $valueType = "string"): static
     {
         $this->ors[] = $this->sanitizeAndBuild($field, $op, $value, $valueType);
 
@@ -158,15 +158,15 @@ class DsQueryObject
     }
 
     /**
-     * @param        $field
-     * @param        $op
-     * @param        $value
+     * @param string $field
+     * @param string $op
+     * @param string $value
      * @param string $valueType
      *
      * @return string
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
+     * @throws DsQueryException
      */
-    private function sanitizeAndBuild($field, $op, $value, $valueType = "string")
+    private function sanitizeAndBuild(string $field, string $op, string $value, string $valueType = "string"): string
     {
         if (preg_match(self::VALUE_REG_EXP, $value)) {
             throw new \InvalidArgumentException("bad value string");
@@ -199,9 +199,9 @@ class DsQueryObject
      * @param string $valueType
      *
      * @return $this
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
+     * @throws DsQueryException
      */
-    public function addAnd($field, $op, $value, $valueType = "string")
+    public function addAnd(string $field, string $op, string $value, string $valueType = "string"): static
     {
         $this->ands[] = $this->sanitizeAndBuild($field, $op, $value, $valueType);
 
@@ -214,9 +214,9 @@ class DsQueryObject
      * @param string $andOr
      *
      * @return $this
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
+     * @throws DsQueryException
      */
-    public function addNotContains($field, $term, $andOr = "and")
+    public function addNotContains(string $field, string $term, string $andOr = "and"): static
     {
         if ("or" == $andOr) {
             $this->addOr($field, "not contains", $term);
@@ -232,7 +232,7 @@ class DsQueryObject
      *
      * @return $this
      */
-    public function addField($field)
+    public function addField(string $field): static
     {
         $this->fields[] = $this->prefixField($field);
 
@@ -245,7 +245,7 @@ class DsQueryObject
      *
      * @return $this
      */
-    public function addIsNull($field, $andOr = "and")
+    public function addIsNull(string $field, string $andOr = "and"): static
     {
         if ("and" == strtolower($andOr)) {
             $this->ands[] = $this->prefixField(trim($field)) . " is null";
@@ -266,7 +266,7 @@ class DsQueryObject
      *
      * @return $this
      */
-    public function addIsNotNull($field, $andOr = "and")
+    public function addIsNotNull(string $field, string $andOr = "and"): static
     {
         if ("and" == strtolower($andOr)) {
             $this->ands[] = $this->prefixField(trim($field)) . " is not null";
@@ -284,7 +284,7 @@ class DsQueryObject
     /**
      * @return mixed
      */
-    public function getQuery()
+    public function getQuery(): mixed
     {
         return $this->query;
     }
@@ -294,7 +294,7 @@ class DsQueryObject
      *
      * @return $this
      */
-    public function setQuery($query)
+    public function setQuery(mixed $query): static
     {
         $this->query = $query;
 
@@ -304,7 +304,7 @@ class DsQueryObject
     /**
      * @return mixed
      */
-    public function getFields()
+    public function getFields(): mixed
     {
         return $this->fields;
     }
@@ -317,7 +317,7 @@ class DsQueryObject
      *
      * @return $this
      */
-    public function setFields($fields)
+    public function setFields(mixed $fields): static
     {
         $this->fields = $fields;
 
@@ -327,7 +327,7 @@ class DsQueryObject
     /**
      * @return mixed
      */
-    public function getTable()
+    public function getTable(): mixed
     {
         return $this->table;
     }
@@ -337,7 +337,7 @@ class DsQueryObject
      *
      * @return $this
      */
-    public function setTable($table)
+    public function setTable($table): static
     {
         $this->table = $table;
 
@@ -347,7 +347,7 @@ class DsQueryObject
     /**
      * @return string mixed
      */
-    public function getOid()
+    public function getOid(): string
     {
         return $this->oid;
     }
@@ -357,7 +357,7 @@ class DsQueryObject
      *
      * @return $this
      */
-    public function setOid($oid)
+    public function setOid($oid): static
     {
         $this->oid = $oid;
 
@@ -367,7 +367,7 @@ class DsQueryObject
     /**
      * @return string
      */
-    public function getUid()
+    public function getUid(): ?string
     {
         return $this->uid;
     }
@@ -375,16 +375,17 @@ class DsQueryObject
     /**
      * @param string $uid
      */
-    public function setUid($uid)
+    public function setUid($uid): void
     {
         $this->uid = $uid;
     }
 
     /**
-     * @return \Gigya\PHP\GSObject
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
+     * @return GSObject
+     * @throws GSApiException
+     * @throws GSException
      */
-    public function dsGet()
+    public function dsGet(): GSObject
     {
         $paramsArray = ["oid" => $this->oid, "type" => $this->table];
         if (!empty($this->uid)) {
@@ -400,7 +401,7 @@ class DsQueryObject
         return $res->getData();
     }
 
-    private function buildFieldsString()
+    private function buildFieldsString(): string
     {
         if (in_array("*", $this->fields)) {
             return '*';
@@ -425,11 +426,12 @@ class DsQueryObject
     }
 
     /**
-     * @return \Gigya\PHP\GSObject
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
+     * @return GSObject
+     * @throws DsQueryException
+     * @throws GSApiException
+     * @throws GSException
      */
-    public function dsSearch()
+    public function dsSearch(): GSObject
     {
         if (empty($this->query)) {
             $this->buildQuery();
@@ -444,7 +446,7 @@ class DsQueryObject
     }
 
 
-    private function buildFieldsStringForGet()
+    private function buildFieldsStringForGet(): string
     {
         return in_array("*", $this->fields)
             ? "*"
@@ -455,9 +457,9 @@ class DsQueryObject
     }
 
     /**
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\ds\DsQueryException
+     * @throws DsQueryException
      */
-    protected function buildQuery()
+    protected function buildQuery(): void
     {
         if (!$this->checkAllRequired()) {
             throw new DsQueryException("missing fields or table");
@@ -495,15 +497,16 @@ class DsQueryObject
     /**
      * @return bool
      */
-    private function checkAllRequired()
+    private function checkAllRequired(): bool
     {
         return !(empty($this->fields) && empty($this->table));
     }
 
     /**
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
+     * @throws GSApiException
+     * @throws GSException
      */
-    public function dsDelete()
+    public function dsDelete(): void
     {
         $paramsArray = ["oid" => $this->oid, "type" => $this->table];
         if (!empty($this->uid)) {

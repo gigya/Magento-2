@@ -9,12 +9,12 @@ class GigyaSubscriptionContainer extends GigyaJsonObject
     /**
      * @var GigyaSubscription
      */
-    private $email;
+    private GigyaSubscription $email;
 
     /**
      * @return GigyaSubscription
      */
-    public function getEmail()
+    public function getEmail(): GigyaSubscription
     {
         return $this->email;
     }
@@ -22,7 +22,7 @@ class GigyaSubscriptionContainer extends GigyaJsonObject
     /**
      * @param GigyaSubscription $email
      */
-    public function setEmail($email)
+    public function setEmail($email): void
     {
         $this->email = $email;
     }
@@ -30,7 +30,7 @@ class GigyaSubscriptionContainer extends GigyaJsonObject
     /**
      * @return array|null
      */
-    public function getSubscriptionAsArray()
+    public function getSubscriptionAsArray(): ?array
     {
         $result = null;
 

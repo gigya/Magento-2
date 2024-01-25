@@ -222,7 +222,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
      *
      * @throws \Exception
      */
-    public function retrieveFieldMappings($skipCache = false)
+    public function retrieveFieldMappings($skipCache = false): void
     {
         $conf = false;
         if (!$skipCache) {
