@@ -21,6 +21,7 @@ use Magento\Customer\Model\Url;
  * Class Register
  *
  * @package Gigya\GigyaIM\Block\Form
+ * @api
  */
 class GigyaRegister extends Register
 {

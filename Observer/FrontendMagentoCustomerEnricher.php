@@ -19,6 +19,7 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * @see FrontendMagentoCustomerEnricher::shallEnrichMagentoCustomerWithGigyaAccount()
  *
  * @author      vlemaire <info@x2i.fr>
+ * @api
  *
  */
 class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher

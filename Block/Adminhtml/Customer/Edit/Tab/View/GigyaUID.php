@@ -6,6 +6,12 @@ use Magento\Backend\Block\Template;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Block\Adminhtml\Edit\Tab\View\PersonalInfo;
 
+/**
+ * Class GigyaUID
+ *
+ * @package Gigya\GigyaIM\Block\Adminhtml\Customer\Edit\Tab\View
+ * @api
+ */
 class GigyaUID extends Template
 {
     /**

@@ -3,12 +3,14 @@
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\user;
 
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile as GigyaProfileCMS;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaProfile as GigyaProfileCMSUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaSubscriptionContainer;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaSubscription;
 
 class GigyaUserFactory
 {
-    public static function createGigyaUserFromJson($json)
+    public static function createGigyaUserFromJson($json): GigyaUser
     {
         return new GigyaUser($json);
     }
@@ -18,7 +20,7 @@ class GigyaUserFactory
      *
      * @return GigyaUser
      */
-    public static function createGigyaUserFromArray($array)
+    public static function createGigyaUserFromArray($array): GigyaUser
     {
         $gigyaUser = new GigyaUser(null);
         foreach ($array as $key => $value) {
@@ -40,14 +42,14 @@ class GigyaUserFactory
         return $gigyaUser;
     }
 
-    public static function createGigyaProfileFromJson($json)
+    public static function createGigyaProfileFromJson($json): GigyaProfileCMS
     {
         $gigyaArray = json_decode($json);
 
         return self::createGigyaProfileFromArray($gigyaArray);
     }
 
-    public static function createGigyaProfileFromArray($array)
+    public static function createGigyaProfileFromArray($array): GigyaProfileCMSUser
     {
         $gigyaProfile = new GigyaProfile(null);
         foreach ($array as $key => $value) {
@@ -62,7 +64,7 @@ class GigyaUserFactory
      *
      * @return array
      */
-    public static function createGigyaSubscriptionsFromArray($array)
+    public static function createGigyaSubscriptionsFromArray($array): array
     {
         $gigyaSubscriptions = [];
 

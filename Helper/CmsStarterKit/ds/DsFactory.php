@@ -22,7 +22,7 @@ class DsFactory
      *
      * @return DsQueryObject
      */
-    public function createDsqFromQuery($query)
+    public function createDsqFromQuery($query): DsQueryObject
     {
         $dsQueryObj = new DsQueryObject($this->apiHelper);
         $dsQueryObj->setQuery($query);
@@ -36,7 +36,7 @@ class DsFactory
      *
      * @return DsQueryObject
      */
-    public function createDsqFromFields($type, $fields)
+    public function createDsqFromFields($type, $fields): DsQueryObject
     {
         $dsQueryObj = new DsQueryObject($this->apiHelper);
         $dsQueryObj->setFields($fields);
@@ -56,7 +56,7 @@ class DsFactory
      * @return DsQueryObject
      * @throws DsQueryException
      */
-    public function createDsqFromWhere($type, $fields, $where, $op, $value, $valueType = "string")
+    public function createDsqFromWhere($type, $fields, $where, $op, $value, $valueType = "string"): DsQueryObject
     {
         $dsQueryObj = new DsQueryObject($this->apiHelper);
         $dsQueryObj->setFields($fields);
@@ -72,7 +72,7 @@ class DsFactory
      *
      * @return DsQueryObject
      */
-    public function createDsqFromOid($oid, $type)
+    public function createDsqFromOid($oid, $type): DsQueryObject
     {
         $dsQueryObj = new DsQueryObject($this->apiHelper);
         $dsQueryObj->setOid($oid);

@@ -152,7 +152,7 @@ class Config
      */
     public function getMappingFilePath(): string
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_MAPPING_FILE_PATH, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_MAPPING_FILE_PATH, 'website');
     }
 
     /**
