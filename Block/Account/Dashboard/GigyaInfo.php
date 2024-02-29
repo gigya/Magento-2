@@ -16,6 +16,7 @@ use Magento\Customer\Helper\View;
  * Class Info
  *
  * @package Gigya\GigyaIM\Block\Account\Dashboard
+ * @api
  */
 class GigyaInfo extends Info
 {

@@ -20,6 +20,12 @@ use Magento\Customer\Model\Url;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Store\Api\Data\StoreInterface;
 
+/**
+ * Class GigyaScript
+ *
+ * @package Gigya\GigyaIM\Block
+ * @api
+ */
 class GigyaScript extends Template
 {
     /**

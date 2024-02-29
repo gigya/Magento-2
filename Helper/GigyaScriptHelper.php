@@ -13,7 +13,7 @@ class GigyaScriptHelper extends AbstractHelper
     /**
      * @var GigyaMageHelper
      */
-    protected $gigyaMageHelper;
+    public $gigyaMageHelper;
 
     /**
      * @param \Magento\Framework\App\Helper\Context $context

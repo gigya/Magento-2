@@ -16,6 +16,7 @@ use Magento\Customer\Model\Url;
  * Class Login
  *
  * @package Gigya\GigyaIM\Block\Form
+ * @api
  */
 class GigyaLogin extends Login
 {
