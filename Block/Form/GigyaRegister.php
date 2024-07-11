@@ -5,29 +5,30 @@
 
 namespace Gigya\GigyaIM\Block\Form;
 
-use \Magento\Customer\Block\Form\Register;
-use \Gigya\GigyaIM\Model\Config as GigyaConfig;
-use \Magento\Framework\View\Element\Template\Context;
-use \Magento\Directory\Helper\Data;
-use \Magento\Framework\Json\EncoderInterface;
-use \Magento\Framework\App\Cache\Type\Config;
-use \Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionCollectionFactory;
-use \Magento\Directory\Model\ResourceModel\Country\CollectionFactory as CountryCollectionFactory;
-use \Magento\Framework\Module\Manager;
-use \Magento\Customer\Model\Session;
-use \Magento\Customer\Model\Url;
+use Magento\Customer\Block\Form\Register;
+use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Directory\Helper\Data;
+use Magento\Framework\Json\EncoderInterface;
+use Magento\Framework\App\Cache\Type\Config;
+use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionCollectionFactory;
+use Magento\Directory\Model\ResourceModel\Country\CollectionFactory as CountryCollectionFactory;
+use Magento\Framework\Module\Manager;
+use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Url;
 
 /**
  * Class Register
  *
  * @package Gigya\GigyaIM\Block\Form
+ * @api
  */
 class GigyaRegister extends Register
 {
     /**
      * @var GigyaConfig
      */
-    protected $configModel;
+    protected GigyaConfig $configModel;
 
     /**
      * Register constructor.
@@ -75,7 +76,7 @@ class GigyaRegister extends Register
     /**
      * @return string
      */
-    public function getLoginDesktopScreensetId()
+    public function getLoginDesktopScreensetId(): string
     {
         return $this->configModel->getLoginDesktopScreensetId();
     }
@@ -83,7 +84,7 @@ class GigyaRegister extends Register
     /**
      * @return string
      */
-    public function getLoginMobileScreensetId()
+    public function getLoginMobileScreensetId(): string
     {
         return $this->configModel->getLoginMobileScreensetId();
     }

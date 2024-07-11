@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
-class CmsUpdaterException extends \Exception
+use Exception;
+
+class CmsUpdaterException extends Exception
 {
 
 }

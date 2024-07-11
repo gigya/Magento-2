@@ -5,17 +5,18 @@
 
 namespace Gigya\GigyaIM\Block\Account\Dashboard;
 
-use \Magento\Customer\Block\Account\Dashboard\Info;
-use \Gigya\GigyaIM\Model\Config;
-use \Magento\Framework\View\Element\Template\Context;
-use \Magento\Customer\Helper\Session\CurrentCustomer;
-use \Magento\Newsletter\Model\SubscriberFactory;
-use \Magento\Customer\Helper\View;
+use Magento\Customer\Block\Account\Dashboard\Info;
+use Gigya\GigyaIM\Model\Config;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Customer\Helper\Session\CurrentCustomer;
+use Magento\Newsletter\Model\SubscriberFactory;
+use Magento\Customer\Helper\View;
 
 /**
  * Class Info
  *
  * @package Gigya\GigyaIM\Block\Account\Dashboard
+ * @api
  */
 class GigyaInfo extends Info
 {
@@ -49,7 +50,7 @@ class GigyaInfo extends Info
     /**
      * @return string
      */
-    public function getProfileDesktopScreensetId()
+    public function getProfileDesktopScreensetId(): string
     {
         return $this->configModel->getProfileDesktopScreensetId();
     }
@@ -57,7 +58,7 @@ class GigyaInfo extends Info
     /**
      * @return string
      */
-    public function getProfileMobileScreensetId()
+    public function getProfileMobileScreensetId(): string
     {
         return $this->configModel->getProfileMobileScreensetId();
     }

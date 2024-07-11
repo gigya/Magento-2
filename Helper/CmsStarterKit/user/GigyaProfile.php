@@ -10,202 +10,202 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @var int
      */
-    private $birthDay;
+    private int $birthDay;
 
     /**
      * @var int
      */
-    private $birthMonth;
+    private int $birthMonth;
 
     /**
      * @var int
      */
-    private $birthYear;
+    private int $birthYear;
 
     /**
      * @var string
      */
-    private $city;
+    private string $city;
 
     /**
      * @var string
      */
-    private $country;
+    private string $country;
 
     /**
      * @var string
      */
-    private $email;
+    private string $email;
 
     /**
      * @var string
      */
-    private $firstName;
+    private string $firstName;
 
     /**
      * @var string
      */
-    private $gender;
+    private string $gender;
 
     /**
      * @var string
      */
-    private $lastName;
+    private string $lastName;
 
     /**
      * @var string
      */
-    private $nickname;
+    private string $nickname;
 
     /**
      * @var string
      */
-    private $photoURL;
+    private string $photoURL;
 
     /**
      * @var string
      */
-    private $profileURL;
+    private string $profileURL;
 
     /**
      * @var string
      */
-    private $state;
+    private string $state;
 
     /**
      * @var string
      */
-    private $thumbnailURL;
+    private string $thumbnailURL;
 
     /**
      * @var string
      */
-    private $zip;
+    private string $zip;
 
     /**
      * @var string
      */
-    private $bio;
+    private string $bio;
 
     /**
      * @var string
      */
-    private $address;
+    private string $address;
 
     /**
      * @var string
      */
-    private $educationLevel;
+    private string $educationLevel;
 
     /**
      * @var int
      */
-    private $followersCount;
+    private int $followersCount;
 
     /**
      * @var int
      */
-    private $followingCount;
+    private int $followingCount;
 
     /**
      * @var string
      */
-    private $hometown;
+    private string $hometown;
 
     /**
      * @var string
      */
-    private $honors;
+    private string $honors;
 
     /**
      * @var string
      */
-    private $industry;
+    private string $industry;
 
     /**
      * @var string
      */
-    private $interestedIn;
+    private string $interestedIn;
 
     /**
      * @var string
      */
-    private $languages;
+    private string $languages;
 
     /**
      * @var string
      */
-    private $locale;
+    private string $locale;
 
     /**
      * @var string
      */
-    private $name;
+    private string $name;
 
     /**
      * @var string
      */
-    private $religion;
+    private string $religion;
 
     /**
      * @var string
      */
-    private $timezone;
+    private string $timezone;
 
     /**
      * @var string
      */
-    private $username;
+    private string $username;
 
     /**
      * @var boolean
      */
-    private $verified;
+    private bool $verified;
 
     /**
      * @var string
      */
-    private $relationshipStatus;
+    private string $relationshipStatus;
 
     /**
      * @var array
      */
-    private $likes;
+    private array $likes;
 
     /**
      * @var array
      */
-    private $favorites;
+    private array $favorites;
 
     /**
      * @var array
      */
-    private $skills;
+    private array $skills;
 
     /**
      * @var array
      */
-    private $education;
+    private array $education;
 
     /**
      * @var array
      */
-    private $phones;
+    private array $phones;
 
     /**
      * @var array
      */
-    private $works;
+    private array $works;
 
     /**
      * @var array
      */
-    private $publications;
+    private array $publications;
 
     /**
      * @return int
      */
-    public function getBirthDay()
+    public function getBirthDay(): int
     {
         return $this->birthDay;
     }
@@ -213,7 +213,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param int $birthDay
      */
-    public function setBirthDay($birthDay)
+    public function setBirthDay($birthDay): void
     {
         $this->birthDay = $birthDay;
     }
@@ -221,7 +221,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getBirthMonth()
+    public function getBirthMonth(): int
     {
         return $this->birthMonth;
     }
@@ -229,7 +229,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param int $birthMonth
      */
-    public function setBirthMonth($birthMonth)
+    public function setBirthMonth($birthMonth): void
     {
         $this->birthMonth = $birthMonth;
     }
@@ -237,7 +237,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getBirthYear()
+    public function getBirthYear(): int
     {
         return $this->birthYear;
     }
@@ -245,7 +245,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param int $birthYear
      */
-    public function setBirthYear($birthYear)
+    public function setBirthYear($birthYear): void
     {
         $this->birthYear = $birthYear;
     }
@@ -253,7 +253,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getCity()
+    public function getCity(): string
     {
         return $this->city;
     }
@@ -261,7 +261,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $city
      */
-    public function setCity($city)
+    public function setCity($city): void
     {
         $this->city = $city;
     }
@@ -269,7 +269,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getCountry()
+    public function getCountry(): string
     {
         return $this->country;
     }
@@ -277,7 +277,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $country
      */
-    public function setCountry($country)
+    public function setCountry($country): void
     {
         $this->country = $country;
     }
@@ -285,7 +285,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
@@ -293,7 +293,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $email
      */
-    public function setEmail($email)
+    public function setEmail($email): void
     {
         $this->email = $email;
     }
@@ -301,7 +301,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getFirstName()
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
@@ -309,7 +309,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $firstName
      */
-    public function setFirstName($firstName)
+    public function setFirstName($firstName): void
     {
         $this->firstName = $firstName;
     }
@@ -317,7 +317,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getGender()
+    public function getGender(): string
     {
         return $this->gender;
     }
@@ -325,7 +325,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $gender
      */
-    public function setGender($gender)
+    public function setGender($gender): void
     {
         $this->gender = $gender;
     }
@@ -333,7 +333,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getLastName()
+    public function getLastName(): string
     {
         return $this->lastName;
     }
@@ -341,7 +341,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $lastName
      */
-    public function setLastName($lastName)
+    public function setLastName($lastName): void
     {
         $this->lastName = $lastName;
     }
@@ -349,7 +349,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getNickname()
+    public function getNickname(): string
     {
         return $this->nickname;
     }
@@ -357,7 +357,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $nickname
      */
-    public function setNickname($nickname)
+    public function setNickname($nickname): void
     {
         $this->nickname = $nickname;
     }
@@ -365,7 +365,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getPhotoURL()
+    public function getPhotoURL(): string
     {
         return $this->photoURL;
     }
@@ -373,7 +373,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $photoURL
      */
-    public function setPhotoURL($photoURL)
+    public function setPhotoURL($photoURL): void
     {
         $this->photoURL = $photoURL;
     }
@@ -381,7 +381,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getProfileURL()
+    public function getProfileURL(): string
     {
         return $this->profileURL;
     }
@@ -389,7 +389,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $profileURL
      */
-    public function setProfileURL($profileURL)
+    public function setProfileURL($profileURL): void
     {
         $this->profileURL = $profileURL;
     }
@@ -397,7 +397,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getState()
+    public function getState(): string
     {
         return $this->state;
     }
@@ -405,7 +405,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $state
      */
-    public function setState($state)
+    public function setState($state): void
     {
         $this->state = $state;
     }
@@ -413,7 +413,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getThumbnailURL()
+    public function getThumbnailURL(): string
     {
         return $this->thumbnailURL;
     }
@@ -421,7 +421,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $thumbnailURL
      */
-    public function setThumbnailURL($thumbnailURL)
+    public function setThumbnailURL($thumbnailURL): void
     {
         $this->thumbnailURL = $thumbnailURL;
     }
@@ -429,7 +429,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getZip()
+    public function getZip(): string
     {
         return $this->zip;
     }
@@ -437,7 +437,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $zip
      */
-    public function setZip($zip)
+    public function setZip($zip): void
     {
         $this->zip = $zip;
     }
@@ -445,7 +445,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getBio()
+    public function getBio(): string
     {
         return $this->bio;
     }
@@ -453,7 +453,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $bio
      */
-    public function setBio($bio)
+    public function setBio($bio): void
     {
         $this->bio = $bio;
     }
@@ -461,7 +461,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getAddress()
+    public function getAddress(): string
     {
         return $this->address;
     }
@@ -469,7 +469,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $address
      */
-    public function setAddress($address)
+    public function setAddress($address): void
     {
         $this->address = $address;
     }
@@ -477,7 +477,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getEducationLevel()
+    public function getEducationLevel(): string
     {
         return $this->educationLevel;
     }
@@ -485,7 +485,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $educationLevel
      */
-    public function setEducationLevel($educationLevel)
+    public function setEducationLevel($educationLevel): void
     {
         $this->educationLevel = $educationLevel;
     }
@@ -493,7 +493,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getFollowersCount()
+    public function getFollowersCount(): int
     {
         return $this->followersCount;
     }
@@ -501,7 +501,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param int $followersCount
      */
-    public function setFollowersCount($followersCount)
+    public function setFollowersCount($followersCount): void
     {
         $this->followersCount = $followersCount;
     }
@@ -509,7 +509,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getFollowingCount()
+    public function getFollowingCount(): int
     {
         return $this->followingCount;
     }
@@ -517,7 +517,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param int $followingCount
      */
-    public function setFollowingCount($followingCount)
+    public function setFollowingCount($followingCount): void
     {
         $this->followingCount = $followingCount;
     }
@@ -525,7 +525,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getHometown()
+    public function getHometown(): string
     {
         return $this->hometown;
     }
@@ -533,7 +533,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $hometown
      */
-    public function setHometown($hometown)
+    public function setHometown($hometown): void
     {
         $this->hometown = $hometown;
     }
@@ -541,7 +541,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getHonors()
+    public function getHonors(): string
     {
         return $this->honors;
     }
@@ -549,7 +549,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $honors
      */
-    public function setHonors($honors)
+    public function setHonors($honors): void
     {
         $this->honors = $honors;
     }
@@ -557,7 +557,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getIndustry()
+    public function getIndustry(): string
     {
         return $this->industry;
     }
@@ -565,7 +565,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $industry
      */
-    public function setIndustry($industry)
+    public function setIndustry($industry): void
     {
         $this->industry = $industry;
     }
@@ -573,7 +573,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getInterestedIn()
+    public function getInterestedIn(): string
     {
         return $this->interestedIn;
     }
@@ -581,7 +581,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $interestedIn
      */
-    public function setInterestedIn($interestedIn)
+    public function setInterestedIn($interestedIn): void
     {
         $this->interestedIn = $interestedIn;
     }
@@ -589,7 +589,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getLanguages()
+    public function getLanguages(): string
     {
         return $this->languages;
     }
@@ -597,7 +597,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $languages
      */
-    public function setLanguages($languages)
+    public function setLanguages($languages): void
     {
         $this->languages = $languages;
     }
@@ -605,7 +605,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->locale;
     }
@@ -613,7 +613,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $locale
      */
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         $this->locale = $locale;
     }
@@ -621,7 +621,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -629,7 +629,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $name
      */
-    public function setName($name)
+    public function setName($name): void
     {
         $this->name = $name;
     }
@@ -637,7 +637,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getReligion()
+    public function getReligion(): string
     {
         return $this->religion;
     }
@@ -645,7 +645,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $religion
      */
-    public function setReligion($religion)
+    public function setReligion($religion): void
     {
         $this->religion = $religion;
     }
@@ -653,7 +653,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getTimezone()
+    public function getTimezone(): string
     {
         return $this->timezone;
     }
@@ -661,7 +661,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $timezone
      */
-    public function setTimezone($timezone)
+    public function setTimezone($timezone): void
     {
         $this->timezone = $timezone;
     }
@@ -669,7 +669,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->username;
     }
@@ -677,7 +677,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $username
      */
-    public function setUsername($username)
+    public function setUsername($username): void
     {
         $this->username = $username;
     }
@@ -685,7 +685,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return boolean
      */
-    public function isVerified()
+    public function isVerified(): bool
     {
         return $this->verified;
     }
@@ -693,7 +693,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param boolean $verified
      */
-    public function setVerified($verified)
+    public function setVerified($verified): void
     {
         $this->verified = $verified;
     }
@@ -701,7 +701,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getRelationshipStatus()
+    public function getRelationshipStatus(): string
     {
         return $this->relationshipStatus;
     }
@@ -709,7 +709,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param string $relationshipStatus
      */
-    public function setRelationshipStatus($relationshipStatus)
+    public function setRelationshipStatus($relationshipStatus): void
     {
         $this->relationshipStatus = $relationshipStatus;
     }
@@ -717,7 +717,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getLikes()
+    public function getLikes(): array
     {
         return $this->likes;
     }
@@ -725,7 +725,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param array $likes
      */
-    public function setLikes($likes)
+    public function setLikes($likes): void
     {
         $this->likes = $likes;
     }
@@ -733,7 +733,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getFavorites()
+    public function getFavorites(): array
     {
         return $this->favorites;
     }
@@ -741,7 +741,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param array $favorites
      */
-    public function setFavorites($favorites)
+    public function setFavorites($favorites): void
     {
         $this->favorites = $favorites;
     }
@@ -749,7 +749,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getSkills()
+    public function getSkills(): array
     {
         return $this->skills;
     }
@@ -757,7 +757,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param array $skills
      */
-    public function setSkills($skills)
+    public function setSkills($skills): void
     {
         $this->skills = $skills;
     }
@@ -765,7 +765,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getEducation()
+    public function getEducation(): array
     {
         return $this->education;
     }
@@ -773,7 +773,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param array $education
      */
-    public function setEducation($education)
+    public function setEducation($education): void
     {
         $this->education = $education;
     }
@@ -781,7 +781,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getPhones()
+    public function getPhones(): array
     {
         return $this->phones;
     }
@@ -789,7 +789,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param array $phones
      */
-    public function setPhones($phones)
+    public function setPhones($phones): void
     {
         $this->phones = $phones;
     }
@@ -797,7 +797,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getWorks()
+    public function getWorks(): array
     {
         return $this->works;
     }
@@ -805,7 +805,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param array $works
      */
-    public function setWorks($works)
+    public function setWorks($works): void
     {
         $this->works = $works;
     }
@@ -813,7 +813,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getPublications()
+    public function getPublications(): array
     {
         return $this->publications;
     }
@@ -821,7 +821,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @param array $publications
      */
-    public function setPublications($publications)
+    public function setPublications($publications): void
     {
         $this->publications = $publications;
     }

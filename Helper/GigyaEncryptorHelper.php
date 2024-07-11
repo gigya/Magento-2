@@ -2,21 +2,23 @@
 
 namespace Gigya\GigyaIM\Helper;
 
+use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File;
 
-class GigyaEncryptorHelper extends \Magento\Framework\App\Helper\AbstractHelper
+class GigyaEncryptorHelper extends AbstractHelper
 {
     /**
      * @var DirectoryList
      */
-    protected $directoryList;
+    protected DirectoryList $directoryList;
 
     /**
      * @var File
      */
-    protected $file;
+    protected File $file;
 
     /**
      * @param Context $context
@@ -39,9 +41,9 @@ class GigyaEncryptorHelper extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return string|false
      *
-     * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws FileSystemException
      */
-    public function getKeyFromFile($keyFileLocation)
+    public function getKeyFromFile($keyFileLocation): false|string
     {
         if (empty($keyFileLocation) == false) {
             $varPath = $this->directoryList->getPath(DirectoryList::VAR_DIR);

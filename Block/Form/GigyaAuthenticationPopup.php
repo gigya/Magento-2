@@ -5,10 +5,11 @@
 
 namespace Gigya\GigyaIM\Block\Form;
 
-use \Magento\Customer\Block\Account\AuthenticationPopup;
-use \Magento\Framework\View\Element\Template\Context;
-use \Magento\Framework\Serialize\Serializer\Json;
-use \Gigya\GigyaIM\Model\Config;
+use Magento\Customer\Block\Account\AuthenticationPopup;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\Serialize\Serializer\Json;
+use Gigya\GigyaIM\Model\Config;
 
 /**
  * Class Login
@@ -20,7 +21,7 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
     /**
      * @var Config
      */
-    protected $config;
+    protected Config $config;
 
     /**
      * GigyaAuthenticationPopup constructor.
@@ -43,7 +44,7 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
     /**
      * @return string
      */
-    public function getLoginDesktopScreensetId()
+    public function getLoginDesktopScreensetId(): string
     {
         return $this->config->getLoginDesktopScreensetId();
     }
@@ -51,15 +52,16 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
     /**
      * @return string
      */
-    public function getLoginMobileScreensetId()
+    public function getLoginMobileScreensetId(): string
     {
         return $this->config->getLoginMobileScreensetId();
     }
 
     /**
      * @return string
+     * @throws LocalizedException
      */
-    public function _toHtml()
+    public function _toHtml(): string
     {
 
         if ($this->config->isGigyaEnabled()) {

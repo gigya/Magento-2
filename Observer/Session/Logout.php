@@ -2,6 +2,9 @@
 
 namespace Gigya\GigyaIM\Observer\Session;
 
+use Exception;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
+use Magento\Customer\Model\Customer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
@@ -13,26 +16,29 @@ class Logout implements ObserverInterface
     /**
      * @var GigyaMageHelper
      */
-    protected $mageHelper;
+    protected GigyaMageHelper $mageHelper;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    protected Logger $logger;
 
     /**
      * @var Config
      */
-    protected $config;
+    protected Config $config;
 
     /**
      * Logout constructor.
      * @param GigyaMageHelper $mageHelper
      * @param Logger $logger
-     * @param Config
+     * @param Config $config
      */
-    public function __construct(GigyaMageHelper $mageHelper, Logger $logger, Config $config)
-    {
+    public function __construct(
+        GigyaMageHelper $mageHelper,
+        Logger $logger,
+        Config $config
+    ) {
         $this->mageHelper = $mageHelper;
         $this->logger = $logger;
         $this->config = $config;
@@ -41,7 +47,7 @@ class Logout implements ObserverInterface
     /**
      * @param Observer $observer
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         if ($this->config->isGigyaEnabled() == false) {
             return;
@@ -49,7 +55,7 @@ class Logout implements ObserverInterface
 
         $customer = $observer->getEvent()->getData('customer');
 
-        if ($customer instanceof \Magento\Customer\Model\Customer === false) {
+        if ($customer instanceof Customer === false) {
             return;
         }
 
@@ -61,14 +67,14 @@ class Logout implements ObserverInterface
 
         $gigyaApiHelper = $this->mageHelper->getGigyaApiHelper();
 
-        if ($gigyaApiHelper instanceof \Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper === false) {
+        if ($gigyaApiHelper instanceof GigyaApiHelper === false) {
             return;
         }
 
         try {
             $gigyaApiHelper->sendApiCall('accounts.logout', ['UID' => $gigyaUid]);
-        } catch (\Exception $e) {
-            $this->logger->error("Failed to logout customer {$gigyaUid}: " . $e->getMessage());
+        } catch (Exception $e) {
+            $this->logger->error("Failed to logout customer $gigyaUid: " . $e->getMessage());
         }
     }
 }

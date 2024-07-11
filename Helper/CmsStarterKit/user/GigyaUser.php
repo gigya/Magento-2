@@ -9,117 +9,117 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @var string
      */
-    private $UID;
+    private string $UID;
 
     /**
      * @var string
      */
-    private $UIDSignature;
+    private string $UIDSignature;
 
     /**
      * @var boolean
      */
-    private $isSiteUser;
+    private bool $isSiteUser;
 
     /**
      * @var boolean
      */
-    private $isTempUser;
+    private bool $isTempUser;
 
     /**
      * @var boolean
      */
-    private $isSiteUID;
+    private bool $isSiteUID;
 
     /**
      * @var string
      */
-    private $loginProvider;
+    private string $loginProvider;
 
     /**
      * @var string
      */
-    private $loginProviderUID;
+    private string $loginProviderUID;
 
     /**
      * @var string
      */
-    private $oldestDataAge;
+    private string $oldestDataAge;
 
     /**
      * @var int
      */
-    private $oldestDataUpdatedTimestamp;
+    private int $oldestDataUpdatedTimestamp;
 
     /**
      * @var int
      */
-    private $signatureTimestamp;
+    private int $signatureTimestamp;
 
     /**
      * @var string
      */
-    private $statusCode;
+    private string $statusCode;
 
     /**
      * @var string
      */
-    private $statusReason;
+    private string $statusReason;
 
     /**
      * @var int
      */
-    private $lastUpdatedTimestamp;
+    private int $lastUpdatedTimestamp;
 
     /**
      * @var string
      */
-    private $socialProviders;
+    private string $socialProviders;
 
     /**
      * @var array
      */
-    private $providers;
+    private array $providers;
 
     /**
      * @var string
      */
-    private $isActive;
+    private string $isActive;
 
     /**
      * @var array
      */
-    private $loginIDs;
+    private array $loginIDs;
 
     /**
      * @var GigyaProfile
      */
-    private $profile;
+    private GigyaProfile $profile;
 
     /**
      * @var string
      */
-    private $time;
+    private string $time;
 
     /**
      * @var array
      */
-    private $data;
+    private array $data;
 
     /**
      * @var array
      */
-    private $subscriptions;
+    private array $subscriptions;
 
     /**
      * @var boolean
      */
-    private $isVerified;
+    private bool $isVerified;
 
     /**
      * @return string
      */
-    public function getUID()
+    public function getUID(): string
     {
         return $this->UID;
     }
@@ -127,7 +127,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $UID
      */
-    public function setUID($UID)
+    public function setUID($UID): void
     {
         $this->UID = $UID;
     }
@@ -135,7 +135,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getUIDSignature()
+    public function getUIDSignature(): string
     {
         return $this->UIDSignature;
     }
@@ -143,7 +143,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $UIDSignature
      */
-    public function setUIDSignature($UIDSignature)
+    public function setUIDSignature($UIDSignature): void
     {
         $this->UIDSignature = $UIDSignature;
     }
@@ -151,7 +151,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return boolean
      */
-    public function isIsSiteUser()
+    public function isIsSiteUser(): bool
     {
         return $this->isSiteUser;
     }
@@ -159,7 +159,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param boolean $isSiteUser
      */
-    public function setIsSiteUser($isSiteUser)
+    public function setIsSiteUser($isSiteUser): void
     {
         $this->isSiteUser = $isSiteUser;
     }
@@ -167,7 +167,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return boolean
      */
-    public function isIsTempUser()
+    public function isIsTempUser(): bool
     {
         return $this->isTempUser;
     }
@@ -175,7 +175,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param boolean $isTempUser
      */
-    public function setIsTempUser($isTempUser)
+    public function setIsTempUser($isTempUser): void
     {
         $this->isTempUser = $isTempUser;
     }
@@ -183,7 +183,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return boolean
      */
-    public function isIsSiteUID()
+    public function isIsSiteUID(): bool
     {
         return $this->isSiteUID;
     }
@@ -191,7 +191,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param boolean $isSiteUID
      */
-    public function setIsSiteUID($isSiteUID)
+    public function setIsSiteUID($isSiteUID): void
     {
         $this->isSiteUID = $isSiteUID;
     }
@@ -199,7 +199,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getLoginProvider()
+    public function getLoginProvider(): string
     {
         return $this->loginProvider;
     }
@@ -207,7 +207,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $loginProvider
      */
-    public function setLoginProvider($loginProvider)
+    public function setLoginProvider($loginProvider): void
     {
         $this->loginProvider = $loginProvider;
     }
@@ -215,7 +215,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getLoginProviderUID()
+    public function getLoginProviderUID(): string
     {
         return $this->loginProviderUID;
     }
@@ -223,7 +223,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $loginProviderUID
      */
-    public function setLoginProviderUID($loginProviderUID)
+    public function setLoginProviderUID($loginProviderUID): void
     {
         $this->loginProviderUID = $loginProviderUID;
     }
@@ -231,7 +231,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getOldestDataAge()
+    public function getOldestDataAge(): string
     {
         return $this->oldestDataAge;
     }
@@ -239,7 +239,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $oldestDataAge
      */
-    public function setOldestDataAge($oldestDataAge)
+    public function setOldestDataAge($oldestDataAge): void
     {
         $this->oldestDataAge = $oldestDataAge;
     }
@@ -247,7 +247,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getOldestDataUpdatedTimestamp()
+    public function getOldestDataUpdatedTimestamp(): int
     {
         return $this->oldestDataUpdatedTimestamp;
     }
@@ -255,7 +255,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param int $oldestDataUpdatedTimestamp
      */
-    public function setOldestDataUpdatedTimestamp($oldestDataUpdatedTimestamp)
+    public function setOldestDataUpdatedTimestamp($oldestDataUpdatedTimestamp): void
     {
         $this->oldestDataUpdatedTimestamp = $oldestDataUpdatedTimestamp;
     }
@@ -263,7 +263,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getSignatureTimestamp()
+    public function getSignatureTimestamp(): int
     {
         return $this->signatureTimestamp;
     }
@@ -271,7 +271,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param int $signatureTimestamp
      */
-    public function setSignatureTimestamp($signatureTimestamp)
+    public function setSignatureTimestamp($signatureTimestamp): void
     {
         $this->signatureTimestamp = $signatureTimestamp;
     }
@@ -279,7 +279,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getStatusCode()
+    public function getStatusCode(): string
     {
         return $this->statusCode;
     }
@@ -287,7 +287,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $statusCode
      */
-    public function setStatusCode($statusCode)
+    public function setStatusCode($statusCode): void
     {
         $this->statusCode = $statusCode;
     }
@@ -295,7 +295,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getStatusReason()
+    public function getStatusReason(): string
     {
         return $this->statusReason;
     }
@@ -303,7 +303,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $statusReason
      */
-    public function setStatusReason($statusReason)
+    public function setStatusReason($statusReason): void
     {
         $this->statusReason = $statusReason;
     }
@@ -311,7 +311,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getLastUpdatedTimestamp()
+    public function getLastUpdatedTimestamp(): int
     {
         return $this->lastUpdatedTimestamp;
     }
@@ -319,7 +319,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param int $lastUpdatedTimestamp
      */
-    public function setLastUpdatedTimestamp($lastUpdatedTimestamp)
+    public function setLastUpdatedTimestamp($lastUpdatedTimestamp): void
     {
         $this->lastUpdatedTimestamp = $lastUpdatedTimestamp;
     }
@@ -327,7 +327,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getSocialProviders()
+    public function getSocialProviders(): string
     {
         return $this->socialProviders;
     }
@@ -335,7 +335,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $socialProviders
      */
-    public function setSocialProviders($socialProviders)
+    public function setSocialProviders($socialProviders): void
     {
         $this->socialProviders = $socialProviders;
     }
@@ -343,7 +343,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getProviders()
+    public function getProviders(): array
     {
         return $this->providers;
     }
@@ -351,7 +351,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param array $providers
      */
-    public function setProviders($providers)
+    public function setProviders($providers): void
     {
         $this->providers = $providers;
     }
@@ -359,7 +359,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getIsActive()
+    public function getIsActive(): string
     {
         return $this->isActive;
     }
@@ -367,7 +367,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $isActive
      */
-    public function setIsActive($isActive)
+    public function setIsActive($isActive): void
     {
         $this->isActive = $isActive;
     }
@@ -375,7 +375,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getLoginIDs()
+    public function getLoginIDs(): array
     {
         return $this->loginIDs;
     }
@@ -383,7 +383,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param array $loginIDs
      */
-    public function setLoginIDs($loginIDs)
+    public function setLoginIDs($loginIDs): void
     {
         $this->loginIDs = $loginIDs;
     }
@@ -391,7 +391,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return GigyaProfile
      */
-    public function getProfile()
+    public function getProfile(): GigyaProfile
     {
         return $this->profile;
     }
@@ -399,7 +399,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param array|GigyaProfile $profile
      */
-    public function setProfile($profile)
+    public function setProfile($profile): void
     {
         if (is_array($profile)) {
             $profile = GigyaUserFactory::createGigyaProfileFromArray($profile);
@@ -410,7 +410,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getTime()
+    public function getTime(): string
     {
         return $this->time;
     }
@@ -418,7 +418,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param string $time
      */
-    public function setTime($time)
+    public function setTime($time): void
     {
         $this->time = $time;
     }
@@ -426,7 +426,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
@@ -434,7 +434,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param array $data
      */
-    public function setData($data)
+    public function setData($data): void
     {
         if (is_array($this->data)) {
             $this->data = array_merge($this->data, $data);
@@ -446,7 +446,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return string emailLoginId / null
      */
-    public function getGigyaLoginId()
+    public function getGigyaLoginId(): string
     {
         $loginIds = $this->getLoginIDs();
         if (!empty($loginIds['emails'][0])) {
@@ -463,7 +463,7 @@ class GigyaUser extends GigyaJsonObject
      *
      * @return GigyaUser|string
      */
-    public function getNestedValue($path)
+    public function getNestedValue($path): GigyaUser|string|null|static
     {
         $keys    = explode('.', $path);
         $accData = $this;
@@ -486,7 +486,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return array
      */
-    public function getSubscriptions()
+    public function getSubscriptions(): array
     {
         return $this->subscriptions;
     }
@@ -496,7 +496,7 @@ class GigyaUser extends GigyaJsonObject
      *
      * @see GigyaSubscriptionContainer
      */
-    public function setSubscriptions($subscriptions)
+    public function setSubscriptions($subscriptions): void
     {
         $this->subscriptions = $subscriptions;
     }
@@ -508,7 +508,7 @@ class GigyaUser extends GigyaJsonObject
      *
      * @see GigyaSubscription
      */
-    public function addSubscription($id, $subscription)
+    public function addSubscription($id, $subscription): void
     {
         $subscriptionContainer = new GigyaSubscriptionContainer(null);
         $subscriptionContainer->setEmail($subscription);
@@ -521,7 +521,7 @@ class GigyaUser extends GigyaJsonObject
      *
      * @return GigyaSubscription|null
      */
-    public function getSubscriptionById($id)
+    public function getSubscriptionById($id): ?GigyaSubscription
     {
         $result = null;
 
@@ -539,7 +539,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @return bool
      */
-    public function getIsVerified()
+    public function getIsVerified(): bool
     {
         return $this->isVerified;
     }
@@ -547,7 +547,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @param bool $isVerified
      */
-    public function setIsVerified($isVerified)
+    public function setIsVerified($isVerified): void
     {
         $this->isVerified = $isVerified;
     }

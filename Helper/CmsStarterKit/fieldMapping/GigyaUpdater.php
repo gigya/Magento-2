@@ -2,44 +2,46 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
+use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 
 abstract class GigyaUpdater
 {
     /**
      * @var array
      */
-    private $cmsMappings;
+    private array $cmsMappings;
 
     /**
      * @var array
      */
-    private $cmsArray;
+    private mixed $cmsArray;
 
     /**
      * @var string
      */
-    private $gigyaUid;
+    private string $gigyaUid;
 
     /**
      * @var bool
      */
-    private $mapped;
+    private bool $mapped;
 
     /**
      * @var string
      */
-    private $path;
+    private string $path;
 
     /**
      * @var array
      */
-    private $gigyaArray;
+    private array $gigyaArray;
 
     /**
      * @var GigyaApiHelper
      */
-    private $apiHelper;
+    private GigyaApiHelper $apiHelper;
 
     /**
      * GigyaUpdater constructor.
@@ -64,10 +66,10 @@ abstract class GigyaUpdater
 
     /**
      * @throws FieldMappingException
-     * @throws \Exception
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
+     * @throws Exception
+     * @throws GSApiException
      */
-    public function updateGigya()
+    public function updateGigya(): void
     {
         $this->retrieveFieldMappings();
         $this->callCmsHook();
@@ -78,7 +80,7 @@ abstract class GigyaUpdater
     /**
      * @return boolean
      */
-    public function isMapped()
+    public function isMapped(): bool
     {
         return $this->mapped;
     }
@@ -86,7 +88,7 @@ abstract class GigyaUpdater
     /**
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -94,7 +96,7 @@ abstract class GigyaUpdater
     /**
      * @param string $path
      */
-    public function setPath($path)
+    public function setPath($path): void
     {
         $this->path = $path;
     }
@@ -102,7 +104,7 @@ abstract class GigyaUpdater
     /**
      * @return mixed
      */
-    public function getCmsArray()
+    public function getCmsArray(): mixed
     {
         return $this->cmsArray;
     }
@@ -110,7 +112,7 @@ abstract class GigyaUpdater
     /**
      * @param mixed $cmsArray
      */
-    public function setCmsArray($cmsArray)
+    public function setCmsArray($cmsArray): void
     {
         $this->cmsArray = $cmsArray;
     }
@@ -118,7 +120,7 @@ abstract class GigyaUpdater
     /**
      * @param string $uid
      */
-    public function setGigyaUid($uid)
+    public function setGigyaUid($uid): void
     {
         $this->gigyaUid = $uid;
     }
@@ -126,7 +128,7 @@ abstract class GigyaUpdater
     /**
      * @return mixed
      */
-    public function getGigyaArray()
+    public function getGigyaArray(): mixed
     {
         return $this->gigyaArray;
     }
@@ -134,7 +136,7 @@ abstract class GigyaUpdater
     /**
      * @param mixed $gigyaArray
      */
-    public function setGigyaArray($gigyaArray)
+    public function setGigyaArray($gigyaArray): void
     {
         $this->gigyaArray = $gigyaArray;
     }
@@ -161,13 +163,13 @@ abstract class GigyaUpdater
      *
      * @return mixed
      */
-    abstract protected function getMappingFromCache();
+    abstract protected function getMappingFromCache(): mixed;
 
     /**
      * @throws FieldMappingException
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function retrieveFieldMappings()
+    protected function retrieveFieldMappings(): void
     {
         $conf = $this->getMappingFromCache();
         if (false === $conf) {
@@ -175,7 +177,7 @@ abstract class GigyaUpdater
             if (false === $mappingJson) {
                 $err     = error_get_last();
                 $message = "GigyaUpdater: Could not retrieve field mapping configuration file. The message was: " . $err['message'];
-                throw new \Exception($message);
+                throw new Exception($message);
             }
 
             $conf = new Conf($mappingJson);
@@ -188,7 +190,7 @@ abstract class GigyaUpdater
     /**
      * @return array
      */
-    protected function createGigyaArray()
+    protected function createGigyaArray(): array
     {
         $gigyaArray = [];
         foreach ($this->cmsArray as $key => $value) {
@@ -206,12 +208,13 @@ abstract class GigyaUpdater
     }
 
     /**
-     * @param mixed    $val
+     * @param mixed $val
      * @param ConfItem $conf
      *
      * @return mixed $val;
+     * @throws Exception
      */
-    private function castVal($val, $conf)
+    private function castVal(mixed $val, $conf): mixed
     {
         switch ($conf->getGigyaType()) {
             case "string":
@@ -247,7 +250,7 @@ abstract class GigyaUpdater
         }
     }
 
-    private function assignArrayByPath(&$arr, $path, $value, $separator = '.')
+    private function assignArrayByPath(&$arr, $path, $value, $separator = '.'): void
     {
         $keys = explode($separator, $path);
 

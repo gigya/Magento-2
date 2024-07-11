@@ -5,24 +5,25 @@
 
 namespace Gigya\GigyaIM\Block\Form;
 
-use \Magento\Customer\Block\Form\Login;
-use \Gigya\GigyaIM\Model\Config;
+use Magento\Customer\Block\Form\Login;
+use Gigya\GigyaIM\Model\Config;
 use Magento\Framework\Exception\LocalizedException;
-use \Magento\Framework\View\Element\Template\Context;
-use \Magento\Customer\Model\Session;
-use \Magento\Customer\Model\Url;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Url;
 
 /**
  * Class Login
  *
  * @package Gigya\GigyaIM\Block\Form
+ * @api
  */
 class GigyaLogin extends Login
 {
     /**
      * @var Config
      */
-    protected $configModel;
+    protected Config $configModel;
 
     /**
      * Login constructor.
@@ -47,17 +48,17 @@ class GigyaLogin extends Login
     /**
      * @return string
      */
-    public function getLoginDesktopScreensetId()
+    public function getLoginDesktopScreensetId(): string
     {
-        return $this->configModel->getLoginDesktopScreensetId();
+        return (string)$this->configModel->getLoginDesktopScreensetId();
     }
 
     /**
      * @return string
      */
-    public function getLoginMobileScreensetId()
+    public function getLoginMobileScreensetId(): string
     {
-        return $this->configModel->getLoginMobileScreensetId();
+        return (string)$this->configModel->getLoginMobileScreensetId();
     }
 
     /**
@@ -65,7 +66,7 @@ class GigyaLogin extends Login
      *
      * @throws LocalizedException
      */
-    public function _toHtml()
+    public function _toHtml(): string
     {
         if ($this->configModel->isGigyaEnabled()) {
             $this->getLayout()->unsetElement('customer.login.container');

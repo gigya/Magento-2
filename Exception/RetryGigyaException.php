@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Exception;
 
-class RetryGigyaException extends \Exception
+use Exception;
+
+class RetryGigyaException extends Exception
 {
 
 }

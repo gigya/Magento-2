@@ -8,7 +8,7 @@ use Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray;
 
 class AdditionalScreenSet extends AbstractFieldArray
 {
-    private $_checkboxRenderer;
+    private Checkbox $_checkboxRenderer;
 
     public function __construct(Context $context, Checkbox $checkboxRenderer)
     {
@@ -20,7 +20,7 @@ class AdditionalScreenSet extends AbstractFieldArray
     /**
      * {@inheritdoc}
      */
-    protected function _prepareToRender()
+    protected function _prepareToRender(): void
     {
         $this->addColumn('desktop_screen', ['label' => __('Screen-Set ID'), 'class' => 'required-entry', 'renderer' => false]);
         $this->addColumn('mobile_screen', ['label' => __('Mobile Screen-Set ID'), 'renderer' => false]);

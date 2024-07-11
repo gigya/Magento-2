@@ -47,22 +47,22 @@ class Config
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    protected ScopeConfigInterface $scopeConfig;
 
     /**
      * @var CookieManagerInterface
      */
-    protected $cookieManager;
+    protected CookieManagerInterface $cookieManager;
 
     /**
      * @var Logger
      */
-    protected $logger;
+    protected Logger $logger;
 
     /**
-     * @var int
+     * @var string|int|null
      */
-    protected $remember;
+    protected string|int|null $remember;
 
     /**
      * Config constructor.
@@ -84,24 +84,24 @@ class Config
     /**
      * @return int
      */
-    public function isGigyaEnabled()
+    public function isGigyaEnabled(): int
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_GENERAL . '/enable_gigya', 'website');
+        return (int)$this->scopeConfig->getValue(self::XML_PATH_GENERAL . '/enable_gigya', 'website');
     }
 
     /**
      * @return int
      */
-    public function getDebugMode()
+    public function getDebugMode(): int
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_DEBUG_MODE, 'website');
+        return (int)$this->scopeConfig->getValue(self::XML_PATH_DEBUG_MODE, 'website');
     }
 
     /**
      * @param null $type
      * @return int
      */
-    public function getSessionMode($type = null)
+    public function getSessionMode($type = null): int
     {
         if ($type == null) {
             $type = $this->isRememberSession() ? 'remember' : 'type';
@@ -109,13 +109,14 @@ class Config
 
         $path = $type == 'remember' ? self::XML_PATH_REMEMBER_MODE : self::XML_PATH_SESSION_MODE;
 
-        return $this->scopeConfig->getValue($path, 'website');
+        return (int)$this->scopeConfig->getValue($path, 'website');
     }
 
     /**
+     * @param null $type
      * @return int
      */
-    public function getSessionExpiration($type = null)
+    public function getSessionExpiration($type = null): int
     {
         $initialType = empty($type) ? 'empty' : $type;
 
@@ -125,14 +126,14 @@ class Config
 
         $path = $type == 'remember' ? self::XML_PATH_REMEMBER_EXPIRATION : self::XML_PATH_SESSION_EXPIRATION;
 
-        return $this->scopeConfig->getValue($path, 'website');
+        return (int)$this->scopeConfig->getValue($path, 'website');
     }
 
     /**
      * @param $remember
      * @return $this
      */
-    public function setRemember($remember)
+    public function setRemember($remember): static
     {
         $this->remember = (bool) $remember;
         return $this;
@@ -141,7 +142,7 @@ class Config
     /**
      * @return bool
      */
-    public function isRememberSession()
+    public function isRememberSession(): bool
     {
         return (bool) $this->remember;
     }
@@ -149,9 +150,9 @@ class Config
     /**
      * @return string
      */
-    public function getMappingFilePath()
+    public function getMappingFilePath(): string
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_MAPPING_FILE_PATH, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_MAPPING_FILE_PATH, 'website');
     }
 
     /**
@@ -160,7 +161,7 @@ class Config
      *
      * @return array
      */
-    public function getGigyaGeneralConfig($scopeType = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeCode = null)
+    public function getGigyaGeneralConfig($scopeType = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeCode = null): array
     {
         $generalConfig = $this->scopeConfig->getValue(self::XML_PATH_GENERAL, $scopeType, $scopeCode);
         return empty($generalConfig) ? [] : $generalConfig;
@@ -169,48 +170,48 @@ class Config
     /**
      * @return string
      */
-    public function getMagentoCookiePath()
+    public function getMagentoCookiePath(): string
     {
-        return $this->scopeConfig->getValue(\Magento\Framework\Session\Config::XML_PATH_COOKIE_PATH, 'website');
+        return (string)$this->scopeConfig->getValue(\Magento\Framework\Session\Config::XML_PATH_COOKIE_PATH, 'website');
     }
 
     /**
      * @return string
      */
-    public function getLoginDesktopScreensetId()
+    public function getLoginDesktopScreensetId(): string
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_DESKTOP_SCREENSET_ID, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_LOGIN_DESKTOP_SCREENSET_ID, 'website');
     }
 
     /**
      * @return string
      */
-    public function getLoginMobileScreensetId()
+    public function getLoginMobileScreensetId(): string
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_LOGIN_MOBILE_SCREENSET_ID, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_LOGIN_MOBILE_SCREENSET_ID, 'website');
     }
 
     /**
      * @return string
      */
-    public function getProfileDesktopScreensetId()
+    public function getProfileDesktopScreensetId(): string
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_DESKTOP_SCREENSET_ID, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_PROFILE_DESKTOP_SCREENSET_ID, 'website');
     }
 
     /**
      * @return string
      */
-    public function getProfileMobileScreensetId()
+    public function getProfileMobileScreensetId(): string
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_PROFILE_MOBILE_SCREENSET_ID, 'website');
     }
 
     /**
      * @return string
      */
-    public function getCustomScreensets()
+    public function getCustomScreensets(): string
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_PROFILE_CUSTOM_SCREENSETS, 'website');
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_PROFILE_CUSTOM_SCREENSETS, 'website');
     }
 }

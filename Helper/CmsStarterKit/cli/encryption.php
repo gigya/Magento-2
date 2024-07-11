@@ -4,7 +4,7 @@ include_once __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "Gigya
 
 set_error_handler('exceptions_error_handler');
 
-function get_available_commands()
+function get_available_commands(): array
 {
     return [
         [
@@ -46,7 +46,7 @@ function get_available_commands()
  *
  * @throws ErrorException
  */
-function exceptions_error_handler($severity, $message, $filename, $lineno)
+function exceptions_error_handler($severity, $message, $filename, $lineno): void
 {
     if (!error_reporting()) {
         return;
@@ -57,7 +57,7 @@ function exceptions_error_handler($severity, $message, $filename, $lineno)
     }
 }
 
-function help()
+function help(): void
 {
     $available_commands = get_available_commands();
 
@@ -72,7 +72,7 @@ function help()
  *
  * @return mixed
  */
-function perform_key_operation_from_cli($cli_args)
+function perform_key_operation_from_cli($cli_args): mixed
 {
     $msg = 'Invalid command-line arguments provided. Type -help to see a list of commands.';
 
