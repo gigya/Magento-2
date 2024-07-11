@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
+use Exception;
 use Gigya\PHP\GSException;
 use Gigya\PHP\GSObject;
 use Gigya\PHP\GSRequest;
@@ -17,7 +18,7 @@ class GigyaApiRequest extends GSRequest
      * @throws GSException
      * @throws GSApiException
      */
-    public function send($timeout = null)
+    public function send($timeout = null): GSResponse
     {
         $res = parent::send($timeout);
         if ($res->getErrorCode() == 0) {
@@ -42,7 +43,7 @@ class GigyaApiRequest extends GSRequest
      * @param boolean  $useHTTPS
      * @param null     $userKey
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct($apiKey, $secret, $apiMethod, $params, $dataCenter, $useHTTPS = true, $userKey = null)
     {

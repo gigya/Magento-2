@@ -2,14 +2,19 @@
 
 namespace Gigya\GigyaIM\Controller\Raas\Account;
 
-class CreatePost extends \Magento\Customer\Controller\Account\CreatePost
+use Magento\Customer\Controller\Account\CreatePost as CreatePostParent;
+use Magento\Framework\Controller\Result\Redirect;
+
+class CreatePost extends CreatePostParent
 {
-    public function execute()
+    /**
+     * @return Redirect
+     */
+    public function execute(): Redirect
     {
         $config = $this->_objectManager->create('Gigya\GigyaIM\Model\Config');
 
         if ($config->isGigyaEnabled()) {
-            /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
             $resultRedirect = $this->resultRedirectFactory->create();
 
             $url = $this->urlModel->getUrl('*/*/create', ['_secure' => true]);

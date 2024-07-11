@@ -15,13 +15,13 @@ class GigyaScriptTest extends TestCase
      * @var Gigya\GigyaIM\Block\GigyaScript
      */
     protected $block;
-    
+
     protected $scopeConfig;
 
     /**
      * Mock scopeConfig to tests with different System configuration values
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         // when creating mock from interface, make sure to implement all interface methods
         $this->scopeConfig = $this->getMockBuilder(
@@ -55,7 +55,7 @@ class GigyaScriptTest extends TestCase
         );
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->block = null;
         $this->scopeConfig = null;

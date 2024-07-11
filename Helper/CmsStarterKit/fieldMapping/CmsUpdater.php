@@ -2,10 +2,12 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
+use Gigya\GigyaIM\Helper\CmsStarterKit\User\GigyaUser;
+
 abstract class CmsUpdater
 {
     /**
-     * @var \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
+     * @var GigyaUser
      */
     private $gigyaUser;
 
@@ -21,8 +23,8 @@ abstract class CmsUpdater
     /**
      * CmsUpdater constructor
      *
-     * @param \Gigya\GigyaIM\Helper\CmsStarterKit\User\GigyaUser $gigyaAccount
-     * @param string                                             $mappingFilePath
+     * @param GigyaUser $gigyaAccount
+     * @param string $mappingFilePath
      */
     public function __construct($gigyaAccount, $mappingFilePath)
     {
@@ -36,9 +38,9 @@ abstract class CmsUpdater
      * @param             $cmsAccountSaver
      * @param boolean      $skipCache        Determines whether to skip the caching and cache retrieval for field mapping
      *
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\CmsUpdaterException
+     * @throws CmsUpdaterException
      */
-    public function updateCmsAccount(&$cmsAccount, $cmsAccountSaver = null, $skipCache = false)
+    public function updateCmsAccount(&$cmsAccount, $cmsAccountSaver = null, $skipCache = false): void
     {
         if (!isset($this->gigyaMapping)) {
             $this->retrieveFieldMappings($skipCache);
@@ -55,7 +57,7 @@ abstract class CmsUpdater
     /**
      * @return boolean
      */
-    public function isMapped()
+    public function isMapped(): bool
     {
         return $this->mapped;
     }
@@ -69,7 +71,7 @@ abstract class CmsUpdater
      *
      * @throws CmsUpdaterException
      */
-    public function retrieveFieldMappings($skipCache = false)
+    public function retrieveFieldMappings($skipCache = false): void
     {
         if (file_exists($this->path)) {
             $mappingJson = file_get_contents($this->path);
@@ -95,9 +97,9 @@ abstract class CmsUpdater
     /**
      * @param $path
      *
-     * @return \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser|null|string
+     * @return GigyaUser|null|string
      */
-    public function getValueFromGigyaAccount($path)
+    public function getValueFromGigyaAccount($path): GigyaUser|string|null
     {
         $userData = $this->getGigyaUser();
         $value    = $userData->getNestedValue($path);
@@ -111,7 +113,7 @@ abstract class CmsUpdater
      *
      * @return mixed
      */
-    protected function castValue($value, $conf)
+    protected function castValue($value, $conf): mixed
     {
         switch ($conf->getCmsType()) {
             case "decimal":
@@ -138,7 +140,7 @@ abstract class CmsUpdater
     /**
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -146,15 +148,15 @@ abstract class CmsUpdater
     /**
      * @param string $path
      */
-    public function setPath($path)
+    public function setPath($path): void
     {
         $this->path = $path;
     }
 
     /**
-     * @return \Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser
+     * @return GigyaUser
      */
-    public function getGigyaUser()
+    public function getGigyaUser(): GigyaUser
     {
         return $this->gigyaUser;
     }
@@ -162,7 +164,7 @@ abstract class CmsUpdater
     /**
      * @param array $gigyaUser
      */
-    public function setGigyaUser($gigyaUser)
+    public function setGigyaUser($gigyaUser): void
     {
         $this->gigyaUser = $gigyaUser;
     }
@@ -170,7 +172,7 @@ abstract class CmsUpdater
     /**
      * @return mixed
      */
-    public function getGigyaMapping()
+    public function getGigyaMapping(): mixed
     {
         return $this->gigyaMapping;
     }
@@ -178,7 +180,7 @@ abstract class CmsUpdater
     /**
      * @param mixed $gigyaMapping
      */
-    public function setGigyaMapping($gigyaMapping)
+    public function setGigyaMapping($gigyaMapping): void
     {
         $this->gigyaMapping = $gigyaMapping;
     }

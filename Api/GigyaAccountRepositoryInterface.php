@@ -22,7 +22,7 @@ interface GigyaAccountRepositoryInterface
      * @throws GSApiException If error encountered on service call or functional error returned by service.
      * Check error code to identify the case.
      */
-    public function update($gigyaAccount);
+    public function update(GigyaUser $gigyaAccount);
 
     /**
      * Get a Gigya customer account.
@@ -30,5 +30,5 @@ interface GigyaAccountRepositoryInterface
      * @param string $uid
      * @return GigyaUser
      */
-    public function get($uid);
+    public function get(string $uid): GigyaUser;
 }

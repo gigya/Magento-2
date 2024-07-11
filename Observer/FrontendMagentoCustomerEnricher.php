@@ -19,6 +19,7 @@ use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
  * @see FrontendMagentoCustomerEnricher::shallEnrichMagentoCustomerWithGigyaAccount()
  *
  * @author      vlemaire <info@x2i.fr>
+ * @api
  *
  */
 class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
@@ -65,7 +66,7 @@ class FrontendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
      * Add a check on the request's action name : update shall be performed only if we are going to login, create or
      * update an account.
      */
-    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, $final = true)
+    public function shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, bool $final = true): bool
     {
         $result = parent::shallEnrichMagentoCustomerWithGigyaAccount($magentoCustomer, $event, false);
 

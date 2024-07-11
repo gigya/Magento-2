@@ -15,7 +15,7 @@ class Conf
         $this->mappingConf = json_decode($json, true);
     }
 
-    protected function buildKeyedArrays($array)
+    protected function buildKeyedArrays($array): void
     {
         $cmsKeyedArray   = [];
         $gigyaKeyedArray = [];
@@ -49,7 +49,7 @@ class Conf
     /**
      * @return array
      */
-    public function getCmsKeyed()
+    public function getCmsKeyed(): array
     {
         if (empty($this->cmsKeyed)) {
             $this->buildKeyedArrays($this->mappingConf);
@@ -61,7 +61,7 @@ class Conf
     /**
      * @return array
      */
-    public function getGigyaKeyed()
+    public function getGigyaKeyed(): array
     {
         if (empty($this->gigyaKeyed)) {
             $this->buildKeyedArrays($this->mappingConf);
@@ -73,7 +73,7 @@ class Conf
     /**
      * @return array
      */
-    public function getMappingConf()
+    public function getMappingConf(): array
     {
         return $this->mappingConf;
     }

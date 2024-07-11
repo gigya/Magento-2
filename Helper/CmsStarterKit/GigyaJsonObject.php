@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
-abstract class GigyaJsonObject
+use stdClass;
+
+abstract class GigyaJsonObject extends stdClass
 {
     /**
      * GigyaJsonObject constructor.

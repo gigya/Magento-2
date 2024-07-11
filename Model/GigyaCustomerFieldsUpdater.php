@@ -114,7 +114,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
     /**
      * @inheritdoc
      */
-    public function updateGigya()
+    public function updateGigya(): void
     {
         parent::updateGigya(); /* In order to allow saving a Magento 2 customer even when there is an error from Gigya, surround this with a try/catch */
 
@@ -256,7 +256,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * @throws GigyaFieldMappingException If Magento customer is not set.
      */
-    protected function retrieveFieldMappings()
+    protected function retrieveFieldMappings(): void
     {
         if ($this->getMagentoUser() == null) {
             throw new GigyaFieldMappingException("Magento customer is not set");
@@ -281,7 +281,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * @throws GigyaFieldMappingException If Magento customer is not set.
      */
-    protected function createGigyaArray()
+    protected function createGigyaArray(): array
     {
         if ($this->getMagentoUser() == null) {
             throw new GigyaFieldMappingException("Magento customer is not set");
@@ -334,7 +334,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
      *
      * @return fieldMapping\Conf|false False if the cache is deactivated and the method self::setMappingCache() has not been called yet on this instance.
      */
-    public function getMappingFromCache()
+    public function getMappingFromCache(): mixed
     {
         if (!$this->gigyaCacheType->test(CacheType::CACHE_TAG)) {
             return $this->confMapping;

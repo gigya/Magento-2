@@ -7,7 +7,7 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class EmptyTextarea extends Field
 {
-    protected function _getElementHtml(AbstractElement $element)
+    protected function _getElementHtml(AbstractElement $element): string
     {
         $value = $element->getEscapedValue();
         $label = $element->getLabel() ?? 'Value';

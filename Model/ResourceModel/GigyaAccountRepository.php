@@ -4,6 +4,7 @@ namespace Gigya\GigyaIM\Model\ResourceModel;
 
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
+use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 
 /**
  * GigyaAccountRepository
@@ -16,7 +17,7 @@ use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 class GigyaAccountRepository implements GigyaAccountRepositoryInterface
 {
     /** @var  GigyaAccountServiceInterface */
-    protected $gigyaAccountService;
+    protected GigyaAccountServiceInterface $gigyaAccountService;
 
     /**
      * GigyaAccountRepository constructor.
@@ -31,7 +32,7 @@ class GigyaAccountRepository implements GigyaAccountRepositoryInterface
     /**
      * @inheritdoc
      */
-    function update($gigyaAccount)
+    public function update(GigyaUser $gigyaAccount): void
     {
         if ($gigyaAccount->getUid()) {
             $this->gigyaAccountService->update($gigyaAccount);
@@ -41,7 +42,7 @@ class GigyaAccountRepository implements GigyaAccountRepositoryInterface
     /**
      * @inheritdoc
      */
-    function get($uid)
+    public function get(string $uid): GigyaUser
     {
         return $this->gigyaAccountService->get($uid);
     }

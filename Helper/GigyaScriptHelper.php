@@ -13,7 +13,7 @@ class GigyaScriptHelper extends AbstractHelper
     /**
      * @var GigyaMageHelper
      */
-    protected $gigyaMageHelper;
+    public $gigyaMageHelper;
 
     /**
      * @param \Magento\Framework\App\Helper\Context $context
@@ -32,7 +32,7 @@ class GigyaScriptHelper extends AbstractHelper
      *
      * @return bool|string
      */
-    public function getGigyaScriptDomain()
+    public function getGigyaScriptDomain(): bool|string
     {
         $domain = $this->gigyaMageHelper->getApiDomain();
 

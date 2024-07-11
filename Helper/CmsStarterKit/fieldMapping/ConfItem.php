@@ -10,32 +10,32 @@ class ConfItem
     /**
      * @var string
      */
-    protected $cmsName;
+    protected string $cmsName;
 
     /**
      * @var string
      */
-    protected $cmsType;
+    protected string $cmsType;
 
     /**
      * @var string
      */
-    protected $gigyaName;
+    protected string $gigyaName;
 
     /**
      * @var string
      */
-    protected $gigyaType;
+    protected string $gigyaType;
 
     /**
      * @var string
      */
-    protected $direction = "g2cms";
+    protected string $direction = "g2cms";
 
     /**
      * @var array
      */
-    protected $custom;
+    protected array $custom;
 
     /**
      * ConfItem constructor.
@@ -52,7 +52,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getCmsName()
+    public function getCmsName(): string
     {
         return $this->cmsName;
     }
@@ -60,7 +60,7 @@ class ConfItem
     /**
      * @param string $cmsName
      */
-    public function setCmsName($cmsName)
+    public function setCmsName($cmsName): void
     {
         $this->cmsName = $cmsName;
     }
@@ -68,7 +68,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getCmsType()
+    public function getCmsType(): string
     {
         return $this->cmsType;
     }
@@ -76,7 +76,7 @@ class ConfItem
     /**
      * @param string $cmsType
      */
-    public function setCmsType($cmsType)
+    public function setCmsType($cmsType): void
     {
         $this->cmsType = $cmsType;
     }
@@ -84,7 +84,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getGigyaName()
+    public function getGigyaName(): string
     {
         return $this->gigyaName;
     }
@@ -92,7 +92,7 @@ class ConfItem
     /**
      * @param string $gigyaName
      */
-    public function setGigyaName($gigyaName)
+    public function setGigyaName($gigyaName): void
     {
         $this->gigyaName = $gigyaName;
     }
@@ -100,7 +100,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getGigyaType()
+    public function getGigyaType(): string
     {
         return $this->gigyaType;
     }
@@ -108,7 +108,7 @@ class ConfItem
     /**
      * @param string $gigyaType
      */
-    public function setGigyaType($gigyaType)
+    public function setGigyaType($gigyaType): void
     {
         $this->gigyaType = $gigyaType;
     }
@@ -116,7 +116,7 @@ class ConfItem
     /**
      * @return array
      */
-    public function getCustom()
+    public function getCustom(): array
     {
         return $this->custom;
     }
@@ -124,7 +124,7 @@ class ConfItem
     /**
      * @param GigyaJsonObject $custom
      */
-    public function setCustom($custom)
+    public function setCustom($custom): void
     {
         $this->custom = $custom;
     }
