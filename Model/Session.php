@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Model;
 
-use \Magento\Framework\Session\SessionManager;
+use Magento\Framework\Session\SessionManager;
 
 class Session extends SessionManager
 {

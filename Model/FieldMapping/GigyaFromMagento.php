@@ -2,12 +2,14 @@
 
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Magento\Customer\Model\Data\Customer;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Api\AttributeInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 
@@ -19,7 +21,7 @@ use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 class GigyaFromMagento extends AbstractFieldMapping
 {
     /**
-     * @var \Gigya\GigyaIM\Model\GigyaCustomerFieldsUpdater
+     * @var GigyaCustomerFieldsUpdater
      */
     protected $customerFieldsUpdater;
 
@@ -46,7 +48,7 @@ class GigyaFromMagento extends AbstractFieldMapping
 
     /**
      * @param $isGigyaException
-     * @param \Exception|GSApiException $exception
+     * @param Exception|GSApiException $exception
      *
      * @throws GigyaFieldMappingException
      */
@@ -89,7 +91,7 @@ class GigyaFromMagento extends AbstractFieldMapping
                 $this->customerFieldsUpdater->updateGigya();
             } catch (GSApiException $e) {
                 $this->handleExceptions(true, $e);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->handleExceptions(false, $e);
             }
         } else {
@@ -106,7 +108,7 @@ class GigyaFromMagento extends AbstractFieldMapping
 
     /**
      * Get magento custom attribute user override by observer DefaultGigyaSyncFieldMapping
-     * @return \Magento\Framework\Api\AttributeInterface[]|null
+     * @return AttributeInterface[]|null
      */
     public function getMagentoUserObserver()
     {

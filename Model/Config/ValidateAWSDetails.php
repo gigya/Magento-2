@@ -6,19 +6,29 @@ namespace Gigya\GigyaIM\Model\Config;
 
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
+use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Magento\Customer\Model\ResourceModel\Customer;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Value;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Store\Model\StoreManagerInterface;
 
-class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
+class ValidateAWSDetails extends Value
 {
-    /** @var \Magento\Customer\Model\ResourceModel\Customer */
+    /** @var Customer */
     protected $_customerResource;
 
-    /** @var  \Magento\Store\Model\StoreManagerInterface */
+    /** @var  StoreManagerInterface */
     protected $_storeManager;
 
-    /** @var  \Gigya\GigyaIM\Helper\GigyaMageHelper */
+    /** @var  GigyaMageHelper */
     protected $gigyaMageHelper;
 
     /** @var EncryptorInterface */
@@ -30,31 +40,31 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $config
-     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Customer\Model\ResourceModel\Customer $customerResource
-     * @param \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper
+     * @param Context $context
+     * @param Registry $registry
+     * @param ScopeConfigInterface $config
+     * @param TypeListInterface $cacheTypeList
+     * @param StoreManagerInterface $storeManager
+     * @param Customer $customerResource
+     * @param GigyaMageHelper $gigyaMageHelper
      * @param EncryptorInterface $encryptor
      * @param GigyaLogger $logger
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param AbstractResource $resource
+     * @param AbstractDb $resourceCollection
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\Config\ScopeConfigInterface $config,
-        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Customer\Model\ResourceModel\Customer $customerResource,
-        \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,
+        Context $context,
+        Registry $registry,
+        ScopeConfigInterface $config,
+        TypeListInterface $cacheTypeList,
+        StoreManagerInterface $storeManager,
+        Customer $customerResource,
+        GigyaMageHelper $gigyaMageHelper,
         EncryptorInterface $encryptor,
         GigyaLogger $logger,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->_storeManager = $storeManager;
@@ -71,7 +81,7 @@ class ValidateAWSDetails extends \Magento\Framework\App\Config\Value
      *
      * @return $this
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function beforeSave()
     {

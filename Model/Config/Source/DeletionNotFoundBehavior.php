@@ -6,8 +6,8 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class DeletionNotFoundBehavior implements OptionSourceInterface
 {
-    const FAILURE = "failure";
-    const SUCCESS = "success";
+    const string FAILURE = "failure";
+    const string SUCCESS = "success";
 
     /**
      * @return array

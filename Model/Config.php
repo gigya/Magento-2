@@ -17,32 +17,32 @@ use Gigya\GigyaIM\Logger\Logger;
 class Config
 {
     // Session duration will be fixed by config
-    const SESSION_MODE_FIXED = 0;
+    const int SESSION_MODE_FIXED = 0;
     // Session duration is 60 secs; automatically renewed on any user action
-    const SESSION_MODE_EXTENDED = 1;
+    const int SESSION_MODE_EXTENDED = 1;
     // Session close when browser close
-    const SESSION_MODE_BROWSER_INSTANCE = 2;
+    const int SESSION_MODE_BROWSER_INSTANCE = 2;
     // Session never close even when browser close
-    const SESSION_MODE_ENDLESS = 3;
+    const int SESSION_MODE_ENDLESS = 3;
 
-    const XML_PATH_SESSION_MODE = 'gigya_session/session/mode';
-    const XML_PATH_SESSION_EXPIRATION = 'gigya_session/session/expiration';
+    const string XML_PATH_SESSION_MODE = 'gigya_session/session/mode';
+    const string XML_PATH_SESSION_EXPIRATION = 'gigya_session/session/expiration';
 
-    const XML_PATH_REMEMBER_MODE = 'gigya_session/remember/mode';
-    const XML_PATH_REMEMBER_EXPIRATION = 'gigya_session/remember/expiration';
+    const string XML_PATH_REMEMBER_MODE = 'gigya_session/remember/mode';
+    const string XML_PATH_REMEMBER_EXPIRATION = 'gigya_session/remember/expiration';
 
-    const XML_PATH_MAPPING_FILE_PATH = 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path';
+    const string XML_PATH_MAPPING_FILE_PATH = 'gigya_section_fieldmapping/general_fieldmapping/mapping_file_path';
 
-    const XML_PATH_GENERAL = 'gigya_section/general';
+    const string XML_PATH_GENERAL = 'gigya_section/general';
 
-    const XML_PATH_DEBUG_MODE = 'gigya_advanced/debug_mode/debug_mode';
+    const string XML_PATH_DEBUG_MODE = 'gigya_advanced/debug_mode/debug_mode';
 
     // Screen-sets configuration
-    const XML_PATH_LOGIN_DESKTOP_SCREENSET_ID = 'gigya_screensets/login_registration/desktop_screenset_id';
-    const XML_PATH_LOGIN_MOBILE_SCREENSET_ID = 'gigya_screensets/login_registration/mobile_screenset_id';
-    const XML_PATH_PROFILE_DESKTOP_SCREENSET_ID = 'gigya_screensets/profile_update/desktop_screenset_id';
-    const XML_PATH_PROFILE_MOBILE_SCREENSET_ID = 'gigya_screensets/profile_update/mobile_screenset_id';
-    const XML_PATH_PROFILE_CUSTOM_SCREENSETS = 'gigya_screensets/custom_screensets/custom_screenset_dynamic';
+    const string XML_PATH_LOGIN_DESKTOP_SCREENSET_ID = 'gigya_screensets/login_registration/desktop_screenset_id';
+    const string XML_PATH_LOGIN_MOBILE_SCREENSET_ID = 'gigya_screensets/login_registration/mobile_screenset_id';
+    const string XML_PATH_PROFILE_DESKTOP_SCREENSET_ID = 'gigya_screensets/profile_update/desktop_screenset_id';
+    const string XML_PATH_PROFILE_MOBILE_SCREENSET_ID = 'gigya_screensets/profile_update/mobile_screenset_id';
+    const string XML_PATH_PROFILE_CUSTOM_SCREENSETS = 'gigya_screensets/custom_screensets/custom_screenset_dynamic';
 
     /**
      * @var ScopeConfigInterface

@@ -2,12 +2,14 @@
 
 namespace Gigya\GigyaIM\Model;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaSubscription;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Exception\GigyaFieldMappingException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
+use Magento\Customer\Model\Address;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\Newsletter\Model\Subscriber;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
@@ -212,7 +214,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                     $methodParams = strtolower($subPath);
                     $value = call_user_func([$magentoUser, $methodName], $methodParams);
                     if ($value == null) {
-                        throw new \Exception('Custom attribute '.$subPath.' is not set');
+                        throw new Exception('Custom attribute '.$subPath.' is not set');
                     }
 
                     /* Value is of type AttributeValue */
@@ -224,7 +226,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                     $subPath = substr($subPath, 8);
                     $param0 = null;
 
-                    /** @var \Magento\Customer\Model\Address $magentoBilling */
+                    /** @var Address $magentoBilling */
                     $magentoBilling = $this->addressFactory->create();
                     $this->addressResourceModel->load($magentoBilling, $magentoUser->getDefaultBilling());
                     $methodName = 'get' . ucfirst($subPath);
@@ -242,7 +244,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
                     $value = call_user_func([$magentoUser, $methodName]) ?: '';
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new GigyaFieldMappingException(sprintf('Field mapping Magento to Gigya : exception while looking for Customer entity value [%s] : %s', $cmsName, $e->getMessage()));
         }
 
@@ -264,7 +266,7 @@ class GigyaCustomerFieldsUpdater extends AbstractGigyaFieldsUpdater
 
         try {
             parent::retrieveFieldMappings();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if (!$this->confMapping || $this->confMapping->getMappingConf() == null) {
                 throw new GigyaFieldMappingException("Field mapping file could not be found or is empty or is not correctly formated.");
             } else {

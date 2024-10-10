@@ -2,13 +2,16 @@
 
 namespace Gigya\GigyaIM\Model;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
+use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\ConfItem;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 use Gigya\GigyaIM\Model\Cache\Type\FieldMapping as CacheType;
 use Magento\Customer\Api\AddressRepositoryInterface;
-use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as AddressFactory;
+use Magento\Customer\Model\Data\Address;
+use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
@@ -92,7 +95,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     }
 
     /**
-     * @param \Magento\Customer\Model\Data\Customer $account
+     * @param Customer $account
      */
     public function setAccountValues(&$account)
     {
@@ -101,7 +104,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
         $magentoBillingAddressId = $account->getDefaultBilling();
         try {
             $magentoBillingAddress = $this->addressRepository->getById($magentoBillingAddressId);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->logger->error($ex->__toString());
             $magentoBillingAddress = false;
         }
@@ -112,14 +115,14 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
 
         if ($magentoBillingAddress === false) {
             $isBillingAddressNew = true;
-            /** @var \Magento\Customer\Model\Data\Address $magentoBillingAddress */
+            /** @var Address $magentoBillingAddress */
             $magentoBillingAddress = $this->addressFactory->create();
         } else {
             $isBillingAddressNew = false;
         }
 
         foreach ($gigyaMapping as $gigyaName => $confs) {
-            /** @var \Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\ConfItem $conf */
+            /** @var ConfItem $conf */
             $value = parent::getValueFromGigyaAccount($gigyaName); // e.g: loginProvider = facebook
 
             /* If no value found, log and skip field */
@@ -167,7 +170,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
 
                 $magentoBillingAddress->setCustomerId($account->getId());
 
-                /** @var \Magento\Customer\Model\Data\Customer $account */
+                /** @var Customer $account */
                 $this->addressRepository->save($magentoBillingAddress);
                 $account->setDefaultBilling($magentoBillingAddress->getId());
 
@@ -176,13 +179,13 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
                 }
 
                 $this->logger->debug("Added address {$magentoBillingAddress->getId()} to customer");
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->debug("Failed to import customer address data: " . $e->getMessage());
             }
         } else {
             try {
                 $this->addressRepository->save($magentoBillingAddress);
-            } catch (\Exception $ex) {
+            } catch (Exception $ex) {
                 $this->logger->error($ex->__toString());
             }
         }
@@ -220,7 +223,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
     /**
      * @param boolean     $skipCache
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function retrieveFieldMappings($skipCache = false): void
     {
@@ -234,7 +237,7 @@ class MagentoCustomerFieldsUpdater extends AbstractMagentoFieldsUpdater
             if ($mappingJson === false) {
                 $err     = error_get_last();
                 $message = "MagentoCustomerFieldsUpdater: Could not retrieve field mapping configuration file. The message was: " . $err['message'];
-                throw new \Exception("$message");
+                throw new Exception("$message");
             }
             $conf = new fieldMapping\Conf($mappingJson);
 

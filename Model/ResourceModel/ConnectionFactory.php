@@ -2,7 +2,11 @@
 
 namespace Gigya\GigyaIM\Model\ResourceModel;
 
+use DomainException;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\RuntimeException;
 use Magento\Framework\Model\ResourceModel\Type\Db\ConnectionFactoryInterface;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Config\ConfigOptionsListConstants;
@@ -38,7 +42,9 @@ class ConnectionFactory
      * Creates a new connection object with the same configuration as the default one.
      * New connections are used to inject a row in the database if a transaction fails.
      *
-     * @return \Magento\Framework\DB\Adapter\AdapterInterface
+     * @return AdapterInterface
+     * @throws FileSystemException
+     * @throws RuntimeException
      */
     public function getNewConnection()
     {
@@ -50,7 +56,7 @@ class ConnectionFactory
         if ($connectionConfig) {
             return $this->connectionFactory->create($connectionConfig);
         } else {
-            throw new \DomainException('Connection "' . $connectionName . '" is not defined');
+            throw new DomainException('Connection "' . $connectionName . '" is not defined');
         }
     }
 }

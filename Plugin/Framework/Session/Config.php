@@ -3,8 +3,9 @@
 namespace Gigya\GigyaIM\Plugin\Framework\Session;
 
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
-use \Magento\Framework\App\State;
-use \Magento\Framework\App\Request\Http as RequestHttp;
+use Magento\Framework\App\State;
+use Magento\Framework\App\Request\Http as RequestHttp;
+use Magento\Framework\Exception\LocalizedException;
 
 class Config
 {
@@ -50,7 +51,7 @@ class Config
     {
         try {
             $areaCode = $this->state->getAreaCode();
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $areaCode = null;
         }
         $sessionMode = $this->config->getSessionMode();

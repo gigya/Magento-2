@@ -8,6 +8,8 @@ use Magento\Customer\Model\Data\Customer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
+use Zend_Date;
+use Zend_Date_Exception;
 
 /**
  * DefaultCMSSyncFieldMapping
@@ -33,7 +35,7 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
      *
      * @param Observer $observer
      *
-     * @throws \Zend_Date_Exception
+     * @throws Zend_Date_Exception
      */
     public function execute(Observer $observer)
     {
@@ -64,10 +66,10 @@ class DefaultGigyaSyncFieldMapping implements ObserverInterface
             $dob = $magentoCustomer->getDob();
 
             if ($dob !== null && trim($dob) !== '') {
-                $date = new \Zend_Date($dob, 'YYYY-MM-dd');
-                $birthYear = (int)$date->get(\Zend_Date::YEAR);
-                $birthMonth = (int)$date->get(\Zend_Date::MONTH);
-                $birthDay = (int)$date->get(\Zend_Date::DAY);
+                $date = new Zend_Date($dob, 'YYYY-MM-dd');
+                $birthYear = (int)$date->get(Zend_Date::YEAR);
+                $birthMonth = (int)$date->get(Zend_Date::MONTH);
+                $birthDay = (int)$date->get(Zend_Date::DAY);
 
                 $gigyaProfile->setBirthDay($birthDay);
                 $gigyaProfile->setBirthMonth($birthMonth);

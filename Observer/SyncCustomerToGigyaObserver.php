@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Gigya\GigyaIM\Exception\RetryGigyaException;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
 use Magento\Framework\Event\Observer;
@@ -57,7 +58,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      *
      * @param Observer $observer
      *
-     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     * @throws RetryGigyaException
      */
     public function execute(Observer $observer)
     {
@@ -85,7 +86,7 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
      *
      * @return void
      *
-     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     * @throws RetryGigyaException
      */
     protected function performGigyaUpdateFailure($observer)
     {
@@ -110,8 +111,8 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /**
      * If a retry row has been stored we will delete it when the a customer update has succeeded.
      *
-     * @param \Magento\Framework\Event\Observer $observer
-     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     * @param Observer $observer
+     * @throws RetryGigyaException
      */
     protected function performGigyaUpdateSuccess($observer)
     {
@@ -129,9 +130,9 @@ class SyncCustomerToGigyaObserver implements ObserverInterface
     /**
      * Delete the retry row, if any, if a customer update has failed due to a field mapping error.
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      *
-     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     * @throws RetryGigyaException
      */
     protected function performFieldMappingFailure($observer)
     {

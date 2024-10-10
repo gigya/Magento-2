@@ -2,6 +2,11 @@
 
 namespace Gigya\GigyaIM\Plugin\Customer\Api;
 
+use Closure;
+use Gigya\GigyaIM\Helper\GigyaSyncHelper;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+
 /**
  * Class AllowDeleteInvalidCustomer
  *
@@ -14,15 +19,15 @@ namespace Gigya\GigyaIM\Plugin\Customer\Api;
 class AllowDeleteInvalidCustomer
 {
     /**
-     * @var \Gigya\GigyaIM\Helper\GigyaSyncHelper
+     * @var GigyaSyncHelper
      */
     protected $gigyaSyncHelper;
 
     /**
-     * @param \Gigya\GigyaIM\Helper\GigyaSyncHelper $gigyaSyncHelper
+     * @param GigyaSyncHelper $gigyaSyncHelper
      */
     public function __construct(
-        \Gigya\GigyaIM\Helper\GigyaSyncHelper $gigyaSyncHelper
+        GigyaSyncHelper $gigyaSyncHelper
     ) {
         $this->gigyaSyncHelper = $gigyaSyncHelper;
     }
@@ -30,15 +35,15 @@ class AllowDeleteInvalidCustomer
     /**
      * Prevents syncing a customer that is about to be deleted
      *
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $subject
-     * @param \Closure $proceed
-     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param CustomerRepositoryInterface $subject
+     * @param Closure $proceed
+     * @param CustomerInterface $customer
      * @return bool
      */
     public function aroundDelete(
-        \Magento\Customer\Api\CustomerRepositoryInterface $subject,
-        \Closure $proceed,
-        \Magento\Customer\Api\Data\CustomerInterface $customer
+        CustomerRepositoryInterface $subject,
+        Closure $proceed,
+        CustomerInterface $customer
     ) {
         $customerId = $customer->getId();
         $this->gigyaSyncHelper->excludeCustomerIdFromSync($customerId);
@@ -50,14 +55,14 @@ class AllowDeleteInvalidCustomer
     /**
      * Prevents syncing a customer that is about to be deleted
      *
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $subject
-     * @param \Closure $proceed
+     * @param CustomerRepositoryInterface $subject
+     * @param Closure $proceed
      * @param int $customerId
      * @return bool
      */
     public function aroundDeleteById(
-        \Magento\Customer\Api\CustomerRepositoryInterface $subject,
-        \Closure $proceed,
+        CustomerRepositoryInterface $subject,
+        Closure $proceed,
         $customerId
     ) {
         $this->gigyaSyncHelper->excludeCustomerIdFromSync($customerId);

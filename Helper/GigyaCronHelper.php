@@ -13,6 +13,8 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
+use Zend_Mail;
+use Zend_Mail_Exception;
 
 class GigyaCronHelper extends AbstractHelper
 {
@@ -95,7 +97,7 @@ class GigyaCronHelper extends AbstractHelper
      * @param $attributeCode
      * @param $value
      *
-     * @return CustomerInterface
+     * @return CustomerInterface|null
      *
      * @throws LocalizedException
      */
@@ -169,7 +171,7 @@ class GigyaCronHelper extends AbstractHelper
         }
 
         /* Generic email sender init */
-        $email_sender = new \Zend_Mail();
+        $email_sender = new Zend_Mail();
 
         /* Set email body */
         $email_body = $custom_email_body;
@@ -196,7 +198,7 @@ class GigyaCronHelper extends AbstractHelper
             $email_sender->send();
 
             $this->logger->info($job_type . ' cron: mail sent to: ' . implode(', ', $email_to) . ' with status ' . $job_status);
-        } catch (\Zend_Mail_Exception $e) {
+        } catch (Zend_Mail_Exception $e) {
             $this->logger->warning($job_type . ' cron: unable to send email: ' . $e->getMessage());
             return false;
         }

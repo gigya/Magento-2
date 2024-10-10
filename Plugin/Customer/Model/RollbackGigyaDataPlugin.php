@@ -2,8 +2,11 @@
 
 namespace Gigya\GigyaIM\Plugin\Customer\Model;
 
+use Closure;
+use Exception;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Exception\GigyaMagentoCustomerSaveException;
+use Gigya\GigyaIM\Exception\RetryGigyaException;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Helper\RetryGigyaSyncHelper;
 use Gigya\GigyaIM\Model\GigyaAccountService;
@@ -46,17 +49,17 @@ class RollbackGigyaDataPlugin
      * (*) we also save the Magento customer when it's loaded in backend, after being enriched with the current data from Gigya : in this case we do not want to sync back the customer to Gigya.
      *
      * @param CustomerRepositoryInterface $subject
-     * @param \Closure $proceed
+     * @param Closure $proceed
      * @param CustomerInterface $customer
      *
      * @return CustomerInterface
      *
      * @throws GigyaMagentoCustomerSaveException
-     * @throws \Gigya\GigyaIM\Exception\RetryGigyaException
+     * @throws RetryGigyaException
      */
     public function aroundSave(
         CustomerRepositoryInterface $subject,
-        \Closure $proceed,
+        Closure $proceed,
         CustomerInterface $customer
     ) {
         $result = null;
@@ -73,7 +76,7 @@ class RollbackGigyaDataPlugin
                     'Could not remove retry entry for Magento update after a successful update on the same Magento Customer entity.'
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $uid = $customer->getCustomAttribute('gigya_uid') != null ? $customer->getCustomAttribute('gigya_uid')->getValue() : null;
             if (null !== $uid) {
                 if (!$this->retryGigyaSyncHelper->isCustomerIdExcludedFromSync($customer->getId(), GigyaSyncHelper::DIR_CMS2G)) {

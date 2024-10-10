@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUserFactory;
 use Gigya\PHP\GSException;
@@ -9,7 +10,6 @@ use Gigya\PHP\GSObject;
 use Gigya\PHP\GSResponse;
 use Gigya\PHP\JWTUtils;
 use Gigya\PHP\SigUtils;
-use stdClass;
 use Magento\Framework\Module\Dir;
 
 class GigyaApiHelper
@@ -72,7 +72,7 @@ class GigyaApiHelper
      *
      * @throws GSApiException
      * @throws GSException
-     * @throws \Exception
+     * @throws Exception
      */
     public function sendApiCall($method, $params)
     {
@@ -111,7 +111,7 @@ class GigyaApiHelper
      *
      * @return GigyaUser|false
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws GSApiException
      */
     public function validateUid($uid, $uidSignature, $signatureTimestamp, $include = null, $extraProfileFields = null, $orgParams = [])
@@ -143,13 +143,13 @@ class GigyaApiHelper
      *
      * @return GigyaUser|false
      *
-     * @throws \Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException
+     * @throws GSApiException
      */
     public function validateJwtAuth($uid, $idToken, $include = null, $extraProfileFields = null, $orgParams = null)
     {
         try {
             $jwt = JWTUtils::validateSignature($idToken, $this->apiKey, $this->dataCenter);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -168,7 +168,7 @@ class GigyaApiHelper
      *
      * @return GigyaUser
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws GSApiException
      */
     public function fetchGigyaAccount($uid, $include = null, $extraProfileFields = null, $params = [])
@@ -283,7 +283,7 @@ class GigyaApiHelper
      * @param string $uid  UID
      * @param array  $data data
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
      * @throws GSApiException
      */
@@ -314,7 +314,7 @@ class GigyaApiHelper
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @throws GSApiException
      */
     public function getSiteSchema()
@@ -328,7 +328,7 @@ class GigyaApiHelper
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws GSException
      */
     public function isRaasEnabled($apiKey = null)
@@ -345,7 +345,7 @@ class GigyaApiHelper
             if ($e->getErrorCode() == 403036) {
                 return false;
             }
-            throwException($e);
+            throw new Exception($e);
         }
 
         return false;

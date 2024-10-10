@@ -6,8 +6,8 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class DeletionType implements OptionSourceInterface
 {
-    const HARD_DELETE = "hard_delete";
-    const SOFT_DELETE = "soft_delete";
+    const string HARD_DELETE = "hard_delete";
+    const string SOFT_DELETE = "soft_delete";
 
     /**
      * @return array

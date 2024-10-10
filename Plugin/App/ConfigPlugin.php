@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Plugin\App;
 
+use Closure;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
@@ -10,11 +11,11 @@ class ConfigPlugin
     /**
      * Arbitrarily set 10 years as 'endless' session duration. That should be sufficient.
      */
-    const ENDLESS_SESSION_LIFETIME = 315360000; /* 10 years in seconds */
+    const int ENDLESS_SESSION_LIFETIME = 315360000; /* 10 years in seconds */
 
     /**
      * @param ScopeConfigInterface $subject
-     * @param \Closure $proceed
+     * @param Closure $proceed
      * @param string $path
      * @param string $scope
      * @param $scopeCode
@@ -22,7 +23,7 @@ class ConfigPlugin
      */
     public function aroundGetValue(
         ScopeConfigInterface $subject,
-        \Closure $proceed,
+        Closure $proceed,
         $path = null,
         $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
         $scopeCode = null

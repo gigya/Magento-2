@@ -2,12 +2,16 @@
 
 namespace Gigya\GigyaIM\Plugin\Config\Model;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Gigya\GigyaIM\Model\Config\Source\Domain;
+use Gigya\PHP\GSException;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreRepository;
 use Magento\Store\Model\ScopeInterface;
 
@@ -64,9 +68,9 @@ class Config
      * @param \Magento\Config\Model\Config $subject
      *
      * @throws LocalizedException
-     * @throws \Gigya\PHP\GSException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Exception
+     * @throws GSException
+     * @throws NoSuchEntityException
+     * @throws Exception
      */
     public function beforeSave(\Magento\Config\Model\Config $subject)
     {
@@ -110,7 +114,7 @@ class Config
     /**
      * @param \Magento\Config\Model\Config $subject
      * @return array
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function getScope(\Magento\Config\Model\Config $subject)
     {
@@ -196,7 +200,7 @@ class Config
             );
         }
 
-        if ($settings['domain'] == \Gigya\GigyaIM\Model\Config\Source\Domain::OTHER &&
+        if ($settings['domain'] == Domain::OTHER &&
             empty($settings['data_center_host']) === true) {
             throw new LocalizedException(
                 __('It is necessary to provide a data center host')

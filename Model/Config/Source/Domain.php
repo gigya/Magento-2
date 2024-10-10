@@ -6,12 +6,12 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class Domain implements OptionSourceInterface
 {
-    const DC_US = "us1.gigya.com";
-    const DC_EU = "eu1.gigya.com";
-    const DC_AU = "au1.gigya.com";
-    const DC_RU = "ru1.gigya.com";
-    const DC_CN = "cn1.gigya-api.cn";
-    const OTHER = "other";
+    const string DC_US = "us1.gigya.com";
+    const string DC_EU = "eu1.gigya.com";
+    const string DC_AU = "au1.gigya.com";
+    const string DC_RU = "ru1.gigya.com";
+    const string DC_CN = "cn1.gigya-api.cn";
+    const string OTHER = "other";
 
     /**
      * @return array

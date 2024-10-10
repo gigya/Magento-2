@@ -8,6 +8,7 @@ use Exception;
 use Firebase\JWT\JWT;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
+use Gigya\GigyaIM\Model\Config\Source\Domain;
 use Gigya\PHP\GSException;
 use Gigya\PHP\SigUtils;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
@@ -18,6 +19,7 @@ use Gigya\GigyaIM\Model\Config;
 use Gigya\GigyaIM\Model\SettingsFactory;
 use Gigya\GigyaIM\Encryption\Encryptor;
 use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\App\ObjectManager;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -27,7 +29,7 @@ use Magento\Framework\Module\Dir;
 
 class GigyaMageHelper extends AbstractHelper
 {
-    const MODULE_NAME = 'Gigya_GigyaIM';
+    const string MODULE_NAME = 'Gigya_GigyaIM';
 
     private string $extra_profile_fields_config = "https://s3.amazonaws.com/gigya-cms-configs/extraProfileFieldsMap.json";
     private mixed $apiKey;
@@ -40,8 +42,8 @@ class GigyaMageHelper extends AbstractHelper
     private string $privateKey;
     private string $appSecret;
 
-    /** @var GigyaApiHelper  */
-    protected GigyaApiHelper $gigyaApiHelper;
+    /** @var GigyaApiHelper|null */
+    protected GigyaApiHelper|null $gigyaApiHelper = null;
     protected mixed $configSettings;
     protected ModuleListInterface $_moduleList;
     protected Config $configModel;
@@ -57,10 +59,10 @@ class GigyaMageHelper extends AbstractHelper
     protected Encryptor $encryptor;
     protected Dir $dir;
 
-    const CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
-    const CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-    const CHARS_PASSWORD_DIGITS = '23456789';
-    const CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
+    const string CHARS_PASSWORD_LOWERS = 'abcdefghjkmnpqrstuvwxyz';
+    const string CHARS_PASSWORD_UPPERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const string CHARS_PASSWORD_DIGITS = '23456789';
+    const string CHARS_PASSWORD_SPECIALS = '!$*-.=?@_';
 
     /**
      * GigyaMageHelper constructor.
@@ -98,6 +100,13 @@ class GigyaMageHelper extends AbstractHelper
         $this->dir = $dir;
 
         $this->setGigyaSettings();
+
+        try {
+            $authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
+            $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->dir, $this->authMode);
+        } catch (Exception $e) {
+//            return false;
+        }
     }
 
     /**
@@ -243,7 +252,7 @@ class GigyaMageHelper extends AbstractHelper
 
         $this->encryptor->initEncryptor($scopeType, $scopeCode, $keyFileLocation);
 
-        if ($settings['domain'] == \Gigya\GigyaIM\Model\Config\Source\Domain::OTHER) {
+        if ($settings['domain'] == Domain::OTHER) {
             $this->apiDomain = $settings['data_center_host'];
         } else {
             $this->apiDomain = $settings['domain'];
@@ -285,7 +294,7 @@ class GigyaMageHelper extends AbstractHelper
     protected function createEnvironmentParam(): array
     {
         // get Magento version
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $objectManager = ObjectManager::getInstance();
         $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
         $magento_version = $productMetadata->getVersion();
 

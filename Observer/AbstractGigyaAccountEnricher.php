@@ -34,9 +34,8 @@ use Gigya\GigyaIM\Model\Config as GigyaConfig;
  */
 class AbstractGigyaAccountEnricher implements ObserverInterface
 {
-    const EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS = 'gigya_success_map_from_magento';
-
-    const EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE = 'gigya_failed_map_from_magento';
+    const string EVENT_MAP_GIGYA_FROM_MAGENTO_SUCCESS = 'gigya_success_map_from_magento';
+    const string EVENT_MAP_GIGYA_FROM_MAGENTO_FAILURE = 'gigya_failed_map_from_magento';
 
     /** @var  GigyaSyncHelper */
     protected GigyaSyncHelper $gigyaSyncHelper;
