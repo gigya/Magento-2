@@ -59,7 +59,7 @@ class GigyaScript extends Template
     protected EncoderInterface $urlEncoder;
 
     protected GigyaScriptHelper $scriptHelper;
-    private StoreInterface $store;
+    protected StoreInterface $store;
 
     /**
      * GigyaScript constructor.

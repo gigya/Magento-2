@@ -5,6 +5,7 @@ namespace Gigya\GigyaIM\Plugin\Customer\Model;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\CustomerExtractor;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
@@ -75,9 +76,9 @@ class CustomerExtractorPlugin
      *
      * @see GigyaSyncHelper::updateMagentoCustomerDataWithSessionGigyaAccount()
      *
-     * @see \Magento\Customer\Model\CustomerExtractor::extract()
+     * @see CustomerExtractor::extract
      *
-     * @param \Magento\Customer\Model\CustomerExtractor $subject
+     * @param CustomerExtractor $subject
      * @param callable $proceed
      * @param string $formCode
      * @param RequestInterface $request

@@ -84,7 +84,7 @@ class GigyaUser extends GigyaJsonObject
     /**
      * @var string
      */
-    private string $isActive;
+    private ?string $isActive = "";
 
     /**
      * @var array
@@ -102,19 +102,19 @@ class GigyaUser extends GigyaJsonObject
     private string $time;
 
     /**
-     * @var array
+     * @var array|null
      */
-    private array $data;
+    private ?array $data = [];
 
     /**
      * @var array
      */
-    private array $subscriptions;
+    private ?array $subscriptions = [];
 
     /**
      * @var boolean
      */
-    private bool $isVerified;
+    private ?bool $isVerified = false;
 
     /**
      * @return string

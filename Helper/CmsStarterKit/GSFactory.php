@@ -2,7 +2,9 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
+use Exception;
 use Gigya\PHP\GSException;
+use Gigya\PHP\GSKeyNotFoundException;
 use Gigya\PHP\GSObject;
 
 class GSFactory
@@ -17,7 +19,7 @@ class GSFactory
      *
      * @return GigyaApiRequest
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public static function createGsRequest($apiKey, $secret, $apiMethod, $params, $dataCenter = "us1.gigya.com", $useHTTPS = true)
     {
@@ -35,7 +37,7 @@ class GSFactory
      *
      * @return GigyaApiRequest
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public static function createGSRequestAppKey($apiKey, $key, $secret, $apiMethod, $params, $dataCenter = "us1.gigya.com", $useHTTPS = true)
     {
@@ -52,7 +54,7 @@ class GSFactory
      * @param bool     $useHTTPS
      *
      * @return GigyaAuthRequest
-     * @throws \Gigya\PHP\GSKeyNotFoundException
+     * @throws GSKeyNotFoundException
      */
     public static function createGSRequestPrivateKey($apiKey, $userKey, $privateKey, $apiMethod, $params, $dataCenter = "us1.gigya.com", $useHTTPS = true)
     {
@@ -68,7 +70,7 @@ class GSFactory
      *
      * @return GigyaApiRequest
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public static function createGSRequestAccessToken($token, $apiMethod, $params, $dataCenter = "us1.gigya.com", $useHTTPS = true)
     {
@@ -80,7 +82,7 @@ class GSFactory
      *
      * @return GSObject
      * @throws GSException
-     * @throws \Exception
+     * @throws Exception
      */
     public static function createGSObjectFromArray($array)
     {

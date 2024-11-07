@@ -2,15 +2,25 @@
 
 namespace Gigya\GigyaIM\Model\Config;
 
+use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Magento\Customer\Model\ResourceModel\Customer;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Value;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Customer sharing config model
  *
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
+class ValidateFieldMappingConf extends Value
 {
     /**
      * @var GigyaLogger
@@ -20,28 +30,29 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
     /**
      * Constructor
      *
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $config
-     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Customer\Model\ResourceModel\Customer $customerResource
+     * @param Context $context
+     * @param Registry $registry
+     * @param ScopeConfigInterface $config
+     * @param TypeListInterface $cacheTypeList
+     * @param StoreManagerInterface $storeManager
+     * @param Customer $customerResource
+     * @param GigyaMageHelper $gigyaMageHelper
      * @param GigyaLogger $logger
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\Config\ScopeConfigInterface $config,
-        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Customer\Model\ResourceModel\Customer $customerResource,
-        \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,
+        Context $context,
+        Registry $registry,
+        ScopeConfigInterface $config,
+        TypeListInterface $cacheTypeList,
+        StoreManagerInterface $storeManager,
+        Customer $customerResource,
+        GigyaMageHelper $gigyaMageHelper,
         GigyaLogger $logger,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->logger = $logger;
@@ -52,7 +63,7 @@ class ValidateFieldMappingConf extends \Magento\Framework\App\Config\Value
     /**
      * @return $this
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function beforeSave()
     {

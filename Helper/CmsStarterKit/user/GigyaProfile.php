@@ -10,12 +10,12 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @var int
      */
-    private int $birthDay;
+    private ?int $birthDay=null;
 
     /**
      * @var int
      */
-    private int $birthMonth;
+    private ?int $birthMonth=null;
 
     /**
      * @var int
@@ -45,7 +45,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @var string
      */
-    private string $gender;
+    private ?string $gender=null;
 
     /**
      * @var string
@@ -205,7 +205,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getBirthDay(): int
+    public function getBirthDay(): int | null
     {
         return $this->birthDay;
     }
@@ -221,7 +221,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return int
      */
-    public function getBirthMonth(): int
+    public function getBirthMonth(): int | null
     {
         return $this->birthMonth;
     }
@@ -317,7 +317,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getGender(): string
+    public function getGender(): string | null
     {
         return $this->gender;
     }

@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit;
 
+use Exception;
 use stdClass;
 
 abstract class GigyaJsonObject extends stdClass
@@ -26,7 +27,7 @@ abstract class GigyaJsonObject extends stdClass
      * @param $arguments
      *
      * @return mixed|null
-     * @throws \Exception
+     * @throws Exception
      */
     public function __call($name, $arguments)
     {
@@ -39,7 +40,7 @@ abstract class GigyaJsonObject extends stdClass
 
             return $this->$property = $arguments[0];
         } else {
-            throw new \Exception("Method $name does not exist");
+            throw new Exception("Method $name does not exist");
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Observer;
 
+use Exception;
 use Gigya\GigyaIM\Api\GigyaAccountRepositoryInterface;
 use Gigya\GigyaIM\Helper\GigyaSyncHelper;
 use Gigya\GigyaIM\Model\FieldMapping\GigyaToMagento;
@@ -81,7 +82,7 @@ class BackendMagentoCustomerEnricher extends AbstractMagentoCustomerEnricher
     {
         try {
             parent::saveMagentoCustomer($magentoCustomer);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $magentoCustomer->setGigyaAccountEnriched(false);
             $this->customerRegistry->push($magentoCustomer);
         }

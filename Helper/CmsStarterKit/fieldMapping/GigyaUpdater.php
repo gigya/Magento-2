@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping;
 
+use DateTime;
 use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GSApiException;
@@ -58,7 +59,7 @@ abstract class GigyaUpdater
         $apiHelper
     ) {
         $this->cmsArray  = (!empty($cmsValuesArray)) ? $cmsValuesArray : [];
-        $this->gigyaUid  = $gigyaUid;
+        $this->gigyaUid  = (string)$gigyaUid;
         $this->path      = (string) $path;
         $this->mapped    = !empty($this->path);
         $this->apiHelper = $apiHelper;
@@ -189,6 +190,7 @@ abstract class GigyaUpdater
 
     /**
      * @return array
+     * @throws Exception
      */
     protected function createGigyaArray(): array
     {
@@ -221,12 +223,10 @@ abstract class GigyaUpdater
             case "text":
             case "varchar":
                 return (string) $val;
-                break;
             case "long";
             case "integer":
             case "int":
                 return (int) $val;
-                break;
             case "boolean":
             case "bool":
                 if (is_string($val)) {
@@ -234,19 +234,16 @@ abstract class GigyaUpdater
                 }
 
                 return filter_var($val, FILTER_VALIDATE_BOOLEAN);
-                break;
             case 'date':
                 if ($val and !preg_match('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|(\+|-)\d{2}(:?\d{2})?)/', $val)) {
-                    $datetime = new \DateTime($val);
+                    $datetime = new DateTime($val);
                     // Return date in format ISO 8601 (https://en.wikipedia.org/wiki/ISO_8601)
                     $val = $datetime->format('c');
                 }
 
                 return $val;
-                break;
             default:
                 return $val;
-                break;
         }
     }
 

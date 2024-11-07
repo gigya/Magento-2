@@ -32,9 +32,9 @@ use Magento\Framework\Exception\State\InputMismatchException;
  */
 abstract class AbstractMagentoCustomerEnricher implements ObserverInterface
 {
-    const EVENT_MAP_GIGYA_TO_MAGENTO_SUCCESS = 'gigya_success_map_to_magento';
+    const string EVENT_MAP_GIGYA_TO_MAGENTO_SUCCESS = 'gigya_success_map_to_magento';
 
-    const EVENT_MAP_GIGYA_TO_MAGENTO_FAILURE = 'gigya_failed_map_to_magento';
+    const string EVENT_MAP_GIGYA_TO_MAGENTO_FAILURE = 'gigya_failed_map_to_magento';
 
     /** @var  CustomerRepositoryInterface */
     protected CustomerRepositoryInterface $customerRepository;

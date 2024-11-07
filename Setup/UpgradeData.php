@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Setup;
 
+use Exception;
 use Magento\Config\Model\ResourceModel\Config as ResourceModelConfig;
 use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
@@ -79,7 +80,7 @@ class UpgradeData implements UpgradeDataInterface
      * @return void
      *
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {

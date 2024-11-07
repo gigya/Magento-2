@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Helper;
 
+use Exception;
 use Gigya\GigyaIM\Exception\RetryGigyaException;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroupBuilder;
@@ -21,6 +22,8 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\App\Area;
 use Magento\Customer\Model\Config\Share;
+use Zend_Db;
+use Zend_Db_Select;
 
 /**
  * RetryGigyaSyncHelper
@@ -35,11 +38,11 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
     /**
      * Denotes a retry entry created after an update failure on Gigya service
      */
-    const ORIGIN_GIGYA = 'gigya';
+    const string ORIGIN_GIGYA = 'gigya';
     /**
      * Denotes a retry entry created after an update failure on Magento
      */
-    const ORIGIN_CMS = 'cms';
+    const string ORIGIN_CMS = 'cms';
 
     /** @var  GigyaLogger */
     protected GigyaLogger $logger;
@@ -203,11 +206,11 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         $selectRetryRows = $this->connection
             ->select()
             ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
-            ->reset(\Zend_Db_Select::COLUMNS)
+            ->reset(Zend_Db_Select::COLUMNS)
             ->columns('retry_count')
             ->where($where);
 
-        $retryRows = $this->connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
+        $retryRows = $this->connection->fetchAll($selectRetryRows, [], Zend_Db::FETCH_ASSOC);
 
         if (empty($retryRows)) {
             return -1;
@@ -259,14 +262,14 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
         $selectRetryRows = $this->connection
             ->select()
             ->from($this->resourceConnection->getTableName('gigya_sync_retry'))
-            ->reset(\Zend_Db_Select::COLUMNS)
+            ->reset(Zend_Db_Select::COLUMNS)
             ->columns($columns);
 
         if (!is_null($where)) {
             $selectRetryRows = $selectRetryRows->where($where);
         }
 
-        return $this->connection->fetchAll($selectRetryRows, [], \Zend_Db::FETCH_ASSOC);
+        return $this->connection->fetchAll($selectRetryRows, [], Zend_Db::FETCH_ASSOC);
     }
 
     /**
@@ -408,7 +411,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
                         ['customer_entity_id' => $customerEntityId]
                     );
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->connection->rollBack();
                 if (!is_null($failureMessage)) {
                     $this->logger->critical(
@@ -470,7 +473,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             } else {
                 try {
                     $areaCode = $this->appState->getAreaCode();
-                } catch (\Magento\Framework\Exception\LocalizedException $e) {
+                } catch (LocalizedException $e) {
                     $areaCode = null;
                 }
 
@@ -501,7 +504,7 @@ class RetryGigyaSyncHelper extends GigyaSyncHelper
             }
 
             $this->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->rollBack();
             $this->logger->critical(
                 'Could not log retry entry for '.$origin.'. No automatic retry will be performed on it.',

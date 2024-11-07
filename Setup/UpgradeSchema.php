@@ -6,6 +6,8 @@ use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Zend_Db_Exception;
 
 /**
  * UpgradeSchema
@@ -14,12 +16,12 @@ use Magento\Framework\Setup\SchemaSetupInterface;
  *
  * @author      vlemaire <info@x2i.fr>
  */
-class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
+class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
      * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
-     * @throws \Zend_Db_Exception
+     * @throws Zend_Db_Exception
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -63,7 +65,7 @@ class UpgradeSchema implements \Magento\Framework\Setup\UpgradeSchemaInterface
                 'The attempt count to re synchronize the data'
             )->addColumn(
                 'date',
-                \Magento\Framework\DB\Ddl\Table::TYPE_DATETIME,
+                Table::TYPE_DATETIME,
                 null,
                 [ 'nullable' => true ],
                 'Date time of the last attempt to re synchronize the data'

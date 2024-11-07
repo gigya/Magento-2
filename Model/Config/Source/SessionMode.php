@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\Config\Source;
 
+use Gigya\GigyaIM\Model\Config;
 use Magento\Framework\Data\OptionSourceInterface;
 
 class SessionMode implements OptionSourceInterface
@@ -14,10 +15,10 @@ class SessionMode implements OptionSourceInterface
     public function toOptionArray()
     {
         return [
-            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_FIXED, 'label' => __('Fixed')],
-            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_EXTENDED, 'label' => __('Extended')],
-            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_BROWSER_INSTANCE, 'label' => __('Browser instance')],
-            ['value' => \Gigya\GigyaIM\Model\Config::SESSION_MODE_ENDLESS, 'label' => __('Endless')]
+            ['value' => Config::SESSION_MODE_FIXED, 'label' => __('Fixed')],
+            ['value' => Config::SESSION_MODE_EXTENDED, 'label' => __('Extended')],
+            ['value' => Config::SESSION_MODE_BROWSER_INSTANCE, 'label' => __('Browser instance')],
+            ['value' => Config::SESSION_MODE_ENDLESS, 'label' => __('Endless')]
         ];
     }
 }

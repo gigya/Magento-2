@@ -14,6 +14,7 @@ use Magento\Framework\Api\Search\SearchCriteriaBuilder;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context as HelperContext;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -22,14 +23,14 @@ use Magento\Framework\App\State as AppState;
 
 class GigyaSyncHelper extends AbstractHelper
 {
-    const DIR_BOTH = 'both';
-    const DIR_G2CMS = 'g2cms';
-    const DIR_CMS2G = 'cms2g';
+    const string DIR_BOTH = 'both';
+    const string DIR_G2CMS = 'g2cms';
+    const string DIR_CMS2G = 'cms2g';
 
     /**
      * @var array
      */
-    protected static $customerIdsExcludedFromSync = [ self::DIR_CMS2G => [], self::DIR_G2CMS => [] ];
+    protected static array $customerIdsExcludedFromSync = [ self::DIR_CMS2G => [], self::DIR_G2CMS => [] ];
 
     /**
      * @var MessageManager
@@ -285,13 +286,13 @@ class GigyaSyncHelper extends AbstractHelper
      * @return CustomerInterface The Magento customer linked with this Gigya account (can be null if no account exists yet)
      * @throws @see getMagentoCustomerAndLoggingEmail()
      */
-    public function setMagentoLoggingContext($gigyaAccount): CustomerInterface
+    public function setMagentoLoggingContext($gigyaAccount): CustomerInterface | null
     {
         // This value will be set with the preferred email that should be attached with the Magento customer account, among all the Gigya loginIDs emails
         // We initialize it to null. If it's still null at the end of the algorithm that means that the user can not logged in
         // because all Gigya loginIDs emails are already set to existing Magento customer accounts with a different or null Gigya UID
         // Using Object manager in order to fix the di compilation issue
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $om = ObjectManager::getInstance();
         $session = $om->get('Magento\Customer\Model\Session');
         $session->setGigyaAccountLoggingEmail(null);
 

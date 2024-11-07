@@ -2,8 +2,12 @@
 
 namespace Gigya\GigyaIM\Plugin\Framework\Session;
 
+use Closure;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
-use \Magento\Framework\App\State;
+use Magento\Framework\App\State;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\SessionException;
+use Magento\Framework\Session\SessionManager as MagentoSessionManager;
 
 class SessionManager
 {
@@ -43,17 +47,17 @@ class SessionManager
     protected $allowCookieLifetime = true;
 
     /**
-     * @param \Magento\Framework\Session\SessionManager $subject
-     * @param \Closure                                  $proceed
+     * @param MagentoSessionManager $subject
+     * @param Closure                                  $proceed
      *
      * @return mixed
-     * @throws \Magento\Framework\Exception\SessionException
+     * @throws SessionException
      */
-    public function aroundStart(\Magento\Framework\Session\SessionManager $subject, \Closure $proceed)
+    public function aroundStart(MagentoSessionManager $subject, Closure $proceed)
     {
         try {
             $areaCode = $this->state->getAreaCode();
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $areaCode = null;
         }
         $sessionMode = $this->config->getSessionMode();
@@ -69,7 +73,7 @@ class SessionManager
          */
         try {
             $result = $proceed();
-        } catch (\Magento\Framework\Exception\SessionException $e) {
+        } catch (SessionException $e) {
             $this->allowCookieLifetime = true;
             throw $e;
         }

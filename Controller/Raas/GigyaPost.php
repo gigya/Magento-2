@@ -56,7 +56,7 @@ class GigyaPost extends LoginPost
     /**
      * @var AccountManagementInterface
      */
-    protected AccountManagementInterface $customerAccountManagement;
+    protected $customerAccountManagement;
 
     /**
      * @var Address

@@ -2,6 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\Cron;
 
+use Exception;
 use Gigya\GigyaIM\Helper\CmsStarterKit\fieldMapping\FieldMappingException;
 use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaApiHelper;
 use Gigya\GigyaIM\Helper\GigyaCronHelper;
@@ -97,7 +98,7 @@ class GigyaOfflineSync
 
     /**
      * @param string     $gigyaQuery
-     * @param \Exception &$gigyaException
+     * @param Exception &$gigyaException
      * @param int        $triesLeft
      *
      * @return array|false
@@ -112,7 +113,7 @@ class GigyaOfflineSync
                 $gigyaUsers = $this->gigyaApiHelper->searchGigyaUsers($gigyaQuery, true);
 
                 return $gigyaUsers;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 sleep(self::RETRY_WAIT);
                 $gigyaException = ['message' => $e->getMessage(), 'code' => $e->getCode()];
                 return $this->searchGigyaUsers($gigyaQuery, $gigyaException, $triesLeft - 1);
@@ -156,7 +157,7 @@ class GigyaOfflineSync
                 $gigyaUsers = $this->searchGigyaUsers($gigyaQuery, $gigyaException, 3);
                 if ($gigyaUsers === false) {
                     $this->handleError($gigyaException['message'], $emailsOnFailure, $processedUsers, $usersNotFound);
-                    throw new \Exception($gigyaException['message'], $gigyaException['code']);
+                    throw new Exception($gigyaException['message'], $gigyaException['code']);
                 }
 
                 foreach ($gigyaUsers as $gigyaUser) {
@@ -165,14 +166,14 @@ class GigyaOfflineSync
                     if (empty($gigyaUID)) {
                         $message = 'User with the following data does not have a UID. Unable to process. ' . json_encode($gigyaUser);
                         $this->handleError($message, $emailsOnFailure, $processedUsers, $usersNotFound);
-                        throw new \Exception($message);
+                        throw new Exception($message);
                     }
 
                     /* Abort if user does not have a valid lastUpdatedTimestamp */
                     if (empty($gigyaUser->getLastUpdatedTimestamp())) {
                         $message = 'User ' . $gigyaUID . ' does not have a valid last updated timestamp';
                         $this->handleError($message, $emailsOnFailure, $processedUsers, $usersNotFound);
-                        throw new \Exception($message);
+                        throw new Exception($message);
                     }
 
                     /* Run sync (field mapping) */
@@ -190,7 +191,7 @@ class GigyaOfflineSync
                             }
 
                             $processedUsers++;
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             $message = 'Error syncing user. Gigya UID: ' . $gigyaUID;
                             $this->handleError($message, $emailsOnFailure, $processedUsers, $usersNotFound);
                             throw new FieldMappingException($message);
@@ -207,7 +208,7 @@ class GigyaOfflineSync
                 $this->logger->info(self::CRON_NAME . ' completed. Users processed: ' . $processedUsers . (($usersNotFound) ? '. Users not found: ' . $usersNotFound : ''));
                 $status = ($usersNotFound > 0) ? 'completed with errors' : 'succeeded';
                 $this->gigyaCronHelper->sendEmail(self::CRON_NAME, $status, $emailsOnSuccess, $processedUsers, $usersNotFound);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->handleError($e->getMessage(), $emailsOnFailure, $processedUsers, $usersNotFound);
                 $this->logger->error('Error on cron ' . self::CRON_NAME . ': ' . $e->getMessage() . '.');
             }

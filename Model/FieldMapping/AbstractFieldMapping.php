@@ -2,7 +2,7 @@
 
 namespace Gigya\GigyaIM\Model\FieldMapping;
 
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Module\Dir;
 use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 use Gigya\GigyaIM\Logger\Logger as GigyaLogger;

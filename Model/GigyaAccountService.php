@@ -9,8 +9,8 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaUser;
 use Gigya\GigyaIM\Helper\CmsStarterKit\user\GigyaSubscriptionContainer;
 use Gigya\GigyaIM\Api\GigyaAccountServiceInterface;
 use Gigya\GigyaIM\Helper\GigyaMageHelper;
-use \Magento\Framework\Event\ManagerInterface as EventManager;
-use \Gigya\GigyaIM\Logger\Logger as GigyaLogger;
+use Magento\Framework\Event\ManagerInterface as EventManager;
+use Gigya\GigyaIM\Logger\Logger as GigyaLogger;
 
 /**
  * GigyaAccountService
@@ -31,12 +31,12 @@ class GigyaAccountService implements GigyaAccountServiceInterface
     /**
      * Event dispatched when the Gigya data have correctly been sent to the Gigya remote service.
      */
-    const EVENT_UPDATE_GIGYA_SUCCESS = 'gigya_success_sync_to_gigya';
+    const string EVENT_UPDATE_GIGYA_SUCCESS = 'gigya_success_sync_to_gigya';
 
     /**
      * Event dispatched when the Gigya data could not be sent to the Gigya remote service or when this service replies with an error (validation or other functionnal error)
      */
-    const EVENT_UPDATE_GIGYA_FAILURE = 'gigya_failed_sync_to_gigya';
+    const string EVENT_UPDATE_GIGYA_FAILURE = 'gigya_failed_sync_to_gigya';
 
     /** @var  GigyaMageHelper */
     protected GigyaMageHelper $gigyaMageHelper;
@@ -229,7 +229,7 @@ class GigyaAccountService implements GigyaAccountServiceInterface
      *
      * @throws GSException
      */
-    public function update(GigyaUser $gigyaAccount)
+    public function update(GigyaUser $gigyaAccount, $dispatchEvent = true)
     {
         $result = null;
         $gigyaApiData = self::getGigyaApiAccountData($gigyaAccount);

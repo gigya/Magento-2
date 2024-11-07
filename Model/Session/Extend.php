@@ -2,14 +2,17 @@
 
 namespace Gigya\GigyaIM\Model\Session;
 
-use Gigya\PHP\SigUtils;
+use Gigya\GigyaIM\Helper\GigyaMageHelper;
+use Gigya\GigyaIM\Logger\Logger;
+use Gigya\GigyaIM\Model\Session;
 use Gigya\GigyaIM\Model\Config;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\ScopeInterface;
-use Magento\Framework\Event\Observer;
-use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException;
+use Magento\Framework\Stdlib\Cookie\FailureToSendException;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Framework\UrlInterface;
-use Magento\Store\Model\StoreManagement;
 use Magento\Store\Model\StoreManager;
 
 class Extend
@@ -21,12 +24,12 @@ class Extend
     protected $configModel;
 
     /**
-     * @var \Gigya\GigyaIM\Helper\GigyaMageHelper
+     * @var GigyaMageHelper
      */
     protected $gigyaMageHelper;
 
     /**
-     * @var \Magento\Framework\Stdlib\CookieManagerInterface
+     * @var CookieManagerInterface
      */
     protected $cookieManager;
 
@@ -46,13 +49,13 @@ class Extend
 
     public function __construct(
         Config $configModel,
-        \Gigya\GigyaIM\Helper\GigyaMageHelper $gigyaMageHelper,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory,
-        \Gigya\GigyaIM\Model\Session $sessionModel,
+        GigyaMageHelper $gigyaMageHelper,
+        CookieManagerInterface $cookieManager,
+        CookieMetadataFactory $cookieMetadataFactory,
+        Session $sessionModel,
         UrlInterface $urlInterface,
         StoreManager $storeManager,
-        \Gigya\GigyaIM\Logger\Logger $logger
+        Logger $logger
     ) {
         $this->configModel = $configModel;
         $this->gigyaMageHelper = $gigyaMageHelper;
@@ -67,9 +70,10 @@ class Extend
     /**
      * @param bool $checkCookieValidity
      *
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Stdlib\Cookie\CookieSizeLimitReachedException
-     * @throws \Magento\Framework\Stdlib\Cookie\FailureToSendException
+     * @throws CookieSizeLimitReachedException
+     * @throws FailureToSendException
+     * @throws InputException
+     * @throws NoSuchEntityException
      */
     public function extendSession($checkCookieValidity = true)
     {

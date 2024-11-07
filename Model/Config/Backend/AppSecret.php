@@ -17,13 +17,13 @@ class AppSecret extends Encrypted
     private Encryptor $encryptor;
 
     /**
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $config
-     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
-     * @param \Gigya\GigyaIM\Encryption\Encryptor $encryptor
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
+     * @param Context $context
+     * @param Registry $registry
+     * @param ScopeConfigInterface $config
+     * @param TypeListInterface $cacheTypeList
+     * @param Encryptor $encryptor
+     * @param AbstractResource $resource
+     * @param AbstractDb $resourceCollection
      * @param array $data
      */
     public function __construct(
@@ -80,7 +80,6 @@ class AppSecret extends Encrypted
     {
         $this->initEncryptor();
         parent::_afterLoad();
-        ;
     }
 
     /**
