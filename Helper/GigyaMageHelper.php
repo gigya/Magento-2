@@ -18,6 +18,7 @@ use Gigya\GigyaIM\Model\Settings;
 use Gigya\GigyaIM\Model\Config;
 use Gigya\GigyaIM\Model\SettingsFactory;
 use Gigya\GigyaIM\Encryption\Encryptor;
+use InvalidArgumentException;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Store\Model\ScopeInterface;
@@ -459,31 +460,45 @@ class GigyaMageHelper extends AbstractHelper
         return $message;
     }
 
+    /**
+     * @throws Exception
+     */
     public function generatePassword($len = 8): string
     {
-        $chars = self::CHARS_PASSWORD_LOWERS
-            . self::CHARS_PASSWORD_UPPERS
-            . self::CHARS_PASSWORD_DIGITS
-            . self::CHARS_PASSWORD_SPECIALS;
-        $str = $this->getRandomString($len, $chars);
+        $str = $this->getRandomString($len);
         return 'Gigya_' . $str;
     }
 
     /**
-     * Taken from magento 1 helper core
      * @param $len
-     * @param $chars
      * @return mixed
+     * @throws Exception
      */
-    private function getRandomString($len, $chars): mixed
+    private function getRandomString($len): mixed
     {
-        if (empty($chars)) {
-            $chars = self::CHARS_PASSWORD_LOWERS . self::CHARS_PASSWORD_UPPERS . self::CHARS_PASSWORD_DIGITS;
+        if ($len < 4) {
+            throw new InvalidArgumentException('Length must be at least 4 to include all character types.');
         }
-        for ($i = 0, $str = '', $lc = strlen($chars)-1; $i < $len; $i++) {
-            $str .= $chars[mt_rand(0, $lc)];
+
+        $charSets = [
+            self::CHARS_PASSWORD_LOWERS,
+            self::CHARS_PASSWORD_UPPERS,
+            self::CHARS_PASSWORD_DIGITS,
+            self::CHARS_PASSWORD_SPECIALS
+        ];
+
+        $randomString = '';
+        // Ensure each character type is included at least once
+        foreach ($charSets as $set) {
+            $randomString .= $set[random_int(0, strlen($set) - 1)];
         }
-        return $str;
+
+        $allCharacters = implode('', $charSets);
+        for ($i = count($charSets); $i < $len; $i++) {
+            $randomString .= $allCharacters[random_int(0, strlen($allCharacters) - 1)];
+        }
+
+        return str_shuffle($randomString);
     }
 
     /**
