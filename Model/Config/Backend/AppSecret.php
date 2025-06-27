@@ -32,8 +32,8 @@ class AppSecret extends Encrypted
         ScopeConfigInterface $config,
         TypeListInterface $cacheTypeList,
         Encryptor $encryptor,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(

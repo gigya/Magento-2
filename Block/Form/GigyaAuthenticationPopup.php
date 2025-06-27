@@ -34,7 +34,7 @@ class GigyaAuthenticationPopup extends AuthenticationPopup
         Context $context,
         Config $config,
         array $data = [],
-        Json $serializer = null
+        ?Json $serializer = null
     ) {
         $this->config = $config;
 

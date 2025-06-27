@@ -5,6 +5,8 @@ namespace Gigya\GigyaIM\Logger;
 use Gigya\GigyaIM\Model\Config as GigyaConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Monolog\DateTimeImmutable;
+use Monolog\Level;
+use Monolog\JsonSerializableDateTimeImmutable;
 
 class Logger extends \Monolog\Logger
 {
@@ -42,7 +44,7 @@ class Logger extends \Monolog\Logger
      *
      * @return bool Whether the record has been processed
      */
-    public function addRecord(int $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
+    public function addRecord(Level|int $level, string $message, array $context = [], ?JsonSerializableDateTimeImmutable $datetime = null): bool
     {
         $debugMode = $this->scopeConfig->getValue(GigyaConfig::XML_PATH_DEBUG_MODE, 'website');
 

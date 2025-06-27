@@ -66,7 +66,7 @@ class RetryGigyaUpdate
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function execute(Schedule $schedule=null)
+    public function execute(?Schedule $schedule=null)
     {
         if ($this->config->isGigyaEnabled()) {
             $allRetriesRow = $this->retryGigyaSyncHelper->getRetryEntries(null);
