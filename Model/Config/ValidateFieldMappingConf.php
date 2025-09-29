@@ -51,8 +51,8 @@ class ValidateFieldMappingConf extends Value
         Customer $customerResource,
         GigyaMageHelper $gigyaMageHelper,
         GigyaLogger $logger,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->logger = $logger;

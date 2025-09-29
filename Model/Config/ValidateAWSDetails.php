@@ -63,8 +63,8 @@ class ValidateAWSDetails extends Value
         GigyaMageHelper $gigyaMageHelper,
         EncryptorInterface $encryptor,
         GigyaLogger $logger,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->_storeManager = $storeManager;
