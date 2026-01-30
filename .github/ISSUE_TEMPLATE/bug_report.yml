@@ -1,0 +1,70 @@
+name: Issue Report
+description: Report an issue with the module
+title: "[Issue]: "
+labels: ["Issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Important Information
+
+        Thank you for taking the time to report this issue!  
+        For greater visibility, it would be very helpful if you could also create a ticket in SAP CDC.
+  - type: input
+    id: email
+    attributes:
+      label: Email to reply
+      description: Your email address for follow-up
+      placeholder: you@example.com
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: Your name
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: input
+    id: module-version
+    attributes:
+      label: Gigya Module version
+      placeholder: e.g., 1.2.3
+    validations:
+      required: true
+
+  - type: input
+    id: cms-version
+    attributes:
+      label: Adobe Commerce (Magento) version
+      placeholder: e.g., 10.4.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true
+  
+        
