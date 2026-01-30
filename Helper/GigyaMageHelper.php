@@ -276,7 +276,12 @@ class GigyaMageHelper extends AbstractHelper
      */
     public function getGigyaApiHelper(): GigyaApiHelper|false
     {
-        if ($this->gigyaApiHelper == null) {
+        $authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
+        $reflection = new \ReflectionClass($this->gigyaApiHelper);
+        $property = $reflection->getProperty('apiKey');
+        $property->setAccessible(true);
+        $hasApiKey = $property->getValue($this->gigyaApiHelper);
+        if ($this->gigyaApiHelper == null || empty($hasApiKey)) {
             try {
                 $authKey = ($this->authMode == 'user_rsa') ? $this->getPrivateKey() : $this->getAppSecret();
                 $this->gigyaApiHelper = new GigyaApiHelper($this->apiKey, $this->appKey, $authKey, $this->apiDomain, $this->dir, $this->authMode);

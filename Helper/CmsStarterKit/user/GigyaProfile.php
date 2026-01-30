@@ -60,7 +60,7 @@ class GigyaProfile extends GigyaJsonObject
     /**
      * @var string
      */
-    private string $photoURL;
+    private string | null $photoURL;
 
     /**
      * @var string
