@@ -9,8 +9,8 @@ body:
         ---
         ## Important Information
 
-        Thank you for taking the time to report this issue!  
-        For greater visibility, it would be very helpful if you could also create a ticket in SAP CDC.
+        Thank you for taking the time to report this issue!
+        For greater visibility, you should also create a ticket in SAP Customer Data Cloud.
   - type: input
     id: email
     attributes:
