@@ -12,11 +12,11 @@ body:
         Thank you for taking the time to report this issue!
         For greater visibility, you should also create a ticket in SAP Customer Data Cloud.
   - type: input
-    id: email
+    id: github_user
     attributes:
-      label: Email to reply
-      description: Your email address for follow-up
-      placeholder: you@example.com
+      label: Github User
+      description: Your github user for follow-up
+      placeholder: user
     validations:
       required: true
 
@@ -37,6 +37,18 @@ body:
         1. Go to '...'
         2. Click on '...'
         3. See error
+    validations:
+      required: true
+      
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case for issue
+      description: What is the use case for the issue?
+      placeholder: |
+        1. We are trying '...'
+        2. By going to '...'
+        3. And it is not doing
     validations:
       required: true
 
