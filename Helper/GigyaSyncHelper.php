@@ -119,9 +119,11 @@ class GigyaSyncHelper extends AbstractHelper
         $magentoLoggingEmail = null;
 
         $gigyaUid = $gigyaAccount->getUID();
-        $gigyaEmails = $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'];
-        $gigyaProfileEmail = $gigyaAccount->getProfile()->getEmail();
-        $gigyaEmails[] = $gigyaProfileEmail;
+        $gigyaEmails = $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'] ?? [];
+        $gigyaProfileEmail = $gigyaAccount->getProfile()?->getEmail();
+        if ($gigyaProfileEmail !== null) {
+            $gigyaEmails[] = $gigyaProfileEmail;
+        }
 
         // Will be fed with the emails that are already used by a Magento customer account, but to a different or null Gigya UID
         $notUsableEmails = [];
@@ -245,11 +247,12 @@ class GigyaSyncHelper extends AbstractHelper
 
             $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
             $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
-            if (empty($magentoCustomer->getFirstname())) {
-                $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
+            $gigyaProfile = $gigyaAccount->getProfile();
+            if (empty($magentoCustomer->getFirstname()) && $gigyaProfile?->getFirstName()) {
+                $magentoCustomer->setFirstname($gigyaProfile->getFirstName());
             }
-            if (empty($magentoCustomer->getLastname())) {
-                $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+            if (empty($magentoCustomer->getLastname()) && $gigyaProfile?->getLastName()) {
+                $magentoCustomer->setLastname($gigyaProfile->getLastName());
             }
         }
     }
@@ -272,8 +275,11 @@ class GigyaSyncHelper extends AbstractHelper
     {
         $magentoCustomer->setCustomAttribute('gigya_uid', $gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaLoggingEmail);
-        $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
-        $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+        $gigyaProfile = $gigyaAccount->getProfile();
+        if ($gigyaProfile !== null) {
+            $magentoCustomer->setFirstname($gigyaProfile->getFirstName() ?? '');
+            $magentoCustomer->setLastname($gigyaProfile->getLastName() ?? '');
+        }
     }
 
     /**

@@ -176,8 +176,9 @@ abstract class GigyaUpdater
         if (false === $conf) {
             $mappingJson = file_get_contents($this->path);
             if (false === $mappingJson) {
-                $err     = error_get_last();
-                $message = "GigyaUpdater: Could not retrieve field mapping configuration file. The message was: " . $err['message'];
+                $err = error_get_last();
+                $errorMessage = $err['message'] ?? 'Unknown error';
+                $message = "GigyaUpdater: Could not retrieve field mapping configuration file. The message was: " . $errorMessage;
                 throw new Exception($message);
             }
 
