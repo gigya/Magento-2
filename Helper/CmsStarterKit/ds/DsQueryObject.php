@@ -13,39 +13,39 @@ class DsQueryObject
     const VALUE_REG_EXP = '/.*(and|or|where)\s.*/i';
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $query;
+    private ?string $query = null;
 
     /**
      * @var array
      */
-    private array $fields;
+    private array $fields = [];
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $table;
-
-    /**
-     * @var array
-     */
-    private array $ors;
+    private ?string $table = null;
 
     /**
      * @var array
      */
-    private array $ands;
-
-    /**
-     * @var string
-     */
-    private string $oid;
+    private array $ors = [];
 
     /**
      * @var array
      */
-    private array $operators;
+    private array $ands = [];
+
+    /**
+     * @var string|null
+     */
+    private ?string $oid = null;
+
+    /**
+     * @var array
+     */
+    private array $operators = [];
 
     /**
      * @var string|null
@@ -53,9 +53,9 @@ class DsQueryObject
     private ?string $uid = null;
 
     /**
-     * @var GigyaApiHelper
+     * @var GigyaApiHelper|null
      */
-    private GigyaApiHelper $apiHelper;
+    private ?GigyaApiHelper $apiHelper = null;
 
     /**
      * DsQueryObject constructor.
@@ -345,9 +345,9 @@ class DsQueryObject
     }
 
     /**
-     * @return string mixed
+     * @return string|null mixed
      */
-    public function getOid(): string
+    public function getOid(): ?string
     {
         return $this->oid;
     }

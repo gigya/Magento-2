@@ -7,14 +7,14 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaJsonObject;
 class GigyaSubscriptionContainer extends GigyaJsonObject
 {
     /**
-     * @var GigyaSubscription
+     * @var GigyaSubscription|null
      */
-    private GigyaSubscription $email;
+    private ?GigyaSubscription $email = null;
 
     /**
-     * @return GigyaSubscription
+     * @return GigyaSubscription|null
      */
-    public function getEmail(): GigyaSubscription
+    public function getEmail(): ?GigyaSubscription
     {
         return $this->email;
     }

@@ -7,24 +7,24 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaJsonObject;
 class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
 {
     /**
-     * @var string
+     * @var string|null
      */
-    private string $emailSentTime;
+    private ?string $emailSentTime = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $confirmTime;
+    private ?string $confirmTime = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $status;
+    private ?string $status = null;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEmailSentTime(): string
+    public function getEmailSentTime(): ?string
     {
         return $this->emailSentTime;
     }
@@ -38,9 +38,9 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getConfirmTime(): string
+    public function getConfirmTime(): ?string
     {
         return $this->confirmTime;
     }
@@ -54,9 +54,9 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getStatus(): string
+    public function getStatus(): ?string
     {
         return $this->status;
     }

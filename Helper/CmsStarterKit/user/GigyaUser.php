@@ -7,99 +7,99 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaJsonObject;
 class GigyaUser extends GigyaJsonObject
 {
     /**
-     * @var string
+     * @var string|null
      */
-    private string $UID;
+    private ?string $UID = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $UIDSignature;
+    private ?string $UIDSignature = null;
 
     /**
-     * @var boolean
+     * @var boolean|null
      */
-    private bool $isSiteUser;
+    private ?bool $isSiteUser = null;
 
     /**
-     * @var boolean
+     * @var boolean|null
      */
-    private bool $isTempUser;
+    private ?bool $isTempUser = null;
 
     /**
-     * @var boolean
+     * @var boolean|null
      */
-    private bool $isSiteUID;
+    private ?bool $isSiteUID = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $loginProvider;
+    private ?string $loginProvider = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $loginProviderUID;
+    private ?string $loginProviderUID = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $oldestDataAge;
+    private ?string $oldestDataAge = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    private int $oldestDataUpdatedTimestamp;
+    private ?int $oldestDataUpdatedTimestamp = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    private int $signatureTimestamp;
+    private ?int $signatureTimestamp = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $statusCode;
+    private ?string $statusCode = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $statusReason;
+    private ?string $statusReason = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    private int $lastUpdatedTimestamp;
+    private ?int $lastUpdatedTimestamp = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $socialProviders;
+    private ?string $socialProviders = null;
 
     /**
      * @var array
      */
-    private array $providers;
+    private array $providers = [];
 
     /**
-     * @var string
+     * @var string|null
      */
     private ?string $isActive = "";
 
     /**
      * @var array
      */
-    private array $loginIDs;
+    private array $loginIDs = [];
 
     /**
-     * @var GigyaProfile
+     * @var GigyaProfile|null
      */
-    private GigyaProfile $profile;
+    private ?GigyaProfile $profile = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $time;
+    private ?string $time = null;
 
     /**
      * @var array|null
@@ -117,9 +117,9 @@ class GigyaUser extends GigyaJsonObject
     private ?bool $isVerified = false;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getUID(): string
+    public function getUID(): ?string
     {
         return $this->UID;
     }
@@ -133,9 +133,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getUIDSignature(): string
+    public function getUIDSignature(): ?string
     {
         return $this->UIDSignature;
     }
@@ -149,9 +149,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return boolean
+     * @return boolean|null
      */
-    public function isIsSiteUser(): bool
+    public function isIsSiteUser(): ?bool
     {
         return $this->isSiteUser;
     }
@@ -165,9 +165,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return boolean
+     * @return boolean|null
      */
-    public function isIsTempUser(): bool
+    public function isIsTempUser(): ?bool
     {
         return $this->isTempUser;
     }
@@ -181,9 +181,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return boolean
+     * @return boolean|null
      */
-    public function isIsSiteUID(): bool
+    public function isIsSiteUID(): ?bool
     {
         return $this->isSiteUID;
     }
@@ -197,9 +197,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLoginProvider(): string
+    public function getLoginProvider(): ?string
     {
         return $this->loginProvider;
     }
@@ -213,9 +213,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLoginProviderUID(): string
+    public function getLoginProviderUID(): ?string
     {
         return $this->loginProviderUID;
     }
@@ -229,9 +229,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getOldestDataAge(): string
+    public function getOldestDataAge(): ?string
     {
         return $this->oldestDataAge;
     }
@@ -245,9 +245,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getOldestDataUpdatedTimestamp(): int
+    public function getOldestDataUpdatedTimestamp(): ?int
     {
         return $this->oldestDataUpdatedTimestamp;
     }
@@ -261,9 +261,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSignatureTimestamp(): int
+    public function getSignatureTimestamp(): ?int
     {
         return $this->signatureTimestamp;
     }
@@ -277,9 +277,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getStatusCode(): string
+    public function getStatusCode(): ?string
     {
         return $this->statusCode;
     }
@@ -293,9 +293,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getStatusReason(): string
+    public function getStatusReason(): ?string
     {
         return $this->statusReason;
     }
@@ -309,9 +309,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getLastUpdatedTimestamp(): int
+    public function getLastUpdatedTimestamp(): ?int
     {
         return $this->lastUpdatedTimestamp;
     }
@@ -325,9 +325,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSocialProviders(): string
+    public function getSocialProviders(): ?string
     {
         return $this->socialProviders;
     }
@@ -389,9 +389,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return GigyaProfile
+     * @return GigyaProfile|null
      */
-    public function getProfile(): GigyaProfile
+    public function getProfile(): ?GigyaProfile
     {
         return $this->profile;
     }
@@ -408,9 +408,9 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTime(): string
+    public function getTime(): ?string
     {
         return $this->time;
     }
@@ -444,15 +444,15 @@ class GigyaUser extends GigyaJsonObject
     }
 
     /**
-     * @return string emailLoginId / null
+     * @return string|null emailLoginId / null
      */
-    public function getGigyaLoginId(): string
+    public function getGigyaLoginId(): ?string
     {
         $loginIds = $this->getLoginIDs();
         if (!empty($loginIds['emails'][0])) {
             $emailLoginId = $loginIds['emails'][0];
         } else {
-            $emailLoginId = $this->getProfile()->getEmail();
+            $emailLoginId = $this->getProfile()?->getEmail();
         }
 
         return $emailLoginId;

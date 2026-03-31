@@ -7,29 +7,29 @@ use Gigya\GigyaIM\Helper\CmsStarterKit\GigyaJsonObject;
 class GigyaSubscription extends GigyaJsonObject
 {
     /**
-     * @var boolean
+     * @var boolean|null
      */
-    private bool $isSubscribed;
+    private ?bool $isSubscribed = null;
 
     /**
      * @var array
      */
-    private array $tags;
+    private array $tags = [];
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $lastUpdatedSubscriptionState;
+    private ?string $lastUpdatedSubscriptionState = null;
 
     /**
-     * @var GigyaSubscriptionDoubleOptIn
+     * @var GigyaSubscriptionDoubleOptIn|null
      */
-    private GigyaSubscriptionDoubleOptIn $doubleOptIn;
+    private ?GigyaSubscriptionDoubleOptIn $doubleOptIn = null;
 
     /**
-     * @return boolean
+     * @return boolean|null
      */
-    public function getIsSubscribed(): bool
+    public function getIsSubscribed(): ?bool
     {
         return $this->isSubscribed;
     }
@@ -62,9 +62,9 @@ class GigyaSubscription extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLastUpdatedSubscriptionState(): string
+    public function getLastUpdatedSubscriptionState(): ?string
     {
         return $this->lastUpdatedSubscriptionState;
     }
@@ -78,9 +78,9 @@ class GigyaSubscription extends GigyaJsonObject
     }
 
     /**
-     * @return GigyaSubscriptionDoubleOptIn
+     * @return GigyaSubscriptionDoubleOptIn|null
      */
-    public function getDoubleOptIn(): GigyaSubscriptionDoubleOptIn
+    public function getDoubleOptIn(): ?GigyaSubscriptionDoubleOptIn
     {
         return $this->doubleOptIn;
     }

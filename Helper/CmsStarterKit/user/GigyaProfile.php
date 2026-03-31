@@ -18,189 +18,189 @@ class GigyaProfile extends GigyaJsonObject
     private ?int $birthMonth=null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    private int $birthYear;
+    private ?int $birthYear = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $city;
+    private ?string $city = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $country;
+    private ?string $country = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $email;
+    private ?string $email = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $firstName;
+    private ?string $firstName = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private ?string $gender=null;
+    private ?string $gender = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $lastName;
+    private ?string $lastName = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $nickname;
+    private ?string $nickname = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $photoURL;
+    private ?string $photoURL = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $profileURL;
+    private ?string $profileURL = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $state;
+    private ?string $state = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $thumbnailURL;
+    private ?string $thumbnailURL = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $zip;
+    private ?string $zip = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $bio;
+    private ?string $bio = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $address;
+    private ?string $address = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $educationLevel;
+    private ?string $educationLevel = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    private int $followersCount;
+    private ?int $followersCount = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    private int $followingCount;
+    private ?int $followingCount = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $hometown;
+    private ?string $hometown = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $honors;
+    private ?string $honors = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $industry;
+    private ?string $industry = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $interestedIn;
+    private ?string $interestedIn = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $languages;
+    private ?string $languages = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $locale;
+    private ?string $locale = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $name;
+    private ?string $name = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $religion;
+    private ?string $religion = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $timezone;
+    private ?string $timezone = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $username;
+    private ?string $username = null;
 
     /**
-     * @var boolean
+     * @var boolean|null
      */
-    private bool $verified;
+    private ?bool $verified = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $relationshipStatus;
-
-    /**
-     * @var array
-     */
-    private array $likes;
+    private ?string $relationshipStatus = null;
 
     /**
      * @var array
      */
-    private array $favorites;
+    private array $likes = [];
 
     /**
      * @var array
      */
-    private array $skills;
+    private array $favorites = [];
 
     /**
      * @var array
      */
-    private array $education;
+    private array $skills = [];
 
     /**
      * @var array
      */
-    private array $phones;
+    private array $education = [];
 
     /**
      * @var array
      */
-    private array $works;
+    private array $phones = [];
 
     /**
      * @var array
      */
-    private array $publications;
+    private array $works = [];
+
+    /**
+     * @var array
+     */
+    private array $publications = [];
 
     /**
      * @return int
@@ -235,9 +235,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getBirthYear(): int
+    public function getBirthYear(): ?int
     {
         return $this->birthYear;
     }
@@ -251,9 +251,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getCity(): string
+    public function getCity(): ?string
     {
         return $this->city;
     }
@@ -267,9 +267,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getCountry(): string
+    public function getCountry(): ?string
     {
         return $this->country;
     }
@@ -283,9 +283,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -299,9 +299,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getFirstName(): string
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -331,9 +331,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLastName(): string
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
@@ -347,9 +347,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getNickname(): string
+    public function getNickname(): ?string
     {
         return $this->nickname;
     }
@@ -363,9 +363,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPhotoURL(): string
+    public function getPhotoURL(): ?string
     {
         return $this->photoURL;
     }
@@ -379,9 +379,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getProfileURL(): string
+    public function getProfileURL(): ?string
     {
         return $this->profileURL;
     }
@@ -395,9 +395,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getState(): string
+    public function getState(): ?string
     {
         return $this->state;
     }
@@ -411,9 +411,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getThumbnailURL(): string
+    public function getThumbnailURL(): ?string
     {
         return $this->thumbnailURL;
     }
@@ -427,9 +427,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getZip(): string
+    public function getZip(): ?string
     {
         return $this->zip;
     }
@@ -443,9 +443,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getBio(): string
+    public function getBio(): ?string
     {
         return $this->bio;
     }
@@ -459,9 +459,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAddress(): string
+    public function getAddress(): ?string
     {
         return $this->address;
     }
@@ -475,9 +475,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEducationLevel(): string
+    public function getEducationLevel(): ?string
     {
         return $this->educationLevel;
     }
@@ -491,9 +491,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getFollowersCount(): int
+    public function getFollowersCount(): ?int
     {
         return $this->followersCount;
     }
@@ -507,9 +507,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getFollowingCount(): int
+    public function getFollowingCount(): ?int
     {
         return $this->followingCount;
     }
@@ -523,9 +523,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getHometown(): string
+    public function getHometown(): ?string
     {
         return $this->hometown;
     }
@@ -539,9 +539,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getHonors(): string
+    public function getHonors(): ?string
     {
         return $this->honors;
     }
@@ -555,9 +555,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getIndustry(): string
+    public function getIndustry(): ?string
     {
         return $this->industry;
     }
@@ -571,9 +571,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getInterestedIn(): string
+    public function getInterestedIn(): ?string
     {
         return $this->interestedIn;
     }
@@ -587,9 +587,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLanguages(): string
+    public function getLanguages(): ?string
     {
         return $this->languages;
     }
@@ -603,9 +603,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLocale(): string
+    public function getLocale(): ?string
     {
         return $this->locale;
     }
@@ -619,9 +619,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -635,9 +635,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getReligion(): string
+    public function getReligion(): ?string
     {
         return $this->religion;
     }
@@ -651,9 +651,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTimezone(): string
+    public function getTimezone(): ?string
     {
         return $this->timezone;
     }
@@ -667,9 +667,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -683,9 +683,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return boolean
+     * @return boolean|null
      */
-    public function isVerified(): bool
+    public function isVerified(): ?bool
     {
         return $this->verified;
     }
@@ -699,9 +699,9 @@ class GigyaProfile extends GigyaJsonObject
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRelationshipStatus(): string
+    public function getRelationshipStatus(): ?string
     {
         return $this->relationshipStatus;
     }
