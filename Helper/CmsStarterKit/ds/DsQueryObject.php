@@ -188,7 +188,9 @@ class DsQueryObject
             throw new DsQueryException($op . " is not a valid operator");
         }
 
-        return $this->prefixField(filter_var($field, FILTER_SANITIZE_STRING)) . " " . $op . " "
+        // FILTER_SANITIZE_STRING was removed in PHP 8.1, use htmlspecialchars instead
+        $sanitizedField = htmlspecialchars(strip_tags($field), ENT_QUOTES, 'UTF-8');
+        return $this->prefixField($sanitizedField) . " " . $op . " "
                . $value;
     }
 

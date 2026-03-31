@@ -493,8 +493,7 @@ abstract class AbstractLogin extends AbstractAccount
     {
         $url = null;
         if ($resultRedirect instanceof Redirect) {
-            $response = serialize($this->getResponse());
-            $response = unserialize($response);
+            $response = clone $this->getResponse();
 
             $resultRedirect->renderResult($response);
             $header = $response->getHeader('Location');
