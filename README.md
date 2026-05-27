@@ -1,5 +1,8 @@
 # Magento- 2
 
+## Documentation  
+View documentation for the Magento GConnector in the [Wiki](https://github.com/gigya/Magento-2/wiki)  
+
 ## License
 
 Copyright (c) 2016– SAP SE or an SAP affiliate company. All rights reserved.
