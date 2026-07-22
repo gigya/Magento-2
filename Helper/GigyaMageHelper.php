@@ -269,6 +269,9 @@ class GigyaMageHelper extends AbstractHelper
             $this->setAppSecret((isset($settings['app_secret_decrypted']) && $settings['app_secret_decrypted'] === true) ?
                 $settings['app_secret'] : $this->encryptor->decrypt($settings['app_secret']));
         }
+
+        // Invalidate the cached API client so updated settings take effect.
+        $this->gigyaApiHelper = null;
     }
 
     /**
