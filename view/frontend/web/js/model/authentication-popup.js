@@ -39,8 +39,33 @@ define([
             modal(options, $(this.modalWindow));
         },
 
+        gigyaFormLoaded: false,
+
+        /**
+         * Queue the Gigya login screen set for this popup, once.
+         *
+         * Deferred to the point the popup is actually opened: this block renders on
+         * every page, so initialising it on render would load the screen set and its
+         * plugins - reCAPTCHA included - site wide.
+         */
+        loadGigyaForm: function () {
+            if (this.gigyaFormLoaded || typeof popupRaasLoginScreen === 'undefined') {
+                return;
+            }
+
+            window.gigyaInit = window.gigyaInit || [];
+            window.gigyaInit.push(popupRaasLoginScreen);
+            this.gigyaFormLoaded = true;
+
+            /* If Gigya is not ready yet the queue is consumed by onGigyaServiceReady. */
+            if (typeof gigya !== 'undefined') {
+                requirejs('gigya_script').Functions.performGigyaActions();
+            }
+        },
+
         /** Show login popup window */
         showModal: function () {
+            this.loadGigyaForm();
             $(this.modalWindow).modal('openModal');
         }
     };

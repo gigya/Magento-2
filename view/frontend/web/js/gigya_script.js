@@ -17,7 +17,7 @@ define([
 	gigyaMage2.Params.gigya_user_logged_in = false; // checked by methods: getAccountInfo & checkLoginStatus
 	gigyaMage2.Params.form_key = null;
 	var formKeyObj = $('input[name="form_key"]');
-	if (formKeyObj.val().length) {
+	if (formKeyObj.length && formKeyObj.val()) {
 		gigyaMage2.Params.form_key = formKeyObj.val();
 	}
 
@@ -109,6 +109,10 @@ define([
 	 * @property eventObj.id_token
 	 */
 	gigyaMage2.Functions.gigyaLoginEventHandler = function (eventObj) {
+		if (!eventObj || !eventObj.UID) {
+			return;
+		}
+
 		var remember = gigyaMage2.Functions.getRememberMeStatus(eventObj);
 		var action = login_post_url;
 		var loginData = {
@@ -146,10 +150,14 @@ define([
 
 		// Pull remember me status from the group context
 		if (typeof eventObj.groupContext !== 'undefined') {
-			var groupRemember = JSON.parse(eventObj.groupContext).remember;
+			try {
+				var groupRemember = JSON.parse(eventObj.groupContext).remember;
 
-			if (typeof groupRemember !== 'undefined') {
-				remember = groupRemember;
+				if (typeof groupRemember !== 'undefined') {
+					remember = groupRemember;
+				}
+			} catch (e) {
+				/* Malformed group context: keep the default and let the current site decide. */
 			}
 		}
 
@@ -168,6 +176,13 @@ define([
 	 * @property eventObj.profile.lastName
 	 */
 	gigyaMage2.Functions.gigyaAjaxUpdateProfile = function (eventObj) {
+		/* onAfterSubmit fires for every screen of the screen set, including intermediate
+		   ones such as OTP or verification. Only a completed profile submission carries
+		   a profile and an authenticated response. */
+		if (!eventObj || !eventObj.profile || !eventObj.response || !eventObj.response.UID) {
+			return;
+		}
+
 		var action = edit_post_url;
 		var data = {
 			form_key: gigyaMage2.Params.form_key,
@@ -226,10 +241,9 @@ define([
 		if (window.gigyaInit) {
 
 			/* If this is the edit profile page, then add the update profile callback function */
-			if (window.gigyaInit[0]) {
-				if (window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
-					window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
-				}
+			if (window.gigyaInit[0] && window.gigyaInit[0].parameters
+				&& window.gigyaInit[0].parameters.containerID === "gigya-edit-profile") {
+				window.gigyaInit[0].parameters.onAfterSubmit = gigyaMage2.Functions.gigyaAjaxUpdateProfile;
 			}
 
 			var length = window.gigyaInit.length,

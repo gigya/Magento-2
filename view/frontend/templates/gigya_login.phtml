@@ -35,7 +35,15 @@ $placeholderElementId = $display == 'embed' ? 'gigya-login-embed' : 'gigya-login
                 include : 'id_token'
             };
             var <?php echo $display; ?>RaasLoginScreen = {"function": "accounts.showScreenSet", "parameters": <?php echo $display; ?>LoginScreenSetParams};
-            window.gigyaInit.push(<?php echo $display; ?>RaasLoginScreen);
+	    <?php if ($display == 'embed'): ?>
+		window.gigyaInit.push(<?php echo $display; ?>RaasLoginScreen);
+	    <?php else: ?>
+                /* Not queued on page load: this block renders on every page (see default.xml), so
+                   auto-initialising it would load the screen set and its plugins - reCAPTCHA
+                   included - site wide, into a popup that is hidden until it is opened.
+                   The popup queues <?php echo $display; ?>RaasLoginScreen itself when it opens:
+                   see js/model/authentication-popup.js and js/view/authentication.js. */
+	    <?php endif; ?>
         </script>
 
         <form id="gigya_login_post" method="POST" action="<?= $block->getPostActionUrl() ?>">
