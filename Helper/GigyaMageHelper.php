@@ -373,10 +373,11 @@ class GigyaMageHelper extends AbstractHelper
         if (file_exists($config_file_path)) {
             $mapping_json = file_get_contents($config_file_path);
             if (false === $mapping_json) {
-                $err     = error_get_last();
+                $err = error_get_last();
+                $errorMessage = $err['message'] ?? 'Unknown error';
                 $this->logger->debug(
                     "setExtraProfileFields: Could not read mapping file at: " . $config_file_path .
-                    ". error message: ". $err['message']
+                    ". error message: " . $errorMessage
                 );
                 return $extra_profile_fields_list;
             }
@@ -410,17 +411,18 @@ class GigyaMageHelper extends AbstractHelper
         // download and create extra fields map array
         $extra_profile_fields_file = file_get_contents($this->extra_profile_fields_config);
         if (false === $extra_profile_fields_file) {
-            $err     = error_get_last();
+            $err = error_get_last();
+            $errorMessage = $err['message'] ?? 'Unknown error';
             $this->logger->debug(
-                "setExtraProfileFields: Could not read $extra_profile_fields_file from: "
+                "setExtraProfileFields: Could not read file from: "
                 . $this->extra_profile_fields_config
-                ." .error message: ". $err['message']
+                . " .error message: " . $errorMessage
             );
             return $extra_profile_fields_list;
         }
 
         $extra_profile_fields_array = json_decode($extra_profile_fields_file);
-        if (!is_array($field_map_array)) {
+        if (!is_array($extra_profile_fields_array)) {
             $this->logger->debug(
                 "setExtraProfileFields: extra profile fields file could not be properly parsed."
             );
@@ -449,11 +451,11 @@ class GigyaMageHelper extends AbstractHelper
             array_push($message, __('Email not supplied. please make sure that your social account provides an email, or contact our support'));
         }
         $profile = $gigya_user_account->getProfile();
-        if (!$profile->getFirstName()) {
+        if ($profile === null || !$profile->getFirstName()) {
             $this->logger->debug(__FUNCTION__ . "Gigya Required field missing - first name. check that your gigya screenset has the correct required fields/complete registration settings.");
             array_push($message, __('Required field missing - first name'));
         }
-        if (!$profile->getLastName()) {
+        if ($profile === null || !$profile->getLastName()) {
             $this->logger->debug(__FUNCTION__ . "Gigya Required field missing - last name. check that your gigya screenset has the correct required fields/complete registration settings.");
             array_push($message, __('Required field missing - last name'));
         }

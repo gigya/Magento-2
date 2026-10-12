@@ -98,6 +98,55 @@ class GigyaSyncHelper extends AbstractHelper
     }
 
     /**
+     * Find the Magento customer bearing this Gigya UID, independently of the email currently set on it.
+     *
+     * The UID is the stable identifier: the email can be changed by the user on the Gigya side at any time,
+     * in which case no Magento account carries it yet and an email based search finds nothing.
+     *
+     * @param string|null $gigyaUid
+     * @param string[] $gigyaEmails Emails currently known to Gigya, used to disambiguate pre-existing duplicates.
+     *
+     * @return CustomerInterface|null
+     *
+     * @throws LocalizedException
+     */
+    protected function getMagentoCustomerByGigyaUid($gigyaUid, array $gigyaEmails = []): CustomerInterface|null
+    {
+        if (empty($gigyaUid)) {
+            return null;
+        }
+
+        $filterGroups = [];
+        $filter = $this->filterBuilder->setConditionType('eq')->setField('gigya_uid')->setValue($gigyaUid)->create();
+        $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
+        if ($this->shareConfig->isWebsiteScope()) {
+            $filter = $this->filterBuilder->setConditionType('eq')->setField('website_id')->setValue($this->storeManager->getStore()->getWebsiteId())->create();
+            $filterGroups[] = $this->filterGroupBuilder->addFilter($filter)->create();
+        }
+        $searchCriteria = $this->searchCriteriaBuilder->create()->setFilterGroups($filterGroups);
+
+        $customers = $this->customerRepository->getList($searchCriteria)->getItems();
+
+        if (empty($customers)) {
+            return null;
+        }
+
+        if (count($customers) > 1) {
+            // Accounts duplicated before this lookup existed. Prefer the one whose email Gigya still knows:
+            // that is the account the customer is currently logging in to, so we do not move them to another
+            // record. Oldest entity wins otherwise. Merging the duplicates is a separate, explicit operation.
+            usort($customers, function ($a, $b) use ($gigyaEmails) {
+                $aKnown = in_array($a->getEmail(), $gigyaEmails, true) ? 0 : 1;
+                $bKnown = in_array($b->getEmail(), $gigyaEmails, true) ? 0 : 1;
+
+                return ($aKnown <=> $bKnown) ?: ($a->getId() <=> $b->getId());
+            });
+        }
+
+        return reset($customers);
+    }
+
+    /**
      * Given a GigyaUser built with the data returned by the Gigya's RaaS service we identify the Magento customer and the eligible email for logging.
      *
      * @param GigyaUser $gigyaAccount The data furnished by the Gigya RaaS service.
@@ -119,12 +168,19 @@ class GigyaSyncHelper extends AbstractHelper
         $magentoLoggingEmail = null;
 
         $gigyaUid = $gigyaAccount->getUID();
-        $gigyaEmails = $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'];
-        $gigyaProfileEmail = $gigyaAccount->getProfile()->getEmail();
-        $gigyaEmails[] = $gigyaProfileEmail;
+        $gigyaEmails = $gigyaLoginIdsEmails = $gigyaAccount->getLoginIDs()['emails'] ?? [];
+        $gigyaProfileEmail = $gigyaAccount->getProfile()?->getEmail();
+        if ($gigyaProfileEmail !== null) {
+            $gigyaEmails[] = $gigyaProfileEmail;
+        }
 
         // Will be fed with the emails that are already used by a Magento customer account, but to a different or null Gigya UID
         $notUsableEmails = [];
+
+        // Identify the customer by Gigya UID first. The email search below can only ever confirm an account whose
+        // email Gigya already knows, so on its own it misses the account whenever the email was changed on Gigya:
+        // the caller then reads the null customer as "new user" and creates a duplicate with the same UID.
+        $magentoLoggingCustomer = $this->getMagentoCustomerByGigyaUid($gigyaUid, $gigyaEmails);
 
         // Search criteria and filter to use for checking the existence of a Magento customer account with a given email
         $filterGroups = [];
@@ -148,7 +204,9 @@ class GigyaSyncHelper extends AbstractHelper
         foreach ($searchResult->getItems() as $customer) {
             $magentoUid = $customer->getCustomAttribute('gigya_uid') ? $customer->getCustomAttribute('gigya_uid')->getValue() : null;
             if ($magentoUid === $gigyaUid) {
-                $magentoLoggingCustomer = $customer;
+                if ($magentoLoggingCustomer === null) {
+                    $magentoLoggingCustomer = $customer;
+                }
             } else {
                 $notUsableEmails[] = $customer->getEmail();
             }
@@ -245,11 +303,12 @@ class GigyaSyncHelper extends AbstractHelper
 
             $magentoCustomer->setGigyaUid($gigyaAccount->getUID());
             $magentoCustomer->setEmail($gigyaAccountLoggingEmail);
-            if (empty($magentoCustomer->getFirstname())) {
-                $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
+            $gigyaProfile = $gigyaAccount->getProfile();
+            if (empty($magentoCustomer->getFirstname()) && $gigyaProfile?->getFirstName()) {
+                $magentoCustomer->setFirstname($gigyaProfile->getFirstName());
             }
-            if (empty($magentoCustomer->getLastname())) {
-                $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+            if (empty($magentoCustomer->getLastname()) && $gigyaProfile?->getLastName()) {
+                $magentoCustomer->setLastname($gigyaProfile->getLastName());
             }
         }
     }
@@ -272,8 +331,11 @@ class GigyaSyncHelper extends AbstractHelper
     {
         $magentoCustomer->setCustomAttribute('gigya_uid', $gigyaAccount->getUID());
         $magentoCustomer->setEmail($gigyaLoggingEmail);
-        $magentoCustomer->setFirstname($gigyaAccount->getProfile()->getFirstName());
-        $magentoCustomer->setLastname($gigyaAccount->getProfile()->getLastName());
+        $gigyaProfile = $gigyaAccount->getProfile();
+        if ($gigyaProfile !== null) {
+            $magentoCustomer->setFirstname($gigyaProfile->getFirstName() ?? '');
+            $magentoCustomer->setLastname($gigyaProfile->getLastName() ?? '');
+        }
     }
 
     /**
