@@ -80,9 +80,10 @@ abstract class CmsUpdater
         }
 
         if ($mappingJson === false) {
-            $err     = error_get_last();
-            $message = "CMSUpdater: Could not retrieve field mapping configuration file. The message was: " . $err['message'];
-            throw new CmsUpdaterException("$message");
+            $err = error_get_last();
+            $errorMessage = $err['message'] ?? 'Unknown error';
+            $message = "CMSUpdater: Could not retrieve field mapping configuration file. The message was: " . $errorMessage;
+            throw new CmsUpdaterException($message);
         }
 
         $conf               = new Conf($mappingJson);
