@@ -39,9 +39,6 @@ use Gigya\GigyaIM\Helper\GigyaSyncHelper as SyncHelper;
 use Gigya\GigyaIM\Helper\Automatic\Login as LoginHelper;
 use Gigya\GigyaIM\Model\Session\Extend;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
-use Zend_Date;
-use Zend_Json_Decoder;
-use Zend_Json_Exception;
 
 class Login extends AbstractLogin
 {
@@ -154,7 +151,7 @@ class Login extends AbstractLogin
      * @throws InputException
      * @throws CookieSizeLimitReachedException
      * @throws FailureToSendException
-     * @throws Zend_Json_Exception
+     * @throws \InvalidArgumentException
      */
     public function execute(): mixed
     {
@@ -170,7 +167,7 @@ class Login extends AbstractLogin
             return $this->getJsonResponse(0);
         } else {
             $loginData = $this->getRequest()->getParam('login_data');
-            $loginDataObject = Zend_Json_Decoder::decode($loginData);
+            $loginDataObject = $this->jsonSerializer->unserialize($loginData);
             $guid = $loginDataObject['UID'] ?? '';
             $request = $this->getRequest();
 
@@ -191,13 +188,13 @@ class Login extends AbstractLogin
                     $this->logger->debug(sprintf(
                         'User UID=%s logged to Gigya: %s',
                         $guid,
-                        Zend_Date::now()->getIso()
+                        date('c')
                     ));
 
                     return $this->getJsonResponse(0, $e->getMessage());
                 }
             } else {
-                $this->logger->debug(sprintf('User UID=%s logged to Gigya: %s', $guid, Zend_Date::now()->getIso()));
+                $this->logger->debug(sprintf('User UID=%s logged to Gigya: %s', $guid, date('c')));
 
                 return $this->getJsonResponse(0, __('Invalid Form Key'));
             }

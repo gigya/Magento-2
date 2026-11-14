@@ -12,9 +12,14 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Mail\AddressFactory;
+use Magento\Framework\Mail\EmailMessageInterfaceFactory;
+use Magento\Framework\Mail\MimeInterface;
+use Magento\Framework\Mail\MimeMessageInterfaceFactory;
+use Magento\Framework\Mail\MimePartInterfaceFactory;
+use Magento\Framework\Mail\TransportInterfaceFactory;
 use Magento\Store\Model\StoreManagerInterface;
-use Zend_Mail;
-use Zend_Mail_Exception;
 
 class GigyaCronHelper extends AbstractHelper
 {
@@ -36,6 +41,21 @@ class GigyaCronHelper extends AbstractHelper
     /** @var GigyaLogger */
     protected GigyaLogger $logger;
 
+    /** @var EmailMessageInterfaceFactory */
+    private EmailMessageInterfaceFactory $emailMessageFactory;
+
+    /** @var MimeMessageInterfaceFactory */
+    private MimeMessageInterfaceFactory $mimeMessageFactory;
+
+    /** @var MimePartInterfaceFactory */
+    private MimePartInterfaceFactory $mimePartFactory;
+
+    /** @var TransportInterfaceFactory */
+    private TransportInterfaceFactory $transportFactory;
+
+    /** @var AddressFactory */
+    private AddressFactory $addressFactory;
+
     /**
      * GigyaCronHelper constructor.
      *
@@ -46,6 +66,11 @@ class GigyaCronHelper extends AbstractHelper
      * @param FilterBuilder           $filterBuilder
      * @param StoreManagerInterface   $storeManager
      * @param GigyaLogger             $logger
+     * @param EmailMessageInterfaceFactory|null $emailMessageFactory
+     * @param MimeMessageInterfaceFactory|null  $mimeMessageFactory
+     * @param MimePartInterfaceFactory|null     $mimePartFactory
+     * @param TransportInterfaceFactory|null    $transportFactory
+     * @param AddressFactory|null               $addressFactory
      */
     public function __construct(
         Context $context,
@@ -54,7 +79,12 @@ class GigyaCronHelper extends AbstractHelper
         FilterGroup $filterGroup,
         FilterBuilder $filterBuilder,
         StoreManagerInterface $storeManager,
-        GigyaLogger $logger
+        GigyaLogger $logger,
+        ?EmailMessageInterfaceFactory $emailMessageFactory = null,
+        ?MimeMessageInterfaceFactory $mimeMessageFactory = null,
+        ?MimePartInterfaceFactory $mimePartFactory = null,
+        ?TransportInterfaceFactory $transportFactory = null,
+        ?AddressFactory $addressFactory = null
     ) {
         parent::__construct($context);
 
@@ -64,6 +94,12 @@ class GigyaCronHelper extends AbstractHelper
         $this->filterBuilder = $filterBuilder;
         $this->storeManager = $storeManager;
         $this->logger = $logger;
+        $objectManager = ObjectManager::getInstance();
+        $this->emailMessageFactory = $emailMessageFactory ?? $objectManager->get(EmailMessageInterfaceFactory::class);
+        $this->mimeMessageFactory = $mimeMessageFactory ?? $objectManager->get(MimeMessageInterfaceFactory::class);
+        $this->mimePartFactory = $mimePartFactory ?? $objectManager->get(MimePartInterfaceFactory::class);
+        $this->transportFactory = $transportFactory ?? $objectManager->get(TransportInterfaceFactory::class);
+        $this->addressFactory = $addressFactory ?? $objectManager->get(AddressFactory::class);
     }
 
     /**
@@ -170,9 +206,6 @@ class GigyaCronHelper extends AbstractHelper
             return false;
         }
 
-        /* Generic email sender init */
-        $email_sender = new Zend_Mail();
-
         /* Set email body */
         $email_body = $custom_email_body;
         if (empty($custom_email_body)) {
@@ -191,18 +224,40 @@ class GigyaCronHelper extends AbstractHelper
             $email_subject = 'Gigya job of type ' . $job_type . ' ' . $job_status . ' on website ' . $this->storeManager->getStore()->getBaseUrl();
             $email_from = $email_to[0];
 
-            $email_sender->setSubject($email_subject);
-            $email_sender->setBodyText($email_body);
-            $email_sender->setFrom($email_from, $job_type . ' cron');
-            $email_sender->addTo($email_to);
-            $email_sender->send();
+            $this->sendTextEmail($email_subject, $email_body, $email_from, $job_type . ' cron', $email_to);
 
             $this->logger->info($job_type . ' cron: mail sent to: ' . implode(', ', $email_to) . ' with status ' . $job_status);
-        } catch (Zend_Mail_Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning($job_type . ' cron: unable to send email: ' . $e->getMessage());
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * @param string $subject
+     * @param string $body
+     * @param string $from
+     * @param string $fromName
+     * @param string[] $to
+     *
+     * @throws \Exception
+     */
+    public function sendTextEmail(string $subject, string $body, string $from, string $fromName, array $to): void
+    {
+        $part = $this->mimePartFactory->create(['content' => $body, 'type' => MimeInterface::TYPE_TEXT]);
+        $message = $this->emailMessageFactory->create([
+            'body' => $this->mimeMessageFactory->create(['parts' => [$part]]),
+            'to' => array_map(
+                fn (string $email) => $this->addressFactory->create(['email' => $email, 'name' => '']),
+                $to
+            ),
+            'from' => [$this->addressFactory->create(['email' => $from, 'name' => $fromName])],
+            'subject' => $subject,
+            'encoding' => $part->getCharset(),
+        ]);
+
+        $this->transportFactory->create(['message' => $message])->sendMessage();
     }
 }

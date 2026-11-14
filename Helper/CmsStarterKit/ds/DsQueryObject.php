@@ -188,7 +188,7 @@ class DsQueryObject
             throw new DsQueryException($op . " is not a valid operator");
         }
 
-        return $this->prefixField(filter_var($field, FILTER_SANITIZE_STRING)) . " " . $op . " "
+        return $this->prefixField(str_replace(['"', "'"], ['&#34;', '&#39;'], strip_tags($field))) . " " . $op . " "
                . $value;
     }
 

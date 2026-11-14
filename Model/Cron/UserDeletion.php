@@ -22,7 +22,6 @@ use Magento\Framework\Registry;
 use Magento\Store\Model\StoreManagerInterface;
 use Zend_Db;
 use Zend_Db_Select;
-use Zend_Mail;
 
 class UserDeletion
 {
@@ -401,9 +400,6 @@ class UserDeletion
                 $job_failed = false;
             }
 
-            /* Generic email sender init */
-            $email_sender = new Zend_Mail();
-
             if ($job_failed) {
                 /* Params for email */
                 $job_status = 'failed';
@@ -429,14 +425,10 @@ class UserDeletion
                 $email_subject = 'Gigya user deletion ' . $job_status . ' on website ' . $this->storeManager->getStore()->getBaseUrl();
                 $email_from = $email_to[0];
 
-                $email_sender->setSubject($email_subject);
-                $email_sender->setBodyText($email_body);
-                $email_sender->setFrom($email_from, 'Gigya user deletion cron');
-                $email_sender->addTo($email_to);
-                $email_sender->send();
+                $this->helper->sendTextEmail($email_subject, $email_body, $email_from, 'Gigya user deletion cron', $email_to);
 
                 $this->logger->info('Gigya deletion cron: mail sent to: ' . implode(', ', $email_to) . ' with status ' . $job_status);
-            } catch (\Zend_Mail_Exception $e) {
+            } catch (\Exception $e) {
                 $this->logger->info('Gigya deletion cron: unable to send email: ' . $e->getMessage());
             }
 

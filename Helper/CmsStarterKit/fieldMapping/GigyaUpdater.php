@@ -224,7 +224,7 @@ abstract class GigyaUpdater
             case "text":
             case "varchar":
                 return (string) $val;
-            case "long";
+            case "long":
             case "integer":
             case "int":
                 return (int) $val;
