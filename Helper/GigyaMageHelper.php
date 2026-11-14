@@ -661,8 +661,8 @@ class GigyaMageHelper extends AbstractHelper
 
     protected function signBaseString($key, $unsignedExpString): string
     {
-        $unsignedExpString = utf8_encode($unsignedExpString);
-        $rawHmac = hash_hmac("sha1", utf8_encode($unsignedExpString), base64_decode($key), true);
+        $unsignedExpString = mb_convert_encoding($unsignedExpString, "UTF-8", "ISO-8859-1");
+        $rawHmac = hash_hmac("sha1", mb_convert_encoding($unsignedExpString, "UTF-8", "ISO-8859-1"), base64_decode($key), true);
         $signature = base64_encode($rawHmac);
         return $signature;
     }
