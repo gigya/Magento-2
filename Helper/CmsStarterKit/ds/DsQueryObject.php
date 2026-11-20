@@ -15,32 +15,32 @@ class DsQueryObject
     /**
      * @var string
      */
-    private string $query;
+    private ?string $query = null;
 
     /**
      * @var array
      */
-    private array $fields;
+    private array $fields = [];
 
     /**
      * @var string
      */
-    private string $table;
+    private ?string $table = null;
 
     /**
      * @var array
      */
-    private array $ors;
+    private array $ors = [];
 
     /**
      * @var array
      */
-    private array $ands;
+    private array $ands = [];
 
     /**
      * @var string
      */
-    private string $oid;
+    private ?string $oid = null;
 
     /**
      * @var array
@@ -347,7 +347,7 @@ class DsQueryObject
     /**
      * @return string mixed
      */
-    public function getOid(): string
+    public function getOid(): ?string
     {
         return $this->oid;
     }
