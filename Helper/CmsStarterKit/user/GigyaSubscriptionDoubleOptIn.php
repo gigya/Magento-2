@@ -9,22 +9,22 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @var string
      */
-    private string $emailSentTime;
+    private ?string $emailSentTime = null;
 
     /**
      * @var string
      */
-    private string $confirmTime;
+    private ?string $confirmTime = null;
 
     /**
      * @var string
      */
-    private string $status;
+    private ?string $status = null;
 
     /**
      * @return string
      */
-    public function getEmailSentTime(): string
+    public function getEmailSentTime(): ?string
     {
         return $this->emailSentTime;
     }
@@ -40,7 +40,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getConfirmTime(): string
+    public function getConfirmTime(): ?string
     {
         return $this->confirmTime;
     }
@@ -56,7 +56,7 @@ class GigyaSubscriptionDoubleOptIn extends GigyaJsonObject
     /**
      * @return string
      */
-    public function getStatus(): string
+    public function getStatus(): ?string
     {
         return $this->status;
     }

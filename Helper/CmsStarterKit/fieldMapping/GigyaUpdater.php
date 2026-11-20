@@ -12,7 +12,7 @@ abstract class GigyaUpdater
     /**
      * @var array
      */
-    private array $cmsMappings;
+    private ?array $cmsMappings = null;
 
     /**
      * @var array
@@ -37,7 +37,7 @@ abstract class GigyaUpdater
     /**
      * @var array
      */
-    private array $gigyaArray;
+    private ?array $gigyaArray = null;
 
     /**
      * @var GigyaApiHelper

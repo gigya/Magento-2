@@ -10,22 +10,22 @@ class ConfItem
     /**
      * @var string
      */
-    protected string $cmsName;
+    protected ?string $cmsName = null;
 
     /**
      * @var string
      */
-    protected string $cmsType;
+    protected ?string $cmsType = null;
 
     /**
      * @var string
      */
-    protected string $gigyaName;
+    protected ?string $gigyaName = null;
 
     /**
      * @var string
      */
-    protected string $gigyaType;
+    protected ?string $gigyaType = null;
 
     /**
      * @var string
@@ -35,7 +35,7 @@ class ConfItem
     /**
      * @var array
      */
-    protected array $custom;
+    protected ?array $custom = null;
 
     /**
      * ConfItem constructor.
@@ -52,7 +52,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getCmsName(): string
+    public function getCmsName(): ?string
     {
         return $this->cmsName;
     }
@@ -68,7 +68,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getCmsType(): string
+    public function getCmsType(): ?string
     {
         return $this->cmsType;
     }
@@ -84,7 +84,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getGigyaName(): string
+    public function getGigyaName(): ?string
     {
         return $this->gigyaName;
     }
@@ -100,7 +100,7 @@ class ConfItem
     /**
      * @return string
      */
-    public function getGigyaType(): string
+    public function getGigyaType(): ?string
     {
         return $this->gigyaType;
     }
@@ -116,7 +116,7 @@ class ConfItem
     /**
      * @return array
      */
-    public function getCustom(): array
+    public function getCustom(): ?array
     {
         return $this->custom;
     }
